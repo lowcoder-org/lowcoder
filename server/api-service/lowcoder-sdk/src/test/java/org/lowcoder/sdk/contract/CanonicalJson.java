@@ -1,8 +1,8 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.json.JsonFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,7 +29,7 @@ import java.util.SortedSet;
  * reported), the order of different object members, and the escape form of strings and keys.
  *
  * <p>The documents are read with Jackson's streaming {@link JsonParser}, never with a mapper: number tokens keep
- * their lexeme ({@link JsonParser#getText()}) and every object keeps all its members, duplicates included, as a list
+ * their lexeme ({@link JsonParser#getString()}) and every object keeps all its members, duplicates included, as a list
  * of (key, value) pairs. Members are grouped by key; groups are compared regardless of key order, and values inside
  * a group in order.
  *
@@ -100,7 +100,7 @@ public final class CanonicalJson {
         switch (token) {
             case START_OBJECT -> {
                 List<Member> members = new ArrayList<>();
-                while (parser.nextToken() == JsonToken.FIELD_NAME) {
+                while (parser.nextToken() == JsonToken.PROPERTY_NAME) {
                     String key = parser.currentName();
                     String rawKey = rawText(parser, source);
                     parser.nextToken();
@@ -116,11 +116,11 @@ public final class CanonicalJson {
                 return new ArrayValue(elements);
             }
             case VALUE_STRING -> {
-                String value = parser.getText();
+                String value = parser.getString();
                 return new ScalarValue(ScalarKind.STRING, value, rawText(parser, source));
             }
             case VALUE_NUMBER_INT, VALUE_NUMBER_FLOAT -> {
-                String lexeme = parser.getText();
+                String lexeme = parser.getString();
                 return new ScalarValue(ScalarKind.NUMBER, lexeme, lexeme);
             }
             case VALUE_TRUE -> {

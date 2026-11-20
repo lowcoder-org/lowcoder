@@ -37,8 +37,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.adapter.HttpWebHandlerAdapter;
 import org.springframework.web.server.handler.ExceptionHandlingWebHandler;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.MongoSocketReadTimeoutException;
 import com.mongodb.MongoTimeoutException;
@@ -61,7 +62,7 @@ import reactor.core.publisher.Mono;
 class CustomErrorWebExceptionHandlerTest {
 
     private static final Duration WAIT = Duration.ofSeconds(10);
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
     private static final String PATH = "/api/orders";
     private static final String MALFORMED_ACCEPT_LANGUAGE = "not !! a language";
     private static final String GERMAN = "de";
@@ -110,7 +111,7 @@ class CustomErrorWebExceptionHandlerTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(body.get("code").asInt()).isEqualTo(404);
-        assertThat(body.get("message").asText()).isEqualTo("Not Found");
+        assertThat(body.get("message").asString()).isEqualTo("Not Found");
     }
 
     /** Catches a business error losing its own status, code, localised message or headers. */
@@ -124,7 +125,7 @@ class CustomErrorWebExceptionHandlerTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
         assertThat(body.get("code").asInt()).isEqualTo(BizError.REQUEST_THROTTLED.getBizErrorCode());
-        assertThat(body.get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
+        assertThat(body.get("message").asString()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
         assertThat(exchange.getResponse().getHeaders().getFirst("X-ORG-ID")).isEqualTo("org-1");
         verify(apiPerfHelper).perf(any(BizError.class), any());
     }
@@ -138,7 +139,7 @@ class CustomErrorWebExceptionHandlerTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(body.get("code").asInt()).isEqualTo(BizError.QUERY_EXECUTION_ERROR.getBizErrorCode());
-        assertThat(body.get("message").asText()).isEqualTo(QUERY_EXECUTION_ERROR_ENGLISH);
+        assertThat(body.get("message").asString()).isEqualTo(QUERY_EXECUTION_ERROR_ENGLISH);
     }
 
     static Stream<Arguments> infrastructureErrors() {
@@ -160,7 +161,7 @@ class CustomErrorWebExceptionHandlerTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.valueOf(expected.getHttpErrorCode()));
         assertThat(body.get("code").asInt()).isEqualTo(expected.getBizErrorCode());
-        assertThat(body.get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, messageKey));
+        assertThat(body.get("message").asString()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, messageKey));
         verify(apiPerfHelper).perf(expected, exchange.getRequest().getPath());
     }
 
@@ -181,13 +182,13 @@ class CustomErrorWebExceptionHandlerTest {
         assertThat(malformed.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
         JsonNode body = JSON.readTree(malformedBody);
         assertThat(body.get("code").asInt()).isEqualTo(BizError.REQUEST_THROTTLED.getBizErrorCode());
-        assertThat(body.get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, "REQUEST_THROTTLED"));
+        assertThat(body.get("message").asString()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, "REQUEST_THROTTLED"));
 
         MockServerHttpResponse valid = new MockServerHttpResponse(new DefaultDataBufferFactory());
         chain.handle(MockServerHttpRequest.get(PATH).header(HttpHeaders.ACCEPT_LANGUAGE, GERMAN).build(), valid).block(WAIT);
         String validBody = valid.getBodyAsString().defaultIfEmpty("").block(WAIT);
         System.out.println("[CustomErrorWebExceptionHandlerTest] valid Accept-Language -> " + valid.getStatusCode() + " body '" + validBody + "'");
         assertThat(valid.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
-        assertThat(JSON.readTree(validBody).get("message").asText()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
+        assertThat(JSON.readTree(validBody).get("message").asString()).isEqualTo(LocaleUtils.getMessage(Locale.GERMAN, "REQUEST_THROTTLED"));
     }
 }

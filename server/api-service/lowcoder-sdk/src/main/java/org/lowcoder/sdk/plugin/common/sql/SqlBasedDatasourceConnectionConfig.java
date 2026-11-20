@@ -1,5 +1,6 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -41,6 +42,7 @@ public abstract class SqlBasedDatasourceConnectionConfig implements DatasourceCo
 
     private final Map<String, Object> extParams;
 
+    @JsonCreator
     protected SqlBasedDatasourceConnectionConfig(String database, String username, String password, String host, Long port,
             boolean usingSsl, String serverTimezone, boolean isReadonly,
             boolean enableTurnOffPreparedStatement,

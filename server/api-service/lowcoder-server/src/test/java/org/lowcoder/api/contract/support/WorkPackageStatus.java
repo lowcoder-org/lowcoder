@@ -1,9 +1,10 @@
 package org.lowcoder.api.contract.support;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.lowcoder.sdk.util.JsonUtils;
-
 import java.io.IOException;
+import tools.jackson.databind.JsonNode;
+import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
+
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,8 +31,8 @@ public final class WorkPackageStatus {
         JsonNode status;
         try {
             status = JsonUtils.getObjectMapper().readTree(Files.readString(root.resolve(FILE), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new UncheckedIOException("cannot read " + FILE, e);
+        } catch (IOException | JacksonException e) {
+            throw new IllegalStateException("cannot read " + FILE, e);
         }
         JsonNode done = status.get(DONE_FIELD);
         if (done == null || !done.isArray()) {
@@ -39,10 +40,10 @@ public final class WorkPackageStatus {
         }
         Set<String> names = new TreeSet<>();
         done.forEach(node -> {
-            if (!node.isTextual() || !WP_NAME.matcher(node.asText()).matches()) {
+            if (!node.isString() || !WP_NAME.matcher(node.asString()).matches()) {
                 throw new IllegalStateException(FILE + ": not a work package name: " + node);
             }
-            names.add(node.asText());
+            names.add(node.asString());
         });
         return names;
     }

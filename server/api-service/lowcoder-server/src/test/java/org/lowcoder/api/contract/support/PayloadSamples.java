@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.support;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
+import tools.jackson.databind.JavaType;
 import org.lowcoder.api.application.ApplicationEndpoints.ApplicationAsAgencyProfileRequest;
 import org.lowcoder.api.application.ApplicationEndpoints.ApplicationPublicToAllRequest;
 import org.lowcoder.api.application.ApplicationEndpoints.ApplicationPublicToMarketplaceRequest;
@@ -119,6 +118,7 @@ import org.lowcoder.sdk.models.DatasourceStructure.Column;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.Param;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -179,7 +179,7 @@ public final class PayloadSamples {
     public static Object representative(JavaType type) {
         try {
             return JsonUtils.getObjectMapper().readValue(representativeInputText(), type);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("the representative input does not bind to " + type, e);
         }
     }

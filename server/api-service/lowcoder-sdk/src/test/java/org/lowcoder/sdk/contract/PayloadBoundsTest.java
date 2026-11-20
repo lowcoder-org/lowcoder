@@ -1,9 +1,9 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
-import com.fasterxml.jackson.core.exc.StreamConstraintsException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.util.JsonUtils;
 
@@ -21,16 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * The read limits of the production mapper (docs/API_PAYLOAD_TEST_PLAN.md §4.8, R11, E3), on a DSL
- * {@code Map<String,Object>}: {@code JsonUtils} sets no {@code StreamReadConstraints}, so the Jackson defaults apply and
- * can change with an upgrade. Each limit is read at its value and one past it: nesting depth 1000, a number of 1000
- * digits, a string of 20,000,000 characters. The configured values are asserted too, so a changed default is named
- * even where the behaviour still happens to pass.
+ * {@code Map<String,Object>}: {@code JsonUtils} sets the nesting depth and the string length of its
+ * {@code StreamReadConstraints} to the Jackson 2 values, because the Jackson 3 defaults differ (nesting depth 500, and a
+ * larger string length); the number length is left at the default, which is the same. Each limit is read at its value
+ * and one past it: nesting depth 1000, a number of 1000 digits, a string of 20,000,000 characters. The configured
+ * values are asserted too, so a changed default or a dropped setting is named even where the behaviour still happens
+ * to pass.
  *
  * <p>Inputs are generated as streams ({@link #repeated}), never held as text; the largest test holds the parsed
  * 20,000,000-character string and Jackson's buffer for it. These tests run in every build (owner decision C10-A6).
- * Limits: the codec's 20 MB {@code maxInMemorySize} is the server module's {@code PayloadBoundsTest}; the other
- * Jackson 2.15 has only these three read constraints; the document- and name-length limits of later versions are not
- * seen here until an upgrade adds them to {@code StreamReadConstraints}.
+ * Limits: the codec's 20 MB {@code maxInMemorySize} is the server module's {@code PayloadBoundsTest}; the
+ * document-, name- and token-count limits of the Jackson defaults are not asserted here.
  */
 public class PayloadBoundsTest {
 
@@ -46,8 +47,8 @@ public class PayloadBoundsTest {
     private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
 
     @Test
-    public void theMapperUsesTheJacksonDefaultLimits() {
-        StreamReadConstraints constraints = MAPPER.getFactory().streamReadConstraints();
+    public void theMapperHasTheConfiguredLimits() {
+        StreamReadConstraints constraints = MAPPER.tokenStreamFactory().streamReadConstraints();
         System.out.println("[PayloadBoundsTest] read constraints: nesting " + constraints.getMaxNestingDepth() + ", number "
                 + constraints.getMaxNumberLength() + ", string " + constraints.getMaxStringLength());
         assertEquals(MAX_NESTING_DEPTH, constraints.getMaxNestingDepth());

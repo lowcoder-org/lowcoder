@@ -1,19 +1,19 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
 import org.lowcoder.sdk.util.JsonUtils;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.http.codec.DecoderHttpMessageReader;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 import java.lang.reflect.Method;
 
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Spring's default client codecs as the application builds them (docs/API_PAYLOAD_TEST_PLAN.md §1.1, §3.2, §5.4).
  *
- * <p>The application builds its client codecs in six places, and each sets {@link Jackson2ClientCodecs#apply} and then
+ * <p>The application builds its client codecs in six places, and each sets {@link JacksonClientCodecs#apply} and then
  * {@code maxInMemorySize} on the default codecs: {@code WebClientBuildHelper.java:131-136} (20 MB by default),
  * {@code JsLibraryController.java:63-69} (-1), {@code DatasourcePluginClient.java:43-49} (-1),
  * {@code GraphQLExecutor.java:90-96} (10 MB), {@code RestApiExecutor.java:104-110} (-1) and
@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
  * declared value is overwritten. {@link #effectiveThroughWebClientBuildHelper} returns what a request gets.
  *
  * <p>{@link #DEFAULT_CODEC_PROFILE} pins the configuration of the mapper inside those codecs as observed in E8
- * (docs/tools/plan-evidence.out). Spring builds that mapper with {@code Jackson2ObjectMapperBuilder}, which adds the
- * well-known modules found on the classpath, so the profile depends on the classpath it is built on.
+ * (docs/tools/plan-evidence.out): the Jackson 2 settings that {@link JacksonClientCodecs} keeps. Jackson 3 has the
+ * java time and parameter name support built in, so the profile lists no module.
  */
 public final class ClientCodecs {
 
@@ -47,9 +47,7 @@ public final class ClientCodecs {
     private static final String INIT_EXCHANGE_STRATEGIES = "initExchangeStrategies";
 
     /** E8: the codec mapper writes dates as timestamps, reads them as nanoseconds, ignores unknown properties. */
-    public static final MapperProfile DEFAULT_CODEC_PROFILE = new MapperProfile(true, true, false,
-            List.of("com.fasterxml.jackson.datatype.jdk8.Jdk8Module", "jackson-module-parameter-names",
-                    "jackson-datatype-jsr310"));
+    public static final MapperProfile DEFAULT_CODEC_PROFILE = new MapperProfile(true, true, false, List.of());
 
     private ClientCodecs() {
     }
@@ -60,10 +58,10 @@ public final class ClientCodecs {
     }
 
     public static MapperProfile profile(ObjectMapper mapper) {
-        return new MapperProfile(mapper.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS),
-                mapper.isEnabled(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS),
+        return new MapperProfile(mapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS),
+                mapper.isEnabled(DateTimeFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS),
                 mapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES),
-                mapper.getRegisteredModuleIds().stream().map(String::valueOf).collect(Collectors.toList()));
+                mapper.registeredModules().stream().map(module -> String.valueOf(module.getRegistrationId())).collect(Collectors.toList()));
     }
 
     /**
@@ -91,21 +89,21 @@ public final class ClientCodecs {
         }
     }
 
-    /** The exchange strategies of the application's clients: {@link Jackson2ClientCodecs#apply}, then {@code maxInMemorySize(n)}. */
+    /** The exchange strategies of the application's clients: {@link JacksonClientCodecs#apply}, then {@code maxInMemorySize(n)}. */
     public static ExchangeStrategies strategies(int maxInMemorySize) {
         return ExchangeStrategies.builder()
                 .codecs(configurer -> {
-                    Jackson2ClientCodecs.apply(configurer);
+                    JacksonClientCodecs.apply(configurer);
                     configurer.defaultCodecs().maxInMemorySize(maxInMemorySize);
                 })
                 .build();
     }
 
-    public static Jackson2JsonEncoder encoder(ExchangeStrategies strategies) {
+    public static JacksonJsonEncoder encoder(ExchangeStrategies strategies) {
         return encoder(strategies.messageWriters());
     }
 
-    public static Jackson2JsonDecoder decoder(ExchangeStrategies strategies) {
+    public static JacksonJsonDecoder decoder(ExchangeStrategies strategies) {
         return decoder(strategies.messageReaders());
     }
 
@@ -116,21 +114,21 @@ public final class ClientCodecs {
      * builds an equal configuration.
      */
     public static void assertDefaultClientCodecs(String construction, ExchangeStrategies real, int expectedMaxInMemorySize) {
-        Jackson2JsonEncoder encoder = encoder(real);
-        Jackson2JsonDecoder decoder = decoder(real);
-        MapperProfile encoderProfile = profile(encoder.getObjectMapper());
-        MapperProfile decoderProfile = profile(decoder.getObjectMapper());
+        JacksonJsonEncoder encoder = encoder(real);
+        JacksonJsonDecoder decoder = decoder(real);
+        MapperProfile encoderProfile = profile(encoder.getMapper());
+        MapperProfile decoderProfile = profile(decoder.getMapper());
         System.out.println("[client-codec-guard] " + construction + ": encoder " + encoderProfile + ", decoder "
                 + decoderProfile + ", maxInMemorySize " + decoder.getMaxInMemorySize());
         ObjectMapper production = JsonUtils.getObjectMapper();
-        assertTrue(construction + ": encoder mapper must not be the production mapper", encoder.getObjectMapper() != production);
-        assertTrue(construction + ": decoder mapper must not be the production mapper", decoder.getObjectMapper() != production);
-        assertTrue(construction + ": encoder and decoder must have separate mappers", encoder.getObjectMapper() != decoder.getObjectMapper());
+        assertTrue(construction + ": encoder mapper must not be the production mapper", encoder.getMapper() != production);
+        assertTrue(construction + ": decoder mapper must not be the production mapper", decoder.getMapper() != production);
+        assertTrue(construction + ": encoder and decoder must have separate mappers", encoder.getMapper() != decoder.getMapper());
         assertEquals(construction + ": decoder maxInMemorySize", expectedMaxInMemorySize, decoder.getMaxInMemorySize());
         assertEquals(construction + ": encoder mapper", DEFAULT_CODEC_PROFILE, encoderProfile);
         assertEquals(construction + ": decoder mapper", DEFAULT_CODEC_PROFILE, decoderProfile);
         ExchangeStrategies rebuilt = strategies(expectedMaxInMemorySize);
-        assertEquals(construction + ": ClientCodecs rebuild", encoderProfile, profile(encoder(rebuilt).getObjectMapper()));
+        assertEquals(construction + ": ClientCodecs rebuild", encoderProfile, profile(encoder(rebuilt).getMapper()));
         assertEquals(construction + ": ClientCodecs rebuild maxInMemorySize", expectedMaxInMemorySize,
                 decoder(rebuilt).getMaxInMemorySize());
     }
@@ -148,22 +146,22 @@ public final class ClientCodecs {
     }
 
     /** The Jackson JSON encoder among {@code writers}; fails if there is none. */
-    public static Jackson2JsonEncoder encoder(List<HttpMessageWriter<?>> writers) {
+    public static JacksonJsonEncoder encoder(List<HttpMessageWriter<?>> writers) {
         return writers.stream()
                 .filter(writer -> writer instanceof EncoderHttpMessageWriter<?> encoderWriter
-                        && encoderWriter.getEncoder() instanceof Jackson2JsonEncoder)
-                .map(writer -> (Jackson2JsonEncoder) ((EncoderHttpMessageWriter<?>) writer).getEncoder())
+                        && encoderWriter.getEncoder() instanceof JacksonJsonEncoder)
+                .map(writer -> (JacksonJsonEncoder) ((EncoderHttpMessageWriter<?>) writer).getEncoder())
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("no Jackson2JsonEncoder among " + writers));
+                .orElseThrow(() -> new AssertionError("no JacksonJsonEncoder among " + writers));
     }
 
     /** The Jackson JSON decoder among {@code readers}; fails if there is none. */
-    public static Jackson2JsonDecoder decoder(List<HttpMessageReader<?>> readers) {
+    public static JacksonJsonDecoder decoder(List<HttpMessageReader<?>> readers) {
         return readers.stream()
                 .filter(reader -> reader instanceof DecoderHttpMessageReader<?> decoderReader
-                        && decoderReader.getDecoder() instanceof Jackson2JsonDecoder)
-                .map(reader -> (Jackson2JsonDecoder) ((DecoderHttpMessageReader<?>) reader).getDecoder())
+                        && decoderReader.getDecoder() instanceof JacksonJsonDecoder)
+                .map(reader -> (JacksonJsonDecoder) ((DecoderHttpMessageReader<?>) reader).getDecoder())
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("no Jackson2JsonDecoder among " + readers));
+                .orElseThrow(() -> new AssertionError("no JacksonJsonDecoder among " + readers));
     }
 }

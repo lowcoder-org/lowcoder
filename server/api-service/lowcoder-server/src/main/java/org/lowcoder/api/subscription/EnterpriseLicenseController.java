@@ -1,7 +1,7 @@
 package org.lowcoder.api.subscription;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService;
 import org.lowcoder.domain.enterprise.EnterpriseLicenseCapabilityService.PurchaseState;
 import org.lowcoder.api.home.SessionUserService;
@@ -51,14 +51,14 @@ public class EnterpriseLicenseController {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED)))
                 .flatMap(member -> {
                     if (member.isInvalid() || !(member.isAdmin() || member.isSuperAdmin()) ||
-                            !member.getOrgId().equals(body.path("orgId").asText())) {
+                            !member.getOrgId().equals(body.path("orgId").asString())) {
                         return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN));
                     }
                     // The configured UI URL remains authoritative even behind an internal proxy
                     // or when a caller forges returnOrigin. Spring resolves forwarded request hosts.
                     if (action.equals("checkout") && (isPublicCloudUrl(publicUrl) ||
                             isPublicCloudUrl(request.getURI().toString()) ||
-                            isPublicCloudUrl(body.path("returnOrigin").asText()))) {
+                            isPublicCloudUrl(body.path("returnOrigin").asString()))) {
                         return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN,
                                 "Enterprise Edition is self-hosted. Purchase a license from your own Lowcoder installation."));
                     }
@@ -78,7 +78,7 @@ public class EnterpriseLicenseController {
                     if (action.equals("checkout")) {
                         JsonNode deployments = body.path("deploymentIds");
                         if (!deployments.isArray() || deployments.size() < 1 || deployments.size() > 3 ||
-                                !hostId.equals(deployments.path(0).asText())) {
+                                !hostId.equals(deployments.path(0).asString())) {
                             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First instance must be this deployment");
                         }
                         for (String field : List.of("requestId", "billingInterval", "contactData", "deploymentIds")) {
@@ -86,10 +86,10 @@ public class EnterpriseLicenseController {
                             payload.put(field, body.get(field));
                         }
                     }
-                    if (action.equals("download")) payload.put("licenseId", body.path("licenseId").asText());
-                    if (action.equals("portal")) payload.put("requestId", body.path("requestId").asText());
+                    if (action.equals("download")) payload.put("licenseId", body.path("licenseId").asString());
+                    if (action.equals("portal")) payload.put("requestId", body.path("requestId").asString());
                     if (action.equals("checkout") || action.equals("portal")) {
-                        String origin = publicUrl.isBlank() ? body.path("returnOrigin").asText() : publicUrl;
+                        String origin = publicUrl.isBlank() ? body.path("returnOrigin").asString() : publicUrl;
                         URI base;
                         try { base = URI.create(origin); }
                         catch (IllegalArgumentException error) {
@@ -157,7 +157,7 @@ public class EnterpriseLicenseController {
                 return result.path("orders").isArray() && result.path("licenses").isArray();
             }
             if (action.equals("checkout")) {
-                return !result.path("checkoutUrl").asText().isBlank() &&
+                return !result.path("checkoutUrl").asString().isBlank() &&
                         result.path("requestId").equals(payload.get("requestId"));
             }
             return true;

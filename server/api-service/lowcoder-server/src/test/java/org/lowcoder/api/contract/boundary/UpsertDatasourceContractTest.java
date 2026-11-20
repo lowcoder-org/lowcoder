@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.boundary;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.DatasourceSamples;
@@ -71,7 +70,7 @@ class UpsertDatasourceContractTest {
     @Test
     @BoundarySites({"lowcoder-server/src/main/java/org/lowcoder/api/datasource/UpsertDatasourceRequestMapper.java#UpsertDatasourceRequestMapper.resolve#toJson#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/datasource/UpsertDatasourceRequestMapper.java#UpsertDatasourceRequestMapper.resolve#fromJson#1"})
-    void jsPluginConfigKeepsTheRequestValues() throws JsonProcessingException {
+    void jsPluginConfigKeepsTheRequestValues() {
         UpsertDatasourceRequest sample = (UpsertDatasourceRequest) PayloadSamples.of(UpsertDatasourceRequest.class).value();
         ContractTestClient.Builder builder = ContractTestClient.builder();
         DatasourceApiService datasourceApiService = builder.mock(DatasourceApiService.class);
@@ -99,7 +98,7 @@ class UpsertDatasourceContractTest {
     }
 
     /** The D1 request with the representative input as {@code datasourceConfig}, its text unchanged. */
-    private static String request() throws JsonProcessingException {
+    private static String request() {
         ObjectNode request = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.d1(UpsertDatasourceRequest.class));
         request.put(DATASOURCE_CONFIG, CONFIG_PLACEHOLDER);
         return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(request)

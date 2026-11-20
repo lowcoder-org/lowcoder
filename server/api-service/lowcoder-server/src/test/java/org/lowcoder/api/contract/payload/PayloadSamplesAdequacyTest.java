@@ -1,12 +1,13 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.json.JsonMapper;
+import org.lowcoder.sdk.contract.JacksonIntrospection;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.BeanPropertyDefinition;
+import tools.jackson.databind.jsontype.NamedType;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +26,7 @@ import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.databind.node.StringNode;
 
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -80,7 +82,7 @@ class PayloadSamplesAdequacyTest {
     /** Rule-3 messages quote the first difference up to this length; the representative input is long. */
     static final int MAX_DETAIL = 160;
 
-    private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtils.getObjectMapper();
     private static Closure closure;
 
     /** A test-only type with one property of each rule-3 kind. */
@@ -124,7 +126,7 @@ class PayloadSamplesAdequacyTest {
         found.addAll(violations(sample(AuthConfigRequest.class, authConfig)));
         DynamicProbe notRepresentative = new DynamicProbe();
         notRepresentative.setValue(Map.of("key", 1, "other", 2));
-        notRepresentative.setNode(TextNode.valueOf("not the representative input"));
+        notRepresentative.setNode(StringNode.valueOf("not the representative input"));
         found.addAll(violations(sample(DynamicProbe.class, notRepresentative)));
         found.forEach(violation -> System.out.println("[PayloadSamplesAdequacyTest] broken sample: " + violation));
         assertThat(found).anySatisfy(v -> assertThat(v).contains("Folder.name: rule 1"))
@@ -329,9 +331,9 @@ class PayloadSamplesAdequacyTest {
     }
 
     private static Set<String> concreteSubtypes(JavaType declared) {
-        AnnotatedClass annotated = MAPPER.getSerializationConfig().introspectClassAnnotations(declared).getClassInfo();
+        AnnotatedClass annotated = JacksonIntrospection.serializationClass(MAPPER, declared);
         Set<String> classes = new TreeSet<>();
-        for (NamedType subtype : MAPPER.getSubtypeResolver().collectAndResolveSubtypesByClass(MAPPER.getSerializationConfig(), annotated)) {
+        for (NamedType subtype : JacksonIntrospection.subtypesByClass(MAPPER, annotated)) {
             Class<?> type = subtype.getType();
             if (!type.isInterface() && !Modifier.isAbstract(type.getModifiers())) {
                 classes.add(type.getSimpleName());

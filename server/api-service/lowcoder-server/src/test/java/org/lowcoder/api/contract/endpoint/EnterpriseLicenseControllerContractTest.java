@@ -1,10 +1,8 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
@@ -38,6 +36,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.node.StringNode;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -289,7 +289,7 @@ class EnterpriseLicenseControllerContractTest {
      * confirmed purchase: the relay receives the lookup, the client its answer, and the empty answer is recorded.
      */
     @Test
-    void request() throws JsonProcessingException {
+    void request() {
         register(RELAY_URL, PUBLIC_URL);
         long before = System.currentTimeMillis();
         EntityExchangeResult<byte[]> result = exchange(STATUS, write(orgBody(ORG_ID).put(RETURN_ORIGIN_MEMBER, PUBLIC_URL)));
@@ -303,27 +303,27 @@ class EnterpriseLicenseControllerContractTest {
     }
 
     @Test
-    void requestWithoutASession() throws JsonProcessingException {
+    void requestWithoutASession() {
         Mockito.when(sessions.getVisitorOrgMember()).thenReturn(Mono.empty());
         register(RELAY_URL, PUBLIC_URL);
         assertRefusedBeforeTheRelay(exchange(SYNC, write(orgBody(ORG_ID))), HttpStatus.UNAUTHORIZED, DEFAULT_MESSAGE);
     }
 
     @Test
-    void requestByANonAdmin() throws JsonProcessingException {
+    void requestByANonAdmin() {
         Mockito.when(sessions.getVisitorOrgMember()).thenReturn(Mono.just(member(ORG_ID, MemberRole.MEMBER)));
         register(RELAY_URL, PUBLIC_URL);
         assertRefusedBeforeTheRelay(exchange(SYNC, write(orgBody(ORG_ID))), HttpStatus.FORBIDDEN, DEFAULT_MESSAGE);
     }
 
     @Test
-    void checkoutOnThePublicCloud() throws JsonProcessingException {
+    void checkoutOnThePublicCloud() {
         register(RELAY_URL, PUBLIC_CLOUD_URL);
         assertRefusedBeforeTheRelay(exchange(CHECKOUT, write(checkoutBody())), HttpStatus.FORBIDDEN, PUBLIC_CLOUD_MESSAGE);
     }
 
     @Test
-    void requestNotConfigured() throws JsonProcessingException {
+    void requestNotConfigured() {
         Mockito.when(config.deployment().ofString(DEPLOYMENT_ID_KEY, BLANK).get()).thenReturn(BLANK);
         register(RELAY_URL, PUBLIC_URL);
         assertRefusedBeforeTheRelay(exchange(SYNC, write(orgBody(ORG_ID))), HttpStatus.SERVICE_UNAVAILABLE, NOT_CONFIGURED_MESSAGE);
@@ -331,7 +331,7 @@ class EnterpriseLicenseControllerContractTest {
 
     /** An admin of another workspace than the body's {@code orgId}: the third part of the condition at {@code :53-54}. */
     @Test
-    void requestForAnotherWorkspace() throws JsonProcessingException {
+    void requestForAnotherWorkspace() {
         register(RELAY_URL, PUBLIC_URL);
         assertRefusedBeforeTheRelay(exchange(SYNC, write(orgBody(OTHER_ORG_ID))), HttpStatus.FORBIDDEN, DEFAULT_MESSAGE);
     }
@@ -341,7 +341,7 @@ class EnterpriseLicenseControllerContractTest {
      * only {@code isInvalid} ({@code OrgMember.java:28-29}), the first part of the condition at {@code :53}, refuses.
      */
     @Test
-    void requestByAnInvalidMember() throws JsonProcessingException {
+    void requestByAnInvalidMember() {
         Mockito.when(sessions.getVisitorOrgMember()).thenReturn(Mono.just(member(BLANK, MemberRole.ADMIN)));
         register(RELAY_URL, PUBLIC_URL);
         assertRefusedBeforeTheRelay(exchange(SYNC, write(orgBody(BLANK))), HttpStatus.FORBIDDEN, DEFAULT_MESSAGE);
@@ -375,7 +375,7 @@ class EnterpriseLicenseControllerContractTest {
 
     /** The relay answers 503: {@code retrieve()} fails, and {@code relay} maps the error to its own 503 ({@code :166-168}). */
     @Test
-    void requestRelayFailed() throws JsonProcessingException {
+    void requestRelayFailed() {
         relayAnswers(aResponse().withStatus(RELAY_ERROR));
         register(RELAY_URL, PUBLIC_URL);
         EntityExchangeResult<byte[]> result = exchange(SYNC, write(orgBody(ORG_ID)));
@@ -386,7 +386,7 @@ class EnterpriseLicenseControllerContractTest {
 
     /** No public URL configured and a {@code returnOrigin} that is neither {@code https} nor loopback: the 503 of {@code :105}. */
     @Test
-    void checkoutWithAnUnsafeReturnOrigin() throws JsonProcessingException {
+    void checkoutWithAnUnsafeReturnOrigin() {
         register(RELAY_URL, BLANK);
         assertRefusedBeforeTheRelay(exchange(CHECKOUT, write(checkoutBody().put(RETURN_ORIGIN_MEMBER, UNSAFE_RETURN_ORIGIN))),
                 HttpStatus.SERVICE_UNAVAILABLE, UNSAFE_RETURN_ORIGIN_MESSAGE);
@@ -394,7 +394,7 @@ class EnterpriseLicenseControllerContractTest {
 
     /** No public URL configured and a {@code returnOrigin} that {@code URI.create} rejects: the 400 of {@code :94-97}. */
     @Test
-    void checkoutWithAMalformedReturnOrigin() throws JsonProcessingException {
+    void checkoutWithAMalformedReturnOrigin() {
         register(RELAY_URL, BLANK);
         assertRefusedBeforeTheRelay(exchange(CHECKOUT, write(checkoutBody().put(RETURN_ORIGIN_MEMBER, MALFORMED_RETURN_ORIGIN))),
                 HttpStatus.BAD_REQUEST, MALFORMED_RETURN_ORIGIN_MESSAGE);
@@ -403,7 +403,7 @@ class EnterpriseLicenseControllerContractTest {
     /** A valid checkout without one of the members {@code :84-87} require: the {@code BAD_REQUEST} of {@code :85}. */
     @ParameterizedTest
     @ValueSource(strings = {REQUEST_ID_MEMBER, BILLING_INTERVAL_MEMBER, CONTACT_DATA_MEMBER})
-    void checkoutWithoutARequiredMember(String member) throws JsonProcessingException {
+    void checkoutWithoutARequiredMember(String member) {
         register(RELAY_URL, PUBLIC_URL);
         ObjectNode body = checkoutBody();
         body.remove(member);
@@ -416,13 +416,13 @@ class EnterpriseLicenseControllerContractTest {
                 .add(FOURTH_HOST_ID);
         ArrayNode none = PayloadAssertions.FIXTURE_EDITOR.createArrayNode();
         return Stream.of(Arguments.of(ANOTHER_HOST_FIRST, anotherHostFirst), Arguments.of(FOUR_DEPLOYMENTS, fourHosts),
-                Arguments.of(NO_DEPLOYMENT, none), Arguments.of(DEPLOYMENT_AS_A_STRING, TextNode.valueOf(HOST_ID)));
+                Arguments.of(NO_DEPLOYMENT, none), Arguments.of(DEPLOYMENT_AS_A_STRING, StringNode.valueOf(HOST_ID)));
     }
 
     /** {@code deploymentIds} that are not one to three ids led by this deployment: the {@code BAD_REQUEST} of {@code :79-83}. */
     @ParameterizedTest(name = "{0}")
     @MethodSource("foreignDeployments")
-    void checkoutWithForeignDeployments(String name, JsonNode deploymentIds) throws JsonProcessingException {
+    void checkoutWithForeignDeployments(String name, JsonNode deploymentIds) {
         register(RELAY_URL, PUBLIC_URL);
         ObjectNode body = checkoutBody();
         body.set(DEPLOYMENT_IDS_MEMBER, deploymentIds);
@@ -441,7 +441,7 @@ class EnterpriseLicenseControllerContractTest {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("relayUrlsWithoutHttps")
-    void requestToARelayWithoutHttps(String name, String relayUrl) throws JsonProcessingException {
+    void requestToARelayWithoutHttps(String name, String relayUrl) {
         register(relayUrl, PUBLIC_URL);
         EntityExchangeResult<byte[]> result = exchange(SYNC, write(orgBody(ORG_ID)));
         assertLicensingError(result, HttpStatus.SERVICE_UNAVAILABLE, RELAY_NOT_HTTPS_MESSAGE);
@@ -462,7 +462,7 @@ class EnterpriseLicenseControllerContractTest {
             "lowcoder-server/src/main/java/org/lowcoder/api/subscription/EnterpriseLicenseController.java#EnterpriseLicenseController.send#bodyToMono#1",
             "lowcoder-server/src/main/java/org/lowcoder/api/subscription/EnterpriseLicenseController.java#<file>#import#1"})
     @Test
-    void checkoutRepresentativeData() throws JsonProcessingException {
+    void checkoutRepresentativeData() {
         String representative = PayloadSamples.representativeInputText().strip();
         assertThat(representative).as("the representative input is an object").startsWith(JSON_OBJECT_START);
         relayAnswers(json(JSON_OBJECT_START + CHECKOUT_ANSWER_MEMBERS + representative.substring(JSON_OBJECT_START.length())));
@@ -488,7 +488,7 @@ class EnterpriseLicenseControllerContractTest {
                 + (CanonicalJson.compare(output, write(sentTree.get(CONTACT_DATA_MEMBER))).equivalent() ? "equals" : "differs from")
                 + " the production mapper's output " + PayloadSamples.REPRESENTATIVE_OUTPUT
                 + "; relay actions when the attempt was recorded: " + actionsAtTheAttempt.get());
-        assertThat(answerTree.path(EndpointContract.DATA).path(CHECKOUT_URL_MEMBER).asText()).as("checkoutUrl").isEqualTo(CHECKOUT_URL);
+        assertThat(answerTree.path(EndpointContract.DATA).path(CHECKOUT_URL_MEMBER).asString()).as("checkoutUrl").isEqualTo(CHECKOUT_URL);
         assertThat(actionsAtTheAttempt.get()).as("relay actions when the attempt was recorded").isEmpty();
         Mockito.verify(capabilities).checkoutAttempted(HOST_ID, ORG_ID, USER_ID);
     }
@@ -505,7 +505,7 @@ class EnterpriseLicenseControllerContractTest {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("actionsAndAnswers")
-    void everyActionSendsItsMembers(String action, String relayAnswer) throws JsonProcessingException {
+    void everyActionSendsItsMembers(String action, String relayAnswer) {
         relayAnswers(json(relayAnswer));
         register(RELAY_URL, PUBLIC_URL);
         ObjectNode body = orgBody(ORG_ID).put(RETURN_ORIGIN_MEMBER, PUBLIC_URL);
@@ -538,7 +538,7 @@ class EnterpriseLicenseControllerContractTest {
      */
     @ParameterizedTest(name = "{0} refresh={1}")
     @MethodSource("libraryRequestsWithoutAPurchase")
-    void statusWithoutAPurchaseAnswersAnEmptyLibrary(String action, boolean refresh) throws JsonProcessingException {
+    void statusWithoutAPurchaseAnswersAnEmptyLibrary(String action, boolean refresh) {
         Mockito.when(capabilities.purchaseState(HOST_ID, ORG_ID, USER_ID)).thenReturn(Mono.just(PurchaseState.NONE));
         register(RELAY_URL, PUBLIC_URL);
         ObjectNode body = orgBody(ORG_ID);
@@ -554,7 +554,7 @@ class EnterpriseLicenseControllerContractTest {
 
     /** No purchase and {@code refresh}: the deliberate discovery relays a {@code status} lookup ({@code :129-132}). */
     @Test
-    void statusRefreshWithoutAPurchaseAsksTheRelay() throws JsonProcessingException {
+    void statusRefreshWithoutAPurchaseAsksTheRelay() {
         Mockito.when(capabilities.purchaseState(HOST_ID, ORG_ID, USER_ID)).thenReturn(Mono.just(PurchaseState.NONE));
         register(RELAY_URL, PUBLIC_URL);
         EntityExchangeResult<byte[]> result = exchange(STATUS, write(orgBody(ORG_ID).put(REFRESH_MEMBER, true)));
@@ -573,7 +573,7 @@ class EnterpriseLicenseControllerContractTest {
      */
     @ParameterizedTest(name = "lookup finds a purchase={0}")
     @ValueSource(booleans = {true, false})
-    void syncOfAnUnconfirmedPurchase(boolean found) throws JsonProcessingException {
+    void syncOfAnUnconfirmedPurchase(boolean found) {
         Mockito.when(capabilities.purchaseState(HOST_ID, ORG_ID, USER_ID)).thenReturn(Mono.just(PurchaseState.UNKNOWN));
         AtomicReference<List<String>> actionsAtTheRecord = new AtomicReference<>();
         Mockito.when(capabilities.recordPurchaseStatus(HOST_ID, ORG_ID, USER_ID, found))
@@ -605,7 +605,7 @@ class EnterpriseLicenseControllerContractTest {
     /** An answer {@code relay} rejects ({@code :153-163}): the 503 of {@code :164-165}, and nothing recorded. */
     @ParameterizedTest(name = "{0}")
     @MethodSource("invalidAnswers")
-    void relayAnswerThatIsNotValid(String name, String action, String relayAnswer) throws JsonProcessingException {
+    void relayAnswerThatIsNotValid(String name, String action, String relayAnswer) {
         relayAnswers(json(relayAnswer));
         register(RELAY_URL, PUBLIC_URL);
         EntityExchangeResult<byte[]> result = exchange(action, write(CHECKOUT.equals(action) ? checkoutBody() : orgBody(ORG_ID)));
@@ -662,8 +662,8 @@ class EnterpriseLicenseControllerContractTest {
         for (LoggedRequest request : wireMock.getWireMock().find(anyRequestedFor(anyUrl()))) {
             System.out.println("[EnterpriseLicenseControllerContractTest] relay received " + request.getBodyAsString());
             try {
-                actions.add(PayloadAssertions.FIXTURE_EDITOR.readTree(request.getBodyAsString()).path(ACTION_MEMBER).asText());
-            } catch (JsonProcessingException e) {
+                actions.add(PayloadAssertions.FIXTURE_EDITOR.readTree(request.getBodyAsString()).path(ACTION_MEMBER).asString());
+            } catch (JacksonException e) {
                 throw new IllegalStateException("the relay received a body that is not JSON: " + request.getBodyAsString(), e);
             }
         }
@@ -732,7 +732,7 @@ class EnterpriseLicenseControllerContractTest {
         return new OrgMember(orgId, USER_ID, role, MEMBER_STATE, JOIN_TIME);
     }
 
-    private static String write(JsonNode tree) throws JsonProcessingException {
+    private static String write(JsonNode tree) {
         return PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(tree);
     }
 }

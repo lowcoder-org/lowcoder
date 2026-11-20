@@ -1,6 +1,6 @@
 package org.lowcoder.api.contract;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.marketplace.MarketplaceRenderClient;
 import org.lowcoder.api.misc.JsLibraryController;
@@ -40,13 +40,14 @@ class ClientCodecGuardTest {
     private static final String NODE_CLIENT_STRATEGIES_FIELD = "EXCHANGE_STRATEGIES";
     private static final String NODE_CLIENT_MAPPER_FIELD = "OBJECT_MAPPER";
     private static final String JS_LIBRARY_STRATEGIES_FIELD = "EXCHANGE_STRATEGY";
-    /** E11: the bare mapper registers nothing and fails on unknown properties. */
+    /** E11: the bare mapper registers nothing and fails on unknown properties (Jackson 2's defaults, which is what the bare mapper is built with). */
     private static final MapperProfile BARE_MAPPER_PROFILE = new MapperProfile(true, true, true, List.of());
 
     @BoundarySites({"lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/WebClientBuildHelper.java#WebClientBuildHelper.toWebClientBuilder#codecs#1",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#Jackson2ClientCodecs.apply#jackson2JsonEncoder#1",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#Jackson2ClientCodecs.apply#jackson2JsonDecoder#1",
-            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/Jackson2ClientCodecs.java#<file>#import#1"})
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/JacksonClientCodecs.java#JacksonClientCodecs.apply#jacksonJsonEncoder#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/JacksonClientCodecs.java#JacksonClientCodecs.apply#jacksonJsonDecoder#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/JacksonClientCodecs.java#JacksonClientCodecs.mapper#JsonMapper.builder#1",
+            "lowcoder-sdk/src/main/java/org/lowcoder/sdk/webclient/JacksonClientCodecs.java#<file>#import#1"})
     @Test
     void webClientBuildHelperUsesDefaultClientCodecs() {
         ClientCodecs.assertDefaultClientCodecs("WebClientBuildHelper",

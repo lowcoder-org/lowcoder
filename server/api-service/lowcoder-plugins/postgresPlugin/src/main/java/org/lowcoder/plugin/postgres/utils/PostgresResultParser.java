@@ -38,8 +38,6 @@ import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.postgresql.util.PGobject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
 public class PostgresResultParser {
 
@@ -173,7 +171,7 @@ public class PostgresResultParser {
         }
     }
 
-    public static List<Map<String, Object>> parseRows(ResultSet resultSet) throws SQLException, JsonProcessingException {
+    public static List<Map<String, Object>> parseRows(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
         List<Map<String, Object>> result = new ArrayList<>();
@@ -186,7 +184,7 @@ public class PostgresResultParser {
 
 
     private static Map<String, Object> parseRowValue(ResultSet resultSet, ResultSetMetaData metaData, int colCount)
-            throws SQLException, JsonProcessingException {
+            throws SQLException {
         Map<String, Object> row = new LinkedHashMap<>(colCount);
         for (int i = 1; i <= colCount; i++) {
             final String typeName = metaData.getColumnTypeName(i);
@@ -197,7 +195,7 @@ public class PostgresResultParser {
         return row;
     }
 
-    private static Object parseValue(ResultSet resultSet, int i, String typeName) throws SQLException, JsonProcessingException {
+    private static Object parseValue(ResultSet resultSet, int i, String typeName) throws SQLException {
         if (resultSet.getObject(i) == null) {
             return null;
         }

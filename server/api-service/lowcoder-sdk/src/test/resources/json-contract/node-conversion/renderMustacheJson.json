@@ -2,7 +2,7 @@
   "param:int" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.IntNode"
+        "" : "tools.jackson.databind.node.IntNode"
       },
       "keyOrder" : { }
     },
@@ -11,7 +11,7 @@
   "param:long" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.LongNode"
+        "" : "tools.jackson.databind.node.LongNode"
       },
       "keyOrder" : { }
     },
@@ -20,7 +20,7 @@
   "param:double" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.DoubleNode"
+        "" : "tools.jackson.databind.node.DoubleNode"
       },
       "keyOrder" : { }
     },
@@ -29,7 +29,7 @@
   "param:bigDecimal" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.DecimalNode"
+        "" : "tools.jackson.databind.node.DecimalNode"
       },
       "keyOrder" : { }
     },
@@ -38,7 +38,7 @@
   "param:bigInteger" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.BigIntegerNode"
+        "" : "tools.jackson.databind.node.BigIntegerNode"
       },
       "keyOrder" : { }
     },
@@ -47,7 +47,7 @@
   "param:bool" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.BooleanNode"
+        "" : "tools.jackson.databind.node.BooleanNode"
       },
       "keyOrder" : { }
     },
@@ -56,7 +56,7 @@
   "param:nothing" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.NullNode"
+        "" : "tools.jackson.databind.node.NullNode"
       },
       "keyOrder" : { }
     },
@@ -65,7 +65,7 @@
   "param:str" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : { }
     },
@@ -74,13 +74,13 @@
   "param:map" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/zeta" : "tools.jackson.databind.node.IntNode",
+        "/alpha" : "tools.jackson.databind.node.ArrayNode",
+        "/alpha/0" : "tools.jackson.databind.node.LongNode",
+        "/alpha/1" : "tools.jackson.databind.node.DoubleNode",
+        "/alpha/2" : "tools.jackson.databind.node.NullNode",
+        "/alpha/3" : "tools.jackson.databind.node.DecimalNode"
       },
       "keyOrder" : {
         "" : [ "zeta", "alpha" ]
@@ -91,12 +91,12 @@
   "param:list" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/0" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/1" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/2" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/3" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/3/0" : "com.fasterxml.jackson.databind.node.BooleanNode"
+        "" : "tools.jackson.databind.node.ArrayNode",
+        "/0" : "tools.jackson.databind.node.IntNode",
+        "/1" : "tools.jackson.databind.node.StringNode",
+        "/2" : "tools.jackson.databind.node.NullNode",
+        "/3" : "tools.jackson.databind.node.ArrayNode",
+        "/3/0" : "tools.jackson.databind.node.BooleanNode"
       },
       "keyOrder" : { }
     },
@@ -105,7 +105,7 @@
   "missingParam" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.NullNode"
+        "" : "tools.jackson.databind.node.NullNode"
       },
       "keyOrder" : { }
     },
@@ -114,7 +114,7 @@
   "int" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.IntNode"
+        "" : "tools.jackson.databind.node.IntNode"
       },
       "keyOrder" : { }
     },
@@ -123,7 +123,7 @@
   "intMaxPlusOne" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.LongNode"
+        "" : "tools.jackson.databind.node.LongNode"
       },
       "keyOrder" : { }
     },
@@ -132,7 +132,7 @@
   "longMaxPlusOne" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.BigIntegerNode"
+        "" : "tools.jackson.databind.node.BigIntegerNode"
       },
       "keyOrder" : { }
     },
@@ -141,7 +141,7 @@
   "decimal" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+        "" : "tools.jackson.databind.node.FloatNode"
       },
       "keyOrder" : { }
     },
@@ -150,7 +150,7 @@
   "decimalPastFloat" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.DoubleNode"
+        "" : "tools.jackson.databind.node.DoubleNode"
       },
       "keyOrder" : { }
     },
@@ -159,7 +159,7 @@
   "longDecimal" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+        "" : "tools.jackson.databind.node.FloatNode"
       },
       "keyOrder" : { }
     },
@@ -168,7 +168,7 @@
   "exponent" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.FloatNode"
+        "" : "tools.jackson.databind.node.FloatNode"
       },
       "keyOrder" : { }
     },
@@ -177,7 +177,7 @@
   "true" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.BooleanNode"
+        "" : "tools.jackson.databind.node.BooleanNode"
       },
       "keyOrder" : { }
     },
@@ -186,7 +186,7 @@
   "null" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.NullNode"
+        "" : "tools.jackson.databind.node.NullNode"
       },
       "keyOrder" : { }
     },
@@ -195,7 +195,7 @@
   "quoted" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : { }
     },
@@ -204,7 +204,7 @@
   "text" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : { }
     },
@@ -213,7 +213,7 @@
   "dateTime" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : { }
     },
@@ -225,18 +225,18 @@
   "array" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/0" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/1" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/2" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/3" : "com.fasterxml.jackson.databind.node.FloatNode",
-        "/4" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/4/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/4/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/4/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/4/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/4/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/4/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode"
+        "" : "tools.jackson.databind.node.ArrayNode",
+        "/0" : "tools.jackson.databind.node.IntNode",
+        "/1" : "tools.jackson.databind.node.IntNode",
+        "/2" : "tools.jackson.databind.node.StringNode",
+        "/3" : "tools.jackson.databind.node.FloatNode",
+        "/4" : "tools.jackson.databind.node.ObjectNode",
+        "/4/zeta" : "tools.jackson.databind.node.IntNode",
+        "/4/alpha" : "tools.jackson.databind.node.ArrayNode",
+        "/4/alpha/0" : "tools.jackson.databind.node.LongNode",
+        "/4/alpha/1" : "tools.jackson.databind.node.DoubleNode",
+        "/4/alpha/2" : "tools.jackson.databind.node.NullNode",
+        "/4/alpha/3" : "tools.jackson.databind.node.DecimalNode"
       },
       "keyOrder" : {
         "/4" : [ "zeta", "alpha" ]
@@ -247,16 +247,16 @@
   "object" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/a" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/a/zeta" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/a/alpha" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/a/alpha/0" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/a/alpha/1" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/a/alpha/2" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/a/alpha/3" : "com.fasterxml.jackson.databind.node.DecimalNode",
-        "/b" : "com.fasterxml.jackson.databind.node.FloatNode",
-        "/žluť \"quoted\"" : "com.fasterxml.jackson.databind.node.LongNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/a" : "tools.jackson.databind.node.ObjectNode",
+        "/a/zeta" : "tools.jackson.databind.node.IntNode",
+        "/a/alpha" : "tools.jackson.databind.node.ArrayNode",
+        "/a/alpha/0" : "tools.jackson.databind.node.LongNode",
+        "/a/alpha/1" : "tools.jackson.databind.node.DoubleNode",
+        "/a/alpha/2" : "tools.jackson.databind.node.NullNode",
+        "/a/alpha/3" : "tools.jackson.databind.node.DecimalNode",
+        "/b" : "tools.jackson.databind.node.FloatNode",
+        "/žluť \"quoted\"" : "tools.jackson.databind.node.LongNode"
       },
       "keyOrder" : {
         "/a" : [ "zeta", "alpha" ],
@@ -268,7 +268,7 @@
   "escapedMustache" : {
     "node" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : { }
     },

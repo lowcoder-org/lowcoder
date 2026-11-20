@@ -1,8 +1,7 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.RawValue;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.util.RawValue;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.util.JsonUtils;
 
@@ -71,7 +70,7 @@ public final class QueryResults {
     public static Object written(Object value) {
         try {
             return new RawValue(JsonUtils.getObjectMapper().writeValueAsString(value));
-        } catch (JsonProcessingException | RuntimeException e) {
+        } catch (RuntimeException e) {
             return Map.of(ERROR_KEY, ConfigBinding.errorText(e));
         }
     }

@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.plugin.sheet.changeset;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.JsonUtils;
@@ -33,7 +33,7 @@ public class SheetChangeSetRow implements Iterable<SheetChangeSetItem> {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_INVALID_JSON_MAP_TYPE");
         }
         List<SheetChangeSetItem> result = new ArrayList<>();
-        Iterator<Entry<String, JsonNode>> iterator = objectNode.fields();
+        Iterator<Entry<String, JsonNode>> iterator = objectNode.properties().iterator();
         while (iterator.hasNext()) {
             Entry<String, JsonNode> next = iterator.next();
             String column = next.getKey();

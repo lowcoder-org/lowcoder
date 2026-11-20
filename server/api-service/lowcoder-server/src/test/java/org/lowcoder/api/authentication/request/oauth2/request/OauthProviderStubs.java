@@ -23,6 +23,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
+import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -205,7 +206,7 @@ final class OauthProviderStubs {
     static String pretty(Object value) {
         try {
             return JsonUtils.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("cannot write " + value, e);
         }
     }

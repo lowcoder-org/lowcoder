@@ -25,7 +25,6 @@ spring:
   http:
     codecs:
       max-in-memory-size: 20MB
-      preferred-json-mapper: jackson2
   webflux:
     base-path: /
   mail:

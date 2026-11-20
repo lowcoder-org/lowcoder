@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.contract;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.util.RawValue;
+import tools.jackson.databind.util.RawValue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.lowcoder.sdk.config.JsonViews;

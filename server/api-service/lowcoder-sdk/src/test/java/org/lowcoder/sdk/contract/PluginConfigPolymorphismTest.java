@@ -1,15 +1,18 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.DeserializationConfig;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.NamedType;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.plugin.common.ssl.SslConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
 import org.lowcoder.sdk.util.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +56,7 @@ public class PluginConfigPolymorphismTest {
     static final String FAILS_WITH = "failsWith ";
 
     private static final ObjectMapper MAPPER = JsonUtils.getObjectMapper();
-    private static final ObjectMapper BARE = new ObjectMapper();
+    private static final ObjectMapper BARE = JsonMapper.builderWithJackson2Defaults().build();
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
 
     @Test
@@ -70,9 +73,10 @@ public class PluginConfigPolymorphismTest {
     public void registeredIdsAsPinned() throws IOException {
         Map<String, Map<String, String>> ids = new TreeMap<>();
         for (Class<?> base : List.of(AuthConfig.class, SslConfig.class)) {
-            AnnotatedClass annotated = MAPPER.getDeserializationConfig().introspectClassAnnotations(base).getClassInfo();
+            DeserializationConfig config = MAPPER.deserializationConfig();
+            AnnotatedClass annotated = config.classIntrospectorInstance().forOperation(config).introspectClassAnnotations(config.constructType(base));
             Map<String, String> byId = new TreeMap<>();
-            for (NamedType subtype : MAPPER.getSubtypeResolver().collectAndResolveSubtypesByTypeId(MAPPER.getDeserializationConfig(), annotated)) {
+            for (NamedType subtype : config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, annotated)) {
                 if (subtype.hasName()) {
                     byId.put(subtype.getName(), subtype.getType().getName());
                 }
@@ -90,7 +94,7 @@ public class PluginConfigPolymorphismTest {
     private static void assertCases(Class<?> base) throws IOException {
         JsonNode inputs = BARE.readTree(GOLDEN.read(DIRECTORY + base.getSimpleName() + INPUTS_SUFFIX));
         List<String> cases = new ArrayList<>();
-        Iterator<Map.Entry<String, JsonNode>> entries = inputs.fields();
+        Iterator<Map.Entry<String, JsonNode>> entries = inputs.properties().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, JsonNode> entry = entries.next();
             String input = entry.getValue().toString();
@@ -98,7 +102,7 @@ public class PluginConfigPolymorphismTest {
             Object bound;
             try {
                 bound = MAPPER.readValue(input, base);
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 outcome.append(',').append(quote(CLASS)).append(':').append(quote(FAILS_WITH + e.getClass().getName())).append('}');
                 cases.add(quote(entry.getKey()) + ":" + outcome);
                 System.out.println("[PluginConfigPolymorphismTest] " + base.getSimpleName() + " " + entry.getKey() + ": " + outcome);
@@ -125,7 +129,7 @@ public class PluginConfigPolymorphismTest {
         try {
             Object again = MAPPER.readValue(output, base);
             return "{" + quote(CLASS) + ":" + quote(again.getClass().getName()) + "," + quote(NO_VIEW) + ":" + writer.writeValueAsString(again) + "}";
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return quote(FAILS_WITH + e.getClass().getName());
         }
     }
@@ -133,7 +137,7 @@ public class PluginConfigPolymorphismTest {
     private static String boundClass(ObjectMapper mapper, String input, Class<?> base) {
         try {
             return mapper.readValue(input, base).getClass().getName();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return FAILS_WITH + e.getClass().getName();
         }
     }
@@ -141,7 +145,7 @@ public class PluginConfigPolymorphismTest {
     private static String quote(String text) {
         try {
             return BARE.writeValueAsString(text);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException(e);
         }
     }

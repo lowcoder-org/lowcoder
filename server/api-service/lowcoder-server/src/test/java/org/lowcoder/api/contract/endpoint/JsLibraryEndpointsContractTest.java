@@ -1,8 +1,8 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.cache.LoadingCache;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -274,7 +274,7 @@ class JsLibraryEndpointsContractTest {
             TreeMap<String, String> urls = new TreeMap<>();
             for (JsonNode library : PayloadAssertions.FIXTURE_EDITOR.readTree(new String(resource.readAllBytes(), StandardCharsets.UTF_8))) {
                 JsonNode url = library.path(DOWNLOAD_URL_PROPERTY);
-                urls.put(library.path(NAME_PROPERTY).asText(), url.isTextual() ? url.asText() : null);
+                urls.put(library.path(NAME_PROPERTY).asString(), url.isString() ? url.asString() : null);
             }
             return urls;
         }
@@ -292,7 +292,7 @@ class JsLibraryEndpointsContractTest {
         if (envelope.get(EndpointContract.DATA) instanceof ArrayNode data) {
             List<JsonNode> elements = new ArrayList<>();
             data.forEach(elements::add);
-            elements.sort(Comparator.comparing(element -> element.path(NAME_PROPERTY).asText()));
+            elements.sort(Comparator.comparing(element -> element.path(NAME_PROPERTY).asString()));
             data.removeAll();
             data.addAll(elements);
         }

@@ -11,15 +11,15 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.introspect.AnnotationMap;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.AnnotatedWithParams;
+import tools.jackson.databind.introspect.AnnotationMap;
+import tools.jackson.databind.util.ClassUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * <p>It reads the annotations of a type as Jackson's own introspection sees them, through the {@link AnnotatedClass}
  * of the given mapper's serialization and deserialization configurations (so mix-ins and annotations inherited from
  * supertypes are included, and spelling, imports and fully qualified names do not matter): the class annotations,
- * {@link AnnotatedMember#getAllAnnotations()} of every field, member method, static method, constructor and factory,
+ * {@link AnnotatedMember#annotations()} of every field, member method, static method, constructor and factory,
  * and the annotations of their parameters. Enum constants are read by reflection, because Jackson's
  * {@link AnnotatedClass} does not list static fields.
  *
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 public final class JacksonAnnotationGuard {
 
     public static final Set<String> JACKSON_ANNOTATION_PACKAGES = Set.of(
-            "com.fasterxml.jackson.annotation", "com.fasterxml.jackson.databind.annotation");
+            "com.fasterxml.jackson.annotation", "tools.jackson.databind.annotation");
     public static final Set<Class<? extends Annotation>> ALLOWED = Set.of(
             JsonProperty.class, JsonAlias.class, JsonIgnore.class, JsonView.class, JsonInclude.class,
             JsonCreator.class, JsonTypeInfo.class, JsonSubTypes.class, JsonTypeName.class,
@@ -87,10 +87,10 @@ public final class JacksonAnnotationGuard {
     public static List<Occurrence> occurrences(ObjectMapper mapper, Class<?> type) {
         SortedSet<String> seen = new TreeSet<>();
         List<Occurrence> result = new ArrayList<>();
-        for (MapperConfig<?> config : List.of(mapper.getSerializationConfig(), mapper.getDeserializationConfig())) {
-            AnnotatedClass annotatedClass = config.introspectClassAnnotations(config.constructType(type)).getClassInfo();
+        for (MapperConfig<?> config : List.of(mapper.serializationConfig(), mapper.deserializationConfig())) {
+            AnnotatedClass annotatedClass = config.classIntrospectorInstance().forOperation(config).introspectClassAnnotations(config.constructType(type));
             add(type, CLASS_MEMBER, classAnnotations(config, annotatedClass), seen, result);
-            annotatedClass.fields().forEach(field -> add(type, field.getFullName(), annotations(field.getAllAnnotations()), seen, result));
+            annotatedClass.fields().forEach(field -> add(type, field.getFullName(), field.annotations().toList(), seen, result));
             annotatedClass.memberMethods().forEach(method -> addWithParameters(type, method, seen, result));
             annotatedClass.getFactoryMethods().forEach(method -> addWithParameters(type, method, seen, result));
             annotatedClass.getConstructors().forEach(constructor -> addWithParameters(type, constructor, seen, result));
@@ -163,7 +163,7 @@ public final class JacksonAnnotationGuard {
 
     private static void addWithParameters(Class<?> type, AnnotatedWithParams member, SortedSet<String> seen, List<Occurrence> result) {
         String name = member.getFullName() + "(" + member.getParameterCount() + " parameter(s))";
-        add(type, name, annotations(member.getAllAnnotations()), seen, result);
+        add(type, name, member.annotations().toList(), seen, result);
         for (int i = 0; i < member.getParameterCount(); i++) {
             add(type, name + " parameter " + i, annotations(member.getParameterAnnotations(i)), seen, result);
         }
@@ -179,13 +179,13 @@ public final class JacksonAnnotationGuard {
         Set<Class<? extends Annotation>> candidates = new LinkedHashSet<>();
         List<Class<?>> sources = new ArrayList<>();
         sources.add(annotatedClass.getRawType());
-        sources.addAll(ClassUtil.findSuperTypes(annotatedClass.getRawType(), null));
+        sources.addAll(ClassUtil.findRawSuperTypes(annotatedClass.getRawType(), null, false));
         for (Class<?> source : sources) {
             addCandidates(source.getAnnotations(), candidates);
             Class<?> mixIn = config.findMixInClassFor(source);
             if (mixIn != null) {
                 addCandidates(mixIn.getAnnotations(), candidates);
-                ClassUtil.findSuperTypes(mixIn, null).forEach(mixInSuper -> addCandidates(mixInSuper.getAnnotations(), candidates));
+                ClassUtil.findRawSuperTypes(mixIn, null, false).forEach(mixInSuper -> addCandidates(mixInSuper.getAnnotations(), candidates));
             }
         }
         List<Annotation> resolved = new ArrayList<>();
@@ -208,7 +208,7 @@ public final class JacksonAnnotationGuard {
 
     /** Jackson leaves the map {@code null} for a member or parameter without annotations. */
     private static Iterable<Annotation> annotations(AnnotationMap map) {
-        return map == null ? List.of() : map.annotations();
+        return map == null ? List.of() : map.values().toList();
     }
 
     private static void add(Class<?> type, String member, Iterable<Annotation> annotations, SortedSet<String> seen, List<Occurrence> result) {

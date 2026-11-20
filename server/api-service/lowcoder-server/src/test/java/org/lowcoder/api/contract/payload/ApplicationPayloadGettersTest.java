@@ -1,6 +1,5 @@
 package org.lowcoder.api.contract.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.api.contract.support.ApplicationSamples;
 import org.lowcoder.api.contract.support.PayloadSamples;
@@ -63,7 +62,7 @@ class ApplicationPayloadGettersTest {
     @Test
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.editingQueries#toJson#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.editingQueries#fromJsonSet#1"})
-    void editingQueries() throws JsonProcessingException {
+    void editingQueries() {
         Map<String, Object> dsl = dsl(EDITING_PREFIX);
         Set<ApplicationQuery> queries = application(dsl).getEditingQueries();
         assertConverted("editingQueries", dsl, queries, EDITING_GOLDEN);
@@ -72,7 +71,7 @@ class ApplicationPayloadGettersTest {
     @Test
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.getLiveQueries#toJson#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.getLiveQueries#fromJsonSet#1"})
-    void liveQueriesOfTheLatestRecord() throws JsonProcessingException {
+    void liveQueriesOfTheLatestRecord() {
         Map<String, Object> liveDsl = dsl(LIVE_PREFIX);
         Application application = application(dsl(EDITING_PREFIX));
         ApplicationRecordService records = Mockito.mock(ApplicationRecordService.class);
@@ -84,7 +83,7 @@ class ApplicationPayloadGettersTest {
     @Test
     @BoundarySites({"lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.getLiveQueries#toJson#1",
             "lowcoder-domain/src/main/java/org/lowcoder/domain/application/model/Application.java#Application.getLiveQueries#fromJsonSet#1"})
-    void liveQueriesWithoutARecordAreTheEditingOnes() throws JsonProcessingException {
+    void liveQueriesWithoutARecordAreTheEditingOnes() {
         Map<String, Object> dsl = dsl(EDITING_PREFIX);
         Application application = application(dsl);
         ApplicationRecordService records = Mockito.mock(ApplicationRecordService.class);
@@ -111,8 +110,7 @@ class ApplicationPayloadGettersTest {
     }
 
     @SuppressWarnings("unchecked")
-    private static void assertConverted(String getter, Map<String, Object> dsl, Set<ApplicationQuery> queries, String golden)
-            throws JsonProcessingException {
+    private static void assertConverted(String getter, Map<String, Object> dsl, Set<ApplicationQuery> queries, String golden) {
         List<ApplicationQuery> sorted = new ArrayList<>(queries);
         sorted.sort(Comparator.comparing(ApplicationQuery::getId));
         String written = JsonUtils.getObjectMapper().writeValueAsString(sorted);

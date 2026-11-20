@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.framework.warmup.WarmupHelper;
+import org.lowcoder.api.subscription.WorkspaceSeatSyncService;
 import org.lowcoder.api.home.SessionUserServiceImpl;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
@@ -14,12 +15,13 @@ import org.lowcoder.sdk.contract.GoldenJson;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.ReactiveRedisConnection;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.core.JacksonException;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -42,12 +44,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@code null}, not throw; and that both forms, written through the service's own template into Redis, resolve to the
  * seeded user.
  *
- * <p><b>Redis wiring (C9-A1, E12).</b> {@code RedisConfig} declares a {@code @Primary} template whose value
- * serializer is {@code Jackson2JsonRedisSerializer}, but every {@code ReactiveRedisTemplate<String, String>}
- * injection point (this service, {@code IoHeartBeatTask}, {@code WarmupHelper}) receives
+ * <p><b>Redis wiring (C9-A1, E12).</b> Every {@code ReactiveRedisTemplate<String, String>} injection point (this
+ * service, {@code IoHeartBeatTask}, {@code WarmupHelper}, {@code WorkspaceSeatSyncService}) receives
  * {@code reactiveStringRedisTemplate}. {@link #sessionTemplatesWriteStringsNotJson} requires each of them to write
  * {@value #SAMPLE_VALUE} as the bytes {@value #STRING_SERIALIZER_BYTES}; a rewiring that makes Jackson write session
- * values (a JSON string literal, {@code 22...22}) fails it.
+ * values (a JSON string literal, {@code 22...22}, which {@link #JACKSON_SERIALIZER} writes) fails it.
  *
  * <p>Limits: it runs with the "test" profile, whose {@code SessionUserServiceImplTest} subclass inherits the injected
  * field unchanged; the template fields are read by name, so renaming one fails the test rather than skipping it.
@@ -65,22 +66,24 @@ class SessionCacheContractTest {
     static final Duration BLOCK_TIMEOUT = Duration.ofSeconds(30);
     static final String SAMPLE_VALUE = "u1\"é";
     static final String STRING_SERIALIZER_BYTES = "753122c3a9";
-    static final String JACKSON_TEMPLATE_BEAN = "reactiveRedisOperations";
     static final String SESSION_TEMPLATE_FIELD = "reactiveTemplate";
     static final String TASK_TEMPLATE_FIELD = "reactiveRedisTemplate";
+    static final String SEAT_SYNC_TEMPLATE_FIELD = "redis";
     static final String FROM_JSON_QUIETLY_KEY = "fromJsonQuietly";
     static final String THROUGH_REDIS_KEY = "throughRedis";
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
+    /** What a Jackson value serializer writes for {@link #SAMPLE_VALUE}: the serializer this guard tells apart from the string one. */
+    private static final JacksonJsonRedisSerializer<String> JACKSON_SERIALIZER = new JacksonJsonRedisSerializer<>(String.class);
 
-    @Autowired
-    private ApplicationContext context;
     @Autowired
     private SessionUserServiceImpl sessionUserService;
     @Autowired
     private IoHeartBeatTask ioHeartBeatTask;
     @Autowired
     private WarmupHelper warmupHelper;
+    @Autowired
+    private WorkspaceSeatSyncService workspaceSeatSyncService;
     @Autowired
     private ReactiveRedisConnectionFactory connectionFactory;
     @Autowired
@@ -135,15 +138,15 @@ class SessionCacheContractTest {
         GOLDEN.assertJson(READ_FIXTURE, actual);
     }
 
-    @BoundarySites("lowcoder-domain/src/main/java/org/lowcoder/domain/configurations/RedisConfig.java#<file>#import#1")
     @Test
     void sessionTemplatesWriteStringsNotJson() {
         Map<String, ReactiveRedisOperations<String, String>> injected = new LinkedHashMap<>();
         injected.put("SessionUserServiceImpl." + SESSION_TEMPLATE_FIELD, template(sessionUserService, SESSION_TEMPLATE_FIELD));
         injected.put("IoHeartBeatTask." + TASK_TEMPLATE_FIELD, template(ioHeartBeatTask, TASK_TEMPLATE_FIELD));
         injected.put("WarmupHelper." + TASK_TEMPLATE_FIELD, template(warmupHelper, TASK_TEMPLATE_FIELD));
-        String jacksonBytes = valueBytes(template(context.getBean(JACKSON_TEMPLATE_BEAN)));
-        System.out.println("[SessionCacheContractTest] RedisConfig." + JACKSON_TEMPLATE_BEAN + " writes " + SAMPLE_VALUE + " as " + jacksonBytes);
+        injected.put("WorkspaceSeatSyncService." + SEAT_SYNC_TEMPLATE_FIELD, template(workspaceSeatSyncService, SEAT_SYNC_TEMPLATE_FIELD));
+        String jacksonBytes = HexFormat.of().formatHex(JACKSON_SERIALIZER.serialize(SAMPLE_VALUE));
+        System.out.println("[SessionCacheContractTest] a Jackson serializer writes " + SAMPLE_VALUE + " as " + jacksonBytes);
         assertThat(jacksonBytes).as("the Jackson template this guard tells apart").isNotEqualTo(STRING_SERIALIZER_BYTES);
         injected.forEach((point, template) -> {
             String bytes = valueBytes(template);
@@ -201,7 +204,7 @@ class SessionCacheContractTest {
     private static String pretty(Object value) {
         try {
             return JsonUtils.getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("cannot write " + value, e);
         }
     }

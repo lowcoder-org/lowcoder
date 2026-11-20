@@ -1,6 +1,6 @@
 package org.lowcoder.api.subscription;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
@@ -63,7 +63,7 @@ public class WorkspaceSeatSyncService {
                         "requestId", requestId, "issuedAt", System.currentTimeMillis()))
                         .flatMap(response -> {
                             if (!response.path("success").asBoolean(false) ||
-                                    !requestId.equals(response.path("requestId").asText()) ||
+                                    !requestId.equals(response.path("requestId").asString()) ||
                                     response.path("quantity").asInt(-1) != quantity) {
                                 return Mono.error(new IllegalStateException("Seat relay did not confirm the requested quantity"));
                             }

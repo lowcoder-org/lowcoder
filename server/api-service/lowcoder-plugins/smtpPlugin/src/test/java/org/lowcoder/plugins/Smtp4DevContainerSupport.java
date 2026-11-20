@@ -1,12 +1,14 @@
 package org.lowcoder.plugins;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.lowcoder.sdk.contract.ContainerImages;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
+import tools.jackson.core.JacksonException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +48,7 @@ final class Smtp4DevContainerSupport {
     private static final int READ_TIMEOUT_MILLIS = 10_000;
     private static final Duration START_TIMEOUT = Duration.ofMinutes(2);
     private static final Duration HTTP_TIMEOUT = Duration.ofSeconds(10);
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
     private static final HttpClient HTTP = HttpClient.newHttpClient();
 
     private Smtp4DevContainerSupport() {
@@ -85,10 +87,12 @@ final class Smtp4DevContainerSupport {
                         HttpResponse.BodyHandlers.ofString());
                 JsonNode results = JSON.readTree(response.body()).path("results");
                 List<String> subjects = new ArrayList<>();
-                results.forEach(message -> subjects.add(message.path("subject").asText()));
+                results.forEach(message -> subjects.add(message.path("subject").asString()));
                 return subjects;
             } catch (IOException e) {
                 throw new UncheckedIOException("cannot read the messages of " + name, e);
+            } catch (JacksonException e) {
+                throw new IllegalStateException("cannot read the messages of " + name, e);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException("interrupted while reading the messages of " + name, e);

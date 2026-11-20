@@ -1,10 +1,10 @@
 package org.lowcoder.sdk.contract;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.util.JsonUtils;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,27 +21,27 @@ public class ClientCodecsTest {
     @Test
     public void strategiesExposeSeparateEncoderAndDecoderMappers() {
         ExchangeStrategies strategies = ClientCodecs.strategies(ClientCodecs.UNLIMITED);
-        assertThat(ClientCodecs.encoder(strategies).getObjectMapper())
-                .isNotSameAs(ClientCodecs.decoder(strategies).getObjectMapper());
+        assertThat(ClientCodecs.encoder(strategies).getMapper())
+                .isNotSameAs(ClientCodecs.decoder(strategies).getMapper());
         assertThat(ClientCodecs.decoder(strategies).getMaxInMemorySize()).isEqualTo(ClientCodecs.UNLIMITED);
     }
 
     @Test
     public void guardRejectsTheProductionMapper() {
-        ObjectMapper production = JsonUtils.getObjectMapper();
+        JsonMapper production = JsonUtils.getObjectMapper();
         ExchangeStrategies drifted = ExchangeStrategies.builder().codecs(configurer -> {
-            configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(production));
-            configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(new ObjectMapper()));
+            configurer.defaultCodecs().jacksonJsonEncoder(new JacksonJsonEncoder(production));
+            configurer.defaultCodecs().jacksonJsonDecoder(new JacksonJsonDecoder(JsonMapper.builder().build()));
         }).build();
         assertRejected(drifted, ClientCodecs.UNLIMITED, "encoder mapper must not be the production mapper");
     }
 
     @Test
     public void guardRejectsOneSharedMapper() {
-        ObjectMapper shared = new ObjectMapper();
+        JsonMapper shared = JsonMapper.builder().build();
         ExchangeStrategies drifted = ExchangeStrategies.builder().codecs(configurer -> {
-            configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(shared));
-            configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(shared));
+            configurer.defaultCodecs().jacksonJsonEncoder(new JacksonJsonEncoder(shared));
+            configurer.defaultCodecs().jacksonJsonDecoder(new JacksonJsonDecoder(shared));
         }).build();
         assertRejected(drifted, ClientCodecs.UNLIMITED, "encoder and decoder must have separate mappers");
     }
@@ -54,7 +54,7 @@ public class ClientCodecsTest {
     @Test
     public void guardRejectsAnotherMapperConfiguration() {
         ExchangeStrategies drifted = ExchangeStrategies.builder().codecs(configurer -> {
-            configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(new ObjectMapper()));
+            configurer.defaultCodecs().jacksonJsonEncoder(new JacksonJsonEncoder(JsonMapper.builder().build()));
             configurer.defaultCodecs().maxInMemorySize(ClientCodecs.UNLIMITED);
         }).build();
         assertRejected(drifted, ClientCodecs.UNLIMITED, "encoder mapper: expected " + ClientCodecs.DEFAULT_CODEC_PROFILE);

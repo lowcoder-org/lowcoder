@@ -1,6 +1,6 @@
 package org.lowcoder.plugin.restapi.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * value is either JsonNode or String

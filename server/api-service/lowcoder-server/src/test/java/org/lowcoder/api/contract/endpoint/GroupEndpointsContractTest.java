@@ -1,7 +1,6 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,7 +132,7 @@ class GroupEndpointsContractTest {
      * {@code allUsersGroup} false (an all-users group is a system group, whose name would be the localized one).
      */
     @Test
-    void create() throws JsonProcessingException {
+    void create() {
         Mockito.when(groupApiService.create(any())).thenReturn(Mono.just(UserManagementSamples.groupViewGroup()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "create", Map.of(), EndpointContract.d1(CreateGroupRequest.class));

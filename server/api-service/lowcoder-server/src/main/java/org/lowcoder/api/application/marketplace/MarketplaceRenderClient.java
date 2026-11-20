@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.infra.js.NodeServerHelper;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
+import org.lowcoder.sdk.webclient.JacksonClientCodecs;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,7 +22,7 @@ public class MarketplaceRenderClient {
     private final NodeServerHelper nodeServer;
     private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(codecs -> {
-                Jackson2ClientCodecs.apply(codecs);
+                JacksonClientCodecs.apply(codecs);
                 codecs.defaultCodecs().maxInMemorySize(2 * 1024 * 1024);
             })
             .build();

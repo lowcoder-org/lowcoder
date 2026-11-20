@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.lowcoder.plugin.graphql.model.GraphQLQueryExecutionContext;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 
 public class GraphQLBodyUtils {

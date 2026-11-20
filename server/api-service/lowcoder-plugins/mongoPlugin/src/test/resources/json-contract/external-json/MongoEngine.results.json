@@ -3,31 +3,31 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/value" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/value/zeta" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/date" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/longMax" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/value/intMax" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/value/double" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/value/wholeDouble" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/value/nested" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/value/nested/ids" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/value/nested/ids/0" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/nested/ids/1" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/value/nested/ids/2" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/value/nested/ids/2/at" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/int" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/value/long" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/value/null" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/value/alpha" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/true" : "com.fasterxml.jackson.databind.node.BooleanNode",
-        "/value/unicode" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/_id" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/value/emptyArray" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/value/emptyObject" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/value/decimal128" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/value/bigDouble" : "com.fasterxml.jackson.databind.node.DoubleNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/value" : "tools.jackson.databind.node.ObjectNode",
+        "/value/zeta" : "tools.jackson.databind.node.StringNode",
+        "/value/date" : "tools.jackson.databind.node.StringNode",
+        "/value/longMax" : "tools.jackson.databind.node.LongNode",
+        "/value/intMax" : "tools.jackson.databind.node.IntNode",
+        "/value/double" : "tools.jackson.databind.node.DoubleNode",
+        "/value/wholeDouble" : "tools.jackson.databind.node.IntNode",
+        "/value/nested" : "tools.jackson.databind.node.ObjectNode",
+        "/value/nested/ids" : "tools.jackson.databind.node.ArrayNode",
+        "/value/nested/ids/0" : "tools.jackson.databind.node.StringNode",
+        "/value/nested/ids/1" : "tools.jackson.databind.node.IntNode",
+        "/value/nested/ids/2" : "tools.jackson.databind.node.ObjectNode",
+        "/value/nested/ids/2/at" : "tools.jackson.databind.node.StringNode",
+        "/value/int" : "tools.jackson.databind.node.IntNode",
+        "/value/long" : "tools.jackson.databind.node.LongNode",
+        "/value/null" : "tools.jackson.databind.node.NullNode",
+        "/value/alpha" : "tools.jackson.databind.node.StringNode",
+        "/value/true" : "tools.jackson.databind.node.BooleanNode",
+        "/value/unicode" : "tools.jackson.databind.node.StringNode",
+        "/value/_id" : "tools.jackson.databind.node.StringNode",
+        "/value/emptyArray" : "tools.jackson.databind.node.ArrayNode",
+        "/value/emptyObject" : "tools.jackson.databind.node.ObjectNode",
+        "/value/decimal128" : "tools.jackson.databind.node.DoubleNode",
+        "/value/bigDouble" : "tools.jackson.databind.node.DoubleNode"
       },
       "keyOrder" : {
         "/value/nested/ids/2" : [ "at" ],
@@ -43,33 +43,33 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/0" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/0/zeta" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/date" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/longMax" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/0/intMax" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/0/double" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/0/wholeDouble" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/0/nested" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/0/nested/ids" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/0/nested/ids/0" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/nested/ids/1" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/0/nested/ids/2" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/0/nested/ids/2/at" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/int" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/0/long" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/0/null" : "com.fasterxml.jackson.databind.node.NullNode",
-        "/0/alpha" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/true" : "com.fasterxml.jackson.databind.node.BooleanNode",
-        "/0/unicode" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/_id" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/0/emptyArray" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/0/emptyObject" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/0/decimal128" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/0/bigDouble" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/1" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/1/_id" : "com.fasterxml.jackson.databind.node.IntNode"
+        "" : "tools.jackson.databind.node.ArrayNode",
+        "/0" : "tools.jackson.databind.node.ObjectNode",
+        "/0/zeta" : "tools.jackson.databind.node.StringNode",
+        "/0/date" : "tools.jackson.databind.node.StringNode",
+        "/0/longMax" : "tools.jackson.databind.node.LongNode",
+        "/0/intMax" : "tools.jackson.databind.node.IntNode",
+        "/0/double" : "tools.jackson.databind.node.DoubleNode",
+        "/0/wholeDouble" : "tools.jackson.databind.node.IntNode",
+        "/0/nested" : "tools.jackson.databind.node.ObjectNode",
+        "/0/nested/ids" : "tools.jackson.databind.node.ArrayNode",
+        "/0/nested/ids/0" : "tools.jackson.databind.node.StringNode",
+        "/0/nested/ids/1" : "tools.jackson.databind.node.IntNode",
+        "/0/nested/ids/2" : "tools.jackson.databind.node.ObjectNode",
+        "/0/nested/ids/2/at" : "tools.jackson.databind.node.StringNode",
+        "/0/int" : "tools.jackson.databind.node.IntNode",
+        "/0/long" : "tools.jackson.databind.node.LongNode",
+        "/0/null" : "tools.jackson.databind.node.NullNode",
+        "/0/alpha" : "tools.jackson.databind.node.StringNode",
+        "/0/true" : "tools.jackson.databind.node.BooleanNode",
+        "/0/unicode" : "tools.jackson.databind.node.StringNode",
+        "/0/_id" : "tools.jackson.databind.node.StringNode",
+        "/0/emptyArray" : "tools.jackson.databind.node.ArrayNode",
+        "/0/emptyObject" : "tools.jackson.databind.node.ObjectNode",
+        "/0/decimal128" : "tools.jackson.databind.node.DoubleNode",
+        "/0/bigDouble" : "tools.jackson.databind.node.DoubleNode",
+        "/1" : "tools.jackson.databind.node.ObjectNode",
+        "/1/_id" : "tools.jackson.databind.node.IntNode"
       },
       "keyOrder" : {
         "/0/nested/ids/2" : [ "at" ],
@@ -88,8 +88,8 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/n" : "com.fasterxml.jackson.databind.node.LongNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/n" : "tools.jackson.databind.node.LongNode"
       },
       "keyOrder" : {
         "" : [ "n" ]
@@ -101,8 +101,8 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/nModified" : "com.fasterxml.jackson.databind.node.IntNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/nModified" : "tools.jackson.databind.node.IntNode"
       },
       "keyOrder" : {
         "" : [ "nModified" ]
@@ -114,8 +114,8 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/n" : "com.fasterxml.jackson.databind.node.IntNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/n" : "tools.jackson.databind.node.IntNode"
       },
       "keyOrder" : {
         "" : [ "n" ]
@@ -127,15 +127,15 @@
     "queryCode" : "OK",
     "dataShape" : {
       "classes" : {
-        "" : "com.fasterxml.jackson.databind.node.ObjectNode",
-        "/values" : "com.fasterxml.jackson.databind.node.ArrayNode",
-        "/values/0" : "com.fasterxml.jackson.databind.node.IntNode",
-        "/values/1" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/values/2" : "com.fasterxml.jackson.databind.node.TextNode",
-        "/values/3" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/values/4" : "com.fasterxml.jackson.databind.node.LongNode",
-        "/values/5" : "com.fasterxml.jackson.databind.node.DoubleNode",
-        "/values/6" : "com.fasterxml.jackson.databind.node.TextNode"
+        "" : "tools.jackson.databind.node.ObjectNode",
+        "/values" : "tools.jackson.databind.node.ArrayNode",
+        "/values/0" : "tools.jackson.databind.node.IntNode",
+        "/values/1" : "tools.jackson.databind.node.StringNode",
+        "/values/2" : "tools.jackson.databind.node.StringNode",
+        "/values/3" : "tools.jackson.databind.node.DoubleNode",
+        "/values/4" : "tools.jackson.databind.node.LongNode",
+        "/values/5" : "tools.jackson.databind.node.DoubleNode",
+        "/values/6" : "tools.jackson.databind.node.StringNode"
       },
       "keyOrder" : {
         "" : [ "values" ]

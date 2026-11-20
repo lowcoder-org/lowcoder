@@ -130,7 +130,7 @@ public class WebClientBuildHelper {
         }
         return WebClient.builder()
                 .codecs(codecs -> {
-                    Jackson2ClientCodecs.apply(codecs);
+                    JacksonClientCodecs.apply(codecs);
                     codecs.defaultCodecs().maxInMemorySize(maxInMemorySize);
                 })
                 .clientConnector(new ReactorClientHttpConnector(httpClient));

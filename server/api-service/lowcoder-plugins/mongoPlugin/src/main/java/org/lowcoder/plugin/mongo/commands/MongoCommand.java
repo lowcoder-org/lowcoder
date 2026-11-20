@@ -29,8 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.lowcoder.sdk.exception.PluginException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -68,7 +68,7 @@ public abstract class MongoCommand {
 
     List<String> fieldNamesWithNoConfiguration;
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    protected static final ObjectMapper objectMapper = JsonMapper.builderWithJackson2Defaults().build();
 
     public MongoCommand(Map<String, Object> formData) {
 

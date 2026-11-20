@@ -1,8 +1,9 @@
 package org.lowcoder.api.contract.endpoint;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -92,7 +93,7 @@ class QueryFromNodeTimeoutAnswersTest {
     private static final int VIEW_CODE = 1;
     private static final String OK_QUERY_CODE = "OK";
     private static final String DATA = "QueryFromNodeTimeoutAnswersTest.rows";
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builderWithJackson2Defaults().build();
 
     private ContractTestClient.Builder builder;
     private final DatasourceConnectionPool pool = Mockito.mock(DatasourceConnectionPool.class);

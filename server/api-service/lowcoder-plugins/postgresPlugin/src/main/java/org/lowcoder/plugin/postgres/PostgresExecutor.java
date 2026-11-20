@@ -34,9 +34,7 @@ import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresDeleteCommand
 import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresInsertCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresUpdateCommand;
 import org.pf4j.Extension;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
+import tools.jackson.core.JacksonException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,7 +48,7 @@ public class PostgresExecutor extends SqlBasedQueryExecutor {
             protected List<Map<String, Object>> parseDataRows(ResultSet resultSet) throws SQLException {
                 try {
                     return PostgresResultParser.parseRows(resultSet);
-                } catch (JsonProcessingException e) {
+                } catch (JacksonException e) {
                     throw new PluginException(QUERY_EXECUTION_ERROR, "QUERY_EXECUTION_ERROR", e.getMessage());
                 }
             }

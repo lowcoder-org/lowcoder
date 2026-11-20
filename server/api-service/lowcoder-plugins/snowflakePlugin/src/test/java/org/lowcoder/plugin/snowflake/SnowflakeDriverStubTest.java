@@ -1,7 +1,8 @@
 package org.lowcoder.plugin.snowflake;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.contract.RecordingHttpServer;
@@ -13,8 +14,8 @@ import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
+import tools.jackson.core.JacksonException;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -54,7 +55,7 @@ public class SnowflakeDriverStubTest {
 
     static final String TAG = "[SnowflakeDriverStubTest] ";
     static final Duration TIMEOUT = Duration.ofSeconds(60);
-    static final ObjectMapper JSON = new ObjectMapper();
+    static final ObjectMapper JSON = JsonMapper.builderWithJackson2Defaults().build();
     static final String LOGIN_PATH = "/session/v1/login-request";
     static final String QUERY_PATH = "/queries/v1/query-request";
     static final String HEARTBEAT_PATH = "/session/heartbeat";
@@ -166,7 +167,7 @@ public class SnowflakeDriverStubTest {
     private static JsonNode bodyOf(Request request) {
         try {
             return JSON.readTree(request.bodyText());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("not JSON: " + request.pathAndQuery(), e);
         }
     }
@@ -206,11 +207,11 @@ public class SnowflakeDriverStubTest {
             assertEquals("POST", login.method());
             assertTrue(login.pathAndQuery().contains("databaseName=" + DATABASE), "the db property is the login's database: " + login.pathAndQuery());
             JsonNode data = bodyOf(login).path("data");
-            assertEquals(HOST, data.path("ACCOUNT_NAME").asText(), "the account is the datasource's host");
-            assertEquals(USER, data.path("LOGIN_NAME").asText(), "the user property is the login name");
-            assertEquals(PASSWORD, data.path("PASSWORD").asText(), "the password property is the login password");
-            assertEquals("JSON", data.path("SESSION_PARAMETERS").path("JDBC_QUERY_RESULT_FORMAT").asText(), "the extParams reach the driver as session parameters");
-            assertEquals("JDBC", data.path("CLIENT_APP_ID").asText(), "the request is the JDBC driver's");
+            assertEquals(HOST, data.path("ACCOUNT_NAME").asString(), "the account is the datasource's host");
+            assertEquals(USER, data.path("LOGIN_NAME").asString(), "the user property is the login name");
+            assertEquals(PASSWORD, data.path("PASSWORD").asString(), "the password property is the login password");
+            assertEquals("JSON", data.path("SESSION_PARAMETERS").path("JDBC_QUERY_RESULT_FORMAT").asString(), "the extParams reach the driver as session parameters");
+            assertEquals("JDBC", data.path("CLIENT_APP_ID").asString(), "the request is the JDBC driver's");
 
             List<Request> logouts = logoutsOf(server);
             assertFalse(logouts.isEmpty(), "closing the tested pool logged the session out: " + server.requests().stream().map(Request::pathAndQuery).toList());
@@ -255,7 +256,7 @@ public class SnowflakeDriverStubTest {
                 List<Request> queries = requestsTo(server, QUERY_PATH);
                 assertEquals(1, queries.size(), "one query request reached the stand-in");
                 JsonNode sent = bodyOf(queries.get(0));
-                assertEquals(SELECT_SQL, sent.path("sqlText").asText(), "the statement is sent as written (no bind parameters: the executor forces a plain statement)");
+                assertEquals(SELECT_SQL, sent.path("sqlText").asString(), "the statement is sent as written (no bind parameters: the executor forces a plain statement)");
                 assertTrue(queries.get(0).header("Authorization").stream().anyMatch(value -> value.contains("session-token")),
                         "the query carries the session token of the login answer: " + queries.get(0).header("Authorization"));
             } finally {
