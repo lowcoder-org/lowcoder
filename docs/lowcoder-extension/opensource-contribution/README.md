@@ -201,7 +201,7 @@ Vite keeps the Browser for all changes current. That means you can see the effec
 
 #### Preparation
 
-To develop with us in the API-Service, you need to have Java - OpenJDK 17 Maven - Version 3+ (preferably 3.8+) installed. Also, it is helpful if you have knowledge of [Spring Webflux](https://docs.spring.io/spring-framework/reference/web/webflux.html)
+To develop with us in the API-Service, you need to have Java - OpenJDK 25 Maven - Version 3+ (preferably 3.8+) installed. Also, it is helpful if you have knowledge of [Spring Webflux](https://docs.spring.io/spring-framework/reference/web/webflux.html)
 
 You would need to have a MongoDB and a RedisDB ready and accessible.
 
@@ -279,7 +279,7 @@ This is the main class. Now you can use the IDE to "run" it or "debug it".
 
 Configure the Run/Debug configuration as shown below.
 
-| JDK version | Java 17                                                                                                                                                                          |
+| JDK version | Java 25                                                                                                                                                                          |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | -cp         | lowcoder-server                                                                                                                                                                  |
 | VM options  | -Dpf4j.mode=development -Dpf4j.pluginsDir=lowcoder-plugins -Dspring.profiles.active=lowcoder -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED |

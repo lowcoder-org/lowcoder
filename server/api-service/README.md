@@ -4,7 +4,7 @@ This document explains how to start Lowcoder server locally.
 
 ## System Prerequisites
 
-Java - OpenJDK 17 Maven - Version 3+ (preferably 3.8+)
+Java - OpenJDK 25 Maven - Version 3+ (preferably 3.8+)
 
 ### MongoDB
 
@@ -50,7 +50,7 @@ The contents should look like this:
             "request": "launch",
             "mainClass": "org.lowcoder.api.ServerApplication",
             "projectName": "lowcoder-server",
-            "vmArgs": "-Dpf4j.mode=development -Dpf4j.pluginsDir=server/api-service/lowcoder-plugins -Dspring.profiles.active=lowcoder-local-dev -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED"
+            "vmArgs": "-Dpf4j.mode=development -Dpf4j.pluginsDir=server/api-service/lowcoder-plugins -Dspring.profiles.active=lowcoder-local-dev -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED --enable-native-access=ALL-UNNAMED"
         }
     ],
 }
@@ -96,7 +96,7 @@ Configure the Run/Debug configuration as shown below.
 <table>
     <tr>
         <td style="width: 115px">JDK version</td>
-        <td>Java 17  </td>
+        <td>Java 25  </td>
     </tr>
     <tr>
         <td>-cp </td>
@@ -104,13 +104,15 @@ Configure the Run/Debug configuration as shown below.
     </tr>
     <tr>
         <td>VM options </td>
-        <td>-Dpf4j.mode=development -Dpf4j.pluginsDir=lowcoder-plugins -Dspring.profiles.active=lowcoder -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED</td>
+        <td>-Dpf4j.mode=development -Dpf4j.pluginsDir=lowcoder-plugins -Dspring.profiles.active=lowcoder -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED --enable-native-access=ALL-UNNAMED</td>
     </tr>
     <tr>
         <td>Main class </td>
         <td>com.lowcoder.api.ServerApplication </td>
     </tr>
 </table>
+
+`-XX:+AllowRedefinitionToAddDeleteMethods` is deprecated on Java 25 and prints a warning at start. It is only needed when BlockHound is enabled.
 
 ## Build locally
 
