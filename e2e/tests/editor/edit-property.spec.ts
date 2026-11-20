@@ -16,7 +16,7 @@ test("a property changed in the editor is shown, saved and still there after a r
   const properties = new PropertyPanel(page);
 
   await editor.open(appId);
-  await editor.dragFromInsertPanel("Button", DEFAULT_LABEL, { x: 120, y: 40 });
+  await editor.dragFromInsertPanel("button", "Button", { x: 120, y: 40 });
   await editor.canvasButton(DEFAULT_LABEL).click();
   await properties.setValue("Text", NEW_LABEL);
 

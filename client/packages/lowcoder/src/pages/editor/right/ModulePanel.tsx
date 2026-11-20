@@ -228,6 +228,7 @@ function ModuleItem(props: ModuleItemProps) {
     return (
         <ItemWrapper
             draggable
+            data-testid={`insert-comp-${compType}`}
             onDragStart={(e) => {
                 e.stopPropagation();
                 e.dataTransfer.setData("compType", compType);

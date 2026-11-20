@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
-import { APP_PAGE, EDITOR_SETTLE_MS, INSERT_PANEL_ATTEMPT_TIMEOUT_MS, INSERT_PANEL_TIMEOUT_MS } from "../constants";
+import { APP_PAGE, GRID_SETTLE_MS, INSERT_PANEL_ATTEMPT_TIMEOUT_MS, INSERT_PANEL_TIMEOUT_MS } from "../constants";
 
 /** The app editor at /apps/{id}/edit. */
 export class EditorPage {
@@ -15,6 +15,11 @@ export class EditorPage {
     return this.page.locator(`.lowcoder-${compType}`);
   }
 
+  /** A canvas item by the name of its component (`data-comp-name`), e.g. `button1`. */
+  canvasItemNamed(name: string): Locator {
+    return this.page.locator(`[data-comp-name="${name}"]`);
+  }
+
   /**
    * A button on the canvas, by its label. The `.lowcoder-button` wrapper itself has no box and cannot be
    * clicked, so tests act on the button inside the canvas.
@@ -23,36 +28,34 @@ export class EditorPage {
     return this.canvas.getByRole("button", { name: label });
   }
 
-  async open(appId: string): Promise<void> {
+  /**
+   * Opens the editor and waits until edits are saved. The editor marks itself with `data-editor-ready` once its
+   * save baseline exists; an edit made before that is lost. Then waits GRID_SETTLE_MS so that a dropped component
+   * gets a usable size (defect D-5); `settleGrid: false` skips that wait, for the test that exposes the defect.
+   */
+  async open(appId: string, options: { settleGrid?: boolean } = {}): Promise<void> {
     await this.page.goto(APP_PAGE.EDIT(appId), { waitUntil: "networkidle" });
-    // The left panel lists the built-in data variables once the editor has built the app's component tree.
-    await expect(this.page.getByText("currentUser", { exact: true })).toBeVisible();
-    // See EDITOR_SETTLE_MS: an edit made before the editor took its save baseline is lost.
-    await this.page.waitForTimeout(EDITOR_SETTLE_MS);
+    await this.page.locator('[data-editor-ready="true"]').waitFor({ state: "attached" });
+    if (options.settleGrid ?? true) {
+      await this.page.waitForTimeout(GRID_SETTLE_MS);
+    }
   }
 
   /**
    * Drags a component from the insert panel onto the canvas.
-   * @param searchText what to type into the panel search (matches the English component name)
-   * @param tileLabel the label of the tile to drag, as the panel shows it
+   * @param compType the component type; its tile has the test id `insert-comp-<compType>`
+   * @param searchText what to type into the panel search so the tile is in the filtered list
    */
-  async dragFromInsertPanel(
-    searchText: string,
-    tileLabel: string,
-    target: { x: number; y: number },
-  ): Promise<void> {
-    // The right panel tabs are <p> elements, not ARIA tabs.
-    await this.page.getByText("Insert", { exact: true }).click();
-    const tile = this.page.getByText(tileLabel, { exact: true }).first();
-    // The draggable element is the sibling that precedes the label.
-    const source = tile.locator('xpath=preceding-sibling::div[@draggable="true"]');
+  async dragFromInsertPanel(compType: string, searchText: string, target: { x: number; y: number }): Promise<void> {
+    await this.page.getByRole("tab", { name: "Insert" }).click();
+    const source = this.page.getByTestId(`insert-comp-${compType}`);
     await expect(this.canvas).toBeVisible();
-    // The panel re-renders while the editor finishes loading (late under load) and clears the search box, so
-    // the tile can vanish between finding it and dragging it. An attempt that cannot drag drops nothing, so
-    // the whole attempt (search, find, drag) is retried; an attempt that drags ends the retries.
+    // The panel re-renders while the editor finishes loading and clears the search box, so the tile can vanish
+    // between finding it and dragging it. An attempt that cannot drag drops nothing, so the whole attempt
+    // (search, find, drag) is retried; an attempt that drags ends the retries.
     await expect(async () => {
       await this.page.getByRole("textbox", { name: "Search Components or Modules" }).fill(searchText);
-      await expect(tile).toBeVisible({ timeout: INSERT_PANEL_ATTEMPT_TIMEOUT_MS });
+      await expect(source).toBeVisible({ timeout: INSERT_PANEL_ATTEMPT_TIMEOUT_MS });
       await source.dragTo(this.canvas, { targetPosition: target, timeout: INSERT_PANEL_ATTEMPT_TIMEOUT_MS });
     }).toPass({ timeout: INSERT_PANEL_TIMEOUT_MS });
   }

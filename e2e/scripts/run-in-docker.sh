@@ -13,12 +13,14 @@
 ##   e2e/scripts/run-in-docker.sh --repeat-each=10 --workers=4
 ##
 ## Environment:
-##   LOWCODER_E2E_IMAGE  image under test (default lowcoderorg/lowcoder-ce:3.0.0), e.g. a locally built one
+##   LOWCODER_E2E_IMAGE  image under test (default lowcoderorg/lowcoder-ce:3.0.0-e2e, made by
+##                       e2e/scripts/build-e2e-image.sh: the 3.0.0 image with the client of this checkout; the
+##                       tests need the hooks of that client, so a release image without them fails)
 ##   PLAYWRIGHT_IMAGE    runner image; its version must equal @playwright/test in e2e/package-lock.json
 ##                       (default mcr.microsoft.com/playwright:v1.64.0-noble)
+##   E2E_INCLUDE_QUARANTINE  set to 1 to also run the @quarantine tests (they expose known defects)
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
-##   E2E_EDITOR_SETTLE_MS  wait after opening the editor (see EDITOR_SETTLE_MS in e2e/src/constants.ts)
 ##
 ## Results: e2e/playwright-report (HTML), e2e/test-results (JUnit, traces, videos, screenshots of failures).
 ## Exit code: the one of `playwright test`; non-zero when the app does not start or the versions differ.
@@ -36,7 +38,7 @@
 
 set -euo pipefail
 
-readonly DEFAULT_APP_IMAGE="lowcoderorg/lowcoder-ce:3.0.0"
+readonly DEFAULT_APP_IMAGE="lowcoderorg/lowcoder-ce:3.0.0-e2e"
 readonly DEFAULT_PLAYWRIGHT_IMAGE="mcr.microsoft.com/playwright:v1.64.0-noble"
 readonly APP_IMAGE="${LOWCODER_E2E_IMAGE:-$DEFAULT_APP_IMAGE}"
 readonly PLAYWRIGHT_IMAGE="${PLAYWRIGHT_IMAGE:-$DEFAULT_PLAYWRIGHT_IMAGE}"
@@ -104,6 +106,12 @@ check_playwright_versions() {
     fi
 }
 
+check_app_image() {
+    if ! docker image inspect "$APP_IMAGE" > /dev/null 2>&1 && [ "$APP_IMAGE" = "$DEFAULT_APP_IMAGE" ]; then
+        fail "image $APP_IMAGE does not exist; build it with e2e/scripts/build-e2e-image.sh"
+    fi
+}
+
 start_app() {
     local publish=()
     if [ -n "${E2E_HOST_PORT:-}" ]; then
@@ -166,7 +174,7 @@ run_tests() {
         -e CI="${CI:-}" \
         -e LOWCODER_BASE_URL="http://${APP_CONTAINER}:${APP_PORT}" \
         -e E2E_POSTGRES_HOST="$POSTGRES_CONTAINER" \
-        -e E2E_EDITOR_SETTLE_MS="${E2E_EDITOR_SETTLE_MS:-}" \
+        -e E2E_INCLUDE_QUARANTINE="${E2E_INCLUDE_QUARANTINE:-}" \
         -v "$E2E_DIR":/work -w /work \
         "$PLAYWRIGHT_IMAGE" \
         sh -c 'npm ci --no-audit --no-fund && npx playwright test "$@"' sh "$@" || status=$?
@@ -174,6 +182,7 @@ run_tests() {
 }
 
 check_playwright_versions
+check_app_image
 docker network create "$NETWORK" > /dev/null
 start_postgres
 start_app

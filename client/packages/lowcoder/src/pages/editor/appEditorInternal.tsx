@@ -32,13 +32,17 @@ import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSel
  * FIXME: optimize the logic of saving comps
  * compose debounce + throttle
  * make sure savingComps succeed before executing
+ *
+ * Returns whether the baseline exists: the first comp state seen after mounting is taken as the baseline and is
+ * never sent, so an edit that lands before this is true is not saved. It is false while the app is read-only or
+ * editing is blocked, because no baseline is taken then.
  */
 function useSaveComp(
   applicationId: string,
   readOnly: boolean,
   rootCompInstance: RootCompInstanceType | undefined,
   blockEditing?: boolean,
-) {
+): boolean {
   const originalComp = rootCompInstance?.comp;
   // throttle comp change
   const comp = useThrottle(originalComp, 1000);
@@ -100,6 +104,9 @@ function useSaveComp(
     setPrevJsonStr(undefined);
     setPrevAppId(undefined);
   });
+
+  // Saving is off while read-only or blocked, so no edit is saved then, whatever baseline was taken before.
+  return Boolean(prevJsonStr) && !readOnly && !blockEditing;
 }
 
 const exportAppToJson = (appDSL?: any) => {
@@ -216,7 +223,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
     };
   }, [isUserViewMode]);
 
-  useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
+  const saveBaselineTaken = useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
 
   const loading =
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
@@ -246,6 +253,8 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
       }}
     >
       <ExternalEditorContext.Provider value={externalEditorState}>
+        {/* Tells tests (and anything else watching the DOM) that edits made from now on are saved. */}
+        {saveBaselineTaken && <span hidden data-editor-ready="true" />}
         {compInstance?.comp?.getView()}
       </ExternalEditorContext.Provider>
     </ConfigProvider>

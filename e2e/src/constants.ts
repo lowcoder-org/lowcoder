@@ -84,12 +84,12 @@ export const TAGS = {
 } as const;
 
 /**
- * WORKAROUND, remove when the editor exposes a "ready to save" signal: the first component state the editor
- * sees after mounting becomes its save baseline and is never sent (useSaveComp in
- * client/packages/lowcoder/src/pages/editor/appEditorInternal.tsx), so an edit made earlier is lost.
- * Measured: without this wait 6 of 12 parallel drag runs lost the edit, with 2.5 s none.
+ * WORKAROUND for defect D-5 (client/E2E-TESTING-defects-report.md): a component dropped within about 0.5 s after
+ * the editor reports ready gets the layout width 0 and is unusable. Measured on 3.0.0-e2e, 4 drops per delay:
+ * 0 ms -> 4 of 4 had width 0, 500 ms -> 1 of 4, 1000 ms and more -> 0 of 4. Remove when the editor exposes a
+ * signal for the layout being measured.
  */
-export const EDITOR_SETTLE_MS = Number(process.env.E2E_EDITOR_SETTLE_MS || 2500);
+export const GRID_SETTLE_MS = 1500;
 
 export const SAVE_POLL_TIMEOUT_MS = 20_000;
 export const INSERT_PANEL_TIMEOUT_MS = 30_000;

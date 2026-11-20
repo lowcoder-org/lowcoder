@@ -278,6 +278,7 @@ export const GridItem = React.memo((props: GridItemProps) => {
     return (
       <div
         className={testSelectorClass}
+        data-comp-name={props.name}
         ref={elementRef}
         draggable={isDraggable}
         onDragStart={isDraggable ? onDragStart : undefined}
