@@ -1,0 +1,116 @@
+{
+ "ui": {
+  "layout": {
+   "5cc74b5f": {
+    "i": "5cc74b5f",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "5cc74b5f": {
+    "compType": "custom",
+    "comp": {
+     "model": "{\n  \"name\": \"{{currentUser.name}}\",\n  \"text\": \"It's a Good Day.\",\n  \"query\": \"query1\"\n}",
+     "code": "\n  <style type=\"text/css\">\n  body {\n    padding: 5px;\n  }\n  </style>\n  \n  <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/antd@4.21.4/dist/antd.min.css\"/>\n  <script type=\"text/javascript\" src=\"https://unpkg.com/antd@4.21.4/dist/antd.min.js\" ></script>\n  \n  <div id=\"root\"></div>\n  \n  <script type=\"text/babel\">\n  \n  const { Button, Card, Space } = antd;\n  \n  const MyCustomComponent = ({ runQuery, model, updateModel}) => (\n    <Card title={\"Hello, \" + model.name}>\n        <p>{model.text}</p>\n        <Space>\n          <Button\n            type=\"primary\"\n            onClick={() => runQuery({ queryName: model.query })}\n         >\n            Trigger Query\n          </Button>\n          <Button\n            onClick={() => updateModel({ text: \"I'm Also in a Good Mood to Develop now my own Custom Component with Lowcoder!\" })}\n          >\n          Update Data\n          </Button>\n      </Space>\n    </Card>\n  );\n  \n  const ConnectedComponent = Lowcoder.connect(MyCustomComponent);\n  const root = ReactDOM.createRoot(document.getElementById(\"root\"));\n  root.render(<ConnectedComponent />);\n  \n  </script>\n  ",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "custom1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

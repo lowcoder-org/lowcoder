@@ -1,0 +1,123 @@
+{
+ "ui": {
+  "layout": {
+   "1ff12a75": {
+    "i": "1ff12a75",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "1ff12a75": {
+    "compType": "timeline",
+    "comp": {
+     "value": "[\n  {\n    \"title\": \"Majiang Releases\",\n    \"subTitle\": \"Majiang Published in China\",\n    \"label\": \"2022-6-10\"\n  },\n  {\n    \"title\": \"Openblocks public release\",\n    \"subTitle\": \"Openblocks open source in GitHub\",\n    \"label\": \"2022-11-28\"\n  },\n  {\n    \"title\": \"Last code submission\",\n    \"subTitle\": \"Openblocks project abandoned\",\n    \"dot\": \"ExclamationCircleOutlined\",\n    \"label\": \"2023-3-28\",\n    \"color\": \"red\",\n    \"titleColor\": \"red\",\n    \"subTitleColor\": \"red\",\n    \"labelColor\": \"red\"\n  },\n  {\n    \"title\": \"Lowcoder 2.0\",\n    \"subTitle\": \"Lowcoder, keep moving forward\",\n    \"dot\": \"LogoutOutlined\",\n    \"color\": \"green\",\n    \"label\": \"2023-6-20\"\n  }\n]",
+     "mode": "alternate",
+     "autoHeight": "auto",
+     "verticalScrollbar": false,
+     "pending": "Continuous Improvement",
+     "clickedObject": {
+      "title": ""
+     },
+     "clickedIndex": 0,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "timeline1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

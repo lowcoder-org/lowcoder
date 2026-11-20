@@ -1,0 +1,182 @@
+{
+ "ui": {
+  "layout": {
+   "4327f2f": {
+    "i": "4327f2f",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "4327f2f": {
+    "compType": "scatterChart",
+    "comp": {
+     "mode": "ui",
+     "title": "Chart",
+     "data": "[\n  {\n    \"hours\": 1.5,\n    \"score\": 62,\n    \"student\": \"Alex M.\"\n  },\n  {\n    \"hours\": 2,\n    \"score\": 65,\n    \"student\": \"Sarah P.\"\n  },\n  {\n    \"hours\": 2.5,\n    \"score\": 71,\n    \"student\": \"James W.\"\n  },\n  {\n    \"hours\": 2.8,\n    \"score\": 69,\n    \"student\": \"Emma L.\"\n  },\n  {\n    \"hours\": 3,\n    \"score\": 75,\n    \"student\": \"Michael R.\"\n  },\n  {\n    \"hours\": 3.2,\n    \"score\": 73,\n    \"student\": \"Lisa K.\"\n  },\n  {\n    \"hours\": 3.5,\n    \"score\": 78,\n    \"student\": \"David H.\"\n  },\n  {\n    \"hours\": 3.8,\n    \"score\": 77,\n    \"student\": \"Sophie T.\"\n  },\n  {\n    \"hours\": 4,\n    \"score\": 82,\n    \"student\": \"Ryan B.\"\n  },\n  {\n    \"hours\": 4.2,\n    \"score\": 84,\n    \"student\": \"Nina C.\"\n  },\n  {\n    \"hours\": 4.5,\n    \"score\": 86,\n    \"student\": \"Thomas G.\"\n  },\n  {\n    \"hours\": 4.8,\n    \"score\": 88,\n    \"student\": \"Maria S.\"\n  },\n  {\n    \"hours\": 5,\n    \"score\": 89,\n    \"student\": \"Daniel F.\"\n  },\n  {\n    \"hours\": 5.2,\n    \"score\": 91,\n    \"student\": \"Anna D.\"\n  },\n  {\n    \"hours\": 5.5,\n    \"score\": 90,\n    \"student\": \"Kevin P.\"\n  },\n  {\n    \"hours\": 5.8,\n    \"score\": 93,\n    \"student\": \"Rachel M.\"\n  },\n  {\n    \"hours\": 6,\n    \"score\": 95,\n    \"student\": \"John L.\"\n  },\n  {\n    \"hours\": 6.2,\n    \"score\": 94,\n    \"student\": \"Emily W.\"\n  },\n  {\n    \"hours\": 3,\n    \"score\": 68,\n    \"student\": \"Chris B.\"\n  },\n  {\n    \"hours\": 5,\n    \"score\": 96,\n    \"student\": \"Jessica H.\"\n  }\n]",
+     "xAxisKey": "hours",
+     "xAxisDirection": "horizontal",
+     "xAxisData": "[]",
+     "series": [
+      {
+       "columnName": "hours",
+       "seriesName": "hours",
+       "dynamicIndex": "1",
+       "divider": "1000",
+       "markLineFrom": "[0,0]",
+       "markLineTo": "[1000,1000]",
+       "dataIndex": "2f7b8e83"
+      },
+      {
+       "columnName": "score",
+       "seriesName": "score",
+       "dynamicIndex": "1",
+       "divider": "1000",
+       "markLineFrom": "[0,0]",
+       "markLineTo": "[1000,1000]",
+       "dataIndex": "1671f865"
+      }
+     ],
+     "xConfig": {
+      "type": "default"
+     },
+     "yConfig": {
+      "yAxisType": "value"
+     },
+     "legendConfig": {
+      "position": "bottom"
+     },
+     "chartConfig": {
+      "compType": "scatter",
+      "comp": {
+       "labelIndex": "2",
+       "shape": "circle",
+       "boundaryGap": true,
+       "heatmapMonth": "2021-09"
+      }
+     },
+     "echartsOption": "{\n  \"data\": [\n    {\n      \"value\": 100,\n      \"name\": \"Show\",\n      \"color\": \"#fc8452\"\n    },\n    {\n      \"value\": 80,\n      \"name\": \"Click\",\n      \"color\": \"#9a60b4\"\n    },\n    {\n      \"value\": 60,\n      \"name\": \"Visit\",\n      \"color\": \"#fac858\"\n    },\n    {\n      \"value\": 40,\n      \"name\": \"Query\",\n      \"color\": \"#ee6666\"\n    },\n    {\n      \"value\": 20,\n      \"name\": \"Buy\",\n      \"color\": \"#3ba272\"\n    }\n  ]\n}",
+     "echartsTitle": "Chart",
+     "echartsLegendConfig": {
+      "position": "bottom"
+     },
+     "echartsLabelConfig": {
+      "position": "inside"
+     },
+     "echartsConfig": {
+      "compType": "funnel",
+      "comp": {}
+     },
+     "echartsTitleVerticalConfig": {
+      "position": "top"
+     },
+     "echartsTitleConfig": {
+      "position": "center"
+     },
+     "left": "10",
+     "right": "10",
+     "top": "20",
+     "bottom": "20",
+     "tooltip": true,
+     "legendVisibility": true,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "scatterChart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

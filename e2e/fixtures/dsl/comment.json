@@ -1,0 +1,125 @@
+{
+ "ui": {
+  "layout": {
+   "d8e3ca9": {
+    "i": "d8e3ca9",
+    "h": 55,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "d8e3ca9": {
+    "compType": "comment",
+    "comp": {
+     "value": "[\n  {\n    \"user\": {\n      \"name\": \"John Doe\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=John+Doe\"\n    },\n    \"value\": \"Has anyone tried using Lowcode for our new internal tool yet?\",\n    \"createdAt\": \"2024-09-20T10:15:41.658Z\"\n  },\n  {\n    \"user\": {\n      \"name\": \"Jane Smith\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=Jane+Smith\"\n    },\n    \"value\": \"Yes, I’ve been experimenting with it for automating our workflows. It's super quick to set up.\",\n    \"createdAt\": \"2024-09-20T10:17:12.658Z\"\n  },\n  {\n    \"user\": {\n      \"name\": \"Michael Brown\",\n      \"displayName\": \"Michael\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=Michael+Brown\"\n    },\n    \"value\": \"That sounds interesting! What kind of automation are you building?\",\n    \"createdAt\": \"2024-09-20T10:18:45.658Z\"\n  },\n  {\n    \"user\": {\n      \"name\": \"Jane Smith\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=Jane+Smith\"\n    },\n    \"value\": \"Mostly automating form submissions and integrating them with our CRM. It's easy to drag-and-drop components.\",\n    \"createdAt\": \"2024-09-20T10:20:30.658Z\"\n  },\n  {\n    \"user\": {\n      \"name\": \"John Doe\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=John+Doe\"\n    },\n    \"value\": \"We should look into using it for API integrations as well. Lowcode could save a lot of development time.\",\n    \"createdAt\": \"2024-09-20T10:22:05.658Z\"\n  },\n  {\n    \"user\": {\n      \"name\": \"Michael Brown\",\n      \"displayName\": \"Michael\",\n      \"avatar\": \"https://ui-avatars.com/api/?name=Michael+Brown\"\n    },\n    \"value\": \"I agree. Let’s plan a session next week to dive deeper into the possibilities.\",\n    \"createdAt\": \"2024-09-20T10:23:55.658Z\"\n  }\n]",
+     "title": "%d Comment in Total",
+     "placeholder": "Shift + Enter to Comment; Enter @ or # for Quick Input",
+     "buttonText": "Comment",
+     "sendCommentAble": true,
+     "userInfo": "{\n  \"name\": \"{{currentUser.name}}\",\n  \"email\": \"{{currentUser.email}}\"\n}",
+     "mentionList": "{\n  \"@\": [\n    \"John Doe\",\n    \"Jane Doe\",\n    \"Michael Smith\",\n    \"Emily Davis\",\n    \"Robert Johnson\",\n    \"Patricia Brown\",\n    \"William Jones\",\n    \"Jennifer Miller\",\n    \"David Wilson\",\n    \"Linda Moore\"\n  ],\n  \"#\": [\n    \"#lowcode\",\n    \"#automation\",\n    \"#appbuilder\",\n    \"#nocode\",\n    \"#workflow\",\n    \"#draganddrop\",\n    \"#rapiddevelopment\",\n    \"#digitaltransformation\",\n    \"#integration\",\n    \"#api\"\n  ]\n}",
+     "commentList": "[]",
+     "deletedItem": "[]",
+     "submitedItem": "[]",
+     "mentionName": "",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "comment1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

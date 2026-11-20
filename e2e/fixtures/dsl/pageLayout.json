@@ -1,0 +1,319 @@
+{
+ "ui": {
+  "layout": {
+   "728288d6": {
+    "i": "728288d6",
+    "h": 50,
+    "w": 9,
+    "delayCollision": true,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "728288d6": {
+    "compType": "pageLayout",
+    "comp": {
+     "container": {
+      "header": {
+       "layout": {
+        "187aed49": {
+         "i": "187aed49",
+         "h": 6,
+         "w": 24,
+         "x": 0,
+         "y": 0
+        }
+       },
+       "items": {
+        "187aed49": {
+         "compType": "navigation",
+         "comp": {
+          "logoEvent": [
+           {
+            "name": "click",
+            "handler": {
+             "compType": "empty",
+             "comp": {},
+             "condition": "",
+             "slowdown": "debounce",
+             "delay": ""
+            }
+           }
+          ],
+          "orientation": "horizontal",
+          "displayMode": "bar",
+          "hamburgerPosition": "right",
+          "hamburgerSize": "56px",
+          "placement": "right",
+          "hamburgerIcon": "",
+          "drawerCloseIcon": "",
+          "shadowOverlay": "true",
+          "horizontalAlignment": "left",
+          "items": {
+           "optionType": "manual",
+           "manual": [
+            {
+             "label": "Home",
+             "hidden": "false",
+             "active": "false",
+             "onEvent": [
+              {
+               "name": "click",
+               "handler": {
+                "compType": "openAppPage",
+                "comp": {
+                 "query": [
+                  {}
+                 ],
+                 "hash": [
+                  {}
+                 ]
+                },
+                "condition": "",
+                "slowdown": "debounce",
+                "delay": ""
+               }
+              }
+             ]
+            },
+            {
+             "label": "Services",
+             "hidden": "false",
+             "active": "false",
+             "onEvent": [
+              {
+               "name": "click",
+               "handler": {
+                "compType": "openAppPage",
+                "comp": {
+                 "query": [
+                  {}
+                 ],
+                 "hash": [
+                  {}
+                 ]
+                },
+                "condition": "",
+                "slowdown": "debounce",
+                "delay": ""
+               }
+              }
+             ],
+             "items": [
+              {
+               "label": "Lowcode Platform",
+               "hidden": "false",
+               "active": "false",
+               "onEvent": [
+                {
+                 "name": "click",
+                 "handler": {
+                  "compType": "openAppPage",
+                  "comp": {
+                   "query": [
+                    {}
+                   ],
+                   "hash": [
+                    {}
+                   ]
+                  },
+                  "condition": "",
+                  "slowdown": "debounce",
+                  "delay": ""
+                 }
+                }
+               ]
+              },
+              {
+               "label": "App Development",
+               "hidden": "false",
+               "active": "false",
+               "onEvent": [
+                {
+                 "name": "click",
+                 "handler": {
+                  "compType": "openAppPage",
+                  "comp": {
+                   "query": [
+                    {}
+                   ],
+                   "hash": [
+                    {}
+                   ]
+                  },
+                  "condition": "",
+                  "slowdown": "debounce",
+                  "delay": ""
+                 }
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "label": "About",
+             "hidden": "false",
+             "active": "false",
+             "onEvent": [
+              {
+               "name": "click",
+               "handler": {
+                "compType": "openAppPage",
+                "comp": {
+                 "query": [
+                  {}
+                 ],
+                 "hash": [
+                  {}
+                 ]
+                },
+                "condition": "",
+                "slowdown": "debounce",
+                "delay": ""
+               }
+              }
+             ]
+            }
+           ],
+           "mapData": {
+            "data": "[]"
+           }
+          },
+          "hidden": "false",
+          "showDataLoadingIndicators": false,
+          "preventStyleOverwriting": false,
+          "appliedThemeId": "",
+          "version": "latest"
+         },
+         "name": "pageNavigation1"
+        }
+       }
+      },
+      "sider": {
+       "layout": {}
+      },
+      "body": {
+       "0": {
+        "view": {
+         "layout": {}
+        }
+       }
+      },
+      "footer": {
+       "layout": {}
+      },
+      "showHeader": true,
+      "showSider": true,
+      "innerSider": true,
+      "siderCollapsible": false,
+      "siderCollapsed": false,
+      "siderRight": false,
+      "siderWidth": "20%",
+      "siderCollapsedWidth": "0",
+      "horizontalGridCells": 24,
+      "autoHeight": "auto",
+      "siderScrollbars": false,
+      "contentScrollbars": false,
+      "mainScrollbars": false,
+      "appliedThemeId": ""
+     },
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "pageLayout1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

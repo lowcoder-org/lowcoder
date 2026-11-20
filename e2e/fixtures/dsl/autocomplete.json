@@ -1,0 +1,136 @@
+{
+ "ui": {
+  "layout": {
+   "7fa98600": {
+    "i": "7fa98600",
+    "h": 5,
+    "w": 6,
+    "x": 0,
+    "y": 3,
+    "pos": 0
+   }
+  },
+  "items": {
+   "7fa98600": {
+    "compType": "autocomplete",
+    "comp": {
+     "defaultValue": "",
+     "value": "",
+     "label": {
+      "text": "Label",
+      "width": "33",
+      "widthUnit": "%",
+      "position": "row",
+      "align": "left"
+     },
+     "validationType": "Text",
+     "allowClear": true,
+     "items": "[\n  {\n    \"value\": \"1-BeiJing\",\n    \"label\": \"北京\"\n  },\n  {\n    \"value\": \"2-ShangHai\",\n    \"label\": \"上海\"\n  },\n  {\n    \"value\": \"3-GuangDong\",\n    \"label\": \"广东\"\n  },\n  {\n    \"value\": \"4-ShenZhen\",\n    \"label\": \"深圳\"\n  }\n]",
+     "filterOptionsByInput": true,
+     "ignoreCase": true,
+     "searchFirstPY": true,
+     "searchLabelOnly": true,
+     "valueOrLabel": "label",
+     "autoCompleteType": "normal",
+     "autocompleteIconColor": "blue",
+     "componentSize": "small",
+     "valueInItems": "",
+     "selectedOption": "{}",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "autocomplete1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

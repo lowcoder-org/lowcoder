@@ -1,0 +1,183 @@
+{
+ "ui": {
+  "layout": {
+   "14f7da67": {
+    "i": "14f7da67",
+    "h": 25,
+    "w": 9,
+    "delayCollision": true,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "14f7da67": {
+    "compType": "floatTextContainer",
+    "comp": {
+     "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi feugiat faucibus eleifend. Pellentesque eleifend, risus vel sagittis mattis, mauris ipsum tempor sapien, eu lobortis lacus libero a dui. Cras erat felis, rhoncus vestibulum consectetur et, ultrices ut purus. Sed a tortor orci. Vestibulum nec eleifend ante.",
+     "type": "markdown",
+     "float": "left",
+     "horizontalAlignment": "left",
+     "width": "40",
+     "container": {
+      "header": {
+       "layout": {
+        "860f9943": {
+         "i": "860f9943",
+         "h": 5,
+         "w": 24,
+         "x": 0,
+         "y": 0
+        }
+       },
+       "items": {
+        "860f9943": {
+         "compType": "text",
+         "comp": {
+          "text": "### Displayed Container Title",
+          "autoHeight": "auto",
+          "type": "markdown",
+          "horizontalAlignment": "left",
+          "contentScrollBar": true,
+          "verticalAlignment": "center",
+          "margin": {
+           "left": "",
+           "right": "",
+           "top": "",
+           "bottom": ""
+          },
+          "padding": {
+           "left": "",
+           "right": "",
+           "top": "",
+           "bottom": ""
+          },
+          "showDataLoadingIndicators": false,
+          "preventStyleOverwriting": false,
+          "appliedThemeId": "",
+          "version": "latest"
+         },
+         "name": "containerTitle1"
+        }
+       }
+      },
+      "body": {
+       "0": {
+        "view": {
+         "layout": {}
+        }
+       }
+      },
+      "footer": {
+       "layout": {}
+      },
+      "showHeader": true,
+      "showBody": true,
+      "autoHeight": "auto",
+      "showVerticalScrollbar": false,
+      "horizontalGridCells": 24,
+      "scrollbars": false,
+      "style": {
+       "borderWidth": "1px"
+      },
+      "appliedThemeId": ""
+     },
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "floatTextContainer1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

@@ -1,0 +1,241 @@
+{
+ "ui": {
+  "layout": {
+   "e67ab5c4": {
+    "i": "e67ab5c4",
+    "h": 40,
+    "w": 9,
+    "delayCollision": true,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "e67ab5c4": {
+    "compType": "listView",
+    "comp": {
+     "noOfRows": "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
+     "noOfColumns": "1",
+     "itemIndexName": "i",
+     "itemDataName": "currentItem",
+     "dynamicHeight": "auto",
+     "heightUnitOfRow": "1",
+     "container": {
+      "layout": {
+       "8479dfe0": {
+        "i": "8479dfe0",
+        "w": 6,
+        "h": 14,
+        "x": 0,
+        "y": 0
+       },
+       "c491e014": {
+        "i": "c491e014",
+        "h": 5,
+        "w": 17,
+        "x": 7,
+        "y": 0
+       },
+       "51b07abf": {
+        "i": "51b07abf",
+        "h": 5,
+        "w": 17,
+        "x": 7,
+        "y": 9
+       }
+      },
+      "items": {
+       "8479dfe0": {
+        "compType": "image",
+        "comp": {
+         "sourceMode": "standard",
+         "src": "{{currentItem.cover}}",
+         "iconScoutAsset": {
+          "uuid": "",
+          "value": "",
+          "preview": ""
+         },
+         "clipPath": "none",
+         "autoHeight": "fixed",
+         "restrictPaddingOnRotation": "image",
+         "enableOverflow": false,
+         "aspectRatio": "16 / 9",
+         "placement": "top",
+         "overflow": "hidden",
+         "positionX": "center",
+         "positionY": "center",
+         "showDataLoadingIndicators": false,
+         "preventStyleOverwriting": false,
+         "appliedThemeId": "",
+         "version": "latest"
+        },
+        "name": "image1"
+       },
+       "c491e014": {
+        "compType": "link",
+        "comp": {
+         "text": "{{i+1}}. {{currentItem.title}}",
+         "onEvent": [
+          {
+           "name": "click",
+           "handler": {
+            "compType": "goToURL",
+            "comp": {
+             "url": "{{currentItem.url}}",
+             "query": [
+              {}
+             ],
+             "hash": [
+              {}
+             ],
+             "inNewTab": true
+            },
+            "condition": "",
+            "slowdown": "debounce",
+            "delay": ""
+           }
+          }
+         ],
+         "showDataLoadingIndicators": false,
+         "preventStyleOverwriting": false,
+         "appliedThemeId": "",
+         "version": "latest"
+        },
+        "name": "link1"
+       },
+       "51b07abf": {
+        "compType": "rating",
+        "comp": {
+         "defaultValue": "{{currentItem.rate / 2}}",
+         "value": "",
+         "max": "5",
+         "label": {
+          "text": "",
+          "width": "33",
+          "widthUnit": "%",
+          "position": "row",
+          "align": "right"
+         },
+         "allowHalf": true,
+         "disabled": "true",
+         "showDataLoadingIndicators": false,
+         "preventStyleOverwriting": false,
+         "appliedThemeId": "",
+         "version": "latest"
+        },
+        "name": "rating1"
+       }
+      }
+     },
+     "autoHeight": "auto",
+     "showVerticalScrollbar": false,
+     "showHorizontalScrollbar": false,
+     "horizontalGridCells": 24,
+     "scrollbars": false,
+     "pagination": {
+      "changeablePageSize": null,
+      "pageSize": "6",
+      "pageSizeOptions": "[5, 10, 20, 50]"
+     },
+     "horizontal": false,
+     "minHorizontalWidth": "100px",
+     "enableSorting": false,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "listView1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

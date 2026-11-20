@@ -1,0 +1,129 @@
+{
+ "ui": {
+  "layout": {
+   "d00e6ed3": {
+    "i": "d00e6ed3",
+    "h": 5,
+    "w": 9,
+    "x": 0,
+    "y": 3,
+    "pos": 0
+   }
+  },
+  "items": {
+   "d00e6ed3": {
+    "compType": "treeSelect",
+    "comp": {
+     "treeData": "[\n  {\n    \"label\": \"Asia\",\n    \"value\": \"asia\",\n    \"children\": [\n      {\n        \"label\": \"China\",\n        \"value\": \"china\",\n        \"children\": [\n          {\n            \"label\": \"Beijing\",\n            \"value\": \"beijing\"\n          },\n          {\n            \"label\": \"Shanghai\",\n            \"value\": \"shanghai\"\n          }\n        ]\n      },\n      {\n        \"label\": \"Japan\",\n        \"value\": \"japan\"\n      }\n    ]\n  },\n  {\n    \"label\": \"Europe\",\n    \"value\": \"europe\",\n    \"disabled\": true,\n    \"children\": [\n      {\n        \"label\": \"England\",\n        \"value\": \"england\"\n      },\n      {\n        \"label\": \"France\",\n        \"value\": \"france\",\n        \"checkable\": false\n      },\n      {\n        \"label\": \"Germany\",\n        \"value\": \"germany\",\n        \"disableCheckbox\": true\n      }\n    ]\n  },\n  {\n    \"label\": \"North America\",\n    \"value\": \"northAmerica\"\n  }\n]",
+     "defaultValue": "[]",
+     "value": "[]",
+     "expanded": "[]",
+     "selectType": "single",
+     "checkedStrategy": "parent",
+     "label": {
+      "text": "Label",
+      "width": "33",
+      "widthUnit": "%",
+      "position": "row",
+      "align": "left"
+     },
+     "placeholder": "Please Select",
+     "showSearch": true,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "treeSelect1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

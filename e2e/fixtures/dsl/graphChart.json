@@ -1,0 +1,182 @@
+{
+ "ui": {
+  "layout": {
+   "ca09eee1": {
+    "i": "ca09eee1",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "ca09eee1": {
+    "compType": "graphChart",
+    "comp": {
+     "mode": "json",
+     "data": "[\n  {\n    \"date\": \"2021-09-01\",\n    \"department\": \"Administration\",\n    \"spending\": 9003,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09-02\",\n    \"department\": \"Finance\",\n    \"spending\": 3033,\n    \"budget\": 4000\n  },\n  {\n    \"date\": \"2021-09-03\",\n    \"department\": \"Sales\",\n    \"spending\": 9230,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09-04\",\n    \"department\": \"Administration\",\n    \"spending\": 13032,\n    \"budget\": 15000\n  },\n  {\n    \"date\": \"2021-09-05\",\n    \"department\": \"Finance\",\n    \"spending\": 2300,\n    \"budget\": 5000\n  },\n  {\n    \"date\": \"2021-09-05\",\n    \"department\": \"Sales\",\n    \"spending\": 7323.5,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09-06\",\n    \"department\": \"Administration\",\n    \"spending\": 13000,\n    \"budget\": 16023\n  },\n  {\n    \"date\": \"2021-09-06\",\n    \"department\": \"Finance\",\n    \"spending\": 3569.5,\n    \"budget\": 3000\n  },\n  {\n    \"date\": \"2021-09-07\",\n    \"department\": \"Sales\",\n    \"spending\": 10000,\n    \"budget\": 9932\n  },\n  {\n    \"date\": \"2021-09-07\",\n    \"department\": \"Administration\",\n    \"spending\": 18033,\n    \"budget\": 20000\n  },\n  {\n    \"date\": \"2021-09-08\",\n    \"department\": \"Finance\",\n    \"spending\": 4890,\n    \"budget\": 4500\n  },\n  {\n    \"date\": \"2021-09-09\",\n    \"department\": \"Sales\",\n    \"spending\": 9322,\n    \"budget\": 8000\n  }\n]",
+     "xAxisKey": "date",
+     "xAxisDirection": "horizontal",
+     "series": [
+      {
+       "columnName": "spending",
+       "seriesName": "Spending",
+       "dataIndex": "4ea57a55"
+      },
+      {
+       "columnName": "budget",
+       "seriesName": "Budget",
+       "dataIndex": "9b8299ef"
+      }
+     ],
+     "xConfig": {
+      "type": "default"
+     },
+     "yConfig": {
+      "yAxisType": "value"
+     },
+     "legendConfig": {
+      "position": "bottom"
+     },
+     "chartConfig": {
+      "compType": "bar",
+      "comp": {
+       "type": "basicBar"
+      }
+     },
+     "echartsCategories": "[\n  {\n    \"name\": \"Person\",\n    \"itemStyle\": {\n      \"color\": \"#4285F4\"\n    }\n  },\n  {\n    \"name\": \"Company\",\n    \"itemStyle\": {\n      \"color\": \"#34A853\"\n    }\n  },\n  {\n    \"name\": \"Project\",\n    \"itemStyle\": {\n      \"color\": \"#EA4335\"\n    }\n  }\n]",
+     "echartsLinks": "[\n  {\n    \"source\": \"1\",\n    \"target\": \"3\",\n    \"value\": 8,\n    \"lineStyle\": {\n      \"width\": 2\n    }\n  },\n  {\n    \"source\": \"1\",\n    \"target\": \"4\",\n    \"value\": 6,\n    \"lineStyle\": {\n      \"width\": 2\n    }\n  },\n  {\n    \"source\": \"2\",\n    \"target\": \"3\",\n    \"value\": 5,\n    \"lineStyle\": {\n      \"width\": 1\n    }\n  },\n  {\n    \"source\": \"3\",\n    \"target\": \"4\",\n    \"value\": 9,\n    \"lineStyle\": {\n      \"width\": 3\n    }\n  }\n]",
+     "echartsNodes": "[\n  {\n    \"id\": \"1\",\n    \"name\": \"John Smith\",\n    \"value\": 25,\n    \"category\": 0,\n    \"symbolSize\": 25\n  },\n  {\n    \"id\": \"2\",\n    \"name\": \"Jane Doe\",\n    \"value\": 20,\n    \"category\": 0,\n    \"symbolSize\": 20\n  },\n  {\n    \"id\": \"3\",\n    \"name\": \"Acme Inc\",\n    \"value\": 30,\n    \"category\": 1,\n    \"symbolSize\": 30\n  },\n  {\n    \"id\": \"4\",\n    \"name\": \"Project X\",\n    \"value\": 25,\n    \"category\": 2,\n    \"symbolSize\": 25\n  }\n]",
+     "echartsOption": "{\n  \"color\": {\n    \"pointColor\": \"#4285F4\",\n    \"lineColor\": \"#00000045\"\n  },\n  \"categories\": [\n    {\n      \"name\": \"Person\",\n      \"itemStyle\": {\n        \"color\": \"#4285F4\"\n      }\n    },\n    {\n      \"name\": \"Company\",\n      \"itemStyle\": {\n        \"color\": \"#34A853\"\n      }\n    },\n    {\n      \"name\": \"Project\",\n      \"itemStyle\": {\n        \"color\": \"#EA4335\"\n      }\n    }\n  ],\n  \"nodes\": [\n    {\n      \"id\": \"1\",\n      \"name\": \"John Smith\",\n      \"value\": 25,\n      \"category\": 0,\n      \"symbolSize\": 25\n    },\n    {\n      \"id\": \"2\",\n      \"name\": \"Jane Doe\",\n      \"value\": 20,\n      \"category\": 0,\n      \"symbolSize\": 20\n    },\n    {\n      \"id\": \"3\",\n      \"name\": \"Acme Inc\",\n      \"value\": 30,\n      \"category\": 1,\n      \"symbolSize\": 30\n    },\n    {\n      \"id\": \"4\",\n      \"name\": \"Project X\",\n      \"value\": 25,\n      \"category\": 2,\n      \"symbolSize\": 25\n    }\n  ],\n  \"links\": [\n    {\n      \"source\": \"1\",\n      \"target\": \"3\",\n      \"value\": 8,\n      \"lineStyle\": {\n        \"width\": 2\n      }\n    },\n    {\n      \"source\": \"1\",\n      \"target\": \"4\",\n      \"value\": 6,\n      \"lineStyle\": {\n        \"width\": 2\n      }\n    },\n    {\n      \"source\": \"2\",\n      \"target\": \"3\",\n      \"value\": 5,\n      \"lineStyle\": {\n        \"width\": 1\n      }\n    },\n    {\n      \"source\": \"3\",\n      \"target\": \"4\",\n      \"value\": 9,\n      \"lineStyle\": {\n        \"width\": 3\n      }\n    }\n  ]\n}",
+     "echartsTitle": "Graph Chart",
+     "echartsLegendConfig": {
+      "position": "bottom"
+     },
+     "echartsLabelConfig": {
+      "position": "inside"
+     },
+     "echartsTitleVerticalConfig": {
+      "position": "top"
+     },
+     "echartsTitleConfig": {
+      "position": "center"
+     },
+     "echartsConfig": {
+      "compType": "graph",
+      "comp": {}
+     },
+     "arrowSize": "10",
+     "pointSize": "15",
+     "repulsion": "100",
+     "gravity": "0.1",
+     "lineLength": "100",
+     "lineWidth": "2",
+     "curveness": "0",
+     "tooltip": true,
+     "arrowFlag": true,
+     "legendVisibility": true,
+     "mapApiKey": "",
+     "mapZoomLevel": "3",
+     "mapCenterLng": "15.932644",
+     "mapCenterLat": "50.942063",
+     "mapOptions": "{\n  \"tooltip\": {\n    \"trigger\": \"item\"\n  },\n  \"animation\": true,\n  \"series\": [\n    {\n      \"name\": \"Population\",\n      \"type\": \"scatter\",\n      \"coordinateSystem\": \"gmap\",\n      \"itemStyle\": {\n        \"color\": \"#00c1de\"\n      },\n      \"data\": [\n        {\n          \"name\": \"Azerbaijan\",\n          \"value\": [\n            47.395,\n            40.43,\n            8352021\n          ]\n        },\n        {\n          \"name\": \"Albania\",\n          \"value\": [\n            20.068,\n            41.143,\n            3153731\n          ]\n        },\n        {\n          \"name\": \"Armenia\",\n          \"value\": [\n            44.563,\n            40.534,\n            3017661\n          ]\n        },\n        {\n          \"name\": \"Bosnia and Herzegovina\",\n          \"value\": [\n            17.786,\n            44.169,\n            3915238\n          ]\n        },\n        {\n          \"name\": \"Bulgaria\",\n          \"value\": [\n            25.231,\n            42.761,\n            7744591\n          ]\n        },\n        {\n          \"name\": \"Cyprus\",\n          \"value\": [\n            33.219,\n            35.043,\n            836321\n          ]\n        },\n        {\n          \"name\": \"Denmark\",\n          \"value\": [\n            9.264,\n            56.058,\n            5416945\n          ]\n        },\n        {\n          \"name\": \"Ireland\",\n          \"value\": [\n            -8.152,\n            53.177,\n            4143294\n          ]\n        },\n        {\n          \"name\": \"Estonia\",\n          \"value\": [\n            25.793,\n            58.674,\n            1344312\n          ]\n        },\n        {\n          \"name\": \"Austria\",\n          \"value\": [\n            14.912,\n            47.683,\n            8291979\n          ]\n        },\n        {\n          \"name\": \"Czech Republic\",\n          \"value\": [\n            15.338,\n            49.743,\n            10191762\n          ]\n        },\n        {\n          \"name\": \"Finland\",\n          \"value\": [\n            26.272,\n            64.504,\n            5246004\n          ]\n        },\n        {\n          \"name\": \"France\",\n          \"value\": [\n            2.55,\n            46.565,\n            60990544\n          ]\n        },\n        {\n          \"name\": \"Georgia\",\n          \"value\": [\n            43.518,\n            42.176,\n            4473409\n          ]\n        },\n        {\n          \"name\": \"Germany\",\n          \"value\": [\n            9.851,\n            51.11,\n            82652369\n          ]\n        },\n        {\n          \"name\": \"Greece\",\n          \"value\": [\n            21.766,\n            39.666,\n            11099737\n          ]\n        },\n        {\n          \"name\": \"Croatia\",\n          \"value\": [\n            16.693,\n            45.723,\n            455149\n          ]\n        },\n        {\n          \"name\": \"Hungary\",\n          \"value\": [\n            19.134,\n            47.07,\n            10086387\n          ]\n        },\n        {\n          \"name\": \"Iceland\",\n          \"value\": [\n            -18.48,\n            64.764,\n            295732\n          ]\n        },\n        {\n          \"name\": \"Israel\",\n          \"value\": [\n            34.851,\n            31.026,\n            6692037\n          ]\n        },\n        {\n          \"name\": \"Italy\",\n          \"value\": [\n            12.8,\n            42.7,\n            5864636\n          ]\n        },\n        {\n          \"name\": \"Latvia\",\n          \"value\": [\n            25.641,\n            56.858,\n            2301793\n          ]\n        },\n        {\n          \"name\": \"Belarus\",\n          \"value\": [\n            28.047,\n            53.54,\n            9795287\n          ]\n        },\n        {\n          \"name\": \"Lithuania\",\n          \"value\": [\n            23.897,\n            55.336,\n            3425077\n          ]\n        },\n        {\n          \"name\": \"Slovakia\",\n          \"value\": [\n            19.491,\n            48.707,\n            5386995\n          ]\n        },\n        {\n          \"name\": \"Liechtenstein\",\n          \"value\": [\n            9.555,\n            47.153,\n            34598\n          ]\n        },\n        {\n          \"name\": \"The former Yugoslav Republic of Macedonia\",\n          \"value\": [\n            21.698,\n            41.6,\n            2033655\n          ]\n        },\n        {\n          \"name\": \"Malta\",\n          \"value\": [\n            14.442,\n            35.89,\n            402617\n          ]\n        },\n        {\n          \"name\": \"Belgium\",\n          \"value\": [\n            4.664,\n            50.643,\n            10398049\n          ]\n        },\n        {\n          \"name\": \"Faroe Islands\",\n          \"value\": [\n            -6.864,\n            62.05,\n            48205\n          ]\n        },\n        {\n          \"name\": \"Andorra\",\n          \"value\": [\n            1.576,\n            42.549,\n            73483\n          ]\n        },\n        {\n          \"name\": \"Luxembourg\",\n          \"value\": [\n            6.088,\n            49.771,\n            456613\n          ]\n        },\n        {\n          \"name\": \"Monaco\",\n          \"value\": [\n            7.412,\n            43.75,\n            325\n          ]\n        },\n        {\n          \"name\": \"Montenegro\",\n          \"value\": [\n            19.254,\n            42.792,\n            607969\n          ]\n        },\n        {\n          \"name\": \"Netherlands\",\n          \"value\": [\n            5.389,\n            52.077,\n            1632769\n          ]\n        },\n        {\n          \"name\": \"Norway\",\n          \"value\": [\n            8.74,\n            61.152,\n            4638836\n          ]\n        },\n        {\n          \"name\": \"Poland\",\n          \"value\": [\n            19.401,\n            52.125,\n            38195558\n          ]\n        },\n        {\n          \"name\": \"Portugal\",\n          \"value\": [\n            -8.058,\n            40.309,\n            10528226\n          ]\n        },\n        {\n          \"name\": \"Romania\",\n          \"value\": [\n            24.969,\n            45.844,\n            21627557\n          ]\n        },\n        {\n          \"name\": \"Republic of Moldova\",\n          \"value\": [\n            28.599,\n            47.193,\n            3876661\n          ]\n        },\n        {\n          \"name\": \"Slovenia\",\n          \"value\": [\n            14.827,\n            46.124,\n            1999425\n          ]\n        },\n        {\n          \"name\": \"Spain\",\n          \"value\": [\n            -3.649,\n            40.227,\n            43397491\n          ]\n        },\n        {\n          \"name\": \"Sweden\",\n          \"value\": [\n            15.27,\n            62.011,\n            9038049\n          ]\n        },\n        {\n          \"name\": \"Switzerland\",\n          \"value\": [\n            7.908,\n            46.861,\n            7424389\n          ]\n        },\n        {\n          \"name\": \"Turkey\",\n          \"value\": [\n            35.179,\n            39.061,\n            72969723\n          ]\n        },\n        {\n          \"name\": \"United Kingdom\",\n          \"value\": [\n            -1.6,\n            53,\n            60244834\n          ]\n        },\n        {\n          \"name\": \"Ukraine\",\n          \"value\": [\n            31.388,\n            49.016,\n            46917544\n          ]\n        },\n        {\n          \"name\": \"San Marino\",\n          \"value\": [\n            12.46,\n            43.942,\n            30214\n          ]\n        },\n        {\n          \"name\": \"Serbia\",\n          \"value\": [\n            20.806,\n            44.032,\n            9863026\n          ]\n        },\n        {\n          \"name\": \"Holy See (Vatican City)\",\n          \"value\": [\n            12.451,\n            41.904,\n            783\n          ]\n        },\n        {\n          \"name\": \"Russia\",\n          \"value\": [\n            96.689,\n            61.988,\n            143953092\n          ]\n        }\n      ],\n      \"encode\": {\n        \"value\": 2,\n        \"lng\": 0,\n        \"lat\": 1\n      }\n    }\n  ]\n}",
+     "showCharts": true,
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "graphChart1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}

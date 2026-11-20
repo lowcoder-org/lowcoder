@@ -1,0 +1,131 @@
+{
+ "ui": {
+  "layout": {
+   "c5816826": {
+    "i": "c5816826",
+    "h": 40,
+    "w": 9,
+    "x": 0,
+    "y": 0,
+    "pos": 0
+   }
+  },
+  "items": {
+   "c5816826": {
+    "compType": "jsonLottie",
+    "comp": {
+     "sourceMode": "standard",
+     "value": "{\n  \"v\": \"5.8.1\",\n  \"fr\": 30,\n  \"ip\": 0,\n  \"op\": 43,\n  \"w\": 1000,\n  \"h\": 800,\n  \"nm\": \"Social_Media_82 1\",\n  \"ddd\": 0,\n  \"assets\": [],\n  \"layers\": [\n    {\n      \"ddd\": 0,\n      \"ind\": 1,\n      \"ty\": 4,\n      \"nm\": \"Shape 02\",\n      \"td\": 1,\n      \"sr\": 1,\n      \"ks\": {\n        \"o\": {\n          \"a\": 0,\n          \"k\": 100,\n          \"ix\": 11\n        },\n        \"r\": {\n          \"a\": 0,\n          \"k\": 0,\n          \"ix\": 10\n        },\n        \"p\": {\n          \"a\": 0,\n          \"k\": [\n            500,\n            396.73,\n            0\n          ],\n          \"ix\": 2,\n          \"l\": 2\n        },\n        \"a\": {\n          \"a\": 0,\n          \"k\": [\n            0,\n            0,\n            0\n          ],\n          \"ix\": 1,\n          \"l\": 2\n        },\n        \"s\": {\n          \"a\": 1,\n          \"k\": [\n            {\n              \"i\": {\n                \"x\": [\n                  0.833,\n                  0.833,\n                  0.833\n                ],\n                \"y\": [\n                  0.833,\n                  0.833,\n                  0.833\n                ]\n              },\n              \"o\": {\n                \"x\": [\n                  0.167,\n                  0.167,\n                  0.167\n                ],\n                \"y\": [\n                  0.167,\n                  0.167,\n                  0.167\n                ]\n              },\n              \"t\": 0,\n              \"s\": [\n                0,\n                0,\n                100\n              ]\n            },\n            {\n              \"t\": 3,\n              \"s\": [\n                111.765,\n                111.765,\n                100\n              ]\n            }\n          ],\n          \"ix\": 6,\n          \"l\": 2\n        }\n      },\n      \"ao\": 0,\n      \"shapes\": [\n        {\n          \"ty\": \"sr\",\n          \"sy\": 1,\n          \"d\": 1,\n          \"pt\": {\n            \"a\": 0,\n            \"k\": 5,\n            \"ix\": 3\n          },\n          \"p\": {\n            \"a\": 0,\n            \"k\": [\n              0,\n              0\n            ],\n            \"ix\": 4\n          },\n          \"r\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 5\n          },\n          \"ir\": {\n            \"a\": 1,\n            \"k\": [\n              {\n                \"i\": {\n                  \"x\": [\n                    0.833\n                  ],\n                  \"y\": [\n                    0.833\n                  ]\n                },\n                \"o\": {\n                  \"x\": [\n                    0.167\n                  ],\n                  \"y\": [\n                    0.167\n                  ]\n                },\n                \"t\": 3,\n                \"s\": [\n                  37\n                ]\n              },\n              {\n                \"t\": 6,\n                \"s\": [\n                  100\n                ]\n              }\n            ],\n            \"ix\": 6\n          },\n          \"is\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 8\n          },\n          \"or\": {\n            \"a\": 0,\n            \"k\": 212,\n            \"ix\": 7\n          },\n          \"os\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 9\n          },\n          \"ix\": 1,\n          \"nm\": \"Polystar Path 1\",\n          \"mn\": \"ADBE Vector Shape - Star\",\n          \"hd\": false\n        },\n        {\n          \"ty\": \"fl\",\n          \"c\": {\n            \"a\": 0,\n            \"k\": [\n              1,\n              0.082352941176,\n              0.622145469516,\n              1\n            ],\n            \"ix\": 4\n          },\n          \"o\": {\n            \"a\": 0,\n            \"k\": 100,\n            \"ix\": 5\n          },\n          \"r\": 1,\n          \"bm\": 0,\n          \"nm\": \"Fill 1\",\n          \"mn\": \"ADBE Vector Graphic - Fill\",\n          \"hd\": false\n        }\n      ],\n      \"ip\": 0,\n      \"op\": 43,\n      \"st\": 0,\n      \"bm\": 0\n    },\n    {\n      \"ddd\": 0,\n      \"ind\": 2,\n      \"ty\": 4,\n      \"nm\": \"Reflection\",\n      \"tt\": 1,\n      \"sr\": 1,\n      \"ks\": {\n        \"o\": {\n          \"a\": 0,\n          \"k\": 70,\n          \"ix\": 11\n        },\n        \"r\": {\n          \"a\": 0,\n          \"k\": 0,\n          \"ix\": 10\n        },\n        \"p\": {\n          \"a\": 1,\n          \"k\": [\n            {\n              \"i\": {\n                \"x\": 0.68,\n                \"y\": 1\n              },\n              \"o\": {\n                \"x\": 0.24,\n                \"y\": 0\n              },\n              \"t\": -3,\n              \"s\": [\n                500,\n                400,\n                0\n              ],\n              \"to\": [\n                271.667,\n                0,\n                0\n              ],\n              \"ti\": [\n                -271.667,\n                0,\n                0\n              ]\n            },\n            {\n              \"t\": 38,\n              \"s\": [\n                2130,\n                400,\n                0\n              ]\n            }\n          ],\n          \"ix\": 2,\n          \"l\": 2\n        },\n        \"a\": {\n          \"a\": 0,\n          \"k\": [\n            0,\n            0,\n            0\n          ],\n          \"ix\": 1,\n          \"l\": 2\n        },\n        \"s\": {\n          \"a\": 0,\n          \"k\": [\n            100,\n            100,\n            100\n          ],\n          \"ix\": 6,\n          \"l\": 2\n        }\n      },\n      \"ao\": 0,\n      \"shapes\": [\n        {\n          \"ty\": \"gr\",\n          \"it\": [\n            {\n              \"ind\": 0,\n              \"ty\": \"sh\",\n              \"ix\": 1,\n              \"ks\": {\n                \"a\": 0,\n                \"k\": {\n                  \"i\": [\n                    [\n                      0,\n                      0\n                    ],\n                    [\n                      0,\n                      0\n                    ]\n                  ],\n                  \"o\": [\n                    [\n                      0,\n                      0\n                    ],\n                    [\n                      0,\n                      0\n                    ]\n                  ],\n                  \"v\": [\n                    [\n                      -318,\n                      -506\n                    ],\n                    [\n                      -1366,\n                      542\n                    ]\n                  ],\n                  \"c\": false\n                },\n                \"ix\": 2\n              },\n              \"nm\": \"Path 1\",\n              \"mn\": \"ADBE Vector Shape - Group\",\n              \"hd\": false\n            },\n            {\n              \"ty\": \"st\",\n              \"c\": {\n                \"a\": 0,\n                \"k\": [\n                  0.960784313725,\n                  0.864126227884,\n                  0.632987347771,\n                  1\n                ],\n                \"ix\": 3\n              },\n              \"o\": {\n                \"a\": 0,\n                \"k\": 100,\n                \"ix\": 4\n              },\n              \"w\": {\n                \"a\": 0,\n                \"k\": 161,\n                \"ix\": 5\n              },\n              \"lc\": 1,\n              \"lj\": 1,\n              \"ml\": 4,\n              \"bm\": 0,\n              \"nm\": \"Stroke 1\",\n              \"mn\": \"ADBE Vector Graphic - Stroke\",\n              \"hd\": false\n            },\n            {\n              \"ty\": \"fl\",\n              \"c\": {\n                \"a\": 0,\n                \"k\": [\n                  1,\n                  0.082352941176,\n                  0.946020687328,\n                  1\n                ],\n                \"ix\": 4\n              },\n              \"o\": {\n                \"a\": 0,\n                \"k\": 100,\n                \"ix\": 5\n              },\n              \"r\": 1,\n              \"bm\": 0,\n              \"nm\": \"Fill 1\",\n              \"mn\": \"ADBE Vector Graphic - Fill\",\n              \"hd\": false\n            },\n            {\n              \"ty\": \"tr\",\n              \"p\": {\n                \"a\": 0,\n                \"k\": [\n                  0,\n                  0\n                ],\n                \"ix\": 2\n              },\n              \"a\": {\n                \"a\": 0,\n                \"k\": [\n                  0,\n                  0\n                ],\n                \"ix\": 1\n              },\n              \"s\": {\n                \"a\": 0,\n                \"k\": [\n                  100,\n                  100\n                ],\n                \"ix\": 3\n              },\n              \"r\": {\n                \"a\": 0,\n                \"k\": 0,\n                \"ix\": 6\n              },\n              \"o\": {\n                \"a\": 0,\n                \"k\": 100,\n                \"ix\": 7\n              },\n              \"sk\": {\n                \"a\": 0,\n                \"k\": 0,\n                \"ix\": 4\n              },\n              \"sa\": {\n                \"a\": 0,\n                \"k\": 0,\n                \"ix\": 5\n              },\n              \"nm\": \"Transform\"\n            }\n          ],\n          \"nm\": \"Shape 1\",\n          \"np\": 3,\n          \"cix\": 2,\n          \"bm\": 0,\n          \"ix\": 1,\n          \"mn\": \"ADBE Vector Group\",\n          \"hd\": false\n        }\n      ],\n      \"ip\": 0,\n      \"op\": 43,\n      \"st\": -4,\n      \"bm\": 0\n    },\n    {\n      \"ddd\": 0,\n      \"ind\": 3,\n      \"ty\": 4,\n      \"nm\": \"Shape 01\",\n      \"sr\": 1,\n      \"ks\": {\n        \"o\": {\n          \"a\": 0,\n          \"k\": 100,\n          \"ix\": 11\n        },\n        \"r\": {\n          \"a\": 0,\n          \"k\": 0,\n          \"ix\": 10\n        },\n        \"p\": {\n          \"a\": 0,\n          \"k\": [\n            500,\n            396.73,\n            0\n          ],\n          \"ix\": 2,\n          \"l\": 2\n        },\n        \"a\": {\n          \"a\": 0,\n          \"k\": [\n            0,\n            0,\n            0\n          ],\n          \"ix\": 1,\n          \"l\": 2\n        },\n        \"s\": {\n          \"a\": 1,\n          \"k\": [\n            {\n              \"i\": {\n                \"x\": [\n                  0.667,\n                  0.667,\n                  0.667\n                ],\n                \"y\": [\n                  1,\n                  1,\n                  1\n                ]\n              },\n              \"o\": {\n                \"x\": [\n                  0.333,\n                  0.333,\n                  0.333\n                ],\n                \"y\": [\n                  0,\n                  0,\n                  0\n                ]\n              },\n              \"t\": 0,\n              \"s\": [\n                0,\n                0,\n                100\n              ]\n            },\n            {\n              \"i\": {\n                \"x\": [\n                  0.667,\n                  0.667,\n                  0.667\n                ],\n                \"y\": [\n                  1,\n                  1,\n                  1\n                ]\n              },\n              \"o\": {\n                \"x\": [\n                  0.333,\n                  0.333,\n                  0.333\n                ],\n                \"y\": [\n                  0,\n                  0,\n                  0\n                ]\n              },\n              \"t\": 3,\n              \"s\": [\n                111.765,\n                111.765,\n                100\n              ]\n            },\n            {\n              \"i\": {\n                \"x\": [\n                  0.667,\n                  0.667,\n                  0.667\n                ],\n                \"y\": [\n                  1,\n                  1,\n                  1\n                ]\n              },\n              \"o\": {\n                \"x\": [\n                  0.333,\n                  0.333,\n                  0.333\n                ],\n                \"y\": [\n                  0,\n                  0,\n                  0\n                ]\n              },\n              \"t\": 6,\n              \"s\": [\n                111.765,\n                111.765,\n                100\n              ]\n            },\n            {\n              \"i\": {\n                \"x\": [\n                  0.667,\n                  0.667,\n                  0.667\n                ],\n                \"y\": [\n                  1,\n                  1,\n                  1\n                ]\n              },\n              \"o\": {\n                \"x\": [\n                  0.333,\n                  0.333,\n                  0.333\n                ],\n                \"y\": [\n                  0,\n                  0,\n                  0\n                ]\n              },\n              \"t\": 9,\n              \"s\": [\n                116,\n                116,\n                100\n              ]\n            },\n            {\n              \"t\": 12,\n              \"s\": [\n                111.765,\n                111.765,\n                100\n              ]\n            }\n          ],\n          \"ix\": 6,\n          \"l\": 2\n        }\n      },\n      \"ao\": 0,\n      \"shapes\": [\n        {\n          \"ty\": \"sr\",\n          \"sy\": 1,\n          \"d\": 1,\n          \"pt\": {\n            \"a\": 0,\n            \"k\": 5,\n            \"ix\": 3\n          },\n          \"p\": {\n            \"a\": 0,\n            \"k\": [\n              0,\n              0\n            ],\n            \"ix\": 4\n          },\n          \"r\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 5\n          },\n          \"ir\": {\n            \"a\": 1,\n            \"k\": [\n              {\n                \"i\": {\n                  \"x\": [\n                    0.833\n                  ],\n                  \"y\": [\n                    0.833\n                  ]\n                },\n                \"o\": {\n                  \"x\": [\n                    0.167\n                  ],\n                  \"y\": [\n                    0.167\n                  ]\n                },\n                \"t\": 3,\n                \"s\": [\n                  37\n                ]\n              },\n              {\n                \"t\": 6,\n                \"s\": [\n                  100\n                ]\n              }\n            ],\n            \"ix\": 6\n          },\n          \"is\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 8\n          },\n          \"or\": {\n            \"a\": 0,\n            \"k\": 212,\n            \"ix\": 7\n          },\n          \"os\": {\n            \"a\": 0,\n            \"k\": 0,\n            \"ix\": 9\n          },\n          \"ix\": 1,\n          \"nm\": \"Polystar Path 1\",\n          \"mn\": \"ADBE Vector Shape - Star\",\n          \"hd\": false\n        },\n        {\n          \"ty\": \"fl\",\n          \"c\": {\n            \"a\": 0,\n            \"k\": [\n              1,\n              0.729411764706,\n              0.082352941176,\n              1\n            ],\n            \"ix\": 4\n          },\n          \"o\": {\n            \"a\": 0,\n            \"k\": 100,\n            \"ix\": 5\n          },\n          \"r\": 1,\n          \"bm\": 0,\n          \"nm\": \"Fill 1\",\n          \"mn\": \"ADBE Vector Graphic - Fill\",\n          \"hd\": false\n        }\n      ],\n      \"ip\": 0,\n      \"op\": 43,\n      \"st\": 0,\n      \"bm\": 0\n    }\n  ],\n  \"markers\": []\n}",
+     "iconScoutAsset": {
+      "uuid": "",
+      "value": "",
+      "preview": ""
+     },
+     "speed": "1",
+     "width": "100",
+     "height": "100",
+     "animationStart": "auto",
+     "loop": "single",
+     "keepLastFrame": true,
+     "autoHeight": "auto",
+     "aspectRatio": "1/1",
+     "fit": "contain",
+     "align": "0.5,0.5",
+     "showDataLoadingIndicators": false,
+     "preventStyleOverwriting": false,
+     "appliedThemeId": "",
+     "version": "latest"
+    },
+    "name": "jsonLottie1"
+   }
+  }
+ },
+ "refTree": {
+  "value": ""
+ },
+ "hooks": [
+  {
+   "compType": "urlParams",
+   "comp": {},
+   "name": "url"
+  },
+  {
+   "compType": "dayJsLib",
+   "comp": {},
+   "name": "dayjs"
+  },
+  {
+   "compType": "lodashJsLib",
+   "comp": {},
+   "name": "_"
+  },
+  {
+   "compType": "utils",
+   "comp": {},
+   "name": "utils"
+  },
+  {
+   "compType": "message",
+   "comp": {},
+   "name": "message"
+  },
+  {
+   "compType": "toast",
+   "comp": {
+    "title": "",
+    "description": "",
+    "type": "info",
+    "duration": "4.5",
+    "placement": "bottomRight",
+    "dismissible": true,
+    "showProgress": false,
+    "pauseOnHover": true,
+    "width": "",
+    "progressHeight": ""
+   },
+   "name": "toast"
+  },
+  {
+   "compType": "localStorage",
+   "comp": {},
+   "name": "localStorage"
+  },
+  {
+   "compType": "currentUser",
+   "comp": {},
+   "name": "currentUser"
+  },
+  {
+   "compType": "screenInfo",
+   "comp": {},
+   "name": "screenInfo"
+  },
+  {
+   "compType": "theme",
+   "comp": {},
+   "name": "theme"
+  }
+ ],
+ "settings": {
+  "title": "",
+  "description": "",
+  "category": "Business",
+  "showHeaderInPublic": true,
+  "themeId": "default",
+  "preventAppStylesOverwriting": true,
+  "disableCollision": false,
+  "lowcoderCompVersion": "latest",
+  "maxWidth": {
+   "dropdown": "1920",
+   "input": 0
+  },
+  "gridRowCount": "Infinity",
+  "gridPaddingX": "0",
+  "gridPaddingY": "0"
+ },
+ "preload": {
+  "script": "",
+  "css": "",
+  "globalCSS": ""
+ }
+}
