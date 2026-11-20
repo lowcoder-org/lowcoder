@@ -35,6 +35,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- GenericContainer for the STARTTLS tests (SmtpStartTlsContainerTest); the version comes from the Spring Boot management -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- an in-process SMTP server for the plugin's tests; 2.0.x is the line built on jakarta.mail 2.0. JUnit 4 is
              excluded: greenmail needs it only for its JUnit 4 rule, and every module tests with JUnit 5 only -->
         <dependency>

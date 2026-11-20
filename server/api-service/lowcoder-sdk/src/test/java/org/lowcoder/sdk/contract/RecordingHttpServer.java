@@ -3,6 +3,10 @@ package org.lowcoder.sdk.contract;
 import com.fasterxml.jackson.databind.util.RawValue;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
+
+import javax.net.ssl.SSLContext;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -20,6 +24,9 @@ import java.util.Map;
  * Elasticsearch's REST client) runs end to end without network access (docs/API_PAYLOAD_TEST_PLAN.md §4.6, §4.10; the
  * same technique as the {@code npm-outbound} tests of §4.9). The answer to a path is either fixed ({@link #start}) or
  * computed from the request ({@link #serve}), e.g. an echo of what the client sent.
+ *
+ * <p>{@link #startSecure} and {@link #serveSecure} start the same server over TLS with the server certificate of the given
+ * {@link SSLContext} ({@code https://127.0.0.1:<port>}); {@link SelfSignedCertificate} generates one in the test.
  *
  * <p>Limits: it binds {@code 127.0.0.1} on a free port; the JDK server adds a {@code Date} header to every answer (the
  * tests drop it as volatile) and writes header values one byte per character, so a header value is sent as the
@@ -76,10 +83,20 @@ public final class RecordingHttpServer implements AutoCloseable {
     }
 
     private final HttpServer server;
+    private final String scheme;
     private final List<Request> requests = Collections.synchronizedList(new ArrayList<>());
 
-    private RecordingHttpServer(Map<String, Handler> handlers) throws IOException {
-        server = HttpServer.create(new InetSocketAddress(InetAddress.getByName(LOOPBACK), ANY_PORT), BACKLOG);
+    private RecordingHttpServer(Map<String, Handler> handlers, SSLContext tls) throws IOException {
+        InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(LOOPBACK), ANY_PORT);
+        if (tls == null) {
+            server = HttpServer.create(address, BACKLOG);
+            scheme = "http";
+        } else {
+            HttpsServer secure = HttpsServer.create(address, BACKLOG);
+            secure.setHttpsConfigurator(new HttpsConfigurator(tls));
+            server = secure;
+            scheme = "https";
+        }
         server.createContext("/", exchange -> answer(exchange, handlers));
         server.start();
     }
@@ -93,16 +110,32 @@ public final class RecordingHttpServer implements AutoCloseable {
 
     /** Starts a server answering each request with the handler of its exact path (without query). */
     public static RecordingHttpServer serve(Map<String, Handler> handlers) {
+        return serve(handlers, null);
+    }
+
+    /** Starts a TLS server, with the certificate of {@code tls}, answering {@code responses} by exact path (without query). */
+    public static RecordingHttpServer startSecure(SSLContext tls, Map<String, Response> responses) {
+        Map<String, Handler> handlers = new LinkedHashMap<>();
+        responses.forEach((path, response) -> handlers.put(path, request -> response));
+        return serveSecure(tls, handlers);
+    }
+
+    /** Starts a TLS server, with the certificate of {@code tls}, answering each request with the handler of its exact path (without query). */
+    public static RecordingHttpServer serveSecure(SSLContext tls, Map<String, Handler> handlers) {
+        return serve(handlers, tls);
+    }
+
+    private static RecordingHttpServer serve(Map<String, Handler> handlers, SSLContext tls) {
         try {
-            return new RecordingHttpServer(handlers);
+            return new RecordingHttpServer(handlers, tls);
         } catch (IOException e) {
             throw new UncheckedIOException("cannot start the local HTTP server", e);
         }
     }
 
-    /** {@code http://127.0.0.1:<port>}. */
+    /** {@code http://127.0.0.1:<port>}, or {@code https://...} for a TLS server. */
     public String baseUrl() {
-        return "http://" + LOOPBACK + ":" + server.getAddress().getPort();
+        return scheme + "://" + LOOPBACK + ":" + server.getAddress().getPort();
     }
 
     public int port() {
