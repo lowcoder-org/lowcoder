@@ -38,6 +38,8 @@ import reactor.util.context.ContextView;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String CLIENT_ERROR_LOG_FORMAT = "client error {} for {}: {}";
+
     private final Logger mainLog = LoggerFactory.getLogger(getClass());
     private final Logger queryErrorLog = LoggerFactory.getLogger("queryError");
 
@@ -148,9 +150,29 @@ public class GlobalExceptionHandler {
                 return Mono.just(error(bizError.getBizErrorCode(), e.getMessage() + " - path: " + exchange.getRequest().getPath()));
             });
 
-        } else {
-            return catchException(e, exchange);
         }
+        if (e.getStatusCode().is4xxClientError()) {
+            return catchClientError(e, exchange);
+        }
+        return catchException(e, exchange);
+    }
+
+    /**
+     * A 4xx {@link ResponseStatusException} outside the plugin endpoints (an unmatched route, a 405, a controller's 4xx)
+     * keeps its HTTP status and answers it as the code, like {@code CustomErrorWebExceptionHandler} does for a 4xx; it is
+     * a client error, so it is logged as a warning and counted as {@link BizError#UNSUPPORTED_OPERATION}, the existing
+     * client-error code. A 5xx {@link ResponseStatusException} is not covered: it answers the generic 500.
+     */
+    private Mono<ResponseView<?>> catchClientError(ResponseStatusException e, ServerWebExchange exchange) {
+        BizError bizError = BizError.UNSUPPORTED_OPERATION;
+        int httpStatus = e.getStatusCode().value();
+        exchange.getResponse().setStatusCode(e.getStatusCode());
+        return Mono.defer(() -> {
+            apiPerfHelper.perf(bizError, exchange.getRequest().getPath());
+            mainLog.warn(CLIENT_ERROR_LOG_FORMAT, httpStatus, exchange.getRequest().getPath(), e.getMessage());
+            HttpStatus status = HttpStatus.resolve(httpStatus);
+            return Mono.just(error(httpStatus, status != null ? status.getReasonPhrase() : String.valueOf(httpStatus)));
+        });
     }
 
     @ExceptionHandler

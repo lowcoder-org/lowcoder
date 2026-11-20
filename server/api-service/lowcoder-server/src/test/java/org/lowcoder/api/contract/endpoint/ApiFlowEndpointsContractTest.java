@@ -132,9 +132,9 @@ import static org.mockito.ArgumentMatchers.eq;
  * </ul>
  *
  * <p>Every seat-sync test runs on both mounts, {@code /api/flow} through {@link #CONTRACT} and {@code /api/v1/flow}
- * through the harness's client, with the same assertions. Each refusal answers HTTP 500 today: the
- * {@code ResponseStatusException}s of the seat-sync path reach the global handler's generic branch (NEW-53, see
- * {@link #assertStatusExceptionAnsweredAs500NEW53}).
+ * through the harness's client, with the same assertions. A refusal that is a 4xx {@code ResponseStatusException}
+ * keeps its status and answers it as the code; the 5xx one (not configured) answers the generic HTTP 500 (see
+ * {@link #assertStatusExceptionAnswer}).
  *
  * <p>Limits: the controller is a test subclass, so the request reaches {@code flow} through its override, which only
  * records and redirects; the transport (system proxy, timeout) is WireMock's, not the production one; the answer is
@@ -537,7 +537,7 @@ class ApiFlowEndpointsContractTest {
     @ValueSource(strings = {NewUrl.FLOW_URL, Url.FLOW_URL})
     void flowSeatSyncWithAnotherMethod(String mount) throws JsonProcessingException {
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(OTHER_METHOD, orgData(SEAT_ORG_ID)));
-        assertStatusExceptionAnsweredAs500NEW53(result);
+        assertStatusExceptionAnswer(result, HttpStatus.METHOD_NOT_ALLOWED);
         assertNoRelayRequest();
         Mockito.verify(sessions, Mockito.never()).getVisitorOrgMember();
         Mockito.verify(seats, Mockito.never()).count(anyString());
@@ -576,7 +576,7 @@ class ApiFlowEndpointsContractTest {
     void flowSeatSyncWithoutMethod(String mount, String method) throws JsonProcessingException {
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(method, orgData(SEAT_ORG_ID)));
         assertThat(decoded().method()).as("decoded seat-sync method").isEqualTo(method);
-        assertStatusExceptionAnsweredAs500NEW53(result);
+        assertStatusExceptionAnswer(result, HttpStatus.METHOD_NOT_ALLOWED);
         assertNoRelayRequest();
         Mockito.verify(sessions, Mockito.never()).getVisitorOrgMember();
     }
@@ -586,7 +586,7 @@ class ApiFlowEndpointsContractTest {
     void flowSeatSyncAlreadyRunning(String mount) throws JsonProcessingException {
         Mockito.when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any(Duration.class))).thenReturn(Mono.just(false));
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, orgData(SEAT_ORG_ID)));
-        assertStatusExceptionAnsweredAs500NEW53(result);
+        assertStatusExceptionAnswer(result, HttpStatus.CONFLICT);
         assertNoRelayRequest();
         Mockito.verify(seats, Mockito.never()).count(anyString());
     }
@@ -662,7 +662,7 @@ class ApiFlowEndpointsContractTest {
             case NO_RELAY_TOKEN -> harness(wireMock, BLANK);
         }
         EntityExchangeResult<byte[]> result = exchangeOn(mount, seatSyncRequest(POST, data));
-        assertStatusExceptionAnsweredAs500NEW53(result);
+        assertStatusExceptionAnswer(result, thrownBy(refusal));
         assertNoRelayRequest();
         Mockito.verify(redis.opsForValue(), Mockito.never()).setIfAbsent(anyString(), anyString(), any(Duration.class));
     }
@@ -740,13 +740,25 @@ class ApiFlowEndpointsContractTest {
     }
 
     /**
-     * Pins how a {@code ResponseStatusException} of the seat-sync path reaches the client today: the global handler keeps
-     * its status only under the plugin path and otherwise answers its generic {@code INTERNAL_SERVER_ERROR}, HTTP 500
-     * ({@code GlobalExceptionHandler.java:141-154}, {@code :158-167}). NEW-53, recorded, not fixed: its fix changes this
-     * one method.
+     * Pins how a {@code ResponseStatusException} of the seat-sync path reaches the client: the global handler keeps the
+     * status of a 4xx one and answers it as the code with the status's reason phrase, and answers a 5xx one with its
+     * generic {@code INTERNAL_SERVER_ERROR}, HTTP 500 ({@code GlobalExceptionHandler#catchResponseStatusException}).
      */
-    private static void assertStatusExceptionAnsweredAs500NEW53(EntityExchangeResult<byte[]> result) {
-        EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
+    private static void assertStatusExceptionAnswer(EntityExchangeResult<byte[]> result, HttpStatus thrown) {
+        if (thrown.is4xxClientError()) {
+            EndpointContract.assertResponse(result, thrown, EndpointContract.error(thrown.value(), thrown.getReasonPhrase()));
+        } else {
+            EndpointContract.assertBizError(result, BizError.INTERNAL_SERVER_ERROR, BizError.INTERNAL_SERVER_ERROR.name());
+        }
+    }
+
+    /** The status of the {@code ResponseStatusException} the service throws for {@code refusal}. */
+    private static HttpStatus thrownBy(SeatSyncRefusal refusal) {
+        return switch (refusal) {
+            case NO_SESSION -> HttpStatus.UNAUTHORIZED;
+            case INVALID_MEMBER, ANOTHER_WORKSPACE, NO_ORG_ID, NO_DATA, ORG_ID_NOT_A_STRING -> HttpStatus.FORBIDDEN;
+            case NO_HOST_ID, NO_RELAY_TOKEN -> HttpStatus.SERVICE_UNAVAILABLE;
+        };
     }
 
     private void assertNoRelayRequest() {
