@@ -24,7 +24,7 @@ import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_E
  * ({@code getParsedDatabase}, used at lines 189, 212, 307 and 365). A misread therefore shows as a wrong or missing database
  * name, not as a wrong host.
  *
- * <p>Limits: string handling, no server; the driver (the module's, 4.11) is used only to read the database it would connect
+ * <p>Limits: string handling, no server; the driver (the module's, 5.5) is used only to read the database it would connect
  * with (BF-060 agreement test); the client form carries a copy of the regex as it was before BF-060, which accepts every
  * URI this one accepts (mongoDatasourceForm.tsx:53-55), not tested here.
  */
@@ -122,9 +122,9 @@ public class MongoConnectionUriParserTest {
 
     /**
      * BF-060 (formerly pinned as the plan section 9 row "MongoConnectionUriParser reads a `:`...`@` in the query string as
-     * credentials"): the credentials are matched only before the first {@code /}, so a {@code :} and a later {@code @}
-     * in the options stay in the options, while a {@code ?} before the first {@code /} stays in the credentials, as the
-     * driver reads it. {@code mongodb://realhost/db?appName=a:b@other} has host
+     * credentials"): the credentials are matched only in the authority, which ends at the first {@code /} or {@code ?}, so
+     * a {@code :} and a later {@code @} in the options stay in the options, and a {@code ?} ends the authority, as the
+     * driver (5.5) reads it. {@code mongodb://realhost/db?appName=a:b@other} has host
      * {@code realhost} and database {@code db} (it lost its database before), and {@code mongodb://h/db?appName=a:b@c/other}
      * has database {@code db} (it gave {@code other}); the driver reads the same database (driver agreement test below).
      */
@@ -141,24 +141,42 @@ public class MongoConnectionUriParserTest {
         String withCredentials = "mongodb://u:p@h/db?appName=a:b@c";
         assertEquals(expected(PLAIN_HEAD, "u", "p", "h", "db", "appName=a:b@c"), parts(withCredentials), "real credentials are still read");
 
-        assertEquals(expected(PLAIN_HEAD, "u?x", "p?q", "h", "db", "a=1"), parts("mongodb://u?x:p?q@h/db?a=1"), "a ? before the first / is in the credentials");
+        assertEquals(expected(PLAIN_HEAD, null, null, "u", null, "x:p?q@h/db?a=1"), parts("mongodb://u?x:p?q@h/db?a=1"),
+                "the authority ends at the first ?, so u is the host and x:p?q@h/db?a=1 are the options, not credentials");
     }
 
     /**
-     * BF-060: for every URI the MongoDB driver accepts, the database the parser gives is the one the driver connects with
-     * ({@code ConnectionString.getDatabase}): the database that the structure and the queries use is the URI's. The driver
-     * is the module's own (4.11), so a driver upgrade that reads the authority differently fails here: 5.5 ends the authority
-     * at a {@code ?}, reads no database from {@code mongodb://u?x:p?q@h/db?a=1} and refuses {@code mongodb://?u:p@h/db}.
+     * BF-060: for every URI the MongoDB driver accepts and reads a database from, the database the parser gives is the one
+     * the driver connects with ({@code ConnectionString.getDatabase}): the database that the structure and the queries use
+     * is the URI's.
      */
     @Test
     public void theDatabaseIsTheOneTheDriverReadsBF060() {
         for (String uri : List.of("mongodb://realhost/db?appName=a:b@other", "mongodb://h/db?appName=a:b@c/other", "mongodb://u:p@h:27017/db?x=y",
                 "mongodb+srv://u:p@cluster0.example.net/db?retryWrites=true", "mongodb://us%40er:p%3Aw%40rd@h/db", "mongodb://h1:1,h2:2/db?replicaSet=rs0",
-                "mongodb://u:p@h/db?authSource=admin&appName=x:y@z", "mongodb://u?x:p?q@h/db?a=1", "mongodb://?u:p@h/db")) {
+                "mongodb://u:p@h/db?authSource=admin&appName=x:y@z")) {
             String driverDatabase = new com.mongodb.ConnectionString(uri).getDatabase();
             System.out.println("[MongoConnectionUriParserTest] " + uri + " driver database " + driverDatabase);
             assertEquals(driverDatabase, MongoConnectionUriParser.parseDatabaseFrom(uri), uri);
         }
+    }
+
+    /**
+     * BF-060, driver 5.5: the authority ends at the first {@code ?}, so {@code mongodb://u?x:p?q@h/db?a=1} is host
+     * {@code u} with no database for the driver. The parser reads it the same way and refuses it with the empty-database
+     * error, instead of reading credentials {@code u?x:p?q} and the database {@code db}.
+     */
+    @Test
+    public void aQuestionMarkInTheCredentialsEndsTheAuthorityAsForTheDriverBF060() {
+        String uri = "mongodb://u?x:p?q@h/db?a=1";
+        com.mongodb.ConnectionString driver = new com.mongodb.ConnectionString(uri);
+        System.out.println("[MongoConnectionUriParserTest] " + uri + " driver hosts " + driver.getHosts() + " database " + driver.getDatabase());
+        assertEquals(List.of("u"), driver.getHosts(), "the driver reads the host up to the first ?");
+        assertNull(driver.getDatabase(), "the driver reads no database from " + uri);
+
+        PluginException thrown = assertThrows(PluginException.class, () -> MongoConnectionUriParser.parseDatabaseFrom(uri));
+        assertEquals(DATASOURCE_ARGUMENT_ERROR, thrown.getError());
+        assertEquals("MONGODB_DATABASE_EMPTY", thrown.getMessageKey(), "the parser reads no database either, as the driver does");
     }
 
     /**
