@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Method;
@@ -220,7 +221,7 @@ class GlobalExceptionHandlerTest {
         verify(apiPerfHelper).perf(BizError.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath());
     }
 
-    /** Catches plugin endpoint errors losing their status or path, and other paths keeping the exception's status. */
+    /** Catches plugin endpoint errors losing their status or path, and the plugin path being untouched by the client-error branch. */
     @Test
     void responseStatusException_underThePluginsPath_keepsItsStatus_andAppendsThePath() {
         String path = NewUrl.PLUGINS_URL + "/demo/items";
@@ -235,15 +236,43 @@ class GlobalExceptionHandlerTest {
         verify(apiPerfHelper).perf(BizError.PLUGIN_ENDPOINT_ERROR, exchange.getRequest().getPath());
     }
 
+    /** Catches a client error outside the plugin endpoints answering 500: the status, the code and the text stay the exception's. */
     @Test
-    void responseStatusException_elsewhere_fallsToTheGeneric500() {
+    void responseStatusException_elsewhere_with4xx_keepsItsStatusAndAnswersItAsTheCode() {
         MockServerWebExchange exchange = exchange("/api/orders");
 
-        ResponseView<?> view = body(handler.catchResponseStatusException(new ResponseStatusException(HttpStatus.NOT_FOUND, "x"), exchange), Locale.ENGLISH);
+        ResponseView<?> view = body(handler.catchResponseStatusException(new ResponseStatusException(HttpStatus.NOT_FOUND, "internal detail"), exchange), Locale.ENGLISH);
 
-        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(exchange.getResponse().getStatusCode()).as("HTTP status of a 4xx ResponseStatusException").isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(view.getCode()).as("body code").isEqualTo(HttpStatus.NOT_FOUND.value());
+        assertThat(view.getMessage()).as("body message is the reason phrase, not the exception's reason").isEqualTo(HttpStatus.NOT_FOUND.getReasonPhrase());
+        verify(apiPerfHelper).perf(BizError.UNSUPPORTED_OPERATION, exchange.getRequest().getPath());
+        verify(apiPerfHelper, never()).perf(eq(BizError.INTERNAL_SERVER_ERROR), any());
+    }
+
+    @Test
+    void responseStatusException_elsewhere_withAnyOther4xx_keepsItsStatus() {
+        for (HttpStatus status : new HttpStatus[] {HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN, HttpStatus.METHOD_NOT_ALLOWED, HttpStatus.UNSUPPORTED_MEDIA_TYPE, HttpStatus.I_AM_A_TEAPOT}) {
+            MockServerWebExchange exchange = exchange("/api/orders");
+
+            ResponseView<?> view = body(handler.catchResponseStatusException(new ResponseStatusException(status), exchange), Locale.ENGLISH);
+
+            assertThat(exchange.getResponse().getStatusCode()).as("status " + status).isEqualTo(status);
+            assertThat(view.getCode()).as("code of " + status).isEqualTo(status.value());
+            assertThat(view.getMessage()).as("message of " + status).isEqualTo(status.getReasonPhrase());
+        }
+    }
+
+    @Test
+    void responseStatusException_elsewhere_with5xx_fallsToTheGeneric500() {
+        MockServerWebExchange exchange = exchange("/api/orders");
+
+        ResponseView<?> view = body(handler.catchResponseStatusException(new ResponseStatusException(HttpStatus.BAD_GATEWAY, "x"), exchange), Locale.ENGLISH);
+
+        assertThat(exchange.getResponse().getStatusCode()).as("a 5xx ResponseStatusException answers the generic 500").isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(view.getCode()).isEqualTo(BizError.INTERNAL_SERVER_ERROR.getBizErrorCode());
         assertThat(view.getMessage()).isEqualTo(LocaleUtils.getMessage(Locale.ENGLISH, "INTERNAL_SERVER_ERROR"));
+        verify(apiPerfHelper).perf(BizError.INTERNAL_SERVER_ERROR, exchange.getRequest().getPath());
     }
 
     /** Catches an unexpected exception leaking its message: the generic localised text is returned. */

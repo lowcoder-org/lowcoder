@@ -32,9 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Codec-limit test of docs/API_PAYLOAD_TEST_PLAN.md §4.8 (E7): the server's JSON decoder buffers at most
  * {@link ServerCodecGuardTest#SERVER_MAX_IN_MEMORY_SIZE} bytes of a request body. A DSL {@code Map} body of exactly
- * that size is decoded through the harness's production codecs; one byte more is rejected, today by
- * {@code GlobalExceptionHandler}'s generic handler as {@code INTERNAL_SERVER_ERROR} (HTTP 500, code 5000, plan §9 O12),
- * which the mocked {@code ApiPerfHelper} records. The mapper's own limits are
+ * that size is decoded through the harness's production codecs; one byte more is rejected, by
+ * {@code GlobalExceptionHandler}'s client-error handler as HTTP 413 (code 413), which the mocked {@code ApiPerfHelper}
+ * records as {@code UNSUPPORTED_OPERATION}. The mapper's own limits are
  * the sdk module's {@code PayloadBoundsTest}; this body stays inside them (strings of {@link #ELEMENT_LENGTH}
  * characters, padded with whitespace to the exact size), so only the codec limit is reached.
  *
@@ -99,13 +99,15 @@ class PayloadBoundsTest {
         }
     }
 
+    /** The codec's {@code DataBufferLimitException} reaches the handler as a {@code ResponseStatusException(413)}, a client error. */
     @Test
     void codecLimitBodyOneByteOverMaxInMemorySizeIsRejected() throws IOException {
         Body body = Body.ofSize(ServerCodecGuardTest.SERVER_MAX_IN_MEMORY_SIZE + 1);
-        BizError error = BizError.INTERNAL_SERVER_ERROR;
+        BizError error = BizError.UNSUPPORTED_OPERATION;
         try (ContractTestClient client = client()) {
-            JsonNode response = post(client, body, HttpStatus.valueOf(error.getHttpErrorCode()));
-            assertThat(response.path(CODE).intValue()).isEqualTo(error.getBizErrorCode());
+            JsonNode response = post(client, body, HttpStatus.PAYLOAD_TOO_LARGE);
+            assertThat(response.path(CODE).intValue()).as("code is the HTTP status of a client-error ResponseStatusException")
+                    .isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE.value());
             assertThat(response.path(SUCCESS).booleanValue()).isFalse();
             Mockito.verify(client.bean(ApiPerfHelper.class))
                     .perf(Mockito.eq(error), Mockito.argThat((RequestPath path) -> path.value().equals(DSL_PATH)));

@@ -43,6 +43,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.RequestPath;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.WebFilter;
@@ -60,7 +62,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The error cases X1–X7 of docs/API_PAYLOAD_TEST_PLAN.md §5.3, through the production codecs and exception handling
+ * The error cases X1–X11 of docs/API_PAYLOAD_TEST_PLAN.md §5.3, through the production codecs and exception handling
  * of the harness (§5.1), against the real controllers with mocked collaborators.
  *
  * <ul>
@@ -71,7 +73,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  *       {@link #everyRequestEnumHasAnX3Endpoint} fails when the walker finds one without.</li>
  *   <li><b>X4</b>: a {@code BizException} from the service mock.</li>
  *   <li><b>X5–X7</b>: an unmapped path, a web filter failing with a {@code RuntimeException}, and one failing with
- *       {@code ResponseStatusException(403)}; their full bodies are pinned in {@code json-contract/errors/}.</li>
+ *       {@code ResponseStatusException(403)}; their full bodies are pinned in {@code json-contract/errors/};</li>
+ *   <li><b>X8–X11</b>: a controller's {@code ResponseStatusException} 405, 400, 503 and one under the plugins prefix.</li>
  * </ul>
  *
  * <p>X1–X4 assert the status, the {@code code}, {@code success: false} and the {@code message}; X1–X3 also that the
@@ -99,6 +102,7 @@ class ErrorCasesContractTest {
     static final String ERRORS = "errors/";
     /** {@code GlobalExceptionHandler}'s locale in the harness: the request's, {@code en_US} by default (§5.1). */
     static final Locale REQUEST_LOCALE = Locale.US;
+    static final String INTERNAL_ERROR_MESSAGE_KEY = "INTERNAL_SERVER_ERROR";
     static final String DECODE_MESSAGE_KEY = "INVALID_PARAMETER_PLZ_CHECK";
     static final String REASON_PLACEHOLDER = "<X1-X3 reason>";
     /** {@code catchServerWebInputException}'s reason: {@code <parameter>' : <Controller>.<method>}. */
@@ -189,11 +193,87 @@ class ErrorCasesContractTest {
     }
 
     @Test
-    void x5UnmappedPathIsWrittenByTheGlobalExceptionHandler() throws IOException {
+    void x5UnmappedPathIsAnswered404ByTheGlobalExceptionHandler() throws IOException {
         try (ContractTestClient client = ContractTestClient.builder().build()) {
             EntityExchangeResult<byte[]> result = exchange(client, HttpMethod.GET, UNMAPPED_PATH, null);
-            assertPinned("X5.unmapped-path", result, HttpStatus.INTERNAL_SERVER_ERROR);
-            assertWrittenByGlobalExceptionHandler(client, BizError.INTERNAL_SERVER_ERROR, UNMAPPED_PATH);
+            assertPinned("X5.unmapped-path", result, HttpStatus.NOT_FOUND);
+            assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8))
+                    .as("an unknown URL is a client error, not the generic internal-error message")
+                    .doesNotContain(LocaleUtils.getMessage(REQUEST_LOCALE, INTERNAL_ERROR_MESSAGE_KEY));
+            assertWrittenByGlobalExceptionHandler(client, BizError.UNSUPPORTED_OPERATION, UNMAPPED_PATH);
+        }
+    }
+
+    /** X8: a controller's 405 keeps its status instead of becoming the generic 500. */
+    @Test
+    void x8ControllerResponseStatus405KeepsItsStatus() throws IOException {
+        try (ContractTestClient client = ContractTestClient.builder().controller(StatusThrowingController.class).build()) {
+            EntityExchangeResult<byte[]> result = exchange(client, HttpMethod.GET, StatusThrowingController.METHOD_NOT_ALLOWED_PATH, null);
+            assertPinned("X8.controller-405", result, HttpStatus.METHOD_NOT_ALLOWED);
+            assertWrittenByGlobalExceptionHandler(client, BizError.UNSUPPORTED_OPERATION, StatusThrowingController.METHOD_NOT_ALLOWED_PATH);
+        }
+    }
+
+    /** X9: a controller's 400 keeps its status; the exception's reason text is not echoed to the client. */
+    @Test
+    void x9ControllerResponseStatus400KeepsItsStatusWithoutEchoingTheReason() throws IOException {
+        try (ContractTestClient client = ContractTestClient.builder().controller(StatusThrowingController.class).build()) {
+            EntityExchangeResult<byte[]> result = exchange(client, HttpMethod.GET, StatusThrowingController.BAD_REQUEST_PATH, null);
+            assertPinned("X9.controller-400", result, HttpStatus.BAD_REQUEST);
+            assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8)).doesNotContain(StatusThrowingController.SECRET_REASON);
+            assertWrittenByGlobalExceptionHandler(client, BizError.UNSUPPORTED_OPERATION, StatusThrowingController.BAD_REQUEST_PATH);
+        }
+    }
+
+    /** X10: a 5xx ResponseStatusException is still the generic 500 with the INTERNAL_SERVER_ERROR code and text. */
+    @Test
+    void x10ControllerResponseStatus5xxStillAnswersTheGeneric500() throws IOException {
+        try (ContractTestClient client = ContractTestClient.builder().controller(StatusThrowingController.class).build()) {
+            EntityExchangeResult<byte[]> result = exchange(client, HttpMethod.GET, StatusThrowingController.UNAVAILABLE_PATH, null);
+            assertPinned("X10.controller-503", result, HttpStatus.INTERNAL_SERVER_ERROR);
+            assertWrittenByGlobalExceptionHandler(client, BizError.INTERNAL_SERVER_ERROR, StatusThrowingController.UNAVAILABLE_PATH);
+        }
+    }
+
+    /** X11: under the plugins prefix the exception's status and the PLUGIN_ENDPOINT_ERROR body, with the path, are unchanged. */
+    @Test
+    void x11PluginPrefixKeepsTheStatusAndThePluginEndpointErrorBody() throws IOException {
+        try (ContractTestClient client = ContractTestClient.builder().controller(StatusThrowingController.class).build()) {
+            EntityExchangeResult<byte[]> result = exchange(client, HttpMethod.GET, StatusThrowingController.PLUGIN_PATH, null);
+            String message = assertError(result, HttpStatus.SERVICE_UNAVAILABLE, BizError.PLUGIN_ENDPOINT_ERROR.getBizErrorCode());
+            assertThat(message).as("plugin endpoint error text names the exception and the path")
+                    .contains(StatusThrowingController.SECRET_REASON).endsWith(" - path: " + StatusThrowingController.PLUGIN_PATH);
+            assertWrittenByGlobalExceptionHandler(client, BizError.PLUGIN_ENDPOINT_ERROR, StatusThrowingController.PLUGIN_PATH);
+        }
+    }
+
+    /** Throws the {@link ResponseStatusException}s of X8-X11 from a controller, as {@code ApiFlowController} does for 405. */
+    @RestController
+    static class StatusThrowingController {
+        static final String METHOD_NOT_ALLOWED_PATH = "/api/x8-method-not-allowed";
+        static final String BAD_REQUEST_PATH = "/api/x9-bad-request";
+        static final String UNAVAILABLE_PATH = "/api/x10-unavailable";
+        static final String PLUGIN_PATH = NewUrl.PLUGINS_URL + "/x11-unavailable";
+        static final String SECRET_REASON = "x-secret-reason";
+
+        @GetMapping(METHOD_NOT_ALLOWED_PATH)
+        Mono<String> methodNotAllowed() {
+            return Mono.error(new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED));
+        }
+
+        @GetMapping(BAD_REQUEST_PATH)
+        Mono<String> badRequest() {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, SECRET_REASON));
+        }
+
+        @GetMapping(UNAVAILABLE_PATH)
+        Mono<String> unavailable() {
+            return Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, SECRET_REASON));
+        }
+
+        @GetMapping(PLUGIN_PATH)
+        Mono<String> pluginUnavailable() {
+            return Mono.error(new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, SECRET_REASON));
         }
     }
 
