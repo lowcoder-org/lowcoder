@@ -70,6 +70,9 @@ public class ResultSetParserContractTest {
     static final Instant INSTANT = Instant.parse("2024-02-29T13:14:15.123Z");
     static final byte[] BYTES = {0, 1, (byte) 0xFF, 'a'};
     static final String TEXT = "žluťoučký kůň 🐎";
+    /** The JDK's own message of {@code SerialClob.getAsciiStream}: JDK 17 spells it with the typo, JDK 25 without it. */
+    static final String CLOB_MESSAGE_FIXED_BY_NEWER_JDK = "SerialClob cannot return the CLOB value";
+    static final String CLOB_MESSAGE_PINNED = "SerialClob cannot return a the CLOB value";
 
     private static final GoldenJson GOLDEN = GoldenJson.forModule();
     private static TimeZone defaultZone;
@@ -104,7 +107,8 @@ public class ResultSetParserContractTest {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put(COLUMNS_KEY, perColumn);
         report.put(ROW_KEY, QueryResults.report(QueryExecutionResult.success(rows)));
-        String actual = ConfigBinding.write(report);
+        String actual = ConfigBinding.write(report)
+                .replace(CLOB_MESSAGE_FIXED_BY_NEWER_JDK, CLOB_MESSAGE_PINNED);
         System.out.println("[ResultSetParserContractTest] " + rows.size() + " row, " + perColumn.size() + " columns\n" + actual);
         GOLDEN.assertJson(REPORT, actual);
     }
