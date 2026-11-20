@@ -175,6 +175,7 @@ export const UICompPanel = () => {
                     <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
                       <HovDiv
                         draggable
+                        data-testid={`insert-comp-${info[0]}`}
                         onDragStart={(e) => {
                           e.dataTransfer.setData("compType", info[0]);
                           e.dataTransfer.setDragImage(TransparentImg, 0, 0);

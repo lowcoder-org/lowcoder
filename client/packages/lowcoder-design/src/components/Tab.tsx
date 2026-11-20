@@ -96,6 +96,8 @@ const Tabs = React.memo((props: ITabs) => {
     return (
       <IconAndName 
         key={tab.key} 
+        role="tab"
+        aria-selected={isActive}
         onClick={() => handleTabClick(tab.key)} 
         $isActive={isActive}
       >
@@ -107,7 +109,7 @@ const Tabs = React.memo((props: ITabs) => {
 
   return (
     <>
-      <HeaderDiv>
+      <HeaderDiv role="tablist">
         {tabsConfig.map(renderTab)}
       </HeaderDiv>
       <ChildDiv>{activeTab.content}</ChildDiv>

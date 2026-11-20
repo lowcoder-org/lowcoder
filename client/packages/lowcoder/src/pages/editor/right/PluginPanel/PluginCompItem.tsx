@@ -85,6 +85,7 @@ export function PluginCompItem(props: PluginCompItemProps) {
   return (
     <ItemWrapper
       draggable
+      data-testid={`insert-comp-${compType}`}
       onDragStart={(e) => {
         e.dataTransfer.setData("compType", compType);
         e.dataTransfer.setDragImage(TransparentImg, 0, 0);

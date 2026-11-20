@@ -13,8 +13,9 @@ test("a component dragged from the insert panel is on the canvas and saved", { t
 
   await editor.open(appId);
   await expect(editor.canvasItems("button")).toHaveCount(0);
-  await editor.dragFromInsertPanel("Button", "Form Button", { x: 120, y: 40 });
+  await editor.dragFromInsertPanel("button", "Button", { x: 120, y: 40 });
   await expect(editor.canvasItems("button"), "the button is on the canvas").toHaveCount(1);
+  await expect(editor.canvasItemNamed("button1"), "it got the first free button name").toHaveCount(1);
 
   // The editor autosaves; assert on what is stored, not only on what is shown.
   await expect
