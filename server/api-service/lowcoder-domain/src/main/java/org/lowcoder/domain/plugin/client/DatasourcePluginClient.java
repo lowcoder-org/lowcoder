@@ -19,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -41,7 +42,10 @@ public class DatasourcePluginClient implements NodeServerClient {
 
     private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
             .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
+            .codecs(configurer -> {
+                Jackson2ClientCodecs.apply(configurer);
+                configurer.defaultCodecs().maxInMemorySize(-1);
+            })
             .build();
 
     private static final WebClient WEB_CLIENT = WebClient.builder()

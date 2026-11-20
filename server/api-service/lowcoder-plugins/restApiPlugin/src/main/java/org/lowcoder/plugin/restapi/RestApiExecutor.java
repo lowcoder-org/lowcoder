@@ -50,6 +50,8 @@ import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.CookieForwarding;
+import org.lowcoder.sdk.util.HttpHeaderMaps;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClientRedirects;
 import org.pf4j.Extension;
@@ -101,7 +103,10 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
     // Set an unlimited buffer size, because query payload limit will be handled in webFilter
     private final ExchangeStrategies exchangeStrategies = ExchangeStrategies
             .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
+            .codecs(configurer -> {
+                Jackson2ClientCodecs.apply(configurer);
+                configurer.defaultCodecs().maxInMemorySize(-1);
+            })
             .build();
 
     public RestApiExecutor(CommonConfig commonConfig) {
@@ -433,7 +438,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         // Convert the headers into json tree to store in the results
         String headerInJsonString;
         try {
-            headerInJsonString = toJsonThrows(headers);
+            headerInJsonString = toJsonThrows(HttpHeaderMaps.copyOf(headers));
         } catch (JsonProcessingException e) {
             throw new PluginException(QUERY_EXECUTION_ERROR, DEFAULT_REST_ERROR_CODE, e.getMessage());
         }

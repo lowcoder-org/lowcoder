@@ -206,7 +206,7 @@ class MarketplaceRenderContractTest {
      * returns all of it; one byte more: {@code render} fails with a {@link DataBufferLimitException} in its cause chain.
      * The limit in effect is observed, not read from the client's configuration.
      */
-    @BoundarySites("lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplaceRenderClient.java#MarketplaceRenderClient.client#codecs#1")
+    @BoundarySites("lowcoder-server/src/main/java/org/lowcoder/api/application/marketplace/MarketplaceRenderClient.java#MarketplaceRenderClient.EXCHANGE_STRATEGIES#codecs#1")
     @ParameterizedTest(name = "{0} bytes")
     @ValueSource(ints = {DECLARED_LIMIT, DECLARED_LIMIT + 1})
     void renderEnforcesItsDeclaredLimit(int size) {

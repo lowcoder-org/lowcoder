@@ -1,8 +1,8 @@
 spring:
+  mongodb:
+    authentication-database: admin
+    uri: "mongodb://lowcoder:secret123@127.0.0.1:27017/lowcoder?authSource=admin"
   data:
-    mongodb:
-      authentication-database: admin
-      uri: "mongodb://lowcoder:secret123@127.0.0.1:27017/lowcoder?authSource=admin"
     redis:
       url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
   main:

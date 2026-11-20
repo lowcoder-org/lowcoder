@@ -159,10 +159,10 @@ class ApplicationHistorySnapshotEndpointsContractTest {
 
     /**
      * Without query parameters (plan §9 O16): the page and size defaults are the controller's ({@code "1"}, so page 1,
-     * {@code PageRequest} page 0; the interface's {@code "0"} would fail {@code Pagination#check}), and the filters reach
-     * the service as {@code null} although the controller declares them required: Spring adds the interface's parameter
-     * annotations that the controller's parameter lacks, among them {@code @Nullable}, which makes the parameter
-     * optional. Not a response branch of the controller: the list is empty, so no user is looked up.
+     * {@code PageRequest} page 0; the interface's {@code "0"} would fail {@code Pagination#check}), and the filters are
+     * optional, as the interface declares them, and reach the service as {@code null}: the controller's parameters say
+     * {@code required = false} themselves, because Spring does not take {@code @Nullable} over from the interface's
+     * parameters. Not a response branch of the controller: the list is empty, so no user is looked up.
      */
     @Test
     void listAllHistorySnapshotBriefInfoWithoutQueryParameters() {

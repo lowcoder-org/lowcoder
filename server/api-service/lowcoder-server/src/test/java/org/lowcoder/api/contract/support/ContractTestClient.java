@@ -18,10 +18,9 @@ import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
+import org.springframework.boot.webflux.error.DefaultErrorAttributes;
+import org.springframework.boot.webflux.error.ErrorAttributes;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -56,7 +55,7 @@ import java.util.Set;
  *       {@link CookieHelper}, which a test may replace through {@link Builder#mock} or {@link Builder#singleton};
  *       the visitor is {@link Authentication#ANONYMOUS_USER_ID} unless {@link Builder#visitor} sets one;</li>
  *   <li>the production {@link CustomErrorWebExceptionHandler} with {@link DefaultErrorAttributes},
- *       {@link WebProperties.Resources} and {@link ServerProperties} (E9);</li>
+ *       {@link WebProperties.Resources} and {@link WebProperties} (E9);</li>
  *   <li>the production {@link PluginConfiguration} route, with mocks named {@value #PLUGIN_MANAGER_BEAN_NAME} (its
  *       {@code @DependsOn}) and {@value #PLUGIN_ENDPOINT_HANDLER_BEAN_NAME} that registers no plugin endpoint (E10).</li>
  * </ul>
@@ -215,7 +214,7 @@ public final class ContractTestClient implements AutoCloseable {
             singletons.forEach(context.getBeanFactory()::registerSingleton);
             context.registerBean(ErrorAttributes.class, DefaultErrorAttributes::new);
             context.registerBean(WebProperties.Resources.class, WebProperties.Resources::new);
-            context.registerBean(ServerProperties.class, ServerProperties::new);
+            context.registerBean(WebProperties.class, WebProperties::new);
             for (int i = 0; i < webFilters.size(); i++) {
                 WebFilter filter = webFilters.get(i);
                 context.registerBean("testWebFilter" + i, WebFilter.class, () -> filter);

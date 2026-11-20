@@ -24,6 +24,7 @@ import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.localcache.ReloadableCache;
 import org.lowcoder.sdk.util.JsonUtils;
+import org.lowcoder.sdk.webclient.Jackson2ClientCodecs;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,7 +62,10 @@ public class JsLibraryController implements JsLibraryEndpoints
 
     private static final ExchangeStrategies EXCHANGE_STRATEGY = ExchangeStrategies
             .builder()
-            .codecs(configure -> configure.defaultCodecs().maxInMemorySize(-1))
+            .codecs(configure -> {
+                Jackson2ClientCodecs.apply(configure);
+                configure.defaultCodecs().maxInMemorySize(-1);
+            })
             .build();
 
     /** The resource's {@code downloadUrl} of each recommended library, by name, read as UTF-8 (GH-01; bytes that are not UTF-8 become U+FFFD); read-only once the class is loaded. */

@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import java.time.Duration;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,7 +30,7 @@ class WorkspaceSeatSyncServiceTest {
         service = spy(new WorkspaceSeatSyncService(sessions, seats, redis, config, "server-only-test-token", "https://flow.lowcoder.cloud/webhook/secure/sync-workspace-seats"));
         when(sessions.getVisitorOrgMember()).thenReturn(Mono.just(new OrgMember("workspace", "user", MemberRole.ADMIN, "normal", 0)));
         when(config.deployment().ofString("id", "").get()).thenReturn("host");
-        when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any())).thenReturn(Mono.just(true));
+        when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any(Duration.class))).thenReturn(Mono.just(true));
         when(redis.execute(any(), anyList(), anyList())).thenReturn(Flux.just(1L));
         when(seats.count("workspace")).thenReturn(Mono.just(3));
     }
@@ -75,7 +76,7 @@ class WorkspaceSeatSyncServiceTest {
     }
 
     @Test void overlappingClientRequestDoesNotReachStripe() {
-        when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any())).thenReturn(Mono.just(false));
+        when(redis.opsForValue().setIfAbsent(anyString(), anyString(), any(Duration.class))).thenReturn(Mono.just(false));
         assertThrows(ResponseStatusException.class, () -> service.synchronize("workspace").block());
         verify(service, never()).send(anyMap());
     }

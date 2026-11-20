@@ -17,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties.Resources;
-import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
+import org.springframework.boot.webflux.autoconfigure.error.DefaultErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
+import org.springframework.boot.webflux.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -55,10 +55,10 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
 
     @Autowired
     public CustomErrorWebExceptionHandler(ErrorAttributes errorAttributes, Resources resources,
-            ServerProperties serverProperties, ApplicationContext applicationContext,
+            WebProperties webProperties, ApplicationContext applicationContext,
             ObjectProvider<ViewResolver> viewResolvers,
             ServerCodecConfigurer serverCodecConfigurer) {
-        super(errorAttributes, resources, serverProperties.getError(), applicationContext);
+        super(errorAttributes, resources, webProperties.getError(), applicationContext);
         this.setViewResolvers(viewResolvers.orderedStream().collect(Collectors.toList()));
         this.setMessageWriters(serverCodecConfigurer.getWriters());
         this.setMessageReaders(serverCodecConfigurer.getReaders());

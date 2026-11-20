@@ -150,6 +150,12 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+        <!-- Jackson2ClientCodecs builds its mappers with Jackson2ObjectMapperBuilder, which registers Jdk8Module only when
+             it is on the class path. Spring Boot's JSON starter carries Jackson 3 only, so it is declared here. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>

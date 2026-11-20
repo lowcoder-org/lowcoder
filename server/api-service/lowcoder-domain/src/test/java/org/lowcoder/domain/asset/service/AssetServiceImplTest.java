@@ -395,7 +395,7 @@ class AssetServiceImplTest {
 
         StepVerifier.create(service.makeImageResponse(exchange, ASSET_ID)).verifyComplete();
 
-        assertThat(exchange.getResponse().getHeaders().containsKey(HttpHeaders.CONTENT_TYPE)).isFalse();
+        assertThat(exchange.getResponse().getHeaders().containsHeader(HttpHeaders.CONTENT_TYPE)).isFalse();
         assertThat(exchange.getResponse().getBodyAsString().block(TIMEOUT)).isEqualTo("x");
     }
 
@@ -415,7 +415,7 @@ class AssetServiceImplTest {
                 + " committed=" + exchange.getResponse().isCommitted());
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(exchange.getResponse().isCommitted()).isTrue();
-        assertThat(exchange.getResponse().getHeaders().containsKey(HttpHeaders.CONTENT_TYPE)).isFalse();
+        assertThat(exchange.getResponse().getHeaders().containsHeader(HttpHeaders.CONTENT_TYPE)).isFalse();
         assertThat(exchange.getResponse().getBodyAsString().block(TIMEOUT)).isEmpty();
     }
 }

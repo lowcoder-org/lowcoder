@@ -130,7 +130,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.sentry</groupId>
-			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+			<artifactId>sentry-spring-boot-4</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -171,8 +171,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -181,7 +181,7 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- MongoDB and Redis of the Spring Boot tests run in containers (org.lowcoder.api.common.TestContainers);
-		     the version comes from the testcontainers-bom in lowcoder-dependencies -->
+		     the version comes from the Spring Boot dependency management in lowcoder-dependencies -->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers-mongodb</artifactId>
@@ -246,6 +246,17 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- WireMock (wiremock-jetty12) takes the Jetty EE 10 modules from its own Jetty 12.0 BOM, while Spring Boot manages
+			     the Jetty core modules at 12.1. The two lines do not mix (the EE 10 servlet module calls
+			     org.eclipse.jetty.util.component.Environment.ensure, which 12.1 does not have), so the EE 10 modules follow the
+			     version Spring Boot manages for the core modules. Imported before lowcoder-dependencies so that it wins. -->
+			<dependency>
+				<groupId>org.eclipse.jetty.ee10</groupId>
+				<artifactId>jetty-ee10-bom</artifactId>
+				<version>12.1.14</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.lowcoder</groupId>
 				<artifactId>lowcoder-dependencies</artifactId>
