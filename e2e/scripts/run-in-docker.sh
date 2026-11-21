@@ -19,6 +19,8 @@
 ##   PLAYWRIGHT_IMAGE    runner image; its version must equal @playwright/test in e2e/package-lock.json
 ##                       (default mcr.microsoft.com/playwright:v1.64.0-noble)
 ##   E2E_INCLUDE_QUARANTINE  set to 1 to also run the @quarantine tests (they expose known defects)
+##   E2E_INCLUDE_INSERT_ALL  set to 1 to also run the @insert-all tests (S1, the insert-every-component smoke test, 112
+##                       tests); independent of E2E_INCLUDE_QUARANTINE. Nightly: E2E_INCLUDE_INSERT_ALL=1 $0 --grep @insert-all
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
@@ -179,6 +181,7 @@ run_tests() {
         -e LOWCODER_BASE_URL="http://${E2E_APP_HOST}:${APP_PORT}" \
         -e E2E_POSTGRES_HOST="$POSTGRES_CONTAINER" \
         -e E2E_INCLUDE_QUARANTINE="${E2E_INCLUDE_QUARANTINE:-}" \
+        -e E2E_INCLUDE_INSERT_ALL="${E2E_INCLUDE_INSERT_ALL:-}" \
         -v "$E2E_DIR":/work -w /work \
         "$PLAYWRIGHT_IMAGE" \
         sh -c 'npm ci --no-audit --no-fund && npx playwright test "$@"' sh "$@" || status=$?

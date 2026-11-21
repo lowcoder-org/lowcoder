@@ -38,4 +38,22 @@ export class AppViewPage {
   byTestId(testId: string): Locator {
     return this.page.getByTestId(testId);
   }
+
+  /**
+   * A component addressed by its name (`data-comp-name`): for the 21 component types that have no test id (p2 2.3)
+   * and for the instances of a module. The element can be a zero-size wrapper; assert its content, or `toBeAttached`.
+   */
+  byCompName(name: string): Locator {
+    return this.page.locator(`[data-comp-name="${name}"]`);
+  }
+
+  /**
+   * The scope of one instance of a module, by its name in the host (`module1`). Every instance repeats the module's
+   * test ids, so a module's own components must be located inside this scope: an unscoped `getByTestId` matches once
+   * per instance and fails in strict mode. A module instance shows `Loading...` right after a page load, so assert
+   * its content with a waiting `toHaveText`, never a one-shot read.
+   */
+  inModule(instanceName: string): Locator {
+    return this.byCompName(instanceName);
+  }
 }

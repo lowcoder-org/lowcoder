@@ -3,11 +3,13 @@ import {
   API_OK,
   API_PATHS,
   APP_TYPE_APPLICATION,
+  APP_TYPE_MODULE,
   appPermissionsPath,
   applicationPath,
   appViewPath,
   AUTH_ID_EMAIL,
   AUTH_SOURCE_EMAIL,
+  EMPTY_MODULE_DSL,
   invitationAcceptPath,
   NEW_USER_GUIDANCE_STATUS,
   publicToAllPath,
@@ -103,22 +105,52 @@ interface CreateAppData {
   applicationInfoView: { applicationId: string };
 }
 
-export async function createApp(
+/** POST /api/applications: the body differs between an app and a module only in `applicationType` and the default DSL. */
+async function createApplication(
+  action: string,
   request: APIRequestContext,
-  params: { orgId: string; name: string; dsl?: object },
+  params: { orgId: string; name: string; applicationType: number; dsl: object },
 ): Promise<CreatedApp> {
   const data = await unwrap<CreateAppData>(
-    `create app ${params.name}`,
+    action,
     await request.post(API_PATHS.APPLICATIONS, {
       data: {
         orgId: params.orgId,
         name: params.name,
-        applicationType: APP_TYPE_APPLICATION,
-        editingApplicationDSL: params.dsl ?? {},
+        applicationType: params.applicationType,
+        editingApplicationDSL: params.dsl,
       },
     }),
   );
   return { appId: data.applicationInfoView.applicationId };
+}
+
+export async function createApp(
+  request: APIRequestContext,
+  params: { orgId: string; name: string; dsl?: object },
+): Promise<CreatedApp> {
+  return createApplication(`create app ${params.name}`, request, {
+    ...params,
+    applicationType: APP_TYPE_APPLICATION,
+    dsl: params.dsl ?? {},
+  });
+}
+
+/**
+ * Creates a module (an app of type APP_TYPE_MODULE that other apps embed as a `module` component). `appId` of the
+ * result is the module id a host's `moduleInstance` names. Without `dsl` the module is the empty one the editor's
+ * "Create Module" posts (EMPTY_MODULE_DSL); build a filled one with `moduleApp`. A module is published like an app
+ * (`publishApp`); a host uses its latest published version and, while it has none, its draft.
+ */
+export async function createModule(
+  request: APIRequestContext,
+  params: { orgId: string; name: string; dsl?: object },
+): Promise<CreatedApp> {
+  return createApplication(`create module ${params.name}`, request, {
+    ...params,
+    applicationType: APP_TYPE_MODULE,
+    dsl: params.dsl ?? EMPTY_MODULE_DSL,
+  });
 }
 
 export const FIRST_VERSION_TAG = "1.0.0";
