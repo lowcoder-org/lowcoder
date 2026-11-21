@@ -1,5 +1,5 @@
 import { createApp, publishApp } from "../../src/api/client";
-import { TAGS } from "../../src/constants";
+import { LOCAL_STORAGE_NAMESPACE, TAGS } from "../../src/constants";
 import { appDsl, button, jsQuery, tempState, text } from "../../src/dsl/builders";
 import { expect, test } from "../../src/fixtures";
 import { AppViewPage } from "../../src/pages/AppViewPage";
@@ -8,8 +8,6 @@ const BUTTON_ID = "e2e-logic-button";
 const TEXT_ID = "e2e-logic-text";
 const QUERY_NAME = "query1";
 const STATE_NAME = "state1";
-/** The browser local-storage key under which the app's `localStorage` component keeps its values. */
-const APP_LOCAL_STORAGE_KEY = "lowcoder_app_local_storage";
 
 test.describe("queries, temporary states and local storage", () => {
   test("a query that runs on load puts its result into a text", { tag: TAGS.CORE }, async ({ page, apiUser }) => {
@@ -72,7 +70,7 @@ test.describe("queries, temporary states and local storage", () => {
     await view.buttonByTestId(BUTTON_ID).click();
     await expect(view.byTestId(TEXT_ID), "the text shows the stored value").toHaveText("stored: hello");
     expect(
-      await page.evaluate((storeKey) => localStorage.getItem(storeKey), APP_LOCAL_STORAGE_KEY),
+      await page.evaluate((storeKey) => localStorage.getItem(storeKey), LOCAL_STORAGE_NAMESPACE),
       "the value is in the browser's local storage",
     ).toContain(`"${key}":"hello"`);
 

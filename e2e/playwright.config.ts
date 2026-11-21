@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { grepInvertFor, runFlagsFromEnv } from "./src/run-selection";
 
 /** Origin of the Lowcoder instance under test. The run script sets it to the app container on the Docker network. */
 const BASE_URL = process.env.LOWCODER_BASE_URL;
@@ -18,14 +19,17 @@ const CI_RETRIES = 1;
  */
 const DEFAULT_WORKERS = 4;
 
-/** Tests tagged @quarantine expose known defects and fail on purpose-built baselines; they run only on request. */
-const INCLUDE_QUARANTINE = !!process.env.E2E_INCLUDE_QUARANTINE;
+/**
+ * Tests tagged @quarantine (known defects) and @insert-all (the 112-test insert smoke test) run only on request, each
+ * with its own variable, E2E_INCLUDE_QUARANTINE and E2E_INCLUDE_INSERT_ALL; see src/run-selection.ts.
+ */
+const GREP_INVERT = grepInvertFor(runFlagsFromEnv(process.env));
 
 export default defineConfig({
   testDir: "./tests",
   outputDir: "./test-results",
   fullyParallel: true,
-  grepInvert: INCLUDE_QUARANTINE ? undefined : /@quarantine/,
+  grepInvert: GREP_INVERT,
   workers: Number(process.env.E2E_WORKERS || DEFAULT_WORKERS),
   forbidOnly: IS_CI,
   retries: IS_CI ? CI_RETRIES : 0,
@@ -35,6 +39,8 @@ export default defineConfig({
     ["list"],
     ["html", { outputFolder: "./playwright-report", open: "never" }],
     ["junit", { outputFile: "./test-results/junit.xml" }],
+    // Fails the run when more than half of the tests of S1 or M3 needed a D-3 retry (p7 section 1).
+    ["./src/reporters/d3-threshold-reporter.ts"],
   ],
   use: {
     baseURL: BASE_URL,

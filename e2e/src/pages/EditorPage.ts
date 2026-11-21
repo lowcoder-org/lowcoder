@@ -1,5 +1,13 @@
 import { expect, type Locator, type Page } from "@playwright/test";
-import { APP_PAGE, GRID_SETTLE_MS, INSERT_PANEL_ATTEMPT_TIMEOUT_MS, INSERT_PANEL_TIMEOUT_MS } from "../constants";
+import {
+  APP_PAGE,
+  EXTENSIONS_LABELS,
+  GRID_SETTLE_MS,
+  INSERT_PANEL_ATTEMPT_TIMEOUT_MS,
+  INSERT_PANEL_TIMEOUT_MS,
+  MODULE_INSTANCE_TIMEOUT_MS,
+  MODULE_TILE_TEST_ID,
+} from "../constants";
 
 /** The app editor at /apps/{id}/edit. */
 export class EditorPage {
@@ -83,5 +91,39 @@ export class EditorPage {
       await expect(source).toBeVisible({ timeout: INSERT_PANEL_ATTEMPT_TIMEOUT_MS });
       await source.dragTo(this.canvas, { targetPosition: target, timeout: INSERT_PANEL_ATTEMPT_TIMEOUT_MS });
     }).toPass({ timeout: INSERT_PANEL_TIMEOUT_MS });
+  }
+
+  /**
+   * Selects a component through the "Active Components" list on the left (the tree item named like the component),
+   * then waits until the right panel shows that name. Clicking the component on the canvas does not work for module
+   * instances: `canvasItemNamed` and `canvasItems("module")` both timed out on a click. Pressing Escape first is not
+   * needed (it switches the right panel to the Insert tab).
+   */
+  async selectInComponentList(name: string): Promise<void> {
+    await this.page.getByRole("treeitem", { name }).click();
+    await expect(
+      this.page.locator(".cypress-right-content").getByText(name, { exact: true }),
+      `the right panel shows ${name}`,
+    ).toBeVisible();
+  }
+
+  /**
+   * Drags the module named `name` from Insert > Extensions onto the canvas, and waits until the editor shows one more
+   * module instance. Every module tile has the test id `insert-comp-module` and shows the module's name, so the tile is
+   * picked by that name and must be unique. The Insert tab and the Extensions section are opened on every call
+   * (a second drag needs the panel opened again). The new instance is selected and named `module<n>`. Verified with two
+   * drags in one editor session (`tests/foundation/editor-modules.spec.ts`, 3 of 3 repeats).
+   */
+  async dragModule(name: string, target: { x: number; y: number }): Promise<void> {
+    const instancesBefore = await this.canvasItems("module").count();
+    await this.page.getByRole("tab", { name: EXTENSIONS_LABELS.INSERT_TAB }).click();
+    await this.page.getByText(EXTENSIONS_LABELS.PANEL, { exact: true }).click();
+    const tile = this.page.getByTestId(MODULE_TILE_TEST_ID).filter({ has: this.page.getByText(name, { exact: true }) });
+    await expect(tile, `exactly one module tile is named ${name}`).toHaveCount(1);
+    await tile.dragTo(this.canvas, { targetPosition: target, timeout: MODULE_INSTANCE_TIMEOUT_MS });
+    await expect(this.canvasItems("module"), `the canvas has one more module instance after dropping ${name}`).toHaveCount(
+      instancesBefore + 1,
+      { timeout: MODULE_INSTANCE_TIMEOUT_MS },
+    );
   }
 }
