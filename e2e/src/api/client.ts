@@ -794,6 +794,34 @@ export async function seedOAuthConfig(request: APIRequestContext, params: { clie
 }
 
 /**
+ * One sign-in configuration as `GET /api/auth/configs` lists it (admin only). The answer also carries the client secret in
+ * clear (D-14); the type leaves it out so no test reads it.
+ */
+export interface AuthConfigEntry {
+  id: string;
+  authType: string;
+  enable: boolean;
+}
+
+/** `GET /api/auth/configs`: the sign-in configurations of the caller's workspace, e-mail included (id `EMAIL`). */
+export async function listAuthConfigs(request: APIRequestContext): Promise<AuthConfigEntry[]> {
+  const rows = await unwrap<AuthConfigEntry[]>("list auth configs", await request.get(API_PATHS.AUTH_CONFIGS));
+  return rows.map((row) => ({ id: row.id, authType: row.authType, enable: row.enable }));
+}
+
+/** `POST /api/auth/config` with a GitHub configuration, as the raw answer (the call under test of the duplicate check). */
+export async function addGithubConfigRaw(request: APIRequestContext, params: { clientId: string; clientSecret: string }): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.AUTH_CONFIG, {
+    data: { authType: OAUTH_AUTH_TYPE, clientId: params.clientId, clientSecret: params.clientSecret, enable: true },
+  });
+}
+
+/** `DELETE /api/auth/config/{id}` (`delete=false` disables, `true` deletes), as the raw answer. */
+export async function removeAuthConfigRaw(request: APIRequestContext, id: string, options: { remove: boolean }): Promise<RawAnswer> {
+  return apiRaw(request, "DELETE", `${API_PATHS.AUTH_CONFIG}/${id}`, { params: { delete: String(options.remove) } });
+}
+
+/**
  * Signs in an existing user with e-mail and password (the form login of `registerUser` without `register`). The request
  * context keeps the session cookie: a second `signIn` of the same user in another context is a second, independent
  * session. The action label names the e-mail only; the password never reaches an error message.
