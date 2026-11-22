@@ -4,7 +4,7 @@ import config from "../../playwright.config";
 import { D3_RETRY_ANNOTATION } from "../../src/constants";
 import D3ThresholdReporter, { d3Message, d3Verdicts, type D3TestRecord } from "../../src/reporters/d3-threshold-reporter";
 
-/** The two gated files of p7 section 1 and their sizes: S1 has 112 tests, M3 is run 10 times (`--repeat-each=10`). */
+/** The two gated files and their sizes: S1 has 112 tests, M3 is run 10 times (`--repeat-each=10`). */
 const S1_FILE = "/checkout/e2e/tests/components/insert-all.spec.ts";
 const M3_FILE = "/checkout/e2e/tests/modules/module-editor-host.spec.ts";
 const S1_TESTS = 112;

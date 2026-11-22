@@ -135,7 +135,7 @@ test.describe("components loaded from npm", () => {
   });
 
   /**
-   * S15's bound variant (p3 S15, p4 D1): the recorded rows sit in a temporary state and the chart's `data` is
+   * S15's bound variant (with D1): the recorded rows sit in a temporary state and the chart's `data` is
    * `{{state1.value}}`. What it measures: the canvas's pixels (a hash of `toDataURL()` once two reads 500 ms apart
    * agree) with the rows, with `[]` after a button set the state, and with the rows again after a second button. If the
    * chart ignored its binding, the pixels would not change; they do, and the rows restore the first drawing exactly.

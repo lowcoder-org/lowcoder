@@ -1,7 +1,7 @@
 /**
- * Helpers shared by the component scenarios S2-S7 (client/E2E-TESTING-components-p3-simple-scenarios-plan.md): a
+ * Helpers shared by the component scenarios S2-S7: a
  * seeded published view in which each behaviour is made visible through a text bound to the component's exposed
- * state (plan section 1, rules 1 and 2).
+ * state, one text per observed value.
  */
 import type { Page } from "@playwright/test";
 import { appDsl, text, type AppParts, type DslItem } from "../dsl/builders";

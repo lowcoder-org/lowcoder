@@ -3,9 +3,9 @@ import { expect, test } from "../../src/fixtures";
 import { openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S14 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `timer`. It runs on wall time, so the test asserts
+ * S14: `timer`. It runs on wall time, so the test asserts
  * that the display changes while it runs, holds after Pause, and that the `pause` event sets a state; it asserts no digits.
- * Not asserted (defect CD-3, client/E2E-TESTING-components-defects-report.md): the `start` and `resume` events and the
+ * Not asserted (defect CD-3): the `start` and `resume` events and the
  * exposed `timerState` / `elapsedTime`, which do not follow the running timer. Probe: probes/s14b-timer.spec.ts.
  */
 const TIMER_ID = "e2e-timer";

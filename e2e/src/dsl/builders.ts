@@ -9,7 +9,7 @@
  *
  * Typical use: `appDsl(stackItems([text(...), button(...)]), { queries: [...], tempStates: [...] })`.
  */
-import { recordedBaseHooks, recordedHook, recordedItem, type RecordedHook } from "./recorded";
+import { recordedBaseHooks, recordedHook, recordedItem, recordedN8nQuery, type RecordedHook } from "./recorded";
 
 export interface GridPosition {
   x: number;
@@ -160,7 +160,7 @@ export function containerOf(items: DslItem[]): { layout: Record<string, object>;
 
 /**
  * Puts every item into its own rows below the previous one (same x, y accumulated from the heights plus `gap`), so
- * that no seeded item covers another. Components that overlap intercept each other's clicks (p2 2.3). Returns new
+ * that no seeded item covers another. Components that overlap intercept each other's clicks. Returns new
  * items; the order of the list is the order on the page.
  */
 export function stackItems(items: DslItem[], gap: number = DEFAULT_STACK_GAP): DslItem[] {
@@ -438,6 +438,28 @@ export function jsQuery(
     compType: "js",
     comp: { script: params.script },
     datasourceId: JS_DATASOURCE_ID,
+    ...queryDefaults({ ...params, trigger: params.trigger ?? "manual" }),
+  };
+}
+
+/** Key of the `name` parameter of the n8n action "Retrieve all workflows" in the saved query (`<position>_@_<name>`, recorded). */
+export const N8N_NAME_PARAM_KEY = "query_@_name";
+
+/**
+ * A query on an n8n data source with the action "Retrieve all workflows" (`GET /workflows` of the spec v1.1.1), from the
+ * query the editor saved (`fixtures/dsl/n8n/n8nQuery.json`: the generated `actionName` and the action's other defaults).
+ * `nameParam` is the string value of the `name` parameter; node-service evaluates a `{{key}}` in it against the request
+ * context and sends the result in the URL. Starts `manual` (the n8n recording says `automatic`): a test runs it with
+ * `POST /api/query/execute`.
+ */
+export function n8nWorkflowsQuery(
+  params: { id: string; name: string; datasourceId: string; nameParam: string; trigger?: PostgresQueryTrigger } & QueryOptions,
+): object {
+  const recorded = recordedN8nQuery();
+  return {
+    compType: recorded.compType,
+    comp: { ...recorded.comp, action: { ...recorded.comp.action, [N8N_NAME_PARAM_KEY]: params.nameParam } },
+    datasourceId: params.datasourceId,
     ...queryDefaults({ ...params, trigger: params.trigger ?? "manual" }),
   };
 }

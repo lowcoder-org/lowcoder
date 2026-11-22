@@ -34,7 +34,7 @@ const PERIODIC_CLOCK_RUN_MS = 3_000;
 const PERIODIC_MIN_RUNS = 2;
 /**
  * The input-change query ignores the first dependency change for its first 500 ms (queryComp.tsx:204, :291-301). The
- * probes did not reproduce a swallowed fill, but priming and waiting longer than that is harmless insurance (p5 L3).
+ * probes did not reproduce a swallowed fill, but priming and waiting longer than that is harmless insurance.
  */
 const INPUT_CHANGE_GUARD_MS = 1_000;
 const CONFIRMATION_MESSAGE = "Really run?";

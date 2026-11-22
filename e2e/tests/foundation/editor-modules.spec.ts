@@ -36,7 +36,7 @@ async function savedInstance(
 
 // A handler that is still being typed is saved as {name: "", methodName: ""} without `params`, hence the optional chaining.
 // These tests save through the editor, so defect D-3 (a lost save after the readiness marker, ~1 in 36 runs) can fail
-// them; the D-3 retry of p7 section 1 belongs to the scenario that is built on these page objects, not to them.
+// them; the D-3 retry belongs to the scenario that is built on these page objects, not to them.
 test.describe.configure({ retries: 0, timeout: 180_000 });
 
 test.describe("module page objects of the editor", () => {

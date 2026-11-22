@@ -7,6 +7,7 @@ import {
   INSERT_PANEL_TIMEOUT_MS,
   MODULE_INSTANCE_TIMEOUT_MS,
   MODULE_TILE_TEST_ID,
+  NOT_IN_WORKSPACE_MESSAGE,
 } from "../constants";
 
 /** The app editor at /apps/{id}/edit. */
@@ -16,6 +17,25 @@ export class EditorPage {
   /** The grid the components are dropped on. */
   get canvas(): Locator {
     return this.page.locator(".react-grid-layout").first();
+  }
+
+  /** The marker the editor sets once its save baseline exists (`data-editor-ready`, test hook of client-hooks.patch). */
+  get readyMarker(): Locator {
+    return this.page.locator('[data-editor-ready="true"]');
+  }
+
+  /**
+   * The message the editor shows a signed-in user whose editing view the server refused (403 / 5308): measured on the
+   * 3.0.0 image as "It appears you don't have the permission to edit, please contact the app owners <e-mail>." with a
+   * "Go to Apps" link. The page has no test id, so it is found by its text.
+   */
+  get permissionDeniedMessage(): Locator {
+    return this.page.getByText("It appears you don't have the permission to edit").first();
+  }
+
+  /** The heading a signed-in user of another workspace gets instead of the editor (`NOT_IN_WORKSPACE_MESSAGE`). */
+  get notInWorkspaceMessage(): Locator {
+    return this.page.getByRole("heading", { name: NOT_IN_WORKSPACE_MESSAGE });
   }
 
   /** The canvas items of a component type; Lowcoder adds the class `lowcoder-<compType>` to each. */

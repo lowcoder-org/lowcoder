@@ -96,7 +96,7 @@ test.describe("helpers of the module scenarios", () => {
       budget.spend();
     }
 
-    expect(HANDLER_RETRY_LIMIT, "p7 section 1: at most one handler retry").toBe(1);
+    expect(HANDLER_RETRY_LIMIT, "at most one handler retry per test").toBe(1);
     expect(budget.available, "spent by attempt 1, so attempt 2 of a D-3 retry has none").toBe(false);
     expect(budget.spent).toBe(HANDLER_RETRY_LIMIT);
     expect(() => budget.spend(), "a second retry").toThrow(/already spent/);

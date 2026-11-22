@@ -38,4 +38,14 @@ export class LoginPage {
     await this.passwordInput.fill(password);
     await this.signInButton.click();
   }
+
+  /**
+   * The sign-in page of a workspace (`/org/<id>/auth/login`) shows e-mail and password together, without the
+   * "Continue" step of the general page (measured on the 3.0.0 client).
+   */
+  async signInOnWorkspacePage(email: string, password: string): Promise<void> {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.signInButton.click();
+  }
 }

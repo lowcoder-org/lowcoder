@@ -3,7 +3,7 @@ import { component, stackItems } from "../../src/dsl/builders";
 import { expect, test } from "../../src/fixtures";
 
 /**
- * S2 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: the text inputs. Each component has a test id and
+ * S2: the text inputs. Each component has a test id and
  * a text bound to its exposed `value`; the typed value must reach that text.
  */
 const INPUT_TYPES = ["input", "password", "textArea", "numberInput", "autocomplete", "mention"] as const;

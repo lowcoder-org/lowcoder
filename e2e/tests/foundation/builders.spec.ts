@@ -14,6 +14,8 @@ import {
   jsQuery,
   moduleApp,
   moduleInstance,
+  N8N_NAME_PARAM_KEY,
+  n8nWorkflowsQuery,
   postgresQuery,
   recordedHookOf,
   runScript,
@@ -26,7 +28,11 @@ import {
   triggerModuleEvent,
   type DslItem,
 } from "../../src/dsl/builders";
-import { RecordedFixtureError, recordedBaseHooks, recordedItem } from "../../src/dsl/recorded";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { RECORDED_N8N_DIR, RecordedFixtureError, recordedBaseHooks, recordedItem, recordedN8nDatasource, recordedN8nQuery } from "../../src/dsl/recorded";
+
+const RECORDED_N8N_FILES = ["n8nQuery.json", "n8nDatasource.json"];
 
 const HANDLER_DEFAULTS = { condition: "", slowdown: "debounce", delay: "" };
 
@@ -523,5 +529,54 @@ test.describe("modules", () => {
         },
       },
     });
+  });
+});
+
+test.describe("n8n recordings and query builder", () => {
+  test("the recorded n8n query is the editor's 'Retrieve all workflows' with its generated action name", () => {
+    const recorded = recordedN8nQuery();
+    expect(recorded.compType).toBe("n8n");
+    expect(recorded.comp.actionName, "the generated action name").toBe("get_workflows");
+    expect(Object.keys(recorded.comp.action), "the name parameter is in the action").toContain(N8N_NAME_PARAM_KEY);
+    expect(recordedN8nQuery(), "a fresh copy each time").not.toBe(recorded);
+  });
+
+  test("the recorded n8n data source is the form's body for spec v1.1.1", () => {
+    const recorded = recordedN8nDatasource();
+    expect(recorded.type).toBe("n8n");
+    expect(recorded.datasourceConfig).toMatchObject({ specVersion: "v1.1.1" });
+    expect(recorded.datasourceConfig, "the target and the key are what a test replaces").toHaveProperty("serverURL");
+    expect(recorded.datasourceConfig).toHaveProperty("apiKey");
+  });
+
+  test("n8nWorkflowsQuery keeps the recorded action, sets the name parameter and the data source, and runs manually", () => {
+    const query = n8nWorkflowsQuery({ id: "q9", name: "workflows", datasourceId: "ds9", nameParam: "e2e-marker-x" }) as {
+      compType: string;
+      comp: { actionName: string; action: Record<string, string> };
+      datasourceId: string;
+      id: string;
+      name: string;
+      triggerType: string;
+    };
+    const recorded = recordedN8nQuery();
+    expect(query).toMatchObject({ compType: "n8n", datasourceId: "ds9", id: "q9", name: "workflows", triggerType: "manual" });
+    expect(query.comp.actionName).toBe(recorded.comp.actionName);
+    expect(query.comp.action[N8N_NAME_PARAM_KEY], "the name parameter").toBe("e2e-marker-x");
+    expect({ ...query.comp.action, [N8N_NAME_PARAM_KEY]: "" }, "the other parameters stay as recorded").toEqual({ ...recorded.comp.action, [N8N_NAME_PARAM_KEY]: "" });
+  });
+
+  test("the n8n recordings hold no id, timestamp or value of the recording session", () => {
+    const text = [RECORDED_N8N_FILES.map((file) => readFileSync(join(RECORDED_N8N_DIR, file), "utf8"))].flat().join("\n");
+    expect(text, "a 24-hex id (workspace, data source, query)").not.toMatch(/\b[0-9a-f]{24}\b/);
+    expect(text, "an ISO timestamp").not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+    expect(text, "an epoch of 10 digits or more (the saved query's order)").not.toMatch(/\b\d{10,}\b/);
+    expect(text, "the echo target or marker of the session").not.toMatch(/e2e-echo|e2e-marker|e2e-dummy/);
+    expect(Object.keys(recordedN8nQuery()), "only what the builder keeps").toEqual(["compType", "comp"]);
+    expect(Object.keys(recordedN8nDatasource()), "no workspace id").toEqual(["name", "type", "datasourceConfig"]);
+  });
+
+  test("n8nWorkflowsQuery does not change the recording of the next call", () => {
+    n8nWorkflowsQuery({ id: "q1", name: "a", datasourceId: "d", nameParam: "first" });
+    expect(recordedN8nQuery().comp.action[N8N_NAME_PARAM_KEY]).not.toBe("first");
   });
 });

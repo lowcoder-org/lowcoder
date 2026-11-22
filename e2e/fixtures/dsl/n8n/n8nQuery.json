@@ -1,0 +1,21 @@
+{
+ "compType": "n8n",
+ "comp": {
+  "actionName": "get_workflows",
+  "action": {
+   "query_@_active": "true",
+   "query_@_tags": "test,production",
+   "query_@_name": "",
+   "query_@_projectId": "",
+   "query_@_excludePinnedData": "true",
+   "query_@_limit": "100",
+   "query_@_cursor": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

@@ -1,9 +1,7 @@
 # AGENTS.md: how to write and change tests in e2e/
 
 Source of truth for AI coding agents. What the suite is, how to run it, the catalogue, the defect table and the
-D-3 rules: [README.md](README.md). Plans (`../client/E2E-TESTING-components-p0-index-plan.md` to `...-p7-priorities-plan.md`,
-`../client/E2E-TESTING-defects-report.md`, `../client/E2E-TESTING-components-defects-report.md`) are untracked local files of
-the owner: do not commit or move them; this file and the README do not depend on them.
+D-3 rules: [README.md](README.md).
 Mark anything you did not check as NOT VERIFIED. Never guess a locator, a timing or a product behaviour: measure it.
 Rules say when they apply. "Existing exception" means reviewed code that deviates; do not copy it into new tests.
 
@@ -13,7 +11,7 @@ Rules say when they apply. "Existing exception" means reviewed code that deviate
 2. Read the helpers: `src/dsl/builders.ts`, `src/api/client.ts`, `src/constants.ts`, the `src/<area>/` helpers (table in section 8).
 3. Read the client source of the component for its events, exposed values and timings. Cite the path in a comment; a line number is optional.
 4. Seed the app through the API from builders (section 3).
-5. Write the assertions (section 4). Import `test` and `expect` from `src/fixtures`, never from `@playwright/test`.
+5. Write the assertions (section 4). Import `test` and `expect` from `src/fixtures`, never from `@playwright/test` (accepted exception: stack-free unit specs, section 8).
 6. Tags (section 6) and defect annotation (section 7) where they apply.
 7. From `e2e/`: `./node_modules/.bin/tsc --noEmit`. Success = exit status 0 and no TypeScript diagnostics.
 8. From the repository root: `e2e/scripts/run-in-docker.sh <path relative to e2e/>`.
@@ -34,11 +32,12 @@ Rules say when they apply. "Existing exception" means reviewed code that deviate
 | triggers, temporary state, local storage | `tests/logic/` |
 | modules | `tests/modules/` |
 | visual components, npm components, Extensions panel | `tests/components/` |
+| access control: cross-workspace, roles, groups, forged credentials, mass assignment, public leakage, collaboration rooms, CORS | `tests/security/` |
 | unit tests of builders, fixtures, page objects, helpers | `tests/foundation/` or next to the area |
 
 MUST:
 - Put reusable or exported helpers in `src/<area>/` (`src/logic/`, `src/datasource/`, `src/components/`,
-  `src/simple-components/`, `src/modules/`, `src/pages/`) and give each a unit test (pattern:
+  `src/simple-components/`, `src/modules/`, `src/pages/`, `src/security/`) and give each a unit test (pattern:
   `tests/logic/helpers.spec.ts`, `tests/components/scenario-helpers.spec.ts`).
 - Edit shared files additively: `src/dsl/builders.ts`, `src/constants.ts`, `src/pages/*.ts`, `src/fixtures.ts`,
   `playwright.config.ts`, `src/api/client.ts`, `fixtures/sql/init.sql`. Re-read the file right before editing; others
@@ -122,9 +121,12 @@ Coordinates, DSL item ids, test ids and labels used by one spec only may be loca
 
 - `@smoke`: only the few fastest checks of harness and main flow (`tests/smoke/`, `apps/publish-draft.spec.ts`).
 - `@core`: a main user flow of the base suite (auth, apps, editor, datasource, logic, workspace).
+- `@security`: an access-control test of `tests/security/` (`TAGS.SECURITY`); the P0 set also carries `@core` and is selected by its ids, see README "security".
+- `@superadmin`: the four instance-super-admin tests SEC-R16a to SEC-R16d (`TAGS.SUPERADMIN`, pass `[TAGS.SUPERADMIN]` as `extraTags` of `securityTestDetails`). Opt-in like `@quarantine`: out of the default run and of the `@security` and P0 runs, in only with `E2E_INCLUDE_SUPERADMIN=1` (README, D-47). A test that also carries `@quarantine` (R16c, R16d) needs both variables.
+- `@enterprise`: a test of the second stack in ENTERPRISE workspace mode (SEC-E01 to SEC-E06b, `TAGS.ENTERPRISE`, pass it in `extraTags` of `securityTestDetails`). Never runs on the default stack; with `E2E_STACK_PROFILE=enterprise` it is the only selection (README, "ENTERPRISE stack"). All its tests share ONE workspace: name only your own users, never count the members, never remove, demote or re-password the super admin. SEC-E05 resets the super admin's password, so it also carries `@enterprise-takeover` (`TAGS.ENTERPRISE_TAKEOVER`), which every run leaves out unless `E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (enterprise profile, with `E2E_INCLUDE_QUARANTINE=1`); then it is the ONLY test of the run. Its file keeps trace, screenshot and video off and passes no response body to an assertion (the reset answer holds a password).
 - `@slow`: the test needs noticeably longer (PostgreSQL, npm, many editor steps).
 - `@npm`: the test needs the app container to reach the npm registry.
-- `@quarantine` and `@insert-all`: see sections 7 and README.
+- `@quarantine` and `@insert-all`: see section 7 and the README.
 - Untagged is normal: component scenarios (S2 to S20), unit, helper and foundation tests carry no tag.
 - Always use `TAGS.*`. A test with a tag string in its title only as test data stays untagged (`foundation/run-selection.spec.ts`).
 
@@ -140,8 +142,8 @@ MUST:
 - Other annotation types: `D-3 retry`, `handler retry` (retries of S1, M3, `foundation/editor-modules.spec.ts`), `observation`
   (`modules/module-versions.spec.ts`).
 - Cite the defect id in a comment where a test works around it (D-3, D-5, CD-3, CD-5, CD-7). The README table defines them.
-  CD-5 is an observation in the report, not a confirmed defect.
-- Write a new finding into the matching report when you can; until it is there, name it "<id> candidate" in the annotation.
+  CD-5 is an observation, not a confirmed defect.
+- Add a new finding to the README ("Security findings" for the security tests, "Known defects" otherwise); until it is there, name it "<id> candidate" in the annotation.
 - Use the D-3 retry only in the editor-save specs S1 (`tests/components/insert-all.spec.ts`) and M3
   (`tests/modules/module-editor-host.spec.ts`): one retry on a fresh app, annotation `D3_RETRY_ANNOTATION`
   (`src/constants.ts`), `test.describe.configure({ retries: 0, timeout: 180_000 })`. Reporter:
@@ -165,18 +167,19 @@ MUST NOT:
   `test-results`, `playwright-report`), and do not run `playwright test` directly while a stack of this checkout runs.
 - Edit anything in `e2e/evidence/` (git-ignored, local). Do not cite it as if it were in git.
 - Reach a real external host, switch the guard off, or add a route that allows another origin. Only `@npm` tests need
-  the app container to reach the npm registry.
-- Import `test` from `@playwright/test` in a spec: the network guard exists only in the `test` of `src/fixtures.ts`.
+  the app container to reach the npm registry. The one place the backend may be pointed at is the run's own echo sidecar (`echo` fixture, `src/security/echo.ts`); never give a data source or a registry entry any other URL.
+- Import `test` from `@playwright/test` in a spec that opens a page or uses the stack: the network guard exists only in the `test` of `src/fixtures.ts` (accepted exception for stack-free unit specs below).
 - Commit secrets. The PostgreSQL password in `src/constants.ts` is the throw-away one of the sidecar.
+- Let the super admin's password (`E2E_SUPERUSER_PASSWORD`, new every run, set by `run-in-docker.sh`) reach a command line, log, trace, report, test title, annotation or error message; keep `set -x` off in the script. Never give the password to a matcher as the expected or received value (`expect(text).not.toContain(password)` prints it when it fails): assert `text.includes(password)` is `false`. The sign-in lives in an automatic worker fixture (`superAdminState`) because a request context created inside a test lands in its trace; do not sign the super admin in from a test or a helper, and create no request context in a helper. Every test that uses the `superAdmin` fixture carries `TAGS.SUPERADMIN` (a guard in `foundation/run-selection.spec.ts` checks it by parsing the spec with the TypeScript compiler: write the tag as `TAGS.SUPERADMIN` in the test's or its describe's details, a mention in a comment or title does not count). The super admin is ONE account shared by all workers: never switch its workspace or change its password. It hangs once the stack holds more than about 420 workspaces (README, security section): the SEC-R16 tests therefore carry `@superadmin` and run only on request (`E2E_INCLUDE_SUPERADMIN=1`); keep such runs short.
 - Duplicate a helper that exists:
 
 | Need | Helper | File |
 |---|---|---|
-| user, app, module, permissions, datasource | `registerUser`, `createApp`, `createModule`, `publishApp`, `updateApp`, `getAppDsl`, `setPublicToAll`, `grantAppPermission`, `createPostgresDatasource`, `createInvitation`, `acceptInvitation` | `src/api/client.ts` |
+| user, app, module, permissions, datasource | `registerUser`, `createApp`, `createModule`, `publishApp`, `updateApp`, `getAppDsl`, `setPublicToAll`, `grantAppPermission`, `createPostgresDatasource`, `createN8nDatasource`, `setNpmRegistry`, `createInvitation`, `acceptInvitation` | `src/api/client.ts` |
 | component from its recording | `component`, `recordedItem`, `recordedHook`, `recordedHookOf`, `hook` | `src/dsl/builders.ts`, `src/dsl/recorded.ts` |
 | layout and app | `stackItems`, `containerOf`, `appDsl`, `button`, `text`, `input`, `table`, `barChart` | `src/dsl/builders.ts` |
 | events and actions | `eventHandler`, `executeQuery`, `setTempState`, `runScript`, `executeComp`, `triggerModuleEvent` | `src/dsl/builders.ts` |
-| queries, state, logic | `postgresQuery`, `jsQuery`, `tempState`, `transformer`, `dataResponder` | `src/dsl/builders.ts` |
+| queries, state, logic | `postgresQuery`, `jsQuery`, `n8nWorkflowsQuery` (recordings in `fixtures/dsl/n8n/`, loaded by `recordedN8nQuery` and `recordedN8nDatasource`), `tempState`, `transformer`, `dataResponder` | `src/dsl/builders.ts` |
 | modules | `moduleApp`, `moduleInstance`, `scenarioModuleDsl`, `waitForSavedInstance`, `HandlerRetryBudget` | `src/dsl/builders.ts`, `src/modules/moduleScenario.ts` |
 | bound text, nested override, seeded view | `boundText`, `withValueAt`, `openSeededView` | `src/components/scenario.ts` |
 | containers and slots | `containerWithChildren`, `slotChild`, `slotContainers`, `openSeededApp` | `src/simple-components/seed.ts` |
@@ -184,7 +187,14 @@ MUST NOT:
 | notes and products queries | `selectProductsQuery`, `selectNotesQuery`, `noteWriteQuery`, `insertUpdateDeleteQueries` | `src/datasource/notes-queries.ts` |
 | negative and counter reads, local storage | `expectTextStays`, `countAfterEquals`, `parseCounter`, `rawLocalStorage` | `src/logic/helpers.ts` |
 | media | `PNG_RED`, `PNG_BLUE`, `WAV`, `WEBM`, `MP4`, `PDF`, `PDF_RAW_B64` | `src/media.ts` |
-| pages | `EditorPage`, `AppViewPage`, `PropertyPanel`, `QueryPanel`, `TableView`, `ExtensionsPanel`, `AppListPage`, `AuthPage`, `LoginPage`, `UserMenu` | `src/pages/` |
+| security actors, quarantine, answers, tokens | `Actor`, `adminOfApiUser`, `joinWorkspace`, `makeDeveloper`, `makeAdmin`, `grantApp`, `seedPrivateApp`, `sceneOf`, `memberOf`, `roleOf`, `permissionIdOf`, `securityTestDetails`, `securityCandidateDetails`, `expectAnswer`, `expectDeniedAs`, `forgeApiKeyToken`, `forgeUnsignedToken`, `withRandomSignature`, `tokenIsSignedWith`, `superAdminCredentials`, `SUPER_ADMIN_ENV`, `enterpriseAdmin` (ENTERPRISE stack: an actor the super admin makes admin of the one workspace), `echoTargetPath`, `echoReadPrefix`, `echoBaseUrl`, `recordsContain` (requests the SERVER makes, read back from the HTTP echo sidecar: the `echo` fixture gives a test its own target `url` and `received()`; a denial must follow a positive control that the echo does receive from that path; compare a secret with `recordsContain(...)` as a boolean, never as a matcher's value) (the `actor`, `superAdmin` and `echo` fixtures are in `src/fixtures.ts`; the raw-answer helper `apiRaw` and the other security API helpers are in `src/api/client.ts`) | `src/security/actors.ts`, `scene.ts`, `quarantine.ts`, `assertions.ts`, `tokens.ts`, `super-admin.ts`, `enterprise.ts`, `echo.ts` |
+| pages | `EditorPage`, `AppViewPage`, `PropertyPanel`, `QueryPanel`, `TableView`, `ExtensionsPanel`, `AppListPage`, `AuthPage`, `LoginPage`, `UserMenu`, `SettingPage`, `DatasourcePage` | `src/pages/` |
+
+Accepted exception to the `test` import rule: stack-free unit specs that open no browser page (no `page`, no app) may
+import `test` from `@playwright/test`, because the network guard only guards browser contexts. Existing:
+`foundation/builders.spec.ts`, `recorded.spec.ts`, `run-selection.spec.ts`, `media.spec.ts`, and the security specs
+`foundation/security-api-raw.spec.ts`, `security-echo.spec.ts` (starts `scripts/echo-server.js` on a loopback port), `security-quarantine.spec.ts`, `security-constants.spec.ts`, `security-tokens.spec.ts`, `security-assertions.spec.ts`, `security-super-admin.spec.ts`. Anything that opens
+a page or talks to the stack imports from `src/fixtures`.
 
 Two helpers share a name with different meanings; do not add a third: `testIdOf(name)` in `src/components/scenario.ts`
 (`e2e-<name>`, S2 to S7) and `testIdOf(compType)` in `src/components/insert-all.ts` (`probe-<type>`, S1). Two
@@ -236,8 +246,8 @@ and are NOT VERIFIED in tracked evidence.
   existing handler; pass `retryAllowed: false` when the caller's `HandlerRetryBudget` is spent.
   `TableView.headerCell(title)` matches the exact title; `ExtensionsPanel.tile(kind, pkg)` and `tileVersion(kind, pkg)` take the list kind first.
 - **Drop right after the editor opens:** width 0 (D-5) or a lost save (D-3). Open with `EditorPage.open()`.
-- **Parallel writes to `notes` without the `owner` scope:** tests see each other's rows (p4 plan: 4 of 4 parallel copies
-  failed; NOT VERIFIED here).
+- **Parallel writes to `notes` without the `owner` scope:** tests see each other's rows (4 of 4 parallel copies
+  failed when measured; NOT VERIFIED here).
 
 ## 11. Commands cheat-sheet
 
@@ -252,7 +262,10 @@ e2e/scripts/run-in-docker.sh --grep @smoke                                # by t
 e2e/scripts/run-in-docker.sh --repeat-each=10 --workers=4 <file>          # general repeat gate
 E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --grep @quarantine
 E2E_INCLUDE_INSERT_ALL=1 e2e/scripts/run-in-docker.sh --grep @insert-all --workers=4          # S1 gate, once
+E2E_INCLUDE_SUPERADMIN=1 e2e/scripts/run-in-docker.sh --grep @superadmin                      # SEC-R16a, R16b (R16c, R16d also need E2E_INCLUDE_QUARANTINE=1)
 e2e/scripts/run-in-docker.sh --repeat-each=10 --workers=4 tests/modules/module-editor-host.spec.ts   # M3 gate
+E2E_STACK_PROFILE=enterprise e2e/scripts/run-in-docker.sh --repeat-each=10 --workers=4 tests/security/enterprise.spec.ts   # ENTERPRISE stack gate (its own stack; never at the same time as another run)
+E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1 E2E_STACK_PROFILE=enterprise e2e/scripts/run-in-docker.sh   # SEC-E05 ALONE, on its own stack
 E2E_HOST_PORT=8080 e2e/scripts/run-in-docker.sh <file>                    # also reach the app on 127.0.0.1:8080
 ```
 
@@ -262,5 +275,7 @@ Directory `e2e/` (no stack; `--reporter=list` is required so no report files are
 ./node_modules/.bin/tsc --noEmit
 LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list
 E2E_INCLUDE_QUARANTINE=1 LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list
-E2E_INCLUDE_INSERT_ALL=1 E2E_INCLUDE_QUARANTINE=1 LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list
+E2E_INCLUDE_SUPERADMIN=1 LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list
+E2E_INCLUDE_INSERT_ALL=1 E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_SUPERADMIN=1 LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list
+E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list   # the SEC-E tests only
 ```

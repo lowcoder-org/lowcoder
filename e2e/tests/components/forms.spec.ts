@@ -14,7 +14,7 @@ import { expectTextStays } from "../../src/logic/helpers";
 import { containerWithChildren, openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S10 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `form` and `jsonSchemaForm`, three tests, each on its
+ * S10: `form` and `jsonSchemaForm`, three tests, each on its
  * own fresh app so that no case starts with a state another case set. The oracle is the temporary state the `submit`
  * handler sets, not the exposed `data` (which follows each input).
  */

@@ -5,7 +5,7 @@ import { SAVE_POLL_TIMEOUT_MS } from "../constants";
 import { button, eventHandler, input, moduleApp, stackItems, text, triggerModuleEvent, executeComp, type DslItem } from "../dsl/builders";
 
 /**
- * Names, test ids and DSL shared by the module scenarios M1 to M3 (client/E2E-TESTING-components-p6-module-scenarios-plan.md):
+ * Names, test ids and DSL shared by the module scenarios M1 to M3:
  * one module with an input, a text showing it, a button that raises an event, an output and a method.
  */
 export const MODULE_SCENARIO = {
@@ -33,11 +33,11 @@ export const MODULE_SCENARIO = {
 
 /** `actionTimeout` of the module specs that drive the editor: a stuck click fails in this time, not at the test timeout. */
 export const MODULE_ACTION_TIMEOUT_MS = 10_000;
-/** The time limit of the specs that save through the editor (retried once by D-3 retry; p7 section 1). */
+/** The time limit of the specs that save through the editor (retried once by D-3 retry). */
 export const EDITOR_SAVE_SPEC_TIMEOUT_MS = 180_000;
-/** Annotation type of M3's handler retry (p7 section 1; the D-3 retry's is `D3_RETRY_ANNOTATION`); the PR lists every one of the gate runs. */
+/** Annotation type of M3's handler retry (the D-3 retry's is `D3_RETRY_ANNOTATION`); the PR lists every one of the gate runs. */
 export const HANDLER_RETRY_ANNOTATION = "handler retry";
-/** Handler retries of one M3 test, over all its D-3 attempts (p7 section 1, "Retry ownership"). */
+/** Handler retries of one M3 test, over all its D-3 attempts: at most one per test. */
 export const HANDLER_RETRY_LIMIT = 1;
 
 /**
@@ -64,7 +64,7 @@ export class HandlerRetryBudget {
   }
 }
 
-/** How long a mounted host is observed for a module republished under it (the 4 s of the probe, defect O-13). */
+/** How long a mounted host is observed for a module republished under it (the 4 s of the probe, observation O-13). */
 export const MOUNTED_HOST_OBSERVATION_MS = 4_000;
 
 /** The module of M1 to M3. `textTemplate` is the module text's expression; M2 changes it to tell versions apart. */

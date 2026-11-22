@@ -3,7 +3,7 @@ import { expect, test } from "../../src/fixtures";
 import { containerWithChildren, openSeededApp, slotChild, slotContainers } from "../../src/simple-components/seed";
 
 /**
- * S8 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: the eight container types, one test each. A container's
+ * S8: the eight container types, one test each. A container's
  * recording holds no body child (and, for the layouts, no slot child), so each test seeds one text child per slot in the
  * shape of the recorded header child and asserts that the published view shows it. Probe: probes/p3g-containers.spec.ts.
  */
@@ -101,7 +101,7 @@ test.describe("S8 containers", () => {
       await expect(view.byTestId(SLOT_0_ID), "the child of slot 0 is shown").toHaveText(`Kid0-${compType}`, { timeout: VIEW_TIMEOUT_MS });
       await expect(view.byTestId(SLOT_1_ID), "the child of slot 1 is shown").toHaveText(`Kid1-${compType}`);
       if (compType === "splitLayout") {
-        // The class-A oracle of p2 section 1: its splitter bar, by presence only (dragging it is not part of S8).
+        // The oracle for a component with no exposed state: its splitter bar, by presence only (dragging it is not part of S8).
         await expect(
           view.byTestId(CONTAINER_ID).getByRole("separator").first(),
           "the splitter bar (role separator) is inside the split layout",

@@ -11,7 +11,7 @@ const TYPED_VALUE = "hello";
 const STRICT_PROBE_TIMEOUT_MS = 5_000;
 const STRICT_PROBE_TOTAL_MS = 20_000;
 
-// M1 (p6 section 2): two instances of one module, every direction across the module boundary.
+// M1: two instances of one module, every direction across the module boundary.
 test("two instances of one module: inputs in, output out, method in, event out", async ({ page, apiUser }) => {
   const { appId: moduleId } = await createModule(page.request, { orgId: apiUser.orgId, name: "e2e-m1-module", dsl: scenarioModuleDsl() });
   await publishApp(page.request, moduleId);

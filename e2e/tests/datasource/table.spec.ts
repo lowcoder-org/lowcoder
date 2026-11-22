@@ -82,7 +82,7 @@ const NOTES_CHANGE_ID = "e2e-notes-change";
 const NOTES_TEXT_ID = "e2e-notes-text";
 const ADD_NOTE_ID = "e2e-add-note";
 const EDITED_BODY = "edited";
-/** Page 2 of the name-descending order holds product-20 to product-16; its third row is product-18 (p4 D2). */
+/** Page 2 of the name-descending order holds product-20 to product-16; its third row is product-18 (D2). */
 const SECOND_PAGE = 2;
 const THIRD_ROW = 2;
 const FILTER_CATEGORY = "tools";

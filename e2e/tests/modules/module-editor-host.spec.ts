@@ -29,12 +29,12 @@ const HOST_STATE_TEXT_ID_NAME = "tState";
 const TEXT_GAP_ROWS = 2;
 const TEXT_HEIGHT_ROWS = 5;
 
-// M3 saves through the editor, so it carries the two retries of p7 section 1 and no Playwright retry (the config adds
+// M3 saves through the editor, so it carries the D-3 retry and the handler retry and no Playwright retry (the config adds
 // one under CI, which would multiply the documented ones). The longer limit holds two attempts and the handler retry.
 test.describe.configure({ retries: 0, timeout: EDITOR_SAVE_SPEC_TIMEOUT_MS });
 test.use({ actionTimeout: MODULE_ACTION_TIMEOUT_MS });
 
-// The gate of p7 section 1 counts the retry annotations of the repeated runs, and the reporters of a shared checkout
+// The D-3 gate counts the retry annotations of the repeated runs, and the reporters of a shared checkout
 // overwrite each other's files: every run prints its own, one line per annotation.
 test.afterEach(({}, testInfo) => {
   for (const { type, description } of testInfo.annotations) {

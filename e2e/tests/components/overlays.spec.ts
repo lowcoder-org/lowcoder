@@ -3,7 +3,7 @@ import { expect, test } from "../../src/fixtures";
 import { openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S9 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `modal`, `drawer`, `toast` and `tour`. Modal and drawer
+ * S9: `modal`, `drawer`, `toast` and `tour`. Modal and drawer
  * are DSL `hooks` (not on the grid) opened by a button's `executeComp`; toast runs from a script; a tour is started by
  * `tour1.startTour()`. Probes: probes/s9-overlays.spec.ts, probes/behaviour.spec.ts.
  */
