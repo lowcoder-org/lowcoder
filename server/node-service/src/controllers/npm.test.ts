@@ -28,7 +28,13 @@ const PACKAGE_BASE = "/npm/package";
 const DEFAULT_WORKSPACE = "default";
 const BASIC_CREDENTIALS = "dXNlcjpwYXNz";
 const BEARER_TOKEN = "secret-token";
-const MISSING_BODY_MESSAGE = "Missing workspaceId and/or npmRegistryConfig";
+const MISSING_BODY_MESSAGE = "Missing or invalid npmRegistries: expected an array";
+const INVALID_WORKSPACE_MESSAGE = "Invalid workspaceId";
+const INVALID_UPSTREAM_VERSION_MESSAGE = "Invalid latest version from registry";
+const STATUS_BAD_GATEWAY = 502;
+const STATUS_SERVICE_UNAVAILABLE = 503;
+const STATUS_MULTIPLE_CHOICES = 300;
+const STATUS_ABOVE_HTTP_ERROR_RANGE = 600;
 const INTERNAL_ERROR_MESSAGE = "Internal server error";
 const NOT_FOUND_MESSAGE = "Not found";
 const TARBALL_DELAY_MS = 60;
@@ -416,8 +422,18 @@ describe("POST /npm/registry/* (fetchRegistryWithConfig)", () => {
     expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
   });
 
-  // B1: PrivateNpmRegistryController.java:89 sends `npmRegistries`; the guard at npm.ts:91 checks `npmRegistryConfig`.
-  test.failing("B1: npmRegistries without workspaceId is accepted; workspaceId alone is not a 500", async () => {
+  test("the registry route rejects dot-dot segments in every spelling and sends nothing upstream", async () => {
+    const name = uniqueName();
+    const body = { workspaceId: uniqueWorkspace(), npmRegistries: registries() };
+    for (const tail of ["/../-/whoami", "/%2e%2e/-/whoami", "/..\\-/whoami"]) {
+      const result = await rawPost(appBase, `${REGISTRY_BASE}/${name}${tail}`, body);
+      expect(result).toEqual({ status: STATUS_BAD_REQUEST, text: `Invalid package path: /${name}${tail}` });
+    }
+    expect(recorded).toEqual([]);
+  });
+
+  // B1: the caller sends `npmRegistries` (and a workspaceId); the guard must check `npmRegistries`, not another key.
+  test("B1: npmRegistries without workspaceId is accepted; workspaceId alone is not a 500", async () => {
     const name = uniqueName();
     routes[`/${name}`] = (_req, res) => res.end("{}");
 
@@ -447,6 +463,48 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
   test("a body with neither workspaceId nor a registry key gives 400", async () => {
     const result = await post(appBase, `${PACKAGE_BASE}/left-pad@1.0.0/${INDEX_JS}`, {});
     expect(result).toEqual({ status: STATUS_BAD_REQUEST, text: MISSING_BODY_MESSAGE });
+  });
+
+  test("npmRegistries without workspaceId: the package is served and cached under <cache>/default", async () => {
+    const name = uniqueName();
+    const content = "module.exports = 'no workspace';";
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: content }) } }, "1.0.0");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, { npmRegistries: registries() });
+
+    expect(result).toEqual({ status: STATUS_OK, text: content });
+    expect(fs.existsSync(unpackedDir(DEFAULT_WORKSPACE, name, "1.0.0"))).toBe(true);
+  });
+
+  test("workspaceId alone on the package route gets 400 and is answered", async () => {
+    const result = await post(appBase, `${PACKAGE_BASE}/${uniqueName()}@1.0.0/${INDEX_JS}`, {
+      workspaceId: uniqueWorkspace(),
+    });
+    expect(result).toEqual({ status: STATUS_BAD_REQUEST, text: MISSING_BODY_MESSAGE });
+    expect(recorded).toEqual([]);
+  });
+
+  test("npmRegistries that is not an array gets 400 on both routes", async () => {
+    const name = uniqueName();
+    const body = { workspaceId: uniqueWorkspace(), npmRegistries: "x" };
+    expect(await post(appBase, `${REGISTRY_BASE}/${name}`, body)).toEqual({
+      status: STATUS_BAD_REQUEST,
+      text: MISSING_BODY_MESSAGE,
+    });
+    expect(await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body)).toEqual({
+      status: STATUS_BAD_REQUEST,
+      text: MISSING_BODY_MESSAGE,
+    });
+    expect(recorded).toEqual([]);
+  });
+
+  test("a malformed registry entry gets 500 on the package route, not a hang", async () => {
+    const result = await post(appBase, `${PACKAGE_BASE}/${uniqueName()}@1.0.0/${INDEX_JS}`, {
+      workspaceId: uniqueWorkspace(),
+      npmRegistries: [{}],
+    });
+    expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
+    expect(recorded).toEqual([]);
   });
 
   test("cache miss: info then tarball with the same auth, unpacked into the cache, file served, .tgz removed", async () => {
@@ -570,7 +628,7 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
   });
 
   // B3: npm.ts:188 shadows `packageInfo`, so the info document is fetched again at :209.
-  test.failing("B3: latest fetches the package info exactly once", async () => {
+  test("B3: latest fetches the package info exactly once", async () => {
     const name = uniqueName();
     publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
     const result = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, {
@@ -579,6 +637,35 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     });
     expect(result.status).toBe(STATUS_OK);
     expect(infoRequests(name)).toHaveLength(1);
+  });
+
+  // Regression guard for the cache-hit boundary: passes before the B3 fix too (a cached package needs no second info request).
+  test("latest on a cached package makes one info request and no tarball request", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "cached" }) } }, "1.0.0");
+    const body = { workspaceId: ws, npmRegistries: registries() };
+    const warm = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body);
+    expect(warm.status).toBe(STATUS_OK);
+    recorded = [];
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, body);
+
+    expect(result).toEqual({ status: STATUS_OK, text: "cached" });
+    expect(upstreamPaths()).toEqual([`/${name}`]);
+  });
+
+  test("latest cache miss sends info then tarball, in that order", async () => {
+    const name = uniqueName();
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, {
+      workspaceId: uniqueWorkspace(),
+      npmRegistries: registries(),
+    });
+
+    expect(result.status).toBe(STATUS_OK);
+    expect(upstreamPaths()).toEqual([`/${name}`, `/${name}/-/${name}-1.0.0${TGZ_SUFFIX}`]);
   });
 
   test("latest with an info 404 gives 404 Not found", async () => {
@@ -692,25 +779,10 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     expect(result.status).toBe(STATUS_NOT_FOUND);
   });
 
-  // B24 (suspected race: has() at npm.ts:196, then an await at :203, then add() at :207).
-  // Method: two requests for `latest` of the same uncached package. `latest` awaits the info fetch BEFORE has(), so the
-  // fake registry holds both info responses until both requests are in flight and then answers both in the same tick;
-  // both handlers then reach has() with no add() done yet. Real boundaries only (HTTP, tar, fs).
-  // Observed: all CONCURRENT_REQUESTS handlers pass has() before any add(), so the tarball is downloaded once per request
-  // (8 downloads, 3 of 3 runs). A plain Promise.all of explicit-version requests does not reach the window and would
-  // pass today, so it cannot rule the race out; this construction is what reproduces it.
-  // Limit: only the `latest` entry path is exercised; the explicit-version path has the same check-then-await shape
-  // but no earlier await to synchronise on, so it is not covered here.
-  test.failing("B24: two concurrent requests download the tarball once", async () => {
-    const name = uniqueName();
-    const ws = uniqueWorkspace();
-    publish(
-      name,
-      { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "once" }), delayMs: TARBALL_DELAY_MS } },
-      "1.0.0"
-    );
+  // Holds the info responses of `name` until `count` requests are in flight, then answers all of them in the same tick.
+  // `latest` awaits the info fetch before the processing queue is consulted, so the held requests reach the queue together.
+  function holdInfoResponses(name: string, count: number): { released: () => boolean } {
     const infoHandler = routes[`/${name}`];
-    const held: http.ServerResponse[] = [];
     const releases: Array<() => void> = [];
     let released = false;
     routes[`/${name}`] = (req, res) => {
@@ -719,12 +791,27 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
         return;
       }
       releases.push(() => infoHandler(req, res));
-      held.push(res);
-      if (held.length === CONCURRENT_REQUESTS) {
+      if (releases.length === count) {
         released = true;
         releases.forEach((release) => release());
       }
     };
+    return { released: () => released };
+  }
+
+  // B24: N concurrent requests for the same uncached package must download its tarball once.
+  // Method: concurrent `latest` requests; the fake registry holds all info responses until every request is in flight and
+  // then answers them in the same tick, so every handler reaches the processing queue at the same moment.
+  // Real boundaries only (HTTP, tar, fs). The explicit-version path goes through the same queue code.
+  test("B24: two concurrent requests download the tarball once", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(
+      name,
+      { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "once" }), delayMs: TARBALL_DELAY_MS } },
+      "1.0.0"
+    );
+    const hold = holdInfoResponses(name, CONCURRENT_REQUESTS);
     const body = { workspaceId: ws, npmRegistries: registries() };
 
     const results = await Promise.all(
@@ -733,13 +820,77 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
       )
     );
 
-    expect(released).toBe(true);
+    expect(hold.released()).toBe(true);
     expect(tarballRequests()).toHaveLength(1);
     expect(results).toEqual(Array.from({ length: CONCURRENT_REQUESTS }, () => ({ status: STATUS_OK, text: "once" })));
   }, QUEUE_TEST_TIMEOUT_MS);
 
+  test("two versions of one package download in parallel", async () => {
+    const name = uniqueName();
+    publish(
+      name,
+      {
+        "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "v1" }) },
+        "2.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "v2" }) },
+      },
+      "2.0.0"
+    );
+    // Each tarball response waits for the other one's request: a queue keyed by package alone would serialise the two
+    // downloads, the second request would never arrive and both requests would be aborted.
+    const tarballVersions = ["1.0.0", "2.0.0"];
+    const waiting: Array<() => void> = [];
+    for (const version of tarballVersions) {
+      const tarPath = `/${name}/-/${name}-${version}${TGZ_SUFFIX}`;
+      const handler = routes[tarPath];
+      routes[tarPath] = (req, res) => {
+        waiting.push(() => handler(req, res));
+        if (waiting.length === tarballVersions.length) {
+          waiting.forEach((release) => release());
+        }
+      };
+    }
+    const body = { workspaceId: uniqueWorkspace(), npmRegistries: registries() };
+
+    const [first, second] = await Promise.all(
+      tarballVersions.map((version) =>
+        post(appBase, `${PACKAGE_BASE}/${name}@${version}/${INDEX_JS}`, body, AbortSignal.timeout(QUEUE_REQUEST_ABORT_MS))
+      )
+    );
+
+    expect(first).toEqual({ status: STATUS_OK, text: "v1" });
+    expect(second).toEqual({ status: STATUS_OK, text: "v2" });
+    expect(tarballRequests()).toHaveLength(tarballVersions.length);
+  }, QUEUE_TEST_TIMEOUT_MS);
+
+  test("concurrent requests whose tarball fails all get the upstream status and none hangs", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    const tarPath = `/${name}/-/${name}-1.0.0${TGZ_SUFFIX}`;
+    routes[tarPath] = (_req, res) => {
+      res.statusCode = STATUS_NOT_FOUND;
+      res.end("tarball gone");
+    };
+    holdInfoResponses(name, CONCURRENT_REQUESTS);
+    const body = { workspaceId: ws, npmRegistries: registries() };
+
+    const results = await Promise.all(
+      Array.from({ length: CONCURRENT_REQUESTS }, () =>
+        post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, body, AbortSignal.timeout(QUEUE_REQUEST_ABORT_MS))
+      )
+    );
+
+    expect(results).toEqual(
+      Array.from({ length: CONCURRENT_REQUESTS }, () => ({ status: STATUS_NOT_FOUND, text: "tarball gone" }))
+    );
+
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "recovered" }) } }, "1.0.0");
+    const later = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, body, AbortSignal.timeout(QUEUE_REQUEST_ABORT_MS));
+    expect(later).toEqual({ status: STATUS_OK, text: "recovered" });
+  }, QUEUE_TEST_TIMEOUT_MS);
+
   // B2: the `file` group accepts "../" and req.path keeps it, so path.resolve leaves the package directory.
-  test.failing("B2: a ../ raw path gets a 4xx, never the file", async () => {
+  test("B2: a ../ raw path gets a 4xx, never the file", async () => {
     const name = uniqueName();
     const ws = uniqueWorkspace();
     publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
@@ -758,8 +909,101 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     expect(result.status).toBeLessThan(STATUS_SERVER_ERROR);
   });
 
-  // B5: npm.ts:304-308 writes the tarball response without checking its status.
-  test.failing("B5: an upstream tarball error is passed through and leaves no .tgz", async () => {
+  test("the package route rejects %2e%2e/ as well", async () => {
+    const name = uniqueName();
+    const body = { workspaceId: uniqueWorkspace(), npmRegistries: registries() };
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
+    expect((await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body)).status).toBe(STATUS_OK);
+
+    const result = await rawPost(appBase, `${PACKAGE_BASE}/${name}@1.0.0/%2e%2e/%2e%2e/x`, body);
+
+    expect(result.status).toBe(STATUS_BAD_REQUEST);
+  });
+
+  test("a file name containing .. inside a segment is still served", async () => {
+    const name = uniqueName();
+    const content = "export const dots = 1;";
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", "a..b.js": content }) } }, "1.0.0");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/a..b.js`, {
+      workspaceId: uniqueWorkspace(),
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_OK, text: content });
+  });
+
+  test("a workspaceId with a path separator gets 400 and writes nothing", async () => {
+    const name = uniqueName();
+    const escapeName = `ws-escape-${randomUUID()}`;
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      workspaceId: `../${escapeName}`,
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_BAD_REQUEST, text: INVALID_WORKSPACE_MESSAGE });
+    expect(recorded).toEqual([]);
+    expect(fs.existsSync(path.join(cacheDir, "..", escapeName))).toBe(false);
+  });
+
+  test.each(["", ".", "..", "a\\b", "a\u0000b", 5, null])(
+    "a workspaceId that is not one path segment gets 400 and fetches nothing: %p",
+    async (workspaceId) => {
+      const name = uniqueName();
+      publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "x" }) } }, "1.0.0");
+
+      const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+        workspaceId,
+        npmRegistries: registries(),
+      });
+
+      expect(result).toEqual({ status: STATUS_BAD_REQUEST, text: INVALID_WORKSPACE_MESSAGE });
+      expect(recorded).toEqual([]);
+    }
+  );
+
+  // Registry info whose dist-tags.latest is `latest` and whose only version entry points at a valid tarball URL.
+  function publishLatest(name: string, latest: unknown): void {
+    const info = {
+      "dist-tags": { latest },
+      versions: { [String(latest)]: { dist: { tarball: `${registryBase}/${name}/-/${name}-1.0.0${TGZ_SUFFIX}` } } },
+    };
+    routes[`/${name}`] = (_req, res) => res.end(JSON.stringify(info));
+  }
+
+  test("a registry dist-tags.latest with a path separator gets 502 and downloads nothing", async () => {
+    const name = uniqueName();
+    publishLatest(name, "../../escape");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, {
+      workspaceId: uniqueWorkspace(),
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_BAD_GATEWAY, text: INVALID_UPSTREAM_VERSION_MESSAGE });
+    expect(tarballRequests()).toEqual([]);
+  });
+
+  test.each(["", ".", "..", "a\\b", "a\u0000b", 5])(
+    "a registry dist-tags.latest that is not one path segment gets 502: %p",
+    async (latest) => {
+      const name = uniqueName();
+      publishLatest(name, latest);
+
+      const result = await post(appBase, `${PACKAGE_BASE}/${name}/${INDEX_JS}`, {
+        workspaceId: uniqueWorkspace(),
+        npmRegistries: registries(),
+      });
+
+      expect(result).toEqual({ status: STATUS_BAD_GATEWAY, text: INVALID_UPSTREAM_VERSION_MESSAGE });
+      expect(tarballRequests()).toEqual([]);
+    }
+  );
+
+  // B5: an upstream tarball error status must be passed through and must not leave a .tgz behind.
+  test("B5: an upstream tarball error is passed through and leaves no .tgz", async () => {
     const name = uniqueName();
     const ws = uniqueWorkspace();
     publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
@@ -776,6 +1020,91 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
 
     expect(result.status).toBe(STATUS_NOT_FOUND);
     expect(leftoverTarballs(ws)).toEqual([]);
+  });
+
+  // Answers the tarball route of `name`@1.0.0 with the given status and body.
+  function failTarball(name: string, status: number, body: string): void {
+    routes[`/${name}/-/${name}-1.0.0${TGZ_SUFFIX}`] = (_req, res) => {
+      res.statusCode = status;
+      res.end(body);
+    };
+  }
+
+  test("an upstream 503 for the tarball is passed through with its body", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    failTarball(name, STATUS_SERVICE_UNAVAILABLE, "maintenance");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      workspaceId: ws,
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_SERVICE_UNAVAILABLE, text: "maintenance" });
+    expect(leftoverTarballs(ws)).toEqual([]);
+    expect(fs.existsSync(path.join(cacheDir, ws))).toBe(false);
+  });
+
+  test("an upstream final 3xx for the tarball gives 500 and writes nothing", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    failTarball(name, STATUS_MULTIPLE_CHOICES, "choices");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      workspaceId: ws,
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
+    expect(leftoverTarballs(ws)).toEqual([]);
+    expect(fs.existsSync(path.join(cacheDir, ws))).toBe(false);
+  });
+
+  test("an upstream status above 599 for the tarball gives 500 and writes nothing", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    failTarball(name, STATUS_ABOVE_HTTP_ERROR_RANGE, "beyond");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      workspaceId: ws,
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
+    expect(leftoverTarballs(ws)).toEqual([]);
+    expect(fs.existsSync(path.join(cacheDir, ws))).toBe(false);
+  });
+
+  test("a corrupt tarball leaves no .tgz", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "this is not a gzip tarball" } }, "1.0.0");
+
+    const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      workspaceId: ws,
+      npmRegistries: registries(),
+    });
+
+    expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
+    expect(leftoverTarballs(ws)).toEqual([]);
+  });
+
+  test("after an upstream 404 the next request downloads again and succeeds", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    const body = { workspaceId: ws, npmRegistries: registries() };
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    failTarball(name, STATUS_NOT_FOUND, "missing");
+    const first = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body);
+    expect(first).toEqual({ status: STATUS_NOT_FOUND, text: "missing" });
+
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "second try" }) } }, "1.0.0");
+    const second = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body);
+
+    expect(second).toEqual({ status: STATUS_OK, text: "second try" });
   });
 });
 
@@ -854,7 +1183,7 @@ describe("handler promise settles after the response (B4)", () => {
   // fs.stat callback, after the call returns, so a file response is not a reliable signal for headersSent.) The registry fetch is the first await.
   // Both handlers are observed in this single test (the required name). The two observations are made first and
   // compared in one assertion, so a failure of the first handler cannot hide the state of the second.
-  test.failing("B4: the handler's promise settles only after the response is sent", async () => {
+  test("B4: the handler's promise settles only after the response is sent", async () => {
     const name = uniqueName();
     publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
     const routed = await post(wrapperBase, `${PACKAGE_BASE}/${name}@7.7.7/${INDEX_JS}`, invalidBody());
@@ -866,6 +1195,22 @@ describe("handler promise settles after the response (B4)", () => {
       fetchPackageFileWithConfig: [true],
       fetchPackageFile: [true],
     });
+  });
+
+  test("an upstream failure also settles after the 500 is sent", async () => {
+    const { server, base } = await startResettingServer();
+    let result: HttpResult;
+    try {
+      result = await post(wrapperBase, `${PACKAGE_BASE}/${uniqueName()}/${INDEX_JS}`, {
+        workspaceId: uniqueWorkspace(),
+        npmRegistries: [entry({ type: "none" }, base)],
+      });
+    } finally {
+      await closeNetServer(server);
+    }
+    expect(result).toEqual({ status: STATUS_SERVER_ERROR, text: INTERNAL_ERROR_MESSAGE });
+    await waitFor(() => settled.length > 0);
+    expect(settled).toEqual([true]);
   });
 });
 
