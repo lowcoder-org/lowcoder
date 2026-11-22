@@ -282,3 +282,22 @@ describe("route table", () => {
     expect(second.json()).toEqual({ message: "plugin not found: uncached-route" });
   });
 });
+
+describe("B43: /runJs user code and the host realm", () => {
+  // Each row is user code that evaluates `typeof process` through one route out of the sandbox.
+  // "object" means the host process object was reached. Each row does run host-realm code (the host
+  // Function constructor, or _.template, builds a function that is then called), but no property or
+  // method of the recovered process object is used: only its typeof is returned.
+  // Not a row: a dynamic import() also reaches the host in plain Node, but jest's module
+  // runtime rejects import() without --experimental-vm-modules, so it cannot be pinned here.
+  const ESCAPE_ROUTES: [string, string][] = [
+    ["a function literal's constructor", "return (()=>0).constructor('return typeof process')()"],
+    ["the constructor of a caught host error", "try { null.f(); } catch (e) { return e.constructor.constructor('return typeof process')(); }"],
+    ["lodash _.template", "return _.template('<%= typeof process %>')()"],
+  ];
+  test.failing.each(ESCAPE_ROUTES)("B43: user code does not reach the host process through %s", async (_route, jsCode) => {
+    const reply = await postJson(`${API}/runJs`, { jsCode });
+    const seenByCode = reply.status === STATUS_OK ? reply.json().result : undefined;
+    expect(seenByCode).not.toBe("object");
+  });
+});

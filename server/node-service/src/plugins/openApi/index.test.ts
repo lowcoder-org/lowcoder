@@ -178,6 +178,30 @@ describe("runOpenApi", () => {
     });
   });
 
+  describe("B44: one spec object shared between runs", () => {
+    // The same object is passed to both runs, as a wrapper plugin passes its imported spec.
+    // NEW_HOST is intercepted twice so that today's misrouted second request is answered and the
+    // assertion, not a nock error, shows where it went.
+    test.failing("B44: OAS3: a run without serverURL is not sent to the URL an earlier run set", async () => {
+      const spec = oas3Spec();
+      intercept(NEW_HOST, "get", "/api/pets/5", STATUS_OK, PET);
+      intercept(NEW_HOST, "get", "/api/pets/5", STATUS_OK, PET);
+      intercept(OLD_HOST, "get", "/v1/pets/5", STATUS_OK, PET);
+      await runOpenApi(getPetAction, oas3Config({ serverURL: `${NEW_HOST}/api` }), spec);
+      await runOpenApi(getPetAction, oas3Config(), spec);
+      expect(seen.map((r) => r.headers.host)).toEqual(["new.test:8080", "old.test"]);
+    });
+    test.failing("B44: Swagger 2: a run without serverURL is not sent to the host an earlier run set", async () => {
+      const spec = swagger2Spec();
+      intercept(NEW_HOST, "get", "/base/pets/5", STATUS_OK, PET);
+      intercept(NEW_HOST, "get", "/base/pets/5", STATUS_OK, PET);
+      intercept(OLD_HOST, "get", "/v1/pets/5", STATUS_OK, PET);
+      await runOpenApi(getPetAction, oas3Config({ serverURL: `${NEW_HOST}/base` }), spec);
+      await runOpenApi(getPetAction, oas3Config(), spec);
+      expect(seen.map((r) => r.headers.host)).toEqual(["new.test:8080", "old.test"]);
+    });
+  });
+
   describe("request building", () => {
     test("OAS3: the body fields are sent as the JSON body with the JSON content type", async () => {
       intercept(OLD_HOST, "post", "/v1/pets", STATUS_OK, PET);
