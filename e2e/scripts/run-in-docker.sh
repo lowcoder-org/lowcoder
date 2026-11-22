@@ -112,6 +112,8 @@ readonly ECHO_CONTAINER="${NAME_PREFIX}-echo"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
+# The echo sidecar is also the mail sink: the app sends its mails (password reset, invitation) to ECHO_ALIAS:MAIL_PORT, no TLS, no login
+readonly MAIL_PORT=2525
 readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
@@ -193,6 +195,8 @@ start_app() {
     docker run -d --name "$APP_CONTAINER" --network "$NETWORK" --network-alias "$E2E_APP_HOST" --add-host "${ECHO_ALIAS}:${ECHO_IP}" "${publish[@]}" "${profile_env[@]}" \
         -e LOWCODER_PUBLIC_URL="http://${E2E_APP_HOST}:${APP_PORT}/" \
         -e LOWCODER_SUPERUSER_USERNAME -e LOWCODER_SUPERUSER_PASSWORD \
+        -e LOWCODER_ADMIN_SMTP_HOST="$ECHO_ALIAS" -e LOWCODER_ADMIN_SMTP_PORT="$MAIL_PORT" \
+        -e LOWCODER_ADMIN_SMTP_AUTH=false -e LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED=false -e LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED=false \
         "$APP_IMAGE" > /dev/null
 }
 
@@ -224,7 +228,7 @@ start_echo() {
     log "Starting the echo sidecar as $ECHO_CONTAINER (alias $ECHO_ALIAS, port $ECHO_PORT)"
     docker run -d --name "$ECHO_CONTAINER" --network "$NETWORK" --network-alias "$ECHO_ALIAS" --init \
         --user "$(id -u):$(id -g)" \
-        -v "$ECHO_SCRIPT":/echo/echo-server.js:ro -e ECHO_PORT="$ECHO_PORT" \
+        -v "$ECHO_SCRIPT":/echo/echo-server.js:ro -e ECHO_PORT="$ECHO_PORT" -e MAIL_PORT="$MAIL_PORT" \
         "$PLAYWRIGHT_IMAGE" node /echo/echo-server.js > /dev/null
     ECHO_IP="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$ECHO_CONTAINER")"
     [ -n "$ECHO_IP" ] || fail "no IP address for $ECHO_CONTAINER on $NETWORK"

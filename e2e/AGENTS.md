@@ -195,7 +195,7 @@ MUST NOT:
 Accepted exception to the `test` import rule: stack-free unit specs that open no browser page (no `page`, no app) may
 import `test` from `@playwright/test`, because the network guard only guards browser contexts. Existing:
 `foundation/builders.spec.ts`, `recorded.spec.ts`, `run-selection.spec.ts`, `media.spec.ts`, and the security specs
-`foundation/security-api-raw.spec.ts`, `security-echo.spec.ts` (starts `scripts/echo-server.js` on a loopback port), `security-quarantine.spec.ts`, `security-constants.spec.ts`, `security-tokens.spec.ts`, `security-assertions.spec.ts`, `security-super-admin.spec.ts`. Anything that opens
+`foundation/security-api-raw.spec.ts`, `security-echo.spec.ts` and `lifecycle-mail-sink.spec.ts` (start `scripts/echo-server.js` on loopback ports), `lifecycle-mail.spec.ts`, `security-quarantine.spec.ts`, `security-constants.spec.ts`, `security-tokens.spec.ts`, `security-assertions.spec.ts`, `security-super-admin.spec.ts`. Anything that opens
 a page or talks to the stack imports from `src/fixtures`.
 
 Two helpers share a name with different meanings; do not add a third: `testIdOf(name)` in `src/components/scenario.ts`
