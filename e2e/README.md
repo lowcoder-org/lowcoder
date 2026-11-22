@@ -216,7 +216,7 @@ e2e/
 
 Test titles carry these ids.
 
-- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids; none built yet, only the harness in `foundation/security-quarantine.spec.ts`).
+- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids). Built: AU01 to AU16 (sign-up and sign-in edge cases, `auth/signup-edge.spec.ts` and `auth/signin-session.spec.ts`).
 
 - S1 insert, save, publish, load every one of the 112 types (`@insert-all`; catalog unit tests in `insert-catalog.spec.ts`).
 - S2 text inputs; S3 choice components; S4 date and time; S5 sliders and colour picker; S6 buttons and menus; S7 display components.
@@ -230,11 +230,11 @@ Test titles carry these ids.
 ## Test catalogue
 
 Counts: `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`:
-default **467 tests in 79 files**; with `E2E_INCLUDE_QUARANTINE=1` **518 in 81**; with `E2E_INCLUDE_SUPERADMIN=1` **470 in 79**; with both of those **523 in 81**;
-with `E2E_INCLUDE_INSERT_ALL=1` **579 in 80**; with all three opt-in variables **635 in 82** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **484 tests in 82 files**; with `E2E_INCLUDE_QUARANTINE=1` **537 in 84**; with `E2E_INCLUDE_SUPERADMIN=1` **487 in 82**; with both of those **542 in 84**;
+with `E2E_INCLUDE_INSERT_ALL=1` **596 in 83**; with all three opt-in variables **654 in 85** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **6 in 1** (SEC-E01 to E04, E06a, E06b; also with `E2E_INCLUDE_QUARANTINE=1` alone), **1 in 1** with `E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (SEC-E05 alone), **0** with the takeover variable alone (SEC-E05 is quarantined too); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 7 tests, none in a default-stack listing.
-Default-run tag counts: `@smoke` 5, `@core` 51, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 50 (48 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
-also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` (user-lifecycle tests, ids `LC-<area><nn>`, in the default run; the first ones come with the lifecycle phases) 0.
+Default-run tag counts: `@smoke` 5, `@core` 53, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 55 (53 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
+also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 14 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 2 more are quarantined, LC-AU07 and LC-AU15).
 
 ### smoke (4)
 
@@ -245,11 +245,13 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | smoke/editor-drag.spec.ts | a component dragged from the insert panel is on the canvas and saved (D-3 prone) | @smoke | 1 |
 | smoke/network-guard.spec.ts | requests to lowcoder.cloud are blocked, the app is let through | @smoke | 1 |
 
-### auth, workspace, apps (11)
+### auth, workspace, apps (27)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
 | auth/login.spec.ts | sign-in and sign-out; wrong password stays on sign-in | @core | 2 |
+| auth/signup-edge.spec.ts | LC-AU01 to AU08, AU15, AU16: a registered address in any casing, a malformed address, the password rules of the form, the invitation link, a workspace sign-up page, a mismatched confirmation (LC-AU07 and LC-AU15 are quarantined: D-48 password rule, D-30) | @lifecycle, @core for AU08, @quarantine for 2 | 10 (8 default) |
+| auth/signin-session.spec.ts | LC-AU09 to AU14: unknown address, choosing among two workspaces, UI sign-out ends the server session, cookie lifetime, redirects of signed-in and anonymous visitors | @lifecycle, @core for AU11 | 6 |
 | workspace/member-access.spec.ts | invited member sees only shared apps; invitation link flow | @core | 2 |
 | apps/public-app.spec.ts | public app renders for an anonymous visitor, a private one does not | @core | 1 |
 | apps/publish-draft.spec.ts | published view shows the last published version, not the draft | @smoke @core | 1 |
@@ -404,7 +406,7 @@ Listing, from `e2e/` (no stack): `E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL
 
 Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order-dependent (the batched data-source check; measured 8 failures and 2 passes in 10 repeats), so a quarantine run can show it passing. Accounting of `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the @superadmin tag existed, so it included SEC-R16c and R16d; they now need `E2E_INCLUDE_SUPERADMIN=1` as well): 44 listed, 43 failed, 1 passed (SEC-R09d), 0 skipped, 0 did not run; the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (207, unit and builder tests; several touch the stack)
+### foundation (210, unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -422,9 +424,10 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | foundation/d3-threshold-reporter.spec.ts | D-3 gate verdicts of the reporter | none | 9 |
 | foundation/security-helpers.spec.ts | the security helpers of `src/api/client.ts`, `src/security/actors.ts` and `src/security/scene.ts` against the stack (`apiRaw`, `actor`, `joinWorkspace`, `makeDeveloper`, grants, folders, datasources, API keys, bundles, `signIn`, `getApp`, `listGroupMembers`, `sceneOf`, `memberOf`, `roleOf`, `permissionIdOf`, `adminOfApiUser`, the `superAdmin` fixture, ...); 2 tests are `@quarantine` (D-45 API-key delete, D-46 bundle recycle) | none, @superadmin for 1, @quarantine for 2 | 36 default + 1 `@superadmin` + 2 quarantined |
 | foundation/security-pages.spec.ts | the page objects `SettingPage` (settings sidebar, members rows and role selects, provider page) and `DatasourcePage` (the form's save answer) as admin, developer and plain member, and `AppViewPage.openAndAwaitQuery` (the status of the query a seeded app runs on load) | none | 4 |
-| foundation/security-echo.spec.ts | the echo sidecar (`scripts/echo-server.js` started on a loopback port: record and read back, per-target prefixes, control paths, body cut) and `src/security/echo.ts`, `n8nDatasourceBody`, `npmRegistryPath` (no stack) | none | 15 |
+| foundation/security-echo.spec.ts | the echo sidecar (`scripts/echo-server.js` started on a loopback port: record and read back, per-target prefixes, control paths, body cut) and `src/security/echo.ts`, `n8nDatasourceBody`, `npmRegistryPath` (no stack) | none | 16 |
 | foundation/security-api-raw.spec.ts | `apiRaw` against a local server: status, code, body, params, request and response headers (no stack) | none | 7 |
-| foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 15 |
+| foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 16 |
+| foundation/lifecycle-helpers.spec.ts | `registerRaw` and `signInRaw` against the stack | none | 2 |
 | foundation/security-constants.spec.ts | `API_ERRORS`, roles, security path builders (no stack) | none | 6 |
 | foundation/security-tokens.spec.ts | `src/security/tokens.ts`: the HS256 signer against RFC 7515 A.1, forged, unsigned and wrongly signed tokens (no stack) | none | 8 |
 | foundation/security-assertions.spec.ts | `expectAnswer` and `expectDeniedAs` pass on a match and fail on a wrong status or code (no stack) | none | 6 |
@@ -504,6 +507,7 @@ and passes.
 | D-45 | deleting a user's last API key answers 200 but the key stays listed and keeps authenticating (measured on the image) | fixed on branch (`86fe43f9d`, not verified at runtime on the branch) | SEC-A02a and the helper test in `foundation/security-helpers.spec.ts` |
 | D-46 | recycling a bundle sets the status and then answers 500 / 5005 (measured on the image) | suspected open on the branch (not verified at runtime) | SEC-R17f and the helper test; `recycleBundle` tolerates exactly this answer |
 | D-47 | the instance super admin's requests hang (HTTP 504) once the stack holds more than about 420 workspaces (measured on the 3.0.0 image: 400 ok in about 100 ms, 450 and more 504 after about 120 s; cause not found) | open, cause not found, measured on 3.0.0, HEAD not measured | SEC-R16a to R16d, tagged `@superadmin` |
+| D-48 | the server enforces no password rule on sign-up (the rule, at least 8 characters with a letter and a digit, is checked in the client only): a sign-up with the password `a` answers 200 and opens a session (measured on the image; the same code at HEAD, not run) | open (candidate L-3 of the lifecycle research) | LC-AU07, `@quarantine` |
 
 Quarantine decision rule: a test that asserts the DESIRED behaviour and fails today is `@quarantine`. A
 characterisation or workaround test that passes while documenting a defect (CD-5, CD-7, CD-3 limits, D-3 handling) is not.

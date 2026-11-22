@@ -16,10 +16,10 @@ import {
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: 20 fixed-on-branch scenarios, and 25 open ones plus SEC-E05, X01b, X01c. */
+/** Sizes of the two maps: 21 fixed-on-branch scenarios, and 30 open ones (27 security ids plus the lifecycle ids LC-AU07 and LC-AU15, which are 2 of the 30). */
 const FIXED_ON_BRANCH_COUNT = 21;
-const OPEN_DEFECTS_COUNT = 28;
-/** Lifecycle ids: no phase lists one in a map yet, so the listed-id branches are tested through an injected lookup. */
+const OPEN_DEFECTS_COUNT = 30;
+/** Lifecycle ids: LC-AU07 and LC-AU15 are in a map so far; the listed-id branches are also tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
 const INJECTED_DEFECTS: Readonly<Record<string, string>> = { [LC_INJECTED_ID]: "D-45" };
@@ -124,6 +124,15 @@ test.describe("security quarantine list", () => {
       annotation: { type: DEFECT_ANNOTATION_TYPE, description: "D-45" },
     });
     expect(lifecycleTestDetails(LC_INJECTED_ID).tag, "the maps, not the injected lookup, decide in production").toEqual([TAGS.LIFECYCLE]);
+  });
+
+  test("a lifecycle id listed in a map gets its defect and the quarantine tag from the maps", () => {
+    expect(quarantinedDefect("LC-AU15")).toBe("D-30");
+    expect(lifecycleTestDetails("LC-AU15")).toEqual({
+      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
+      annotation: { type: DEFECT_ANNOTATION_TYPE, description: "D-30" },
+    });
+    expect(() => lifecycleCandidateDetails("LC-AU15", "x"), "a mapped id is no candidate").toThrow(/quarantine map/);
   });
 
   test("lifecycle extra tags are appended after the base and quarantine tags", () => {
