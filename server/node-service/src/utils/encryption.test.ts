@@ -1,10 +1,11 @@
 import { createCipheriv, pbkdf2Sync } from "crypto";
 
-// Vector source: until a Java-produced vector exists, these vectors are built with Node's
-// createCipheriv from Spring's documented Encryptors.text scheme (PBKDF2-HmacSHA1, 1024 iterations,
-// 256-bit key, salt = the UTF-8 bytes, output = hex(iv || ciphertext)). This is a WEAKER check than a
-// Java-produced vector: it shares the scheme assumptions with the code under test, so it proves the code
-// implements that scheme, not that the scheme is what Spring really does.
+// Vector source: most vectors are built with Node's createCipheriv from Spring's documented
+// Encryptors.text scheme (PBKDF2-HmacSHA1, 1024 iterations, 256-bit key, salt = the UTF-8 bytes,
+// output = hex(iv || ciphertext)). That is a WEAKER check than a Java-produced vector: it shares the
+// scheme assumptions with the code under test. One vector, JAVA_VECTOR, was produced by Java:
+// spring-security-crypto 6.2.3 (the api-service's resolved version) with
+// Encryptors.text("lowcoderpwd", hex("lowcodersalt")).encrypt("hello lowcoder").
 const DEFAULT_PASSWORD = "lowcoderpwd";
 const DEFAULT_SALT = "lowcodersalt";
 const CUSTOM_PASSWORD = "custom-secret";
@@ -22,6 +23,8 @@ const FIXED_IV = Buffer.from("000102030405060708090a0b0c0d0e0f", "hex");
 const WRONG_SALT = "other-salt";
 const PLAINTEXT_ASCII = "hello lowcoder";
 const PLAINTEXT_UNICODE = "héllo wörld ✓ 日本語 😀";
+const JAVA_VECTOR = "e27fc7c8308db3d06c16df29cc06c259b45e03b0b44bbc5db2a62f7c82f1fa1c";
+const MIDDLE_CHAR_INDEX = 40;
 
 function encryptLikeSpring(plaintext: string, password: string, salt: string, iv: Buffer = FIXED_IV): string {
   const key = pbkdf2Sync(password, Buffer.from(salt, "utf8"), PBKDF2_ITERATIONS, KEY_BYTES, "sha1");
@@ -133,11 +136,44 @@ describe("decryptString with the default secret and salt", () => {
     await expectDecryptFailure(decryptString("this is not hex at all"), ServiceError);
   });
 
-  // B42: Buffer.from(x, "hex") stops at the first invalid pair, so trailing non-hex
-  // characters after a valid ciphertext are silently ignored today. Asserts the correct behaviour.
-  test.failing("B42: trailing non-hex characters after a valid ciphertext are rejected", async () => {
+  // B42: Buffer.from(x, "hex") stops at the first invalid pair, so the payload must be checked to be
+  // exactly pairs of hex digits (as Spring's Hex.decode requires) before it is decoded.
+  test("B42: trailing non-hex characters after a valid ciphertext are rejected", async () => {
     const { decryptString, ServiceError } = defaults();
     await expectDecryptFailure(decryptString(`${encryptLikeSpring(PLAINTEXT_ASCII, DEFAULT_PASSWORD, DEFAULT_SALT)}zz`), ServiceError);
+  });
+
+  test("B42: an odd-length payload is rejected", async () => {
+    const { decryptString, ServiceError } = defaults();
+    const good = encryptLikeSpring(PLAINTEXT_ASCII, DEFAULT_PASSWORD, DEFAULT_SALT);
+    await expectDecryptFailure(decryptString(`${good}0`), ServiceError);
+  });
+
+  test("B42: a trailing newline is rejected", async () => {
+    const { decryptString, ServiceError } = defaults();
+    const good = encryptLikeSpring(PLAINTEXT_ASCII, DEFAULT_PASSWORD, DEFAULT_SALT);
+    await expectDecryptFailure(decryptString(`${good}\n`), ServiceError);
+  });
+
+  test("B42: uppercase hex is accepted", async () => {
+    const { decryptString } = defaults();
+    const good = encryptLikeSpring(PLAINTEXT_ASCII, DEFAULT_PASSWORD, DEFAULT_SALT);
+    await expect(decryptString(good.toUpperCase())).resolves.toBe(PLAINTEXT_ASCII);
+  });
+
+  test("B42: a single invalid character in the middle is rejected", async () => {
+    const { decryptString, ServiceError } = defaults();
+    const good = encryptLikeSpring(PLAINTEXT_ASCII, DEFAULT_PASSWORD, DEFAULT_SALT);
+    const broken = `${good.slice(0, MIDDLE_CHAR_INDEX)}g${good.slice(MIDDLE_CHAR_INDEX + 1)}`;
+    expect(broken).not.toBe(good);
+    await expectDecryptFailure(decryptString(broken), ServiceError);
+  });
+
+  // Regression guard (it also passed before the strict check): the strict check must not be stricter
+  // than what Spring emits.
+  test("B42: a ciphertext produced by spring-security-crypto 6.2.3 passes the check and decrypts", async () => {
+    const { decryptString } = defaults();
+    await expect(decryptString(JAVA_VECTOR)).resolves.toBe(PLAINTEXT_ASCII);
   });
 
   test("rejects the empty string", async () => {

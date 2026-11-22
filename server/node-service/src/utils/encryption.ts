@@ -8,6 +8,10 @@ const IV_LENGTH = 16;  // 128 bits
 const ITERATIONS = 1024;
 const DIGEST = "sha1";
 
+// Spring's Hex.decode accepts only pairs of hex digits; anything else is not a ciphertext it produced
+const HEX_PAIRS = /^(?:[0-9a-fA-F]{2})+$/;
+const DECRYPT_FAILED_MESSAGE = "Failed to decrypt string";
+
 // You must set these to match your Java config:
 const PASSWORD = process.env.LOWCODER_NODE_SERVICE_SECRET || "lowcoderpwd";
 const SALT_HEX = process.env.LOWCODER_NODE_SERVICE_SECRET_SALT || "lowcodersalt";
@@ -24,8 +28,11 @@ function deriveKey(password: string, saltHex: string): Buffer {
  * Decrypt a string encrypted by Spring's Encryptors.text.
  */
 export async function decryptString(encrypted: string): Promise<string> {
+  if (typeof encrypted !== "string" || !HEX_PAIRS.test(encrypted)) {
+    throw badRequest(DECRYPT_FAILED_MESSAGE);
+  }
   try {
-    // Spring's format: hex(salt) + encryptedHex(IV + ciphertext)
+    // Spring's format: hex(IV || ciphertext); the salt is not in the payload
     const key = deriveKey(PASSWORD, SALT_HEX);
 
     const encryptedBuf = Buffer.from(encrypted, "hex");
@@ -37,6 +44,6 @@ export async function decryptString(encrypted: string): Promise<string> {
     decrypted += decipher.final("utf8");
     return decrypted;
   } catch (e) {
-    throw badRequest("Failed to decrypt string");
+    throw badRequest(DECRYPT_FAILED_MESSAGE);
   }
 }

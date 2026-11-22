@@ -218,8 +218,12 @@ export async function runPluginQuery(
     if(key == "OAUTH_ACCESS_TOKEN") {
       dataSourceConfig["OAUTH_ACCESS_TOKEN"] = value
     } else if (dataSourceConfig.dynamicParamsConfig && key in dataSourceConfig.dynamicParamsConfig) {
-      const valueKey = `${key}.value`;
-      dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value;
+      // only the forwarded-cookie shape ([{ name, value }, ...], see the api-service's executeByNodeJs) is copied;
+      // any other value for this key is ignored, not an error (B22)
+      const first = Array.isArray(value) ? value[0] : undefined;
+      if (typeof first === "object" && first !== null) {
+        dataSourceConfig.dynamicParamsConfig[`${key}.value`] = first.value;
+      }
     }
   });
 
