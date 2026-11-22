@@ -33,7 +33,7 @@ import supabaseQueryConfig from "./supabase/queryConfig";
  * switch or if).
  *
  * Known-unwired params are exempt by name, each with its bug number, so the contract does not pin a bug;
- * none is registered today. The aliyunOss data-source `endpointUrl` (B37) is exempt the same way. Data-source keys that
+ * no known-unwired param or data-source key is registered today. Data-source keys that
  * run.ts must NOT use (s3 `specVersion`, gcs `region` and `specVersion`) are checked the opposite way: changing
  * them leaves every recorded call identical.
  *
@@ -557,10 +557,10 @@ const behaviouralPlugins = (): BehaviouralPlugin[] => [
     name: "aliyunOss",
     actions: actionsOf(aliyunQueryConfig(aliyunI18n(["en"]))),
     dataSource: { accessKeyId: "LTAI-cfg", accessKeySecret: "cfg-ali-secret", arn: "acs:ram::cfg:role/cfg", endpointUrl: "sts.cfg.aliyuncs.com", region: "oss-cfg-region" },
-    dataSourceWitness: { accessKeyId: "LTAI-cfg", accessKeySecret: "cfg-ali-secret", arn: "acs:ram::cfg:role/cfg", region: "oss-cfg-region" },
+    dataSourceWitness: { accessKeyId: "LTAI-cfg", accessKeySecret: "cfg-ali-secret", arn: "acs:ram::cfg:role/cfg", endpointUrl: "sts.cfg.aliyuncs.com", region: "oss-cfg-region" },
     ignoredDataSourceKeys: {},
     knownUnwiredParams: {},
-    knownUnwiredDataSourceKeys: { endpointUrl: "B37" },
+    knownUnwiredDataSourceKeys: {},
     signedWitness: SIGNED_MARKER,
     probeAction: { actionName: "listObjects", bucket: "cfgbucket" },
     invoke: aliyunInvoke,
@@ -656,7 +656,7 @@ describe("behavioural contract: configured params reach the SDK", () => {
 
     test("known-unwired params and data-source keys are only the registered ones", () => {
       expect(plugin.knownUnwiredParams).toEqual({});
-      expect(plugin.knownUnwiredDataSourceKeys).toEqual(plugin.name === "aliyunOss" ? { endpointUrl: "B37" } : {});
+      expect(plugin.knownUnwiredDataSourceKeys).toEqual({});
     });
   });
 });

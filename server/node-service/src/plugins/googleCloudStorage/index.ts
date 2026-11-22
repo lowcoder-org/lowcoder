@@ -1,5 +1,5 @@
-import { S3ServiceException } from "@aws-sdk/client-s3";
-import { ServiceError } from "../../common/error";
+import { ApiError } from "@google-cloud/storage/build/src/nodejs-common";
+import { badRequest } from "../../common/error";
 import _ from "lodash";
 import { PluginContext } from "lowcoder-sdk/dataSource";
 import queryConfig, { ActionDataType } from "./queryConfig";
@@ -29,8 +29,8 @@ const gcsPlugin = {
     try {
       return await run(action, dataSourceConfig);
     } catch (e) {
-      if (e instanceof S3ServiceException) {
-        throw new ServiceError(e.message, 400);
+      if (e instanceof ApiError) {
+        throw badRequest(e.message);
       }
       throw e;
     }

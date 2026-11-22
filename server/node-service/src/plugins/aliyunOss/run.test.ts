@@ -4,7 +4,7 @@ import { Readable } from "stream";
  * aliyunOss plugin. "ali-oss" is replaced by a recording fake (process boundary): `OSS` records its
  * constructor options, `useBucket`, `listV2`, `putStream` (the stream content is read) and
  * `signatureUrl`; `STS` records its options and `assumeRole` calls and answers with controllable
- * credentials. run.ts keeps its STS credential cache at module level (that is B11), so every test loads
+ * credentials. run.ts keeps its STS credential cache at module level, so every test loads
  * the plugin modules fresh through jest.isolateModules. Consequently the ServiceError class used inside
  * the isolated registry is the one returned by the loader, not the top-level import.
  */
@@ -92,7 +92,7 @@ function credentials(tag: string, expiration: string) {
     },
   };
 }
-/** Settles a call into a result object so an unexpected rejection cannot satisfy a test.failing for the wrong reason. */
+/** Settles a call into a result object, so a rejection shows up as `{ err }` in the assertion instead of aborting the test. */
 type Outcome<T> = { ok: T } | { err: any };
 const settle = <T>(call: Promise<T>): Promise<Outcome<T>> =>
   call.then(
@@ -101,47 +101,12 @@ const settle = <T>(call: Promise<T>): Promise<Outcome<T>> =>
   );
 const STS_FAILURE = "InvalidAccessKeyId.NotFound";
 
-/**
- * Runs `call` while every promise constructed through the global Promise gets a recording rejection handler,
- * then restores Promise. Needed for B12 only: validateDataSourceConfig does not await getClient(), so its
- * rejection is unhandled, and jest fails the test on it in a way test.failing cannot invert.
- * Why not a scoped process.on("unhandledRejection") listener: jest runs tests in a vm sandbox whose `process`
- * is a copy, so a listener registered there never receives the real process's event (tried: the rejection
- * still failed the test). Limits: it only catches promises built through the global Promise, which holds
- * while tsc compiles async functions to __awaiter (the `constructed` count in the harness test below
- * fails if that ever changes); native async functions would bypass it. The handler is attached to every
- * promise created during the call, so callers must assert what `rejected` contains.
- */
-async function withPreHandledRejections<T>(call: () => Promise<T>) {
-  const NativePromise = global.Promise;
-  const rejected: unknown[] = [];
-  let constructed = 0;
-  class PreHandledPromise<R> extends NativePromise<R> {
-    static get [Symbol.species]() {
-      return NativePromise;
-    }
-    constructor(executor: (resolve: (v: R | PromiseLike<R>) => void, reject: (e?: unknown) => void) => void) {
-      super(executor);
-      constructed += 1;
-      this.catch((reason) => {
-        rejected.push(reason);
-      });
-    }
-  }
-  global.Promise = PreHandledPromise as any;
-  try {
-    const result = await call();
-    await new Promise((resolve) => setImmediate(resolve)); // let node report any pending unhandled rejection
-    return { result, rejected, constructed };
-  } finally {
-    global.Promise = NativePromise;
-  }
-}
 const inOneHour = () => new Date(Date.now() + HOUR_MS).toISOString();
 
 type Loaded = {
   run: (action: any, ds: any, i18n: any) => Promise<any>;
   validateDataSourceConfig: (ds: any) => Promise<any>;
+  stsCredentialCacheSize: () => number;
   plugin: any;
   ServiceError: any;
   i18n: (lang: string) => any;
@@ -155,6 +120,7 @@ function load(): Loaded {
     loaded = {
       run: runMod.default,
       validateDataSourceConfig: runMod.validateDataSourceConfig,
+      stsCredentialCacheSize: runMod.stsCredentialCacheSize,
       plugin: require("./index").default({ languages: ["en"] }),
       ServiceError: require("../../common/error").ServiceError,
       i18n: (lang: string) => getI18n([lang]),
@@ -181,7 +147,9 @@ describe("STS login", () => {
     const { run, i18n } = load();
     mockOss.listV2.mockResolvedValue({ objects: [] });
     await run({ actionName: "listObjects", bucket: BUCKET }, dataSource, i18n("en"));
-    expect(mockOss.stsOptions).toEqual([{ accessKeyId: dataSource.accessKeyId, accessKeySecret: dataSource.accessKeySecret }]);
+    expect(mockOss.stsOptions).toEqual([
+      { accessKeyId: dataSource.accessKeyId, accessKeySecret: dataSource.accessKeySecret, endpoint: "https://sts.cn-hangzhou.aliyuncs.com" },
+    ]);
     expect(mockOss.assumeRole).toHaveBeenCalledTimes(1);
     expect(mockOss.assumeRole).toHaveBeenCalledWith(ARN, "", STS_DURATION_SECONDS, STS_SESSION_NAME);
   });
@@ -252,24 +220,138 @@ describe("STS login", () => {
     expect(mockOss.ossOptions).toHaveLength(0);
   });
 
-  test.failing("B11: each data source assumes its role with its own key", async () => {
+  test("B11: each data source assumes its role with its own key", async () => {
     const { run, i18n } = load();
     mockOss.listV2.mockResolvedValue({ objects: [] });
     const second = { ...dataSource, accessKeyId: "LTAI-second", accessKeySecret: "secret-second" };
     const first = await settle(run({ actionName: "listObjects", bucket: BUCKET }, dataSource, i18n("en")));
     const other = await settle(run({ actionName: "listObjects", bucket: BUCKET }, second, i18n("en")));
-    expect([first, other]).toEqual([{ ok: [] }, { ok: [] }]); // both calls succeed today; only the key assertion fails
+    expect([first, other]).toEqual([{ ok: [] }, { ok: [] }]);
     expect(mockOss.stsOptions.map((o) => o.accessKeyId)).toEqual(["LTAI-first", "LTAI-second"]);
   });
 
-  test.failing("B37: the STS endpoint setting is used", async () => {
+  /** assumeRole answers with credentials tagged by the access key id of the last STS constructed. */
+  function tagCredentialsByKey(expiration: (accessKeyId: string) => string = inOneHour) {
+    mockOss.assumeRole.mockImplementation(async () => {
+      const accessKeyId = mockOss.stsOptions.at(-1)!.accessKeyId as string;
+      return credentials(accessKeyId, expiration(accessKeyId));
+    });
+  }
+  const dataSourceB = { ...dataSource, accessKeyId: "LTAI-second", accessKeySecret: "secret-second" };
+  const listAction = { actionName: "listObjects", bucket: BUCKET };
+
+  test("interleaved data sources keep their own credentials", async () => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    tagCredentialsByKey();
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSourceB, i18n("en"));
+    await run(listAction, dataSource, i18n("en"));
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+    expect(mockOss.ossOptions.map((o) => o.stsToken)).toEqual(["sts-token-LTAI-first", "sts-token-LTAI-second", "sts-token-LTAI-first"]);
+  });
+
+  test("a changed secret with the same key id logs in again", async () => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    await run(listAction, { ...dataSource, accessKeySecret: "secret-first" }, i18n("en"));
+    await run(listAction, { ...dataSource, accessKeySecret: "secret-rotated" }, i18n("en"));
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+    expect(mockOss.stsOptions.map((o) => o.accessKeySecret)).toEqual(["secret-first", "secret-rotated"]);
+  });
+
+  test("a changed ARN logs in again with that ARN", async () => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    const otherArn = "acs:ram::654321:role/other";
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, { ...dataSource, arn: otherArn }, i18n("en"));
+    expect(mockOss.assumeRole.mock.calls.map((c) => c[0])).toEqual([ARN, otherArn]);
+  });
+
+  test("expiry is per data source", async () => {
+    jest.useFakeTimers({ now: NOW_MS, doNotFake: [...FAKE_TIMER_KEEP_REAL] });
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    tagCredentialsByKey((accessKeyId) => new Date(NOW_MS + (accessKeyId === "LTAI-first" ? 1000 : HOUR_MS)).toISOString());
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSourceB, i18n("en"));
+    jest.setSystemTime(NOW_MS + 1001);
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSourceB, i18n("en"));
+    expect(mockOss.stsOptions.map((o) => o.accessKeyId)).toEqual(["LTAI-first", "LTAI-second", "LTAI-first"]);
+  });
+
+  test("refreshSTSToken answers with the client's own data source credentials", async () => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    tagCredentialsByKey();
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSourceB, i18n("en"));
+    expect(await mockOss.ossOptions[0].refreshSTSToken()).toEqual({
+      accessKeyId: "sts-ak-LTAI-first",
+      accessKeySecret: "sts-secret-LTAI-first",
+      stsToken: "sts-token-LTAI-first",
+    });
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+  });
+
+  test("a login removes every credential that has expired, including other data sources'", async () => {
+    jest.useFakeTimers({ now: NOW_MS, doNotFake: [...FAKE_TIMER_KEEP_REAL] });
+    const { run, i18n, stsCredentialCacheSize } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    tagCredentialsByKey((accessKeyId) => new Date(NOW_MS + (accessKeyId === "LTAI-first" ? 1000 : HOUR_MS)).toISOString());
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSourceB, i18n("en"));
+    expect(stsCredentialCacheSize()).toBe(2);
+    jest.setSystemTime(NOW_MS + 1000); // the Expiration instant of the first data source
+    await run(listAction, dataSourceB, i18n("en"));
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+    expect(mockOss.ossOptions[2].stsToken).toBe("sts-token-LTAI-second");
+    expect(stsCredentialCacheSize()).toBe(1);
+  });
+
+  test("a changed STS endpoint with the same key, secret and ARN logs in again", async () => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    await run(listAction, { ...dataSource, endpointUrl: "sts.cn-hangzhou.aliyuncs.com" }, i18n("en"));
+    await run(listAction, { ...dataSource, endpointUrl: "sts.cn-beijing.aliyuncs.com" }, i18n("en"));
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+  });
+
+  test("a credential with a malformed Expiration is never reused", async () => {
+    const { run, i18n, stsCredentialCacheSize } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    mockOss.assumeRole.mockImplementation(async () => credentials("bad", "not-a-date"));
+    await run(listAction, dataSource, i18n("en"));
+    await run(listAction, dataSource, i18n("en"));
+    expect(mockOss.assumeRole).toHaveBeenCalledTimes(2);
+    expect(stsCredentialCacheSize()).toBe(1);
+  });
+
+  test("B37: the STS endpoint setting is used", async () => {
     const { run, i18n } = load();
     mockOss.listV2.mockResolvedValue({ objects: [] });
     const outcome = await settle(
       run({ actionName: "listObjects", bucket: BUCKET }, { ...dataSource, endpointUrl: "sts.cn-beijing.aliyuncs.com" }, i18n("en"))
     );
-    expect(outcome).toEqual({ ok: [] }); // the call succeeds today; only the endpoint assertion fails
+    expect(outcome).toEqual({ ok: [] });
     expect(String(mockOss.stsOptions[0]?.endpoint)).toContain("sts.cn-beijing.aliyuncs.com");
+  });
+
+  test.each([
+    ["a scheme-less host gets https://", "sts.cn-beijing.aliyuncs.com", "https://sts.cn-beijing.aliyuncs.com"],
+    ["an https URL is kept", "https://sts.cn-shanghai.aliyuncs.com", "https://sts.cn-shanghai.aliyuncs.com"],
+    ["an http URL is kept", "http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+    ["an empty value leaves the ali-oss default", "", undefined],
+    ["a blank value leaves the ali-oss default", "   ", undefined],
+    ["surrounding blanks are trimmed", "  sts.cn-beijing.aliyuncs.com  ", "https://sts.cn-beijing.aliyuncs.com"],
+  ])("B37 endpoint: %s", async (_title, endpointUrl, expected) => {
+    const { run, i18n } = load();
+    mockOss.listV2.mockResolvedValue({ objects: [] });
+    await run({ actionName: "listObjects", bucket: BUCKET }, { ...dataSource, endpointUrl }, i18n("en"));
+    expect(mockOss.stsOptions).toHaveLength(1);
+    expect(mockOss.stsOptions[0].endpoint).toBe(expected);
   });
 });
 
@@ -410,34 +492,29 @@ describe("validateDataSourceConfig", () => {
     const { validateDataSourceConfig } = load();
     expect(await validateDataSourceConfig(dataSource)).toEqual({ success: true });
     // validation must exercise the credentials: a stub returning {success:true} never reaches STS
-    expect(mockOss.stsOptions).toEqual([{ accessKeyId: dataSource.accessKeyId, accessKeySecret: dataSource.accessKeySecret }]);
+    expect(mockOss.stsOptions).toEqual([
+      { accessKeyId: dataSource.accessKeyId, accessKeySecret: dataSource.accessKeySecret, endpoint: "https://sts.cn-hangzhou.aliyuncs.com" },
+    ]);
     expect(mockOss.assumeRole).toHaveBeenCalledWith(ARN, "", STS_DURATION_SECONDS, STS_SESSION_NAME);
   });
 
-  test.failing("B12: a failing STS validates as failure", async () => {
+  test("B12: a failing STS validates as failure", async () => {
     const { validateDataSourceConfig } = load();
     mockOss.assumeRole.mockRejectedValue(new Error(STS_FAILURE));
-    const { result, rejected } = await withPreHandledRejections(() => settle(validateDataSourceConfig(dataSource)));
-    // the swap only hides rejections; anything other than the STS failure would be an unrelated bug
-    for (const reason of rejected) expect(String(reason)).toContain(STS_FAILURE);
-    expect(result).toEqual({ ok: { success: false, message: expect.stringContaining(STS_FAILURE) } });
+    expect(await validateDataSourceConfig(dataSource)).toEqual({ success: false, message: expect.stringContaining(STS_FAILURE) });
   });
-});
 
-describe("B12 harness (withPreHandledRejections)", () => {
-  test("promises created by compiled async code during the call are seen and their rejections recorded; Promise is restored", async () => {
-    const NativePromise = global.Promise;
-    const failure = new Error("harness-failure");
-    const unawaited = async () => {
-      throw failure;
-    };
-    const { result, rejected, constructed } = await withPreHandledRejections(async () => {
-      void unawaited(); // never awaited: would be an unhandled rejection without the harness
-      return "done";
-    });
-    expect(result).toBe("done");
-    expect(constructed).toBeGreaterThan(0);
-    expect(rejected).toContain(failure);
-    expect(global.Promise).toBe(NativePromise);
+  test("a second account with a failing key validates as failure after a first account was cached", async () => {
+    const { validateDataSourceConfig } = load();
+    expect(await validateDataSourceConfig(dataSource)).toEqual({ success: true });
+    mockOss.assumeRole.mockRejectedValue(new Error(STS_FAILURE));
+    const second = { ...dataSource, accessKeyId: "LTAI-second", accessKeySecret: "secret-second" };
+    expect(await validateDataSourceConfig(second)).toEqual({ success: false, message: expect.stringContaining(STS_FAILURE) });
+  });
+
+  test("the plugin's validateDataSourceConfig reports the failure", async () => {
+    const { plugin } = load();
+    mockOss.assumeRole.mockRejectedValue(new Error(STS_FAILURE));
+    expect(await plugin.validateDataSourceConfig(dataSource)).toEqual({ success: false, message: expect.stringContaining(STS_FAILURE) });
   });
 });

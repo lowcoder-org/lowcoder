@@ -55,6 +55,7 @@ jest.mock("@google-cloud/storage", () => ({
 
 const STATUS_BAD_REQUEST = 400;
 const STATUS_NOT_FOUND = 404;
+const STATUS_FORBIDDEN = 403;
 const BUCKET = "my-bucket";
 const NOW_MS = 1_700_000_000_000;
 const SIGNED_URL_TTL_MS = 5 * 60 * 1000;
@@ -243,7 +244,7 @@ describe("plugin (index.ts)", () => {
     await expect(plugin.run(act({ actionName: "listBuckets" }), dataSource, { languages: ["en"] })).rejects.toBe(failure);
   });
 
-  test.failing("B17: a GCS service error becomes a 400 ServiceError, as in the s3 plugin", async () => {
+  test("B17: a GCS service error becomes a 400 ServiceError, as in the s3 plugin", async () => {
     mockGcs.getFiles.mockRejectedValue(new ApiError({ code: STATUS_NOT_FOUND, message: "No such bucket" } as any));
     const err = await plugin
       .run(act({ actionName: "listObjects", bucket: BUCKET }), dataSource, { languages: ["en"] })
@@ -251,5 +252,21 @@ describe("plugin (index.ts)", () => {
     expect(err).toBeInstanceOf(ServiceError);
     expect(err.code).toBe(STATUS_BAD_REQUEST);
     expect(err.message).toBe("No such bucket");
+  });
+
+  test("a 403 ApiError on listBuckets is also a 400 with the GCS message", async () => {
+    mockGcs.getBuckets.mockRejectedValue(new ApiError({ code: STATUS_FORBIDDEN, message: "Forbidden" } as any));
+    const err = await plugin.run(act({ actionName: "listBuckets" }), dataSource, { languages: ["en"] }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ServiceError);
+    expect(err.code).toBe(STATUS_BAD_REQUEST);
+    expect(err.message).toBe("Forbidden");
+  });
+
+  test("an ApiError built from a plain message is a 400 with that message", async () => {
+    mockGcs.getBuckets.mockRejectedValue(new ApiError("quota exceeded"));
+    const err = await plugin.run(act({ actionName: "listBuckets" }), dataSource, { languages: ["en"] }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ServiceError);
+    expect(err.code).toBe(STATUS_BAD_REQUEST);
+    expect(err.message).toBe("quota exceeded");
   });
 });
