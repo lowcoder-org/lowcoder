@@ -7,6 +7,14 @@ import { TAGS } from "../constants";
  */
 export const SECURITY_ID_PATTERN = /^SEC-[CRAEX]\d{2}[a-z]?\+?$/;
 
+/**
+ * Pattern of a lifecycle scenario id `LC-<area><nn>`: `AU` sign-up, sign-in, session; `PR` profile and password; `AK` API
+ * keys; `WM` workspace members and workspaces; `GR` groups; `SH` sharing; `PW` password recovery and invitation mail; `DL`
+ * leave, removal, deletion; `IP` identity providers; `OT` other. An optional letter marks one test of a group and an
+ * optional `+` a positive control. A phase that needs a new area adds it here.
+ */
+export const LIFECYCLE_ID_PATTERN = /^LC-(?:AU|PR|AK|WM|GR|SH|PW|DL|IP|OT)\d{2}[a-z]?\+?$/;
+
 /** The defect-list entry that a quarantine entry names (`D-n`, see the table "Security findings" in `e2e/README.md`). */
 export const DEFECT_ID_PATTERN = /^D-\d+$/;
 
@@ -136,3 +144,60 @@ export function securityCandidateDetails(id: string, measured: string, extraTags
     annotation: { type: DEFECT_ANNOTATION_TYPE, description: `${id} candidate: ${measured}` },
   };
 }
+
+/** The two detail functions of the lifecycle tests, bound to one scenario-id-to-defect lookup. */
+export interface LifecycleDetails {
+  testDetails(id: string, extraTags?: readonly string[]): SecurityTestDetails;
+  candidateDetails(id: string, measured: string, extraTags?: readonly string[]): SecurityTestDetails;
+}
+
+/**
+ * The detail functions of the lifecycle tests (`LC-` ids, base tag `@lifecycle`), with the contract of
+ * `securityTestDetails` and `securityCandidateDetails`. `defectOf` is the lookup from scenario id to defect id; the default
+ * is `quarantinedDefect`, so the two maps stay the single source of the quarantine.
+ *
+ * Limits: an LC test that fails on the image and is in neither map fails the default run; a stale entry hides a passing
+ * test (as for the security ids). A lookup passed by a caller is not checked against the maps: it exists for the unit test
+ * only, production code uses `lifecycleTestDetails` and `lifecycleCandidateDetails`.
+ */
+export function lifecycleDetailsFor(defectOf: (id: string) => string | undefined = quarantinedDefect): LifecycleDetails {
+  const refuseBadId = (id: string): void => {
+    if (!LIFECYCLE_ID_PATTERN.test(id)) {
+      throw new Error(`"${id}" is not a lifecycle scenario id (pattern ${LIFECYCLE_ID_PATTERN})`);
+    }
+  };
+  return {
+    testDetails(id, extraTags = []) {
+      refuseBadId(id);
+      const defect = defectOf(id);
+      if (defect === undefined) {
+        return { tag: [TAGS.LIFECYCLE, ...extraTags] };
+      }
+      return {
+        tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE, ...extraTags],
+        annotation: { type: DEFECT_ANNOTATION_TYPE, description: defect },
+      };
+    },
+    candidateDetails(id, measured, extraTags = []) {
+      refuseBadId(id);
+      if (defectOf(id) !== undefined) {
+        throw new Error(`${id} is in a quarantine map; use lifecycleTestDetails`);
+      }
+      if (measured.trim() === "") {
+        throw new Error(`${id}: a candidate names what was measured`);
+      }
+      return {
+        tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE, ...extraTags],
+        annotation: { type: DEFECT_ANNOTATION_TYPE, description: `${id} candidate: ${measured}` },
+      };
+    },
+  };
+}
+
+const lifecycleDetails = lifecycleDetailsFor();
+
+/** The details of a lifecycle test: `test(title, lifecycleTestDetails("LC-AU01"), body)`. */
+export const lifecycleTestDetails = lifecycleDetails.testDetails;
+
+/** The details of a lifecycle test that failed on the image for a behaviour no defect-list entry names yet ("<id> candidate"). */
+export const lifecycleCandidateDetails = lifecycleDetails.candidateDetails;
