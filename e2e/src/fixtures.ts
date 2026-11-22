@@ -195,6 +195,15 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
           }
           return (await response.json()) as EchoRecord[];
         },
+        answer: async (subPath, canned) => {
+          const response = await fetch(`${baseURL}${ECHO_PATHS.ANSWERS}`, {
+            method: "POST",
+            body: JSON.stringify({ prefix: `${path}${subPath}`, status: canned.status, contentType: canned.contentType ?? "application/json", body: canned.body }),
+          });
+          if (response.status !== 204) {
+            throw new Error(`the echo sidecar refused the canned answer of ${subPath} with ${response.status}`);
+          }
+        },
       });
     } finally {
       await reader?.dispose();

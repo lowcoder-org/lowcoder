@@ -75,4 +75,17 @@ export interface EchoTarget {
   path: string;
   /** The records that arrived below this target's path, oldest first. Reads the sidecar; opens its request context on first use. */
   received: () => Promise<EchoRecord[]>;
+  /**
+   * Makes the sidecar answer requests below `<path><subPath>` with a canned answer (status, content type, body) instead of `{}`; the
+   * requests are still recorded. The latest answer of a sub-path replaces the earlier one. Reads with Node's `fetch`, not a request
+   * context (a canned answer may hold a token).
+   */
+  answer: (subPath: string, canned: CannedAnswer) => Promise<void>;
+}
+
+/** What the echo sidecar answers to a request below a target's sub-path (`POST /__e2e/answers`). */
+export interface CannedAnswer {
+  status: number;
+  body: string;
+  contentType?: string;
 }
