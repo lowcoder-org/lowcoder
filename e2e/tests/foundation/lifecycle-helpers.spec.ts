@@ -1,4 +1,4 @@
-import { apiRaw, createOrganization, currentUser, deleteProfilePhoto, leaveOrganization, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
+import { apiRaw, createOrganization, currentUser, deleteOrganizationRaw, deleteProfilePhoto, leaveOrganization, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
 import { API_ERRORS, API_OK, API_PATHS, SESSION_COOKIE_NAME, SET_COOKIE_HEADER, TEST_PASSWORD } from "../../src/constants";
 import { randomPng } from "../../src/media";
 import { createInvitation, acceptInvitation } from "../../src/api/client";
@@ -76,5 +76,16 @@ test.describe("lifecycle account helpers", () => {
     expect(png.readUInt32BE(20), "IHDR height").toBe(30);
     expect(png.length, "about 3 bytes a pixel plus the row filter bytes").toBeGreaterThan(40 * 30 * 3);
     expect(png.subarray(-8, -4).toString("ascii"), "ends with IEND").toBe("IEND");
+  });
+
+  test("deleteOrganizationRaw answers the deletion of a workspace the caller administers without a throw and the workspace leaves the list", async ({ actor }) => {
+    const owner = await actor("rawdelete");
+    const orgId = await createOrganization(owner.request, "raw-delete-org");
+    expect((await currentUser(owner.request)).orgAndRoles.map((entry) => entry.org.id), "setup: the workspace exists").toContain(orgId);
+
+    const deleted = await deleteOrganizationRaw(owner.request, orgId);
+
+    expect({ status: deleted.status, code: deleted.code }, "the deletion").toEqual({ status: 200, code: API_OK });
+    await expect.poll(async () => (await currentUser(owner.request)).orgAndRoles.map((entry) => entry.org.id)).not.toContain(orgId);
   });
 });

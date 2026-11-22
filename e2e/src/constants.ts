@@ -684,6 +684,13 @@ export const RESET_TOKEN_MESSAGES = {
   EXPIRED: "Token to reset the password has expired",
 } as const;
 
+/**
+ * How long a test polls for the clean-up a removal, a leave or a workspace deletion starts (a listener on its own scheduler,
+ * `OrganizationEventListener` [3.0.0]). Measured on the image: the rows of the user's groups and apps, and the memberships of a
+ * deleted workspace, were gone within 40 ms; the bound leaves room for a loaded runner.
+ */
+export const MEMBERSHIP_CLEANUP_TIMEOUT_MS = 10_000;
+
 /** The password a scenario changes to (meets the password rules like TEST_PASSWORD, differs from it). */
 export const CHANGED_PASSWORD = "Passw0rd-e2e-changed";
 
