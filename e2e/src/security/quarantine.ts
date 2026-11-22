@@ -91,6 +91,8 @@ export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-X01c": "D-35",
   "LC-AU07": "D-48",
   "LC-AU15": "D-30",
+  "LC-GR03": "D-53",
+  "LC-GR09": "D-52",
   "LC-PR06": "D-50",
   "LC-PR13": "D-49",
   "LC-PR14": "D-48",

@@ -1,8 +1,9 @@
-import { currentUser } from "../../src/api/client";
+import { createGroup, currentUser, listGroupMembers, listGroups } from "../../src/api/client";
 import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
 import { issuedAtSecond } from "../../src/security/tokens";
+import { GroupsPage } from "../../src/pages/GroupsPage";
 import { SettingPage } from "../../src/pages/SettingPage";
 import { joinWorkspace } from "../../src/security/actors";
 import { WorkspacesPage } from "../../src/pages/WorkspacesPage";
@@ -99,5 +100,27 @@ test.describe("lifecycle page objects", () => {
     await settings.memberRow(member.email).hover();
 
     await expect(settings.operationsOf(member.email)).toContainText("Remove from Group");
+  });
+
+  test("GroupsPage lists, renames, adds a member to and deletes a group", async ({ actor }) => {
+    const admin = await actor("pggroups");
+    const member = await actor("pggroupm");
+    await joinWorkspace(admin, member);
+    const groupId = await createGroup(admin.request, "pg-team");
+    const groups = new GroupsPage(admin.session.page);
+    await groups.open();
+    await expect(groups.row("pg-team")).toBeVisible();
+
+    await groups.rename("pg-team", "pg-team-2");
+    await expect(groups.row("pg-team-2")).toBeVisible();
+    await groups.manage("pg-team-2");
+    await expect(groups.memberRow(admin.email)).toBeVisible();
+    await groups.addMembers([member.email]);
+    await expect.poll(async () => (await listGroupMembers(admin.request, groupId)).length, "the member is added").toBe(2);
+    await groups.open();
+    await groups.deleteGroup("pg-team-2");
+
+    await expect(groups.row("pg-team-2")).toHaveCount(0);
+    expect((await listGroups(admin.request)).some((group) => group.groupId === groupId)).toBe(false);
   });
 });
