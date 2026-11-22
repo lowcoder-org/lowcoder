@@ -108,13 +108,16 @@ export async function runOpenApi(
   const isOas3Spec = isOas3(definition);
   if (serverURL) {
     if (isOas3Spec) {
-      replaceServersUrl(definition as OpenAPIV3.Document, serverURL);
+      definition = replaceServersUrl(definition as OpenAPIV3.Document, serverURL);
     } else {
       const swaggerDoc = definition as OpenAPIV2.Document;
       const { host, pathname, schema } = parseUrl(serverURL);
-      swaggerDoc.host = host || swaggerDoc.host;
-      swaggerDoc.basePath = pathname || swaggerDoc.basePath;
-      swaggerDoc.schemes = [schema];
+      definition = {
+        ...swaggerDoc,
+        host: host || swaggerDoc.host,
+        basePath: pathname || swaggerDoc.basePath,
+        schemes: [schema],
+      };
     }
   }
 

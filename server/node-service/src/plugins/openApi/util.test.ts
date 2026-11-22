@@ -573,15 +573,19 @@ describe("replaceServersUrl", () => {
   test("root servers are replaced; a server with no url is left alone", () => {
     const noUrl = { description: "no url" };
     const doc: any = oas3Doc({ servers: [{ url: OLD_URL, description: "d" }, noUrl] });
-    replaceServersUrl(doc, NEW_URL);
-    expect(doc.servers).toEqual([{ url: NEW_URL, description: "d" }, { description: "no url" }]);
-    expect(doc.servers[1]).not.toHaveProperty("url");
+    const before = structuredClone(doc);
+    const out: any = replaceServersUrl(doc, NEW_URL);
+    expect(out.servers).toEqual([{ url: NEW_URL, description: "d" }, { description: "no url" }]);
+    expect(out.servers[1]).not.toHaveProperty("url");
+    expect(doc).toEqual(before);
   });
 
   test("missing root servers get created", () => {
     const doc: any = oas3Doc();
-    replaceServersUrl(doc, NEW_URL);
-    expect(doc.servers).toEqual([{ url: NEW_URL }]);
+    const before = structuredClone(doc);
+    const out: any = replaceServersUrl(doc, NEW_URL);
+    expect(out.servers).toEqual([{ url: NEW_URL }]);
+    expect(doc).toEqual(before);
   });
 
   test("path-level and operation-level servers are replaced; a null path item is skipped", () => {
@@ -596,12 +600,28 @@ describe("replaceServersUrl", () => {
         },
       },
     });
-    replaceServersUrl(doc, NEW_URL);
-    expect(doc.paths["/null"]).toBeNull();
-    expect(doc.paths["/a"].servers).toEqual([{ url: NEW_URL }]);
-    expect(doc.paths["/a"].get.servers).toEqual([{ url: NEW_URL }]);
-    expect(doc.paths["/a"].post).toEqual({});
-    expect(doc.paths["/a"]["x-foo"].servers).toEqual([{ url: OLD_URL }]);
+    const before = structuredClone(doc);
+    const out: any = replaceServersUrl(doc, NEW_URL);
+    expect(out.paths["/null"]).toBeNull();
+    expect(out.paths["/a"].servers).toEqual([{ url: NEW_URL }]);
+    expect(out.paths["/a"].get.servers).toEqual([{ url: NEW_URL }]);
+    expect(out.paths["/a"].post).toEqual({});
+    expect(out.paths["/a"]["x-foo"].servers).toEqual([{ url: OLD_URL }]);
+    expect(doc).toEqual(before);
+  });
+
+  test("untouched parts are shared, not copied", () => {
+    const doc: any = oas3Doc({
+      paths: {
+        "/a": { get: { operationId: "a" } },
+        "/b": { servers: [{ url: OLD_URL }], get: { operationId: "b" } },
+      },
+    });
+    const out: any = replaceServersUrl(doc, NEW_URL);
+    expect(out.paths["/a"]).toBe(doc.paths["/a"]);
+    expect(out.paths["/b"]).not.toBe(doc.paths["/b"]);
+    expect(out.paths["/b"].get).toBe(doc.paths["/b"].get);
+    expect(out.paths["/b"].servers).toEqual([{ url: NEW_URL }]);
   });
 });
 
