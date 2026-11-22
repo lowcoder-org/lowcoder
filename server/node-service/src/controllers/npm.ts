@@ -29,6 +29,29 @@ type PackagesVersionInfo = {
 };
 
 
+const INVALID_WORKSPACE_MESSAGE = "Invalid workspaceId";
+const INVALID_UPSTREAM_VERSION_MESSAGE = "Invalid latest version from registry";
+const DOT_DOT_SEGMENT = /^(\.|%2e){2}$/i;
+const MISSING_REGISTRIES_MESSAGE = "Missing or invalid npmRegistries: expected an array";
+
+function hasRegistryArray(body: {npmRegistries?: unknown}): boolean {
+    return Array.isArray(body.npmRegistries);
+}
+
+function isSafePathSegment(value: unknown): value is string {
+    return typeof value === "string" && value !== "" && value !== "." && value !== ".." && !/[\/\\\0]/.test(value);
+}
+
+// Only real HTTP error statuses (4xx and 5xx) are passed through; anything else keeps the generic 500.
+const UPSTREAM_ERROR_MIN_STATUS = 400;
+const UPSTREAM_ERROR_MAX_STATUS = 599;
+
+class UpstreamResponseError extends Error {
+    constructor(public readonly status: number, public readonly body: string) {
+        super(`Upstream responded ${status}`);
+    }
+}
+
 class PackageProcessingQueue {
     public static readonly promiseRegistry: {[packageId: string]: Promise<void>} = {};
     public static readonly resolveRegistry: {[packageId: string]:() => void} = {};
@@ -88,8 +111,8 @@ export async function fetchRegistryWithConfig(request: ServerRequest, response: 
             return response.status(400).send(`Invalid package path: ${path}`);
         }
 
-        if (!request.body.workspaceId && !request.body.npmRegistryConfig) {
-            return response.status(400).send("Missing workspaceId and/or npmRegistryConfig");
+        if (!hasRegistryArray(request.body)) {
+            return response.status(400).send(MISSING_REGISTRIES_MESSAGE);
         }
     
         const {npmRegistries: npmRegistryConfig}: RequestConfig = request.body;
@@ -145,15 +168,25 @@ export async function fetchPackageFileWithConfig(request: ServerRequest, respons
         return response.status(400).send(`Invalid package path: ${path}`);
     }
     
-    if (!request.body.workspaceId && !request.body.npmRegistryConfig) {
-        return response.status(400).send("Missing workspaceId and/or npmRegistryConfig");
+    if (!hasRegistryArray(request.body)) {
+        return response.status(400).send(MISSING_REGISTRIES_MESSAGE);
+    }
+
+    if (request.body.workspaceId !== undefined && !isSafePathSegment(request.body.workspaceId)) {
+        return response.status(400).send(INVALID_WORKSPACE_MESSAGE);
     }
 
     const {workspaceId, npmRegistries: npmRegistryConfig}: RequestConfig = request.body;
     const registryConfig: NpmRegistryConfig = npmRegistryConfig;
-    const registry = NpmRegistryService.getRegistryEntryForPackageWithConfig(pathPackageInfo.packageId, registryConfig);
+    let registry: NpmRegistryConfigEntry;
+    try {
+        registry = NpmRegistryService.getRegistryEntryForPackageWithConfig(pathPackageInfo.packageId, registryConfig);
+    } catch (error) {
+        logger.error("Error resolving npm registry", error);
+        return response.status(500).send("Internal server error");
+    }
 
-    fetchPackageFileInner(request, response, {workspaceId, registry});
+    return fetchPackageFileInner(request, response, {workspaceId, registry});
 }
 
 export async function fetchPackageFile(request: ServerRequest, response: ServerResponse) {
@@ -166,7 +199,7 @@ export async function fetchPackageFile(request: ServerRequest, response: ServerR
     }
 
     const registry = NpmRegistryService.getInstance().getRegistryEntryForPackage(pathPackageInfo.packageId);
-    fetchPackageFileInner(request, response, {registry});
+    return fetchPackageFileInner(request, response, {registry});
 }
 
 async function fetchPackageFileInner(request: ServerRequest, response: ServerResponse, config: InnerRequestConfig) {
@@ -185,47 +218,55 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
     
         let packageInfo: PackagesVersionInfo | null = null;
         if (version === "latest") {
-            const packageInfo: PackagesVersionInfo|null = await fetchPackageInfo(packageId, registry);
+            packageInfo = await fetchPackageInfo(packageId, registry);
             if (packageInfo === null) {
                 return response.status(404).send("Not found");
             }
             packageVersion = packageInfo["dist-tags"].latest;
+            if (!isSafePathSegment(packageVersion)) {
+                return response.status(502).send(INVALID_UPSTREAM_VERSION_MESSAGE);
+            }
         }
 
-        // Wait for package to be processed if it's already being processed
-        if (PackageProcessingQueue.has(packageId)) {
-            logger.info("Waiting for package to be processed", packageId);
-            await PackageProcessingQueue.wait(packageId);
-        }
-    
         const baseDir = `${CACHE_DIR}/${workspaceId ?? "default"}`;
         const packageBaseDir = `${baseDir}/${packageId}/${packageVersion}/package`;
-        const packageExists = await fileExists(`${packageBaseDir}/package.json`)
-        if (!packageExists) {
-            try {
-                logger.info(`Package does not exist, fetch from registy: ${packageId}@${packageVersion}`);
-                PackageProcessingQueue.add(packageId);
-                if (!packageInfo) {
-                    packageInfo = await fetchPackageInfo(packageId, registry);
-                }
-                
-                if (!packageInfo || !packageInfo.versions || !packageInfo.versions[packageVersion]) {
-                    return response.status(404).send("Not found");
-                }
-                
-                const tarball = packageInfo.versions[packageVersion].dist.tarball;
-                logger.info(`Fetching tarball: ${tarball}`);
-                await fetchAndUnpackTarball(tarball, packageId, packageVersion, registry, baseDir);
-            } catch (error) {
-                logger.error(`Error fetching package: ${error} ${(error as any)?.stack}`);
-                return response.status(500).send("Internal server error");
-            } finally {
-                PackageProcessingQueue.resolve(packageId);
-            }
-        } else {
-            logger.info(`Package already exists, serve from cache: ${packageBaseDir}/${file}`)
+        const processingKey = packageBaseDir; // one entry per workspace, package and version
+        while (PackageProcessingQueue.has(processingKey)) {
+            logger.info("Waiting for package to be processed", packageId);
+            await PackageProcessingQueue.wait(processingKey);
         }
-  
+        // No await between the last has() above and add() below: check and registration happen in one event-loop turn.
+        PackageProcessingQueue.add(processingKey);
+        try {
+            const packageExists = await fileExists(`${packageBaseDir}/package.json`);
+            if (!packageExists) {
+                try {
+                    logger.info(`Package does not exist, fetch from registy: ${packageId}@${packageVersion}`);
+                    if (!packageInfo) {
+                        packageInfo = await fetchPackageInfo(packageId, registry);
+                    }
+
+                    if (!packageInfo || !packageInfo.versions || !packageInfo.versions[packageVersion]) {
+                        return response.status(404).send("Not found");
+                    }
+
+                    const tarball = packageInfo.versions[packageVersion].dist.tarball;
+                    logger.info(`Fetching tarball: ${tarball}`);
+                    await fetchAndUnpackTarball(tarball, packageId, packageVersion, registry, baseDir);
+                } catch (error) {
+                    logger.error(`Error fetching package: ${error} ${(error as any)?.stack}`);
+                    if (error instanceof UpstreamResponseError && error.status >= UPSTREAM_ERROR_MIN_STATUS && error.status <= UPSTREAM_ERROR_MAX_STATUS) {
+                        return response.status(error.status).send(error.body);
+                    }
+                    return response.status(500).send("Internal server error");
+                }
+            } else {
+                logger.info(`Package already exists, serve from cache: ${packageBaseDir}/${file}`)
+            }
+        } finally {
+            PackageProcessingQueue.resolve(processingKey);
+        }
+
         // Fallback to index.mjs if index.js is not present
         if (file === "index.js" && !await fileExists(`${packageBaseDir}/${file}`)) {
             logger.debug("Fallback to index.mjs");
@@ -253,6 +294,9 @@ function parsePackageInfoFromPath(path: string): {packageId: string, organizatio
     }
 
     let {packageId, organization, name, version, file} = matches.groups;
+    if (file !== undefined && file.split(/[\/\\]/).some((segment) => DOT_DOT_SEGMENT.test(segment))) {
+        return;
+    }
     // also test for alpha and beta versions like 0.0.1-beta1
     version = /^\d+\.\d+\.\d+(-[\w\d]+)?/.test(version) ? version : "latest";
     
@@ -296,27 +340,30 @@ function fetchPackageInfo(packageName: string, config: NpmRegistryConfigEntry): 
 }
 
 async function fetchAndUnpackTarball(url: string, packageId: string, packageVersion: string, config: NpmRegistryConfigEntry, baseDir: string) {
+    // Fetch tarball
+    const response: Response = await fetchFromRegistry(url, config);
+    if (!response.ok) {
+        throw new UpstreamResponseError(response.status, await response.text());
+    }
     if (!await fileExists(baseDir)) {
         await fs.mkdir(baseDir, { recursive: true });
     }
-    
-    // Fetch tarball
-    const response: Response = await fetchFromRegistry(url, config);
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const path = `${baseDir}/${url.split("/").pop()}`;
     await fs.writeFile(path, buffer);
-    
-    // Unpack tarball
-    const destinationPath = `${baseDir}/${packageId}/${packageVersion}`;
-    await fs.mkdir(destinationPath, { recursive: true });
-    await new Promise<void> ((resolve, reject) => {
-        const tar = spawn("tar", ["-xvf", path, "-C", destinationPath]);
-        tar.on("close", (code) => code === 0 ? resolve() : reject());
-    });
 
-    // Cleanup
-    await fs.unlink(path);
+    // Unpack tarball, and remove the .tgz whether or not tar succeeds
+    try {
+        const destinationPath = `${baseDir}/${packageId}/${packageVersion}`;
+        await fs.mkdir(destinationPath, { recursive: true });
+        await new Promise<void> ((resolve, reject) => {
+            const tar = spawn("tar", ["-xvf", path, "-C", destinationPath]);
+            tar.on("close", (code) => code === 0 ? resolve() : reject());
+        });
+    } finally {
+        await fs.rm(path, { force: true });
+    }
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
