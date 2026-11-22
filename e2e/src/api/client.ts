@@ -42,6 +42,7 @@ import {
   restorePath,
   snapshotsPath,
   orgLeavePath,
+  orgPath,
   switchOrgPath,
   TEST_PASSWORD,
   apiKeyPath,
@@ -839,6 +840,11 @@ export async function sendInvitationEmails(request: APIRequestContext, orgId: st
 /** `DELETE /api/organizations/{id}/leave`: the caller leaves the workspace (a plain member has no UI control for it). */
 export async function leaveOrganization(request: APIRequestContext, orgId: string): Promise<void> {
   await unwrap<unknown>(`leave organisation ${orgId}`, await request.delete(orgLeavePath(orgId)));
+}
+
+/** `DELETE /api/organizations/{id}`: deletes a workspace (state DELETED; its memberships and groups go asynchronously). The call under test, so raw. */
+export async function deleteOrganizationRaw(request: APIRequestContext, orgId: string): Promise<RawAnswer> {
+  return apiRaw(request, "DELETE", orgPath(orgId));
 }
 
 /** `POST /api/organizations`: creates a workspace the caller administers (SAAS mode only); returns its id. */
