@@ -6,7 +6,11 @@ import {
   DEFECT_ID_PATTERN,
   FIXED_ON_BRANCH,
   OPEN_DEFECTS,
+  LIFECYCLE_ID_PATTERN,
   SECURITY_ID_PATTERN,
+  lifecycleCandidateDetails,
+  lifecycleDetailsFor,
+  lifecycleTestDetails,
   quarantinedDefect,
   securityCandidateDetails,
   securityTestDetails,
@@ -15,6 +19,12 @@ import {
 /** Sizes of the two maps: 20 fixed-on-branch scenarios, and 25 open ones plus SEC-E05, X01b, X01c. */
 const FIXED_ON_BRANCH_COUNT = 21;
 const OPEN_DEFECTS_COUNT = 28;
+/** Lifecycle ids: no phase lists one in a map yet, so the listed-id branches are tested through an injected lookup. */
+const LC_UNLISTED_ID = "LC-AU01";
+const LC_INJECTED_ID = "LC-AK98";
+const INJECTED_DEFECTS: Readonly<Record<string, string>> = { [LC_INJECTED_ID]: "D-45" };
+const LC_AREAS = ["AU", "PR", "AK", "WM", "GR", "SH", "PW", "DL", "IP", "OT"];
+const injected = lifecycleDetailsFor((id) => INJECTED_DEFECTS[id]);
 /** A scenario id that is in neither map (a scenario that passes on the image). */
 const PASSING_ID = "SEC-C01a";
 const FIXED_ID = "SEC-C13";
@@ -58,7 +68,7 @@ test.describe("security quarantine list", () => {
   test("every value is a defect id and every key a scenario id", () => {
     for (const [name, map] of [["FIXED_ON_BRANCH", FIXED_ON_BRANCH], ["OPEN_DEFECTS", OPEN_DEFECTS]] as const) {
       for (const [id, defect] of Object.entries(map)) {
-        expect(id, `${name} key`).toMatch(SECURITY_ID_PATTERN);
+        expect(LIFECYCLE_ID_PATTERN.test(id) || SECURITY_ID_PATTERN.test(id), `${name} key ${id} is a scenario id`).toBe(true);
         expect(defect, `${name} value of ${id}`).toMatch(DEFECT_ID_PATTERN);
       }
     }
@@ -99,5 +109,61 @@ test.describe("security quarantine list", () => {
     expect(() => securityCandidateDetails("bad", "x")).toThrow(/is not a security scenario id/);
     expect(() => securityCandidateDetails(FIXED_ID, "x"), "an id of a map").toThrow(/quarantine map/);
     expect(() => securityCandidateDetails("SEC-A98a", "  "), "no measurement").toThrow(/names what was measured/);
+  });
+
+  test("a lifecycle id the maps do not list gets the lifecycle tag only and no annotation", () => {
+    const details = lifecycleTestDetails(LC_UNLISTED_ID);
+
+    expect(details.tag).toEqual([TAGS.LIFECYCLE]);
+    expect(details, "no annotation key at all").not.toHaveProperty("annotation");
+  });
+
+  test("a lifecycle id the lookup lists gets the lifecycle and quarantine tags and the defect annotation", () => {
+    expect(injected.testDetails(LC_INJECTED_ID)).toEqual({
+      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
+      annotation: { type: DEFECT_ANNOTATION_TYPE, description: "D-45" },
+    });
+    expect(lifecycleTestDetails(LC_INJECTED_ID).tag, "the maps, not the injected lookup, decide in production").toEqual([TAGS.LIFECYCLE]);
+  });
+
+  test("lifecycle extra tags are appended after the base and quarantine tags", () => {
+    expect(lifecycleTestDetails(LC_UNLISTED_ID, [TAGS.SLOW]).tag).toEqual([TAGS.LIFECYCLE, TAGS.SLOW]);
+    expect(injected.testDetails(LC_INJECTED_ID, [TAGS.SLOW]).tag).toEqual([TAGS.LIFECYCLE, TAGS.QUARANTINE, TAGS.SLOW]);
+  });
+
+  test("the default run leaves a quarantined lifecycle test out and the include-quarantine flag brings it back", () => {
+    const defaultRun = grepInvertFor(runFlagsFromEnv({}));
+    const withQuarantine = grepInvertFor(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_QUARANTINE]: "1" }));
+    const quarantined = titleWithTags(LC_INJECTED_ID, injected.testDetails(LC_INJECTED_ID).tag);
+    const candidate = titleWithTags("LC-AK98", lifecycleCandidateDetails("LC-AK98", "x").tag);
+    const passing = titleWithTags(LC_UNLISTED_ID, lifecycleTestDetails(LC_UNLISTED_ID).tag);
+
+    expect(quarantined, "a listed test is out of the default run").toMatch(defaultRun!);
+    expect(candidate, "a candidate is out of the default run").toMatch(defaultRun!);
+    expect(passing, "a passing lifecycle test stays in").not.toMatch(defaultRun!);
+    expect(quarantined, "in again with the flag").not.toMatch(withQuarantine!);
+    expect(candidate, "a candidate in again with the flag").not.toMatch(withQuarantine!);
+  });
+
+  test("an id that is not a lifecycle id is refused, and every area is accepted", () => {
+    for (const bad of ["LC-ZZ01", "LC-AU1", "LC-AU001", "lc-au01", "LC-AU01 ", "", "SEC-C13"]) {
+      expect(() => lifecycleTestDetails(bad), `"${bad}"`).toThrow(/is not a lifecycle scenario id/);
+    }
+    expect(() => securityTestDetails("LC-AU01"), "a security function refuses an LC id").toThrow(/is not a security scenario id/);
+    for (const area of LC_AREAS) {
+      expect(() => lifecycleTestDetails(`LC-${area}01`), area).not.toThrow();
+    }
+    expect(() => lifecycleTestDetails("LC-AU02b+")).not.toThrow();
+  });
+
+  test("lifecycleCandidateDetails quarantines with '<id> candidate: <measured>' and refuses misuse", () => {
+    expect(lifecycleCandidateDetails("LC-AK98", "key kept after delete")).toEqual({
+      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
+      annotation: { type: DEFECT_ANNOTATION_TYPE, description: "LC-AK98 candidate: key kept after delete" },
+    });
+    expect(lifecycleCandidateDetails("LC-AK98", "x", [TAGS.SLOW]).tag, "extra tags last").toEqual([TAGS.LIFECYCLE, TAGS.QUARANTINE, TAGS.SLOW]);
+    expect(() => lifecycleCandidateDetails("bad", "x")).toThrow(/is not a lifecycle scenario id/);
+    expect(() => injected.candidateDetails(LC_INJECTED_ID, "x"), "a listed id").toThrow(/quarantine map/);
+    expect(() => lifecycleCandidateDetails("LC-AK98", "  "), "no measurement").toThrow(/names what was measured/);
   });
 });

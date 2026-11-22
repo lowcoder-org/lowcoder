@@ -147,6 +147,7 @@ Tags (`TAGS` in `src/constants.ts`):
 | `@quarantine` | asserts the desired behaviour of a known product defect and fails today | no, `E2E_INCLUDE_QUARANTINE=1` |
 | `@insert-all` | S1: insert, save, publish and load each of the 112 types | no, `E2E_INCLUDE_INSERT_ALL=1` |
 | `@security` | access-control tests of `tests/security/` | yes (except the rows that also carry an opt-in tag) |
+| `@lifecycle` | user-lifecycle tests, ids `LC-<area><nn>` (areas `AU PR AK WM GR SH PW DL IP OT`; `src/security/quarantine.ts`) | yes (quarantined ones excluded like `@security`) |
 | `@enterprise` | the second stack in ENTERPRISE workspace mode (SEC-E01 to SEC-E06b, `tests/security/enterprise*.spec.ts`); SEC-E05 also carries `@quarantine`, `@enterprise-takeover` and `@superadmin` | no, never on the default stack; the only ones with `E2E_STACK_PROFILE=enterprise` (SEC-E05 aside) |
 | `@enterprise-takeover` | SEC-E05 only: it resets the super admin's password, so it never shares a stack with another test | no, never on the default stack; on the enterprise profile only with `E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (plus `E2E_INCLUDE_QUARANTINE=1`), and then it is the ONLY test of the run |
 | `@superadmin` | every test that uses the `superAdmin` fixture: SEC-R16a to SEC-R16d and the fixture test of `foundation/security-helpers.spec.ts` (D-47: they break a stack of more than about 420 workspaces); a guard test in `foundation/run-selection.spec.ts` fails when a spec has a test with that fixture and without the tag | no, `E2E_INCLUDE_SUPERADMIN=1` |
@@ -215,6 +216,8 @@ e2e/
 
 Test titles carry these ids.
 
+- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids; none built yet, only the harness in `foundation/security-quarantine.spec.ts`).
+
 - S1 insert, save, publish, load every one of the 112 types (`@insert-all`; catalog unit tests in `insert-catalog.spec.ts`).
 - S2 text inputs; S3 choice components; S4 date and time; S5 sliders and colour picker; S6 buttons and menus; S7 display components.
 - S8 containers and slots; S9 overlays (modal, drawer, toast, tour); S10 forms; S11 file, signature, rich text, custom.
@@ -227,11 +230,11 @@ Test titles carry these ids.
 ## Test catalogue
 
 Counts: `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`:
-default **438 tests in 76 files**; with `E2E_INCLUDE_QUARANTINE=1` **486 in 78**; with `E2E_INCLUDE_SUPERADMIN=1` **441 in 76**; with both of those **491 in 78**;
-with `E2E_INCLUDE_INSERT_ALL=1` **550 in 77**; with all three opt-in variables **603 in 79** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **467 tests in 79 files**; with `E2E_INCLUDE_QUARANTINE=1` **518 in 81**; with `E2E_INCLUDE_SUPERADMIN=1` **470 in 79**; with both of those **523 in 81**;
+with `E2E_INCLUDE_INSERT_ALL=1` **579 in 80**; with all three opt-in variables **635 in 82** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **6 in 1** (SEC-E01 to E04, E06a, E06b; also with `E2E_INCLUDE_QUARANTINE=1` alone), **1 in 1** with `E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (SEC-E05 alone), **0** with the takeover variable alone (SEC-E05 is quarantined too); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 7 tests, none in a default-stack listing.
-Default-run tag counts: `@smoke` 5, `@core` 51, `@slow` 39, `@npm` 32, `@security` 96. On request: `@quarantine` 50 (48 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
-also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112.
+Default-run tag counts: `@smoke` 5, `@core` 51, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 50 (48 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
+also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` (user-lifecycle tests, ids `LC-<area><nn>`, in the default run; the first ones come with the lifecycle phases) 0.
 
 ### smoke (4)
 
@@ -401,7 +404,7 @@ Listing, from `e2e/` (no stack): `E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL
 
 Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order-dependent (the batched data-source check; measured 8 failures and 2 passes in 10 repeats), so a quarantine run can show it passing. Accounting of `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the @superadmin tag existed, so it included SEC-R16c and R16d; they now need `E2E_INCLUDE_SUPERADMIN=1` as well): 44 listed, 43 failed, 1 passed (SEC-R09d), 0 skipped, 0 did not run; the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (201, unit and builder tests; several touch the stack)
+### foundation (207, unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -421,7 +424,7 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | foundation/security-pages.spec.ts | the page objects `SettingPage` (settings sidebar, members rows and role selects, provider page) and `DatasourcePage` (the form's save answer) as admin, developer and plain member, and `AppViewPage.openAndAwaitQuery` (the status of the query a seeded app runs on load) | none | 4 |
 | foundation/security-echo.spec.ts | the echo sidecar (`scripts/echo-server.js` started on a loopback port: record and read back, per-target prefixes, control paths, body cut) and `src/security/echo.ts`, `n8nDatasourceBody`, `npmRegistryPath` (no stack) | none | 15 |
 | foundation/security-api-raw.spec.ts | `apiRaw` against a local server: status, code, body, params, request and response headers (no stack) | none | 7 |
-| foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails` and the two quarantine maps (no stack) | none | 9 |
+| foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 15 |
 | foundation/security-constants.spec.ts | `API_ERRORS`, roles, security path builders (no stack) | none | 6 |
 | foundation/security-tokens.spec.ts | `src/security/tokens.ts`: the HS256 signer against RFC 7515 A.1, forged, unsigned and wrongly signed tokens (no stack) | none | 8 |
 | foundation/security-assertions.spec.ts | `expectAnswer` and `expectDeniedAs` pass on a match and fail on a wrong status or code (no stack) | none | 6 |

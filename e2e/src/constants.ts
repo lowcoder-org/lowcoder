@@ -153,6 +153,8 @@ export const TAGS = {
   INSERT_ALL: "@insert-all",
   /** Access-control tests of tests/security/ (permission matrix, cross-workspace, abuse); see src/security/quarantine.ts. */
   SECURITY: "@security",
+  /** A user-lifecycle test (sign-up to deletion), ids `LC-<area><nn>`; in the default run (see src/security/quarantine.ts). */
+  LIFECYCLE: "@lifecycle",
   /**
    * The tests of the instance super admin (SEC-R16a to SEC-R16d): out of the default run and of the @security and @core
    * gate runs, in only with E2E_INCLUDE_SUPERADMIN (see src/run-selection.ts). On the 3.0.0 image the super admin is a
