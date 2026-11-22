@@ -42,6 +42,8 @@ const schemaToActionParamConfig = (
 ) => {
   const { type = "array", enum: options } = schema;
   const paramType = getOpenApiV3ParamType(type, schema.format || "", !!options);
+  // Intended: a body example counts only when truthy. A falsy example (0, false, "") falls back to the first
+  // `examples` value, then to the generated one.
   const defaultValue = example || getSchemaExample(schema);
   const shouldJsonStringify = type === "array" || type === "object";
   // add an empty option for select lists for things that aren't required

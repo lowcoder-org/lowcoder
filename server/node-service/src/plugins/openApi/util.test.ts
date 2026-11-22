@@ -633,6 +633,13 @@ describe("getSchemaType", () => {
   });
 });
 
+// parse.ts dereferences with circular:true, so a recursive schema reaches getSchemaExample as an object cycle.
+const selfReferencingSchema = () => {
+  const node: any = { type: "object", properties: {} };
+  node.properties.children = { type: "array", items: node };
+  return node;
+};
+
 describe("getSchemaExample (further cases)", () => {
   test("a $ref and a readOnly schema give undefined", () => {
     expect(getSchemaExample(REF_SCHEMA)).toBeUndefined();
@@ -653,10 +660,8 @@ describe("getSchemaExample (further cases)", () => {
     expect(getSchemaExample({ type: "string", enum: [] })).toBe("");
   });
 
-  // B29: util.ts:390-394 test default/example by truthiness. Asserts the CORRECT
-  // behaviour: the explicit default 0 must win over the example 1. Fails today (returns 1).
-  test.failing("B29: a falsy default (0) still wins over example", () => {
-    expect(getSchemaExample({ type: "integer", default: 0, example: 1 })).toBe(0);
+  test("a falsy default (0) falls through to the example (intended truthiness)", () => {
+    expect(getSchemaExample({ type: "integer", default: 0, example: 1 })).toBe(1);
   });
 
   test("a plain string gives an empty string", () => {
@@ -696,25 +701,57 @@ describe("getSchemaExample (further cases)", () => {
   test("an empty schema gives undefined", () => {
     expect(getSchemaExample({})).toBeUndefined();
   });
+
+  test("a self-referencing schema yields an empty array where the cycle closes", () => {
+    expect(getSchemaExample(selfReferencingSchema())).toEqual({ children: [] });
+  });
+
+  test("mutual recursion terminates with the closing property undefined", () => {
+    const a: any = { type: "object", properties: {} };
+    const b: any = { type: "object", properties: { a } };
+    a.properties.b = b;
+    expect(getSchemaExample(a)).toStrictEqual({ b: { a: undefined } });
+  });
+
+  test("a cycle through oneOf terminates", () => {
+    const n: any = {};
+    n.oneOf = [n];
+    expect(getSchemaExample(n)).toBeUndefined();
+  });
+
+  test("a cycle through anyOf terminates with the closing property undefined", () => {
+    const n: any = { type: "object", properties: {} };
+    n.properties.next = { anyOf: [n] };
+    expect(getSchemaExample(n)).toStrictEqual({ next: undefined });
+  });
+
+  test("a cycle through allOf terminates with the closing property undefined", () => {
+    const base: any = { type: "object", properties: { id: { type: "string" } } };
+    const n: any = { allOf: [base] };
+    base.properties.parent = n;
+    expect(getSchemaExample(n)).toStrictEqual({ id: "", parent: undefined });
+  });
+
+  test("a shared, non-recursive sub-schema is expanded at every use", () => {
+    const addr = { type: "object", properties: { city: { type: "string", example: "c" } } };
+    expect(
+      getSchemaExample({ type: "object", properties: { billing: addr, shipping: addr } } as any)
+    ).toEqual({ billing: { city: "c" }, shipping: { city: "c" } });
+  });
+
+  test("additionalProperties is not followed", () => {
+    expect(getSchemaExample({ type: "object", additionalProperties: { type: "string" } } as any)).toBeUndefined();
+    const c: any = { type: "object" };
+    c.additionalProperties = c;
+    expect(getSchemaExample(c)).toBeUndefined();
+  });
 });
 
-// parse.ts dereferences with circular:true, so a recursive schema reaches getSchemaExample as an object cycle.
-const selfReferencingSchema = () => {
-  const node: any = { type: "object", properties: {} };
-  node.properties.children = { type: "array", items: node };
-  return node;
-};
-
-// Limit of test.failing: it passes on ANY failure, so the two B19 cases below cannot by themselves prove the
-// failure is the recursive RangeError. That the failure is "RangeError: Maximum call stack size exceeded" at
-// util.ts:426 (the recursive getSchemaExample call) was observed by converting each case to a plain test in a
-// scratch copy; Correct behaviour
-// is asserted, never the buggy one.
-test.failing("B19: getSchemaExample terminates on a self-referencing schema", () => {
+test("B19: getSchemaExample terminates on a self-referencing schema", () => {
   expect(() => getSchemaExample(selfReferencingSchema())).not.toThrow();
 });
 
-test.failing("B19: parseOpenApi resolves for a spec with a self-referencing schema", async () => {
+test("B19: parseOpenApi resolves for a spec with a self-referencing schema", async () => {
   const spec = oas3Doc({
     info: { title: "t", version: "1" },
     paths: {

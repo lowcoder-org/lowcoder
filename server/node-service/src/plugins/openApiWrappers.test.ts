@@ -100,7 +100,6 @@ interface Row {
   plugin: any;
   name: string;
   specKind: SpecKind;
-  queryConfigCase: "normal" | "b19-only";
   dsConfig: Json;
   /** [label of the query config, label of its categories] */
   uiLabels?: [string, string];
@@ -307,7 +306,7 @@ const EODHD_BASE = "https://eodhd.com/api";
 // Hosts below are fictitious test hosts; they only matter where the datasource supplies the URL.
 const rows: Row[] = [
   {
-    plugin: apiTemplate, name: "apiTemplate", specKind: "static", queryConfigCase: "normal",
+    plugin: apiTemplate, name: "apiTemplate", specKind: "static",
     dsConfig: { serverURL: "https://tpl.test", "ApiKeyAuth.value": "tpl-key" },
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "apiTemplate/apiTemplate.spec.json", method: "get", path: "/v2/list-templates",
@@ -316,7 +315,7 @@ const rows: Row[] = [
     auth: [{ scheme: "ApiKeyAuth", kind: "raw", secret: "tpl-key" }],
   },
   {
-    plugin: asana, name: "asana", specKind: "versioned", queryConfigCase: "normal",
+    plugin: asana, name: "asana", specKind: "versioned",
     dsConfig: { "personalAccessToken.value": "asana-pat" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "asana/asana.spec.yaml", method: "get", path: "/attachments/{attachment_gid}",
@@ -325,7 +324,7 @@ const rows: Row[] = [
     auth: [{ scheme: "personalAccessToken", kind: "bearer", secret: "asana-pat" }],
   },
   {
-    plugin: boomi, name: "boomi", specKind: "static", queryConfigCase: "normal",
+    plugin: boomi, name: "boomi", specKind: "static",
     dsConfig: {
       serverURL: "https://boomi.test/api/rest/v1/acct-1",
       "basicAuth.username": "boomi-user", "basicAuth.password": "boomi-pass",
@@ -338,7 +337,7 @@ const rows: Row[] = [
     defect: { aspect: "url", name: "B33: boomi calls the configured URL" },
   },
   {
-    plugin: carboneIo, name: "carboneIo", specKind: "static", queryConfigCase: "normal",
+    plugin: carboneIo, name: "carboneIo", specKind: "static",
     dsConfig: { serverURL: "https://carbone.test", "bearerAuth.value": "carbone-key" },
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "carboneIo/carboneIo.spec.json", method: "get", path: "/template/{templateId}",
@@ -348,7 +347,7 @@ const rows: Row[] = [
     auth: [{ scheme: "bearerAuth", kind: "bearer", secret: "carbone-key" }],
   },
   {
-    plugin: circleCi, name: "circleCi", specKind: "versioned", queryConfigCase: "normal",
+    plugin: circleCi, name: "circleCi", specKind: "versioned",
     dsConfig: { "api_key_header.value": "circle-token" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "circleCi/circleCi.spec.json", method: "get", path: "/context/{context-id}",
@@ -357,7 +356,7 @@ const rows: Row[] = [
     auth: [{ scheme: "api_key_header", kind: "raw", secret: "circle-token" }],
   },
   {
-    plugin: cloudinary, name: "cloudinary", specKind: "versioned", queryConfigCase: "normal", cached: true,
+    plugin: cloudinary, name: "cloudinary", specKind: "versioned", cached: true,
     dsConfig: { "basicAuth.username": "cld-key", "basicAuth.password": "cld-secret" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "summary",
     specFile: "cloudinary/adminApi.spec.yaml", method: "get", path: "/v1_1/{cloud_name}/folders",
@@ -366,7 +365,7 @@ const rows: Row[] = [
     auth: [{ scheme: "basicAuth", kind: "basic", user: "cld-key", secret: "cld-secret" }],
   },
   {
-    plugin: couchdb, name: "couchdb", specKind: "versioned", queryConfigCase: "normal",
+    plugin: couchdb, name: "couchdb", specKind: "versioned",
     dsConfig: { serverURL: "https://couch.test", "BasicAuth.username": "admin", "BasicAuth.password": "relax" },
     firstVersion: "v1.0",
     uiLabels: ["Operation", "Resource"], labelRule: "defaultUpperFirst",
@@ -382,7 +381,7 @@ const rows: Row[] = [
     },
   },
   {
-    plugin: datadog, name: "datadog", specKind: "versioned", queryConfigCase: "normal",
+    plugin: datadog, name: "datadog", specKind: "versioned",
     // /api/v1/validate: "Check if the API key (not the APP key) is valid". The spec's top-level
     // security lists apiKeyAuth and appKeyAuth as alternatives, so the row asks for the API key only.
     dsConfig: { serverURL: "https://dd.test", "apiKeyAuth.value": "dd-api" },
@@ -394,7 +393,7 @@ const rows: Row[] = [
     auth: [{ scheme: "apiKeyAuth", kind: "raw", secret: "dd-api" }],
   },
   {
-    plugin: did, name: "did", specKind: "versioned", queryConfigCase: "normal", cached: true,
+    plugin: did, name: "did", specKind: "versioned", cached: true,
     dsConfig: { "basic.username": "did-user", "basic.password": "did-pass" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "did/did.spec/credits.json", method: "get", path: "/credits",
@@ -404,7 +403,7 @@ const rows: Row[] = [
   },
   {
     // the spec has no securitySchemes: the API token is a required query parameter of the operation
-    plugin: eodhdApi, name: "eodhdApi", specKind: "static", queryConfigCase: "normal",
+    plugin: eodhdApi, name: "eodhdApi", specKind: "static",
     dsConfig: {},
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "eodhdApi/eodhdApi.spec.json", method: "get", path: "/eod/{ticker}",
@@ -413,7 +412,7 @@ const rows: Row[] = [
     auth: [],
   },
   {
-    plugin: front, name: "front", specKind: "versioned", queryConfigCase: "normal",
+    plugin: front, name: "front", specKind: "versioned",
     dsConfig: { "http.value": "front-jwt" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Category"], labelRule: "summary",
     specFile: "front/front.spec.json", method: "get", path: "/accounts/{account_id}",
@@ -422,7 +421,7 @@ const rows: Row[] = [
     auth: [{ scheme: "http", kind: "bearer", secret: "front-jwt" }],
   },
   {
-    plugin: github, name: "github", specKind: "versioned", queryConfigCase: "normal",
+    plugin: github, name: "github", specKind: "versioned",
     dsConfig: { "ApiKey.username": "octocat", "ApiKey.password": "gh-token" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "github/github.spec.yaml", method: "get", path: "/repos/{owner}/{repo}",
@@ -431,7 +430,7 @@ const rows: Row[] = [
     auth: [{ scheme: "ApiKey", kind: "basic", user: "octocat", secret: "gh-token" }],
   },
   {
-    plugin: huggingFaceEndpoint, name: "huggingFaceEndpoint", specKind: "versioned", queryConfigCase: "normal",
+    plugin: huggingFaceEndpoint, name: "huggingFaceEndpoint", specKind: "versioned",
     dsConfig: { endpoint: "https://hf.test", "token.value": "hf-token" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Category"], labelRule: "huggingFace",
     specFile: "huggingFaceEndpoint/huggingFace.spec.json", method: "get", path: "/provider",
@@ -443,7 +442,7 @@ const rows: Row[] = [
     defect: { aspect: "url", name: "B34: huggingFaceEndpoint calls its endpoint URL", authUnobservable: true },
   },
   {
-    plugin: jira, name: "jira", specKind: "versioned", queryConfigCase: "normal", cached: true,
+    plugin: jira, name: "jira", specKind: "versioned", cached: true,
     dsConfig: { serverUrl: "https://jira.test", "basicAuth.username": "me@example.test", "basicAuth.password": "jira-token" },
     firstVersion: "v1.0",
     uiLabels: ["Action", "Category"], labelRule: "upperFirstOperationId",
@@ -453,7 +452,7 @@ const rows: Row[] = [
     auth: [{ scheme: "basicAuth", kind: "basic", user: "me@example.test", secret: "jira-token" }],
   },
   {
-    plugin: lowcoder, name: "lowcoder", specKind: "versioned", queryConfigCase: "normal",
+    plugin: lowcoder, name: "lowcoder", specKind: "versioned",
     dsConfig: { serverURL: "https://lc.test", "bearerAuth.value": "lc-jwt" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "lowcoder/lowcoder.spec-v1.0.json", method: "get", path: "/api/applications/{applicationId}",
@@ -462,7 +461,7 @@ const rows: Row[] = [
     auth: [{ scheme: "bearerAuth", kind: "bearer", secret: "lc-jwt" }],
   },
   {
-    plugin: n8n, name: "n8n", specKind: "versioned", queryConfigCase: "normal",
+    plugin: n8n, name: "n8n", specKind: "versioned",
     dsConfig: { serverURL: "https://n8n.test", apiKey: "n8n-key" }, firstVersion: "v1.1.0",
     uiLabels: ["Operation", "Resource"], labelRule: "summaryOrDefault",
     specFile: "n8n/openapi_1_1_0.yml", method: "get", path: "/executions/{id}",
@@ -471,7 +470,7 @@ const rows: Row[] = [
     auth: [{ scheme: "ApiKeyAuth", kind: "raw", secret: "n8n-key" }],
   },
   {
-    plugin: notion, name: "notion", specKind: "versioned", queryConfigCase: "normal",
+    plugin: notion, name: "notion", specKind: "versioned",
     dsConfig: { notionVersion: "2022-06-28", "bearerAuth.value": "notion-secret" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "summary",
     specFile: "notion/notion.spec.yaml", method: "get", path: "/v1/users/me",
@@ -481,7 +480,7 @@ const rows: Row[] = [
     extraHeaders: { "notion-version": "2022-06-28" },
   },
   {
-    plugin: oneSignal, name: "oneSignal", specKind: "versioned", queryConfigCase: "normal",
+    plugin: oneSignal, name: "oneSignal", specKind: "versioned",
     dsConfig: { "user_key.value": "os-user-key" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "oneSignal/oneSignal.spec.json", method: "get", path: "/apps",
@@ -490,7 +489,7 @@ const rows: Row[] = [
     auth: [{ scheme: "user_key", kind: "bearer", secret: "os-user-key" }],
   },
   {
-    plugin: openAi, name: "openAi (default spec version v1.0)", specKind: "versioned", queryConfigCase: "normal",
+    plugin: openAi, name: "openAi (default spec version v1.0)", specKind: "versioned",
     dsConfig: { serverURL: "https://oai.test/v1", apiKey: "sk-test" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Category"], labelRule: "openAi",
     specFile: "openAi/openAI_v1.2.0.json", method: "get", path: "/engines",
@@ -500,7 +499,7 @@ const rows: Row[] = [
     defect: { aspect: "auth", name: "B31: openAi with the default spec version sends its credential" },
   },
   {
-    plugin: openAi, name: "openAi (spec version v2.3)", specKind: "versioned", queryConfigCase: "normal",
+    plugin: openAi, name: "openAi (spec version v2.3)", specKind: "versioned",
     dsConfig: { serverURL: "https://oai.test/v1", apiKey: "sk-test", specVersion: "v2.3" },
     uiLabels: ["Action", "Category"], labelRule: "openAi",
     specFile: "openAi/openAI_v2.3.0.json", method: "get", path: "/assistants",
@@ -509,7 +508,7 @@ const rows: Row[] = [
     auth: [{ scheme: "ApiKeyAuth", kind: "bearer", secret: "sk-test" }],
   },
   {
-    plugin: postmanEcho, name: "postmanEcho", specKind: "versioned", queryConfigCase: "normal",
+    plugin: postmanEcho, name: "postmanEcho", specKind: "versioned",
     dsConfig: {}, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstSummaryOrOperationId",
     specFile: "postmanEcho/postmanEcho.spec.json", method: "get", path: "/digest-auth",
@@ -519,7 +518,7 @@ const rows: Row[] = [
   },
   {
     // the spec's server is http://api.sendgrid.com/v3; SendGrid documents https and "Bearer <key>"
-    plugin: sendGrid, name: "sendGrid", specKind: "versioned", queryConfigCase: "normal",
+    plugin: sendGrid, name: "sendGrid", specKind: "versioned",
     dsConfig: { "Authorization.value": "SG.test-key" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "sendGrid",
     specFile: "sendGrid/sendGrid.spec.json", method: "get", path: "/user/scheduled_sends",
@@ -528,7 +527,7 @@ const rows: Row[] = [
     auth: [{ scheme: "Authorization", kind: "raw", secret: "SG.test-key", valuePrefix: BEARER_PREFIX }],
   },
   {
-    plugin: serpApi, name: "serpApi", specKind: "static", queryConfigCase: "normal",
+    plugin: serpApi, name: "serpApi", specKind: "static",
     dsConfig: { "apikey-query-api_key.value": "serp-key" },
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "serpApi/serpApi.search.spec.json", method: "get", path: "/search.json",
@@ -537,7 +536,7 @@ const rows: Row[] = [
     auth: [{ scheme: "apikey-query-api_key", kind: "raw", secret: "serp-key" }],
   },
   {
-    plugin: stripe, name: "stripe", specKind: "versioned", queryConfigCase: "normal",
+    plugin: stripe, name: "stripe", specKind: "versioned",
     dsConfig: { "bearerAuth.value": "sk_test_123" }, firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "stripe/stripe.spec.yaml", method: "get", path: "/v1/account",
@@ -546,7 +545,7 @@ const rows: Row[] = [
     auth: [{ scheme: "bearerAuth", kind: "bearer", secret: "sk_test_123" }],
   },
   {
-    plugin: supabaseApi, name: "supabaseApi", specKind: "static", queryConfigCase: "normal",
+    plugin: supabaseApi, name: "supabaseApi", specKind: "static",
     dsConfig: { serverURL: "https://sb.test", "bearerAuth.value": "sbp_test" },
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "supabaseApi/supabaseApi.spec.json", method: "get", path: "/v1/projects",
@@ -555,7 +554,7 @@ const rows: Row[] = [
     auth: [{ scheme: "bearerAuth", kind: "bearer", secret: "sbp_test" }],
   },
   {
-    plugin: twilio, name: "twilio", specKind: "versioned", queryConfigCase: "normal", cached: true,
+    plugin: twilio, name: "twilio", specKind: "versioned", cached: true,
     dsConfig: { "accountSid_authToken.username": "AC123", "accountSid_authToken.password": "tw-token" },
     firstVersion: "v1.0",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
@@ -565,8 +564,8 @@ const rows: Row[] = [
     auth: [{ scheme: "accountSid_authToken", kind: "basic", user: "AC123", secret: "tw-token" }],
   },
   {
-    // B19: its queryConfig throws RangeError today, so the normal queryConfig assertions do not apply
-    plugin: uiPath, name: "uiPath", specKind: "static", queryConfigCase: "b19-only",
+    plugin: uiPath, name: "uiPath", specKind: "static",
+    uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     dsConfig: { serverURL: "https://ui.test/org/tenant/orchestrator_/odata", "Authorization.value": "ui-pat" },
     specFile: "uiPath/uiPath.spec.json", method: "get", path: "/api/DirectoryService/GetDomains",
     actionName: "DirectoryService_GetDomains",
@@ -575,7 +574,7 @@ const rows: Row[] = [
     defect: { aspect: "auth", name: "B30: uiPath sends its credential" },
   },
   {
-    plugin: woocommerce, name: "woocommerce", specKind: "versioned", queryConfigCase: "normal",
+    plugin: woocommerce, name: "woocommerce", specKind: "versioned",
     dsConfig: { serverURL: "https://shop.test", "basicAuth.username": "ck_user", "basicAuth.password": "cs_pass" },
     firstVersion: "v1.0",
     uiLabels: ["Operation", "Resource"], labelRule: "summaryOrDefault",
@@ -586,7 +585,7 @@ const rows: Row[] = [
   },
   {
     // unregistered plugin, reached by direct import. HubSpot private apps authenticate with "Bearer <token>".
-    plugin: hubspot, name: "hubspot", specKind: "versioned", queryConfigCase: "normal", cached: true,
+    plugin: hubspot, name: "hubspot", specKind: "versioned", cached: true,
     dsConfig: { authToken: "pat-hub-test" }, firstVersion: "v4",
     uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
     specFile: "hubspot/specsV4/CRM API Collections.json", method: "get",
@@ -599,7 +598,7 @@ const rows: Row[] = [
   },
   {
     // unregistered plugin. The spec is swagger 2 with basePath but no host and the plugin has no server URL setting.
-    plugin: salesForce, name: "salesForce", specKind: "static", queryConfigCase: "normal",
+    plugin: salesForce, name: "salesForce", specKind: "static",
     dsConfig: {},
     uiLabels: ["Action", "Category"], labelRule: "upperFirstOperationId",
     specFile: "salesForce/salesForce.spec.yaml", method: "get", path: "/iot/activities/{id}",
@@ -611,9 +610,8 @@ const rows: Row[] = [
 ];
 
 const versionedRows = rows.filter((r) => r.specKind === "versioned");
-const normalRows = rows.filter((r) => r.queryConfigCase === "normal");
 const cachedRows = rows.filter((r) => r.cached);
-const staticNormalRows = rows.filter((r) => r.specKind === "static" && r.queryConfigCase === "normal");
+const staticRows = rows.filter((r) => r.specKind === "static");
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -636,7 +634,7 @@ const defaultConfigOf = (row: Row) => {
 };
 
 describe("wrapper plugins: queryConfig", () => {
-  describe.each(normalRows.filter((r) => r.name !== "openAi (spec version v2.3)"))("$name", (row) => {
+  describe.each(rows.filter((r) => r.name !== "openAi (spec version v2.3)"))("$name", (row) => {
     test("returns the plugin's query config with the action its spec declares", async () => {
       const spec = readSpec(row.specFile);
       const operation = spec.paths[row.path][row.method];
@@ -668,7 +666,7 @@ describe("wrapper plugins: queryConfig", () => {
     });
   });
 
-  describe.each(staticNormalRows)("$name static spec", (row) => {
+  describe.each(staticRows)("$name static spec", (row) => {
     test("ignores specVersion", async () => {
       const plain = await defaultConfigOf(row);
       const withVersion = await queryConfigOf(row.plugin, { specVersion: "nope" });
@@ -693,10 +691,7 @@ describe("wrapper plugins: queryConfig", () => {
     expect(names(v1)).toContain("listEngines");
   });
 
-  // B19: uiPath.queryConfig rejects with RangeError today. test.failing keeps the
-  // suite green today and turns red once B19 is fixed; then switch the uiPath row to "normal" and
-  // make this a plain test.
-  test.failing(B19_TEST_NAME, async () => {
+  test(B19_TEST_NAME, async () => {
     await expect(queryConfigOf(uiPath, {})).resolves.toBeDefined();
   });
 });
