@@ -1,14 +1,44 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { RequestInit } from "node-fetch";
 import { fetch } from "../../common/fetch";
 import path from "path";
 import { ServiceError } from "../../common/error";
 import { DataSourceDataType } from "./dataSourceConfig";
 import { ActionDataType } from "./queryConfig";
 
+const NOT_MODIFIED = 304; // a null-body status: the Response constructor rejects a body for it
+
+/** storage-js recognises an HTTP error only when it is an instance of the global Response.
+ *  node-fetch (kept for the proxy agent) returns its own Response class, so non-2xx responses are
+ *  copied into a global Response (status, statusText, body text). 2xx responses pass through unchanged.
+ *  Limit: headers are not copied (storage-js reads only status and the JSON body on errors). */
+async function storageFetch(url: string, init?: RequestInit) {
+  const res = await fetch(url, init);
+  if (res.ok) return res;
+  const body = res.status === NOT_MODIFIED ? null : await res.text();
+  return new Response(body, { status: res.status, statusText: res.statusText });
+}
+
+/** download (readFile) sets noResolveJson, so storage-js never reads the error body and its message is
+ *  the stringified Response. Reads the body of that Response once: JSON message, JSON error, the raw
+ *  text, then the status text. Any other error (e.g. a transport failure) keeps its message. */
+async function downloadErrorMessage(error: { message: string; originalError?: unknown }): Promise<string> {
+  const res = error.originalError;
+  if (!(res instanceof Response)) return error.message;
+  const text = await res.text();
+  let body: { message?: unknown; error?: unknown } = {};
+  try {
+    body = Object(JSON.parse(text)); // Object(null) is {}, so a "null" body falls through to the text
+  } catch {
+    // not JSON: the raw text is the message
+  }
+  return String(body.message || body.error || text || res.statusText);
+}
+
 function getClient(params: DataSourceDataType) {
   return createClient(params.projectUrl, params.apiKey, {
     global: {
-      fetch: fetch as any,
+      fetch: storageFetch as any,
     },
   });
 }
@@ -20,27 +50,14 @@ function getBucket(actionConfig: ActionDataType, dataSourceConfig: DataSourceDat
   return "";
 }
 
-const expiresIn = Date.now() + 1000 * 60 * 5; // 5 minutes
+const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 5;
 
 async function getFileSignedUrl(bucket: string, fileName: string, client: SupabaseClient) {
-  const ret = await client.storage.from(bucket).createSignedUrl(fileName, expiresIn);
+  const ret = await client.storage.from(bucket).createSignedUrl(fileName, SIGNED_URL_EXPIRES_IN_SECONDS);
   if (ret.error) {
     throw ret.error;
   }
   return ret.data.signedUrl;
-}
-
-export async function validateDataSourceConfig(dataSourceConfig: DataSourceDataType) {
-  try {
-    const client = getClient(dataSourceConfig);
-    const ret = await client.storage.listBuckets();
-    return {
-      success: !!ret.error,
-      reason: ret.error?.message,
-    };
-  } catch (e) {
-    throw e;
-  }
 }
 
 export default async function run(action: ActionDataType, dataSourceConfig: DataSourceDataType) {
@@ -65,6 +82,7 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
       limit: action.limit,
       offset: action.offset,
       sortBy: action.sortBy,
+      search: action.search || undefined,
     });
     if (ret.error) {
       throw ret.error;
@@ -73,7 +91,7 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
     if (action.returnSignedUrl && ret.data.length > 0) {
       const signRet = await client.storage.from(bucket).createSignedUrls(
         ret.data.map((i) => path.join(action.path, i.name)),
-        expiresIn
+        SIGNED_URL_EXPIRES_IN_SECONDS
       );
       if (signRet.error) {
         throw signRet.error;
@@ -99,6 +117,7 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
       .from(bucket)
       .download(action.fileName, { transform: action.transform || undefined });
     if (ret.error) {
+      ret.error.message = await downloadErrorMessage(ret.error);
       throw ret.error;
     }
     const arrayBuffer = await ret.data.arrayBuffer();
