@@ -40,4 +40,12 @@ export class DatasourcePage {
     const body = (await response.json()) as { code?: number };
     return { status: response.status(), code: body.code };
   }
+
+  /** Opens "Access Control" of a data source from its row's menu (the share dialog of the data source). */
+  async openAccessControl(name: string): Promise<void> {
+    const row = this.page.locator(".ant-table-row").filter({ has: this.page.getByText(name, { exact: true }) });
+    await row.locator('svg[tabindex="-1"]').click();
+    await this.page.getByText("Access Control", { exact: true }).click();
+    await this.page.locator(".ant-modal", { hasText: "Access Control" }).first().waitFor();
+  }
 }
