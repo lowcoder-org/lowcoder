@@ -9,6 +9,10 @@ import { parseOpenApi, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi
 import spec_1_2_0 from "./openAI_v1.2.0.json";
 import spec_2_3_0 from "./openAI_v2.3.0.json";
 
+/** scheme names of the bundled specs: v1.0 (openAI_v1.2.0.json) "ApiKey", v2.3 (openAI_v2.3.0.json) "ApiKeyAuth" */
+const API_KEY_V1_SCHEME_VALUE = "ApiKey.value";
+const API_KEY_V2_SCHEME_VALUE = "ApiKeyAuth.value";
+
 const specs = {
   "v1.0": spec_1_2_0,
   "v2.3": spec_2_3_0,
@@ -39,7 +43,7 @@ const dataSourceConfig = {
       key: "specVersion",
       type: "select",
       tooltip: "Version of the spec file.",
-      placeholder: "v2.3",
+      placeholder: "v1.0",
       options: specsToOptions(specs)
     },
   ],
@@ -82,9 +86,7 @@ const openAiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     const runApiDsConfig = {
       url: "",
       serverURL: serverURL,
-      dynamicParamsConfig: {
-        "ApiKeyAuth.value": apiKey,
-      },
+      dynamicParamsConfig: apiKey ? { [API_KEY_V1_SCHEME_VALUE]: apiKey, [API_KEY_V2_SCHEME_VALUE]: apiKey } : {},
       specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);

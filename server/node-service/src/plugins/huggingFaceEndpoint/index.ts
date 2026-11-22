@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
+import { badRequest } from "../../common/error";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
@@ -9,6 +10,8 @@ import { specsToOptions, version2spec } from "../../common/util";
 const specs = {
   "v1.0": spec,
 }
+
+const ENDPOINT_REQUIRED_MESSAGE = "The Endpoint URL is required";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -70,9 +73,12 @@ const huggingFacePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
+    if (!dataSourceConfig.endpoint?.trim()) {
+      throw badRequest(ENDPOINT_REQUIRED_MESSAGE);
+    }
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
+      serverURL: dataSourceConfig.endpoint,
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
