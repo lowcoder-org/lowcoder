@@ -5,24 +5,8 @@ import {
   getSchemaExample,
   getSchemaType,
   isSwagger2RefObject as isRefObject,
-  MediaTypeMultiPartFormData,
-  MediaTypeUrlEncoded,
 } from "../util";
 import { safeJsonStringify } from "../../../common/util";
-
-function getMediaType(operation: OpenAPIV2.OperationObject) {
-  let mediaType = operation.consumes?.[0];
-  if (mediaType) {
-    return mediaType;
-  }
-  if (operation.parameters?.find((i) => !isRefObject(i) && i.type === "file")) {
-    return MediaTypeMultiPartFormData;
-  }
-  if (operation.parameters?.find((i) => !isRefObject(i) && i.in === "formData")) {
-    return MediaTypeUrlEncoded;
-  }
-  return;
-}
 
 const openApiV2TypeMap: Record<string, ActionParamType> = {
   integer: "numberInput",
