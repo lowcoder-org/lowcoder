@@ -379,10 +379,47 @@ describe("runPluginQuery", () => {
   });
 });
 
-// B22 is a suspected bug. The test name is "B22: a non-array dynamicParamsConfig
-// value is not a TypeError"; it must be test.failing until the code is fixed.
-describe("B22 (suspected bug, b)", () => {
-  test.failing("B22: a non-array dynamicParamsConfig value is not a TypeError", async () => {
+// Only the forwarded-cookie shape ([{ name, value }, ...]) is copied into dynamicParamsConfig;
+// a context value of any other shape is ignored instead of throwing a TypeError.
+describe("B22: a context value without the cookie shape", () => {
+  const dslB22 = { actionName: "go", action: { path: "p", limit: "1" } };
+  const TOKEN_KEY = "token";
+  const TOKEN_VALUE_KEY = "token.value";
+
+  test.each([
+    ["null", null],
+    ["undefined", undefined],
+    ["an empty array", []],
+    ["an array holding null", [null]],
+    ["an array holding a string", ["s"]],
+    ["a string", "abc"],
+    ["a number", 5],
+    ["a plain object", { value: "v1" }],
+  ])("B22: a context value without the cookie shape is ignored (%s)", async (_label, value) => {
+    const ds = { dynamicParamsConfig: { [TOKEN_KEY]: {} } };
+
+    await expect(
+      runPluginQuery(STATIC_ID, dslB22, [{ key: TOKEN_KEY, value }], ds, CTX)
+    ).resolves.toEqual({ result: { ok: true } });
+
+    expect(runMock).toHaveBeenCalledTimes(1);
+    // not toHaveProperty("token.value"): jest reads a dotted string as a path
+    expect(Object.keys(runMock.mock.calls[0][1].dynamicParamsConfig)).toEqual([TOKEN_KEY]);
+  });
+
+  test("B22: of several forwarded cookies the first value is used", async () => {
+    const ds = { dynamicParamsConfig: { [TOKEN_KEY]: {} } };
+    const value = [
+      { name: TOKEN_KEY, value: "a" },
+      { name: TOKEN_KEY, value: "b" },
+    ];
+
+    await runPluginQuery(STATIC_ID, dslB22, [{ key: TOKEN_KEY, value }], ds, CTX);
+
+    expect(runMock.mock.calls[0][1].dynamicParamsConfig[TOKEN_VALUE_KEY]).toBe("a");
+  });
+
+  test("B22: a non-array dynamicParamsConfig value is not a TypeError", async () => {
     const ds = { dynamicParamsConfig: { token: {} } };
     let error: unknown;
     try {
