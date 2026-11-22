@@ -2,7 +2,7 @@ import type { FullResult, Reporter, Suite } from "@playwright/test/reporter";
 import { D3_RETRY_ANNOTATION } from "../constants";
 
 /**
- * The run-level D-3 gate of client/E2E-TESTING-components-p7-priorities-plan.md section 1: a test that lost an editor
+ * The run-level D-3 gate: a test that lost an editor
  * save and redid its steps on a fresh app (annotation `D-3 retry`) still passes, so no single test shows a systematic
  * regression of the first save. A run fails when MORE THAN HALF of the tests of a gated spec file that ran carry the
  * annotation (S1: more than 56 of 112; M3: more than 5 of 10 runs).

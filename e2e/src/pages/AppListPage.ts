@@ -70,6 +70,11 @@ export class AppListPage {
     await this.page.goto(`/invite/${inviteCode}`);
   }
 
+  /** The "New" button of the app list (the page has two "New" buttons: the first one): the client shows it to developers and admins only (`orgDev` gate). */
+  get newButton(): Locator {
+    return this.page.getByRole("button", { name: "New" }).first();
+  }
+
   get emptyState(): Locator {
     return this.page.getByText("You don't have any apps yet");
   }

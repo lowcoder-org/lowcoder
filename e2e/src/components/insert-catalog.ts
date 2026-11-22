@@ -1,7 +1,7 @@
 /**
  * The 112 component types of the editor's Components pane, as S1 (the insert-every-tile smoke test) needs them: the
  * tile label the panel search finds each by, the five types that live in the DSL `hooks` instead of on the grid, and
- * the grid types that render no `data-testid` (p2 section 2.3). Inventory taken from the pane of 3.0.0-e2e (p1 section 1);
+ * the grid types that render no `data-testid`. Inventory taken from the pane of 3.0.0-e2e;
  * `tests/components/insert-catalog.spec.ts` keeps it in step with the recordings in `fixtures/dsl`.
  */
 
@@ -131,7 +131,7 @@ export const INSERT_TYPES: readonly string[] = Object.keys(INSERT_TILE_LABELS);
 export const HOOK_TYPES: ReadonlySet<string> = new Set(["modal", "drawer", "toast", "chatController", "meeting"]);
 
 /**
- * Grid types whose rendered component carries no `data-testid` even when `dataTestId` is set (p2 section 2.3): the
+ * Grid types whose rendered component carries no `data-testid` even when `dataTestId` is set: the
  * view is located by the component's name, `[data-comp-name=<name>]`.
  */
 export const TYPES_WITHOUT_TEST_ID: ReadonlySet<string> = new Set([

@@ -3,7 +3,7 @@ import { component, stackItems } from "../../src/dsl/builders";
 import { expect, test } from "../../src/fixtures";
 
 /**
- * S5 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `slider`, `rangeSlider` and `colorPicker`.
+ * S5: `slider`, `rangeSlider` and `colorPicker`.
  * Back-to-back key presses on a slider are lost (observation O-11), so every press is followed by an assertion of
  * the bound text before the next press.
  */

@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { APP_PAGE, UI_PATHS } from "../constants";
+import { API_PATHS, APP_PAGE, NOT_IN_WORKSPACE_MESSAGE, UI_PATHS } from "../constants";
 
 /** A published app at /apps/{id}/view. */
 export class AppViewPage {
@@ -7,6 +7,19 @@ export class AppViewPage {
 
   async open(appId: string): Promise<void> {
     await this.page.goto(APP_PAGE.VIEW(appId));
+  }
+
+  /**
+   * Opens the app and returns the HTTP status of the first `POST /api/query/execute` the page sends. The view renders its
+   * components before an automatic query runs, so "the app is on screen" does not mean "its queries are done": a right removed
+   * in that gap makes the query answer 401, and the client answers a 401 by signing the user out (a redirect to the sign-in
+   * page that interrupts a later navigation, measured). A test that changes the visitor's rights while the page is open waits for
+   * this first. The app must have an automatic query, or this waits for the expect timeout.
+   */
+  async openAndAwaitQuery(appId: string): Promise<number> {
+    const answer = this.page.waitForResponse((response) => new URL(response.url()).pathname === API_PATHS.QUERY_EXECUTE);
+    await this.open(appId);
+    return (await answer).status();
   }
 
   /**
@@ -29,6 +42,11 @@ export class AppViewPage {
     return this.page.getByText("It appears you don't have the permission to view").first();
   }
 
+  /** The heading a signed-in user of another workspace gets instead of the app (`NOT_IN_WORKSPACE_MESSAGE`). */
+  get notInWorkspaceMessage(): Locator {
+    return this.page.getByRole("heading", { name: NOT_IN_WORKSPACE_MESSAGE });
+  }
+
   /** The button inside a component addressed by test id. */
   buttonByTestId(testId: string): Locator {
     return this.byTestId(testId).getByRole("button");
@@ -40,7 +58,7 @@ export class AppViewPage {
   }
 
   /**
-   * A component addressed by its name (`data-comp-name`): for the 21 component types that have no test id (p2 2.3)
+   * A component addressed by its name (`data-comp-name`): for the 21 component types that have no test id
    * and for the instances of a module. The element can be a zero-size wrapper; assert its content, or `toBeAttached`.
    */
   byCompName(name: string): Locator {

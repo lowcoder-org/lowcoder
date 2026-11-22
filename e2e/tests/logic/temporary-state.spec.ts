@@ -17,7 +17,7 @@ import { expect, test } from "../../src/fixtures";
 import { expectTextStays } from "../../src/logic/helpers";
 import { AppViewPage } from "../../src/pages/AppViewPage";
 
-/** No success toast: the probes ran with it off and a toast stays on screen over the buttons below it (p5 L3, "Notifications"). */
+/** No success toast: the probes ran with it off and a toast stays on screen over the buttons below it. */
 const QUIET = { showSuccess: false } as const;
 const SET_STATE_ID = "e2e-set-state";
 const JS_STATE_ID = "e2e-js-state";
@@ -108,7 +108,7 @@ test.describe("temporary states", () => {
   });
 
   /**
-   * Defect CD-7 (client/E2E-TESTING-components-defects-report.md): `setIn` with a path that is not an array or on a state
+   * Defect CD-7: `setIn` with a path that is not an array or on a state
    * that is not an object or array throws inside an async executor, so the query that calls it ends as a SUCCESS, the
    * `fail` handler does not run and the state is unchanged. This test asserts today's behaviour (the `success` handler
    * ran, nothing changed) and makes no assertion on toasts. The scripts do not `return` the call, as the probe's did

@@ -12,7 +12,7 @@ export interface ChangeSetOracle {
 /**
  * One `table` component of a published app, scoped to the element that carries its `data-comp-name`. The scope
  * matters: a page with two tables has two toolbars and two pagination bars, so an unscoped `.ant-pagination-item`
- * counts both (p4 section 1.1). That the grid item wrapping the whole component carries `data-comp-name` is a
+ * counts both. That the grid item wrapping the whole component carries `data-comp-name` is a
  * testability hook of the e2e image (not in 3.0.0); the scoped locators here are [R] from that source, and
  * `tests/foundation/table-view.spec.ts` runs them.
  *

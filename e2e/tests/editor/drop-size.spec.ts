@@ -8,7 +8,7 @@ interface SavedLayoutItem {
 }
 
 /**
- * Exposes defect D-5 (client/E2E-TESTING-defects-report.md): a component dropped right after the editor reports
+ * Exposes defect D-5: a component dropped right after the editor reports
  * ready is saved with width 0. Quarantined because it fails on the 3.0.0 baseline; run it with
  * E2E_INCLUDE_QUARANTINE=1. It passes when the editor is fixed.
  */

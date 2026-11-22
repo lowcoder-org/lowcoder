@@ -81,7 +81,7 @@ for (const compType of INSERT_TYPES) {
       // The hook types have no element of their own: the readiness text must show before the observation starts.
       await expect(view.byTestId(READY_TEST_ID), `${compType}: the readiness text of the view`).toHaveText(READY_TEXT);
     }
-    // Observation period for asynchronous page errors; the plan's measured fixed wait, not an assertion of its own.
+    // Observation period for asynchronous page errors; a measured fixed wait, not an assertion of its own.
     await page.waitForTimeout(VIEW_OBSERVATION_MS);
 
     if (!HOOK_TYPES.has(compType)) {

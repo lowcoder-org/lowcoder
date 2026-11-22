@@ -157,3 +157,52 @@ const BASE_HOOKS_SOURCE_TYPE = "button";
 export function recordedBaseHooks(): RecordedHook[] {
   return structuredClone(load(BASE_HOOKS_SOURCE_TYPE).hooks);
 }
+
+/**
+ * Folder of the recordings that are no component of the Components pane (`fixtures/dsl/n8n/`): the n8n data source's create
+ * request and the query the editor saved for its "Retrieve all workflows" action. It is a subfolder on purpose: the catalog
+ * test (`tests/components/insert-catalog.spec.ts`) and `recorded.spec.ts` read every `*.json` directly in `RECORDED_DSL_DIR`
+ * as a component type.
+ */
+export const RECORDED_N8N_DIR = join(RECORDED_DSL_DIR, "n8n");
+
+/** Recorded n8n query entry (what the editor saved in the app DSL's `queries`), reduced to what a builder keeps: type and `comp` with `actionName` and `action`. Ids, order and data source are set by the builder. */
+export interface RecordedN8nQuery {
+  compType: string;
+  comp: { actionName: string; action: Record<string, string>; headers: unknown[] };
+  [key: string]: unknown;
+}
+
+/** Recorded body of the `POST /api/datasources` the data source form sends for an n8n data source, reduced to type, name and settings; the workspace, the target and the key are set by `n8nDatasourceBody`. */
+export interface RecordedN8nDatasource {
+  name: string;
+  type: string;
+  datasourceConfig: Record<string, unknown>;
+}
+
+function loadN8n(file: string): unknown {
+  const label = `n8n/${file}`;
+  try {
+    return JSON.parse(readFileSync(join(RECORDED_N8N_DIR, `${file}.json`), "utf8"));
+  } catch (error) {
+    throw new RecordedFixtureError(label, error instanceof Error ? error.message : String(error));
+  }
+}
+
+/** The n8n query the editor saved, as a fresh deep copy; throws RecordedFixtureError when its type or `actionName` is missing. */
+export function recordedN8nQuery(): RecordedN8nQuery {
+  const parsed = loadN8n("n8nQuery");
+  if (!isObject(parsed) || parsed.compType !== "n8n" || !isObject(parsed.comp) || typeof parsed.comp.actionName !== "string" || !isObject(parsed.comp.action)) {
+    throw new RecordedFixtureError("n8n/n8nQuery", "is not an n8n query with a string `comp.actionName` and a `comp.action` object");
+  }
+  return structuredClone(parsed) as unknown as RecordedN8nQuery;
+}
+
+/** The n8n data source create body the form sent, as a fresh deep copy; throws RecordedFixtureError when it is not of type n8n or lacks `datasourceConfig`. */
+export function recordedN8nDatasource(): RecordedN8nDatasource {
+  const parsed = loadN8n("n8nDatasource");
+  if (!isObject(parsed) || parsed.type !== "n8n" || typeof parsed.name !== "string" || !isObject(parsed.datasourceConfig)) {
+    throw new RecordedFixtureError("n8n/n8nDatasource", "is not an n8n data source body with a string `name` and a `datasourceConfig` object");
+  }
+  return structuredClone(parsed) as unknown as RecordedN8nDatasource;
+}

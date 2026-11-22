@@ -7,7 +7,7 @@ import { TAGS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 
 /**
- * S7 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: the display components. One temporary state,
+ * S7: the display components. One temporary state,
  * `state1`, holds an object with one field per component; the property under test of each component is bound to its
  * field and every other property keeps the recorded default. A button replaces the state with a second object, and
  * each component's visible output is compared before and after.
@@ -171,7 +171,7 @@ test.describe("S7 display components", () => {
       testInfo.annotations.push({
         type: "defect",
         description:
-          "CD-9 candidate (not yet in the defects report): after the value changes from an icon name to an image URL the icon " +
+          "CD-9 candidate: after the value changes from an icon name to an image URL the icon " +
           "keeps drawing the old icon (observed: the home icon stays). Cause, read from the source and not verified by a fix: " +
           "IconControlView keeps the old icon for one render (useIcon sets its state in an effect), caches its view under the " +
           "new value in IconDictionary, and the cached entry then passes the title check (undefined === undefined) in every " +

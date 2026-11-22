@@ -1,6 +1,6 @@
 /**
  * Small local media as data: URIs, so no test loads anything from the network (the network guard blocks every other
- * origin). Generated once for the S12 probe of client/E2E-TESTING-components-p3-simple-scenarios-plan.md; the bytes
+ * origin). Generated once for the S12 media scenario; the bytes
  * are fixed and not meant to be read. Each constant is a complete `src` value unless its comment says otherwise.
  */
 

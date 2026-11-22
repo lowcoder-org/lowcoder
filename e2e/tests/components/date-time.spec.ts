@@ -5,7 +5,7 @@ import { expect, test } from "../../src/fixtures";
 import { expectTextStays } from "../../src/logic/helpers";
 
 /**
- * S4 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `date`, `dateRange`, `time`, `timeRange` typed
+ * S4: `date`, `dateRange`, `time`, `timeRange` typed
  * with the keyboard (recipe measured by the S4 probe: click the input, type, Enter). Every date and time is fixed in
  * the test, so nothing depends on the clock.
  */

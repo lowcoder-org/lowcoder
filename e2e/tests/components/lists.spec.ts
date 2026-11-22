@@ -8,9 +8,9 @@ import { postgresConnection } from "../../src/postgres";
 import { openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S13 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `listView` and `grid` with three rows, bound to a
+ * S13: `listView` and `grid` with three rows, bound to a
  * temporary state and as a JSON literal, plus the `listView` fed by a PostgreSQL query. Both have no test id: they are
- * found by `data-comp-name`, and the assertions read the content inside, because the wrapper's box is 1600 x 0 (p2 2.3).
+ * found by `data-comp-name`, and the assertions read the content inside, because the wrapper's box is 1600 x 0.
  * Probe: probes/p3g-lists.spec.ts.
  */
 type ListType = "listView" | "grid";

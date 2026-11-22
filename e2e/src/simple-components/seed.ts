@@ -1,6 +1,6 @@
 /**
- * Helpers of the S8-S14 scenarios of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: seeding a published app
- * from a DSL, and the container child shapes the recordings leave empty (p3 S8). Each helper works on the recorded
+ * Helpers of the S8-S14 scenarios: seeding a published app
+ * from a DSL, and the container child shapes the recordings leave empty (S8). Each helper works on the recorded
  * defaults of `fixtures/dsl/<type>.json` (`recordedItem`), so a seeded container keeps every property the editor writes.
  */
 import type { APIRequestContext, Page } from "@playwright/test";

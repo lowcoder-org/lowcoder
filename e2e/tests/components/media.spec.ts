@@ -17,7 +17,7 @@ import { MP4, PDF, PNG_BLUE, PNG_RED, WAV, WEBM } from "../../src/media";
 import { openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S12 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `image`, `carousel`, `avatarGroup`, `comment`, `card`,
+ * S12: `image`, `carousel`, `avatarGroup`, `comment`, `card`,
  * `audio`, `video` and `fileViewer`, one test each, seeded with the data: URIs of src/media.ts (the network guard blocks
  * every default source). Probe: probes/s12-media.spec.ts.
  */
@@ -64,7 +64,7 @@ test.describe("S12 media components", () => {
     await expectDecodedPng(image, "the data: URI decoded to the 8x8 PNG");
     await expect(view.byTestId(STATE_TEXT_ID), "no click yet").toHaveText("s=");
 
-    // `.ant-image` intercepts pointer events on the img (p2 section 2.3): click with force.
+    // `.ant-image` intercepts pointer events on the img: click with force.
     await image.click({ force: true });
 
     await expect(view.byTestId(STATE_TEXT_ID), "the click event set the state").toHaveText("s=image-clicked");

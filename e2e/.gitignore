@@ -5,5 +5,5 @@ blob-report/
 playwright/.auth/
 .run.lock
 
-# Probe evidence of the component test plan (client/E2E-TESTING-components-*.md): specs, logs, screenshots; not part of the suite
+# Local probe evidence: specs, logs, screenshots; not part of the suite
 evidence/

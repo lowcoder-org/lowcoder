@@ -5,7 +5,7 @@ import { expect, test } from "../../src/fixtures";
 import type { AppViewPage } from "../../src/pages/AppViewPage";
 
 /**
- * S3 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: the choice components. Every component keeps its
+ * S3: the choice components. Every component keeps its
  * recorded default (names `select1` ... `transfer1`), gets a test id and a text bound to its own exposed state, and
  * gets one action; after each action every text is compared, so an action that also changed another component fails.
  */
@@ -185,7 +185,7 @@ test.describe("S3 choice components", () => {
       testInfo.annotations.push({
         type: "defect",
         description:
-          `CD-8 candidate (not yet in the defects report): the left list of transfer is headed "${TRANSFER_LEFT_TITLE_DEFECT}" ` +
+          `CD-8 candidate: the left list of transfer is headed "${TRANSFER_LEFT_TITLE_DEFECT}" ` +
           `and holds the source items; the titles are passed as [targetTitle, sourceTitle] (transferComp.tsx:141). Header read: "${leftTitle}"`,
       });
     }
@@ -195,7 +195,7 @@ test.describe("S3 choice components", () => {
 
     await within("transfer1").locator(".ant-transfer-operation button").nth(0).click();
     expected.transfer1Target = JSON.stringify([TRANSFER_ITEM_KEY]);
-    // Whether antd clears the moved key from `selectedKeys` is not asserted (plan: NOT VERIFIED), so only the target is read.
+    // Whether antd clears the moved key from `selectedKeys` is not asserted (NOT VERIFIED), so only the target is read.
     await expect(view.byTestId(boundTextTestId("transfer1Target")), "transfer: move writes targetKeys").toHaveText(
       expected.transfer1Target,
     );

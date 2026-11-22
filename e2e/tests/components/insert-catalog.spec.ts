@@ -43,7 +43,7 @@ test.describe("S1 catalog of the Components pane", () => {
     expect([...INSERT_TYPES].sort(), "catalog types against fixtures/dsl").toEqual(recorded);
   });
 
-  test("the hook types and the types without a test id are catalog types, in the planned numbers", () => {
+  test("the hook types and the types without a test id are catalog types, in the expected numbers", () => {
     expect(HOOK_TYPES.size, "hook types").toBe(EXPECTED_HOOK_COUNT);
     expect(TYPES_WITHOUT_TEST_ID.size, "grid types without a test id").toBe(EXPECTED_WITHOUT_TEST_ID_COUNT);
     for (const compType of [...HOOK_TYPES, ...TYPES_WITHOUT_TEST_ID]) {

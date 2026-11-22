@@ -102,7 +102,7 @@ test.describe("a PostgreSQL query feeds components", () => {
     await view.buttonByTestId("e2e-delete").click();
     await expect(view.byTestId(NOTES_ID), "Delete removed it").toHaveText("notes=");
 
-    // Renders only: the chart's own data binding has no oracle (defect CD-5, p4 section 3).
+    // Renders only: the chart's own data binding has no oracle (defect CD-5).
     await expect(
       view.byCompName(CHART_NAME).locator("canvas"),
       "the bar chart rendered a canvas (it does not prove that the chart received the data)",

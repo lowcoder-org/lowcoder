@@ -24,7 +24,7 @@ async function expectModuleText(view: AppViewPage, expected: string, message: st
   await expect(view.inModule(M.FIRST_INSTANCE).getByTestId(M.INNER_TEXT_ID), message).toHaveText(expected);
 }
 
-// M2 (p6 section 3): which version of a module a host shows.
+// M2: which version of a module a host shows.
 test.describe("which module version a host shows", () => {
   test("a host shows the latest published version, not a newer draft; a new tag reaches it after a reload", async ({ page, apiUser }, testInfo) => {
     const { appId: moduleId } = await createModule(page.request, { orgId: apiUser.orgId, name: "e2e-m2-module", dsl: scenarioModuleDsl() });
@@ -45,7 +45,7 @@ test.describe("which module version a host shows", () => {
     await expectModuleText(view, PUBLISHED_TEXT, "the host's editor shows the published module too");
 
     // Publishing an existing tag fails. Only the failure is asserted: the measured HTTP 500 / code 5000 is not a
-    // tag-specific error and may change (defects report O-12).
+    // tag-specific error and may change (O-12).
     const duplicate = await publishApp(page.request, moduleId, FIRST_VERSION_TAG).then(
       () => undefined,
       (error: unknown) => error,
@@ -55,7 +55,7 @@ test.describe("which module version a host shows", () => {
     await view.open(appId);
     await expectModuleText(view, PUBLISHED_TEXT, "the failed publish changed nothing");
 
-    // A mounted host does not pick up a republished module by itself (defects report O-13).
+    // A mounted host does not pick up a republished module by itself (O-13).
     await publishApp(page.request, moduleId, SECOND_VERSION_TAG);
     await expectTextStays(
       page,

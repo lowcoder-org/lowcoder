@@ -1,0 +1,11 @@
+{
+ "name": "n8n",
+ "type": "n8n",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "apiKey": "placeholder",
+  "specVersion": "v1.1.1",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

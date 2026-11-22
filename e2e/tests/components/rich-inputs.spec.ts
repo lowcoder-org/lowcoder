@@ -3,7 +3,7 @@ import { expect, test } from "../../src/fixtures";
 import { openSeededApp } from "../../src/simple-components/seed";
 
 /**
- * S11 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: `file`, `signature`, `richTextEditor` and `custom`,
+ * S11: `file`, `signature`, `richTextEditor` and `custom`,
  * one test each. Each effect is made visible through a text bound to the component's exposed state. Probe:
  * probes/behaviour.spec.ts.
  */
@@ -96,7 +96,7 @@ test.describe("S11 file, signature, rich text and custom components", () => {
     // the remount, so this is a fixed wait of twice the debounce.
     await page.waitForTimeout(RTE_REMOUNT_SETTLE_MS);
 
-    // A `div` intercepts pointer events on `.ql-editor` (p2 section 2.3): focus it, then type.
+    // A `div` intercepts pointer events on `.ql-editor`: focus it, then type.
     await editor.focus();
     await page.keyboard.type(TYPED_WORDS);
 

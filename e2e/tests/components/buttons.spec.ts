@@ -4,7 +4,7 @@ import { recordedItem } from "../../src/dsl/recorded";
 import { expect, test } from "../../src/fixtures";
 
 /**
- * S6 of client/E2E-TESTING-components-p3-simple-scenarios-plan.md: the clickable components. Each carries one handler
+ * S6: the clickable components. Each carries one handler
  * that sets the temporary state `state1` to the component's own name; the handler sits where the component reads it
  * (root `onEvent`, or the `onEvent` of the option / button / item that is clicked). One action at a time, the state
  * text asserted after each.
