@@ -24,6 +24,14 @@ export class TextChangedError extends Error {
   }
 }
 
+/** A count that was expected to hold for a while changed. The message names the expected and the read count. */
+export class CountChangedError extends Error {
+  constructor(description: string, expected: number, actual: number) {
+    super(`${description}: expected the count ${expected} to stay, read ${actual}`);
+    this.name = "CountChangedError";
+  }
+}
+
 /**
  * The text of the browser's local-storage entry the apps' `localStorage` component keeps (its whole JSON document),
  * or null while the entry does not exist.
@@ -53,6 +61,31 @@ export async function expectTextStays(
     const actual = (await locator.innerText()).trim();
     if (actual !== expected) {
       throw new TextChangedError(description, expected, actual);
+    }
+    if (pause < pauses) {
+      await page.waitForTimeout(STAY_CHECK_INTERVAL_MS);
+    }
+  }
+}
+
+/**
+ * Asserts that `locator` matches `expected` elements (0: it is absent) for `windowMs` (default `NEGATIVE_EVENT_WINDOW_MS`),
+ * for a thing that must NOT appear after an action or a load (the same reads as `expectTextStays`: at the start, every
+ * `STAY_CHECK_INTERVAL_MS`, and once more after the last pause). It bounds a late appearance, it does not exclude one.
+ */
+export async function expectCountStays(
+  page: Page,
+  locator: Locator,
+  expected: number,
+  description: string,
+  options: { windowMs?: number } = {},
+): Promise<void> {
+  const windowMs = options.windowMs ?? NEGATIVE_EVENT_WINDOW_MS;
+  const pauses = Math.ceil(windowMs / STAY_CHECK_INTERVAL_MS);
+  for (let pause = 0; pause <= pauses; pause += 1) {
+    const actual = await locator.count();
+    if (actual !== expected) {
+      throw new CountChangedError(description, expected, actual);
     }
     if (pause < pauses) {
       await page.waitForTimeout(STAY_CHECK_INTERVAL_MS);

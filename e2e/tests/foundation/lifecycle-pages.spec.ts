@@ -1,6 +1,6 @@
 import { createGroup, currentUser, listGroupMembers, listGroups } from "../../src/api/client";
-import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
-import { expect, test } from "../../src/fixtures";
+import { SETTING_PATHS, TEST_PASSWORD, UI_PATHS } from "../../src/constants";
+import { expect, test, uniqueEmail } from "../../src/fixtures";
 import { ProvidersPage } from "../../src/pages/ProvidersPage";
 import { LoginPage } from "../../src/pages/LoginPage";
 import { PasswordRecoveryPage } from "../../src/pages/PasswordRecoveryPage";
@@ -16,6 +16,8 @@ import { WorkspacesPage } from "../../src/pages/WorkspacesPage";
 import { ProfileModal } from "../../src/pages/ProfileModal";
 import { ProfilePage } from "../../src/pages/ProfilePage";
 import { UserMenu } from "../../src/pages/UserMenu";
+import { AppListPage } from "../../src/pages/AppListPage";
+import { AuthPage } from "../../src/pages/AuthPage";
 
 /** Unit tests of the page objects of the lifecycle specs: each is run where it must work, as the owner. */
 test.describe("lifecycle page objects", () => {
@@ -192,5 +194,54 @@ test.describe("lifecycle page objects", () => {
     await admin.session.page.locator(".ant-modal:visible .ant-select").first().click();
 
     await expect(admin.session.page.locator(".ant-select-item-option"), "GitHub, Google, Ory, KeyCloak and Generic").toHaveText(["GitHub", "Google", "Ory", "KeyCloak", "Generic"]);
+  });
+
+  test("ProfilePage.infoCount reads the number of an Info card", async ({ actor }) => {
+    const user = await actor("pginfo");
+    const profile = new ProfilePage(user.session.page);
+    await profile.open();
+
+    await expect(profile.infoCount("Your Created Apps"), "a new user created no app").toHaveText("0");
+    await expect(profile.infoCount("Your Created Modules")).toHaveText("0");
+  });
+
+  test("SettingPage.openDetailOf opens the member popup that detailDialog finds", async ({ actor }) => {
+    const admin = await actor("pgdetailadmin");
+    const member = await actor("pgdetailmember");
+    await joinWorkspace(admin, member);
+    const settings = new SettingPage(admin.session.page);
+    await settings.openMembers();
+    await expect(settings.detailDialog, "before: no popup").toHaveCount(0);
+
+    await settings.openDetailOf(member.email);
+
+    await expect(settings.detailDialog).toBeVisible();
+  });
+
+  test("AppListPage navigation locators tell an admin from a plain member", async ({ actor }) => {
+    const owner = await actor("pgnavowner");
+    const member = await actor("pgnavmember");
+    await joinWorkspace(owner, member);
+    const ownerList = new AppListPage(owner.session.page);
+    const memberList = new AppListPage(member.session.page);
+    await ownerList.open();
+    await memberList.open();
+
+    await expect(ownerList.settingsEntry, "an admin has the settings entry").toBeVisible();
+    await expect(ownerList.memberHomeTab).toHaveCount(0);
+    await expect(memberList.memberHomeTab, "a member has the home tab").toBeVisible();
+  });
+
+  test("AppListPage tour locators find the tour of a UI sign-up and tourClose closes it", async ({ page }, testInfo) => {
+    const auth = new AuthPage(page);
+    const appList = new AppListPage(page);
+    await auth.openRegister();
+    await auth.signUp(uniqueEmail("pgtour", testInfo.workerIndex), TEST_PASSWORD);
+
+    await expect(appList.tourDialog, "the tour opens after the sign-up").toBeVisible();
+    await expect(appList.tourText, "with its text").toBeVisible();
+    await appList.tourClose.click();
+
+    await expect(appList.tourDialog, "tourClose closes it").toHaveCount(0);
   });
 });

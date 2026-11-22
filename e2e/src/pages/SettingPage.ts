@@ -71,4 +71,16 @@ export class SettingPage {
   operationsOf(email: string): Locator {
     return this.memberRow(email).locator(".operation-cell-div-wrapper");
   }
+
+  /** The "Detail" link of a member's row; it is in the operation cell, which an admin sees (`orgUsersPermission.tsx`), and needs a hover. */
+  async openDetailOf(email: string): Promise<void> {
+    const row = this.memberRow(email);
+    await row.hover();
+    await row.getByText("Detail", { exact: true }).click();
+  }
+
+  /** The member detail popup: avatar, name, e-mail, groups, language and the member's IP address (`UserDetailPopup`). */
+  get detailDialog(): Locator {
+    return this.page.locator(".ant-modal:visible");
+  }
 }

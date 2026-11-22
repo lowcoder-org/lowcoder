@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { LOCAL_STORAGE_NAMESPACE } from "../../src/constants";
 import { NEGATIVE_EVENT_WINDOW_MS } from "../../src/constants";
-import { CounterShapeError, countAfterEquals, expectTextStays, parseCounter, rawLocalStorage, TextChangedError } from "../../src/logic/helpers";
+import { CountChangedError, CounterShapeError, countAfterEquals, expectCountStays, expectTextStays, parseCounter, rawLocalStorage, TextChangedError } from "../../src/logic/helpers";
 
 /** A page of the app's own origin (so it has local storage), served by a route: no stack needed. */
 const HELPER_PAGE_PATH = "/e2e-logic-helpers";
@@ -99,5 +99,21 @@ test.describe("logic helpers", () => {
     const failure = await expectTextStays(page, page.locator("#t"), "auto=7", "the counter").catch((error: unknown) => error);
     expect(failure, "the change inside the window is reported").toBeInstanceOf(TextChangedError);
     expect((failure as Error).message, "expected and read text").toContain('expected the text "auto=7" to stay, read "auto=8"');
+  });
+
+  test("expectCountStays passes for a count that does not change and fails with CountChangedError when an element appears inside the window", async ({ page }) => {
+    await expectCountStays(page, page.locator("#late"), 0, "nothing appears");
+    await page.evaluate((delay) => {
+      setTimeout(() => {
+        const element = document.createElement("p");
+        element.id = "late";
+        document.body.appendChild(element);
+      }, delay);
+    }, CHANGE_AFTER_MS);
+
+    const failure = await expectCountStays(page, page.locator("#late"), 0, "the late element").catch((error: unknown) => error);
+
+    expect(failure, "an element that appears inside the window is reported").toBeInstanceOf(CountChangedError);
+    expect(String(failure), "the message names both counts").toMatch(/expected the count 0 to stay, read 1/);
   });
 });

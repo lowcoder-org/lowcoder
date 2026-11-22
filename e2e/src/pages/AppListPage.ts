@@ -2,6 +2,11 @@ import { readFileSync } from "node:fs";
 import { expect, type FileChooser, type Locator, type Page } from "@playwright/test";
 import { IMPORT_ATTEMPT_TIMEOUT_MS, IMPORT_TIMEOUT_MS, UI_PATHS } from "../constants";
 
+/** The text of the tour's first step (`homeTutorials.createAppContent`; measured). */
+const TOUR_TEXT = "Welcome! Click 'App' and Start to Create Your First Application.";
+/** The navigation tab of a plain member (`index.tsx` of ApplicationV2; measured text). */
+const MEMBER_HOME_TAB = "Homepage (Org)";
+
 /** The app list of a workspace at /apps. */
 export class AppListPage {
   constructor(private readonly page: Page) {}
@@ -77,5 +82,29 @@ export class AppListPage {
 
   get emptyState(): Locator {
     return this.page.getByText("You don't have any apps yet");
+  }
+
+  /** The first step of the new-user tour (react-joyride, `HomeTutorialsV2.tsx`): an alert dialog with the "Create App" title. */
+  get tourDialog(): Locator {
+    return this.page.getByRole("alertdialog");
+  }
+
+  get tourText(): Locator {
+    return this.page.getByText(TOUR_TEXT, { exact: true });
+  }
+
+  /** The close control of the tour tooltip (`aria-label="Close"`); the tour has no footer, so it is the only way to leave it. */
+  get tourClose(): Locator {
+    return this.tourDialog.getByRole("button", { name: "Close" });
+  }
+
+  /** The "Workspace" tab that a plain member gets in the navigation; 3.0.0 labels it "Homepage (Org)" (measured). */
+  get memberHomeTab(): Locator {
+    return this.page.getByText(MEMBER_HOME_TAB, { exact: true });
+  }
+
+  /** The "Settings" entry of the navigation, offered to developers and admins only. */
+  get settingsEntry(): Locator {
+    return this.page.getByText("Settings", { exact: true });
   }
 }

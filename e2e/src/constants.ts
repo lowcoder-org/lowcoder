@@ -136,6 +136,8 @@ export const UI_PATHS = {
   LOGIN: /\/user\/auth\/login/,
   /** Where a visitor who may not see an app lands: the sign-in page of the app's workspace. */
   LOGIN_IN_ORG: /\/org\/[^/]+\/auth\/login/,
+  /** The classic one-step e-mail and password form, "for super admin" by its comment, open to anyone (`loginAdmin.tsx`). */
+  ADMIN_LOGIN: "/admin/login",
 } as const;
 
 /** Meets the password rules of the sign-up form. */
