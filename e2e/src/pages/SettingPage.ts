@@ -46,6 +46,27 @@ export class SettingPage {
     return this.page.locator(".ant-modal:visible input").first().inputValue();
   }
 
+  /** The open invite dialog. */
+  get inviteDialog(): Locator {
+    return this.page.locator(".ant-modal:visible");
+  }
+
+  /**
+   * Types an address into the dialog's "Enter emails" tag field and confirms it with Enter, then presses "Send Invitations"
+   * (measured on the 3.0.0 client: the field is the dialog's last editable input, an address becomes a tag on Enter).
+   */
+  async sendInvitationTo(address: string): Promise<void> {
+    const field = this.inviteDialog.locator("input:not([readonly])").last();
+    await field.fill(address);
+    await field.press("Enter");
+    await this.inviteDialog.getByRole("button", { name: "Send Invitations" }).click();
+  }
+
+  /** The notice the client shows after "Send Invitations". */
+  get inviteNotice(): Locator {
+    return this.page.locator(".ant-message");
+  }
+
   /** The operation cell of a member's row on the All Users group page (empty: that group is a synchronised group). */
   operationsOf(email: string): Locator {
     return this.memberRow(email).locator(".operation-cell-div-wrapper");

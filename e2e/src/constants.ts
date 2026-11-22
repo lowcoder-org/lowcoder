@@ -42,6 +42,8 @@ export const API_PATHS = {
   USER_PASSWORD: "/api/users/password",
   USER_RESET_PASSWORD: "/api/users/reset-password",
   USER_LOST_PASSWORD: "/api/users/lost-password",
+  USER_RESET_LOST_PASSWORD: "/api/users/reset-lost-password",
+  INVITATION_EMAIL: "/api/invitation/email/invite",
   AUTH_LOGOUT: "/api/auth/logout",
   AUTH_CONFIG: "/api/auth/config",
   AUTH_CONFIGS: "/api/auth/configs",
@@ -671,6 +673,16 @@ export const API_KEYS_LIST_PATH = "/api/auth/api-keys";
 
 /** Query parameter of `POST /api/users/password`, the route that sets a password with no old one ("Set Password"). */
 export const USER_SET_PASSWORD_PARAM = "password";
+
+/**
+ * The messages of the two token refusals of `reset-lost-password` (both answer 500 / 5002, `INVALID_PARAMETER`): a token that is
+ * stored but does not match, and an account with no live token (never requested, already used, or expired). Read from the
+ * answer body of the 3.0.0 image (`UserServiceImpl.java` [3.0.0] `:448-455`).
+ */
+export const RESET_TOKEN_MESSAGES = {
+  INVALID: "Invalid token received for password reset request",
+  EXPIRED: "Token to reset the password has expired",
+} as const;
 
 /** The password a scenario changes to (meets the password rules like TEST_PASSWORD, differs from it). */
 export const CHANGED_PASSWORD = "Passw0rd-e2e-changed";
