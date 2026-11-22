@@ -56,7 +56,7 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
 /**
  * Scenarios that fail on this branch's server too (open defects, listed in the table "Security findings" of
  * `e2e/README.md`), scenario id to defect id. SEC-E05 (ENTERPRISE stack, `tests/security/enterprise-takeover.spec.ts`)
- * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built.
+ * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07 (password rule), LC-AU15 (sign-up on a workspace's sign-up page), `tests/auth/signup-edge.spec.ts`, are lifecycle ids.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-C09": "D-7",
@@ -87,6 +87,8 @@ export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-E05": "D-40",
   "SEC-X01b": "D-35",
   "SEC-X01c": "D-35",
+  "LC-AU07": "D-48",
+  "LC-AU15": "D-30",
 };
 
 /** What a security test passes to `test(title, details, body)`: the `tag` and, for a quarantined test, the annotation. */

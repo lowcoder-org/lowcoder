@@ -86,6 +86,8 @@ export interface RegisteredUser {
 interface CurrentUserData {
   /** Display name of the user (`GET /api/users/me`). */
   name?: string;
+  /** The name the app shows for the user (measured: the e-mail address until the user sets a nickname). */
+  username?: string;
   orgAndRoles: { org: { id: string; name?: string }; role?: string }[];
   /** The workspace the user's routes act in (a flag on the membership row, not on the session). */
   currentOrgId?: string;
@@ -115,6 +117,16 @@ export async function registerUser(request: APIRequestContext, email: string): P
     throw new LowcoderApiError(`register ${email}`, 200, "the new user has no workspace");
   }
   return { email, orgId: org.org.id };
+}
+
+/**
+ * The form sign-up of `registerUser` as a raw answer (no unwrap), for the call under test: the answer of a refused
+ * sign-up is the subject. The request context keeps the session cookie when the sign-up works.
+ */
+export async function registerRaw(request: APIRequestContext, email: string, password: string): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.LOGIN, {
+    data: { loginId: email, password, register: true, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
+  });
 }
 
 /**
@@ -782,6 +794,16 @@ export async function signIn(request: APIRequestContext, email: string, password
       data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
     }),
   );
+}
+
+/**
+ * The form sign-in of `signIn` as a raw answer (no unwrap, no throw on a refusal), for a test that measures the answer
+ * or reads its headers. Like `signIn`, the password never reaches a label or message.
+ */
+export async function signInRaw(request: APIRequestContext, email: string, password: string = TEST_PASSWORD): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.LOGIN, {
+    data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
+  });
 }
 
 /** What `GET /api/applications/{id}` (the editing view) reports about an app: the fields security tests compare. */

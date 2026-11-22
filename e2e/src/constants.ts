@@ -376,8 +376,12 @@ export const API_ERRORS = {
   DATASOURCE_NOT_FOUND: { status: 500, code: 5500 }, // :69
   DATASOURCE_AND_APP_ORG_NOT_MATCH: { status: 500, code: 5510 }, // :80
   USER_NOT_SIGNED_IN: { status: 401, code: 5600 }, // :85
+  /** The form sign-up of an address that is registered, in any casing (`FormAuthRequest.java`). */
+  USER_LOGIN_ID_EXIST: { status: 403, code: 5607 }, // :107
   /** The form login of a wrong password, an unknown address and (ENTERPRISE mode, measured) a user deleted by a removal. */
   INVALID_PASSWORD: { status: 403, code: 5608 }, // :92
+  /** The form sign-up of an address that does not look like an e-mail address (`FormAuthRequest.java`). */
+  INVALID_EMAIL_FORMAT: { status: 400, code: 5623 }, // :91
   LIBRARY_QUERY_AND_ORG_NOT_MATCH: { status: 400, code: 6103 }, // :131
   LIBRARY_QUERY_NOT_FOUND: { status: 400, code: 6104 }, // :132
   USER_BANNED: { status: 500, code: 6201 }, // :136
