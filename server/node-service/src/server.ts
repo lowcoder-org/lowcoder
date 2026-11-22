@@ -84,11 +84,31 @@ router.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ServiceError) {
     status = err.code;
     message = err.message;
+  } else {
+    status = exposedClientErrorStatus(err) ?? status;
   }
   res.status(status).json({
     message,
   });
 });
+
+const CLIENT_ERROR_MIN = 400;
+const CLIENT_ERROR_MAX = 499;
+
+/**
+ * The status of an http-errors style client error (body-parser: malformed JSON 400, body too large 413,
+ * unsupported encoding 415, ...), or undefined. Covers only errors that set `expose === true` with an integer
+ * `status` in 400..499. Does NOT cover errors that carry a `status` without `expose` (an AxiosError, a supabase
+ * StorageApiError, Express's URIError for a malformed route param): those stay 500, so an upstream service's
+ * status is never passed through as this service's status.
+ */
+function exposedClientErrorStatus(err: any): number | undefined {
+  const status = err?.status;
+  if (err?.expose === true && Number.isInteger(status) && status >= CLIENT_ERROR_MIN && status <= CLIENT_ERROR_MAX) {
+    return status;
+  }
+  return undefined;
+}
 
 /** Error handling */
 router.use((req, res, next) => {

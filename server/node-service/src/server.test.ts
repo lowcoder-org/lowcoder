@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import { once } from "events";
 import { createCipheriv, pbkdf2Sync } from "crypto";
+import { AxiosError } from "axios";
 
 // what a real HTTP client sees. server.ts reads env at import and calls listen, so every boot runs inside
 // jest.isolateModules with NODE_SERVICE_PORT=0 (an ephemeral TCP port). No repo module is mocked.
@@ -15,6 +16,12 @@ const BAD_REQUEST = 400;
 const NOT_FOUND = 404;
 const PAYLOAD_TOO_LARGE = 413;
 const SERVER_ERROR = 500;
+const UNSUPPORTED_MEDIA_TYPE = 415;
+const TOO_LARGE_MESSAGE = "request entity too large";
+const ERROR_HANDLER_ARITY = 4;
+const STATUS_BELOW_CLIENT_ERRORS = 399;
+const STATUS_ABOVE_CLIENT_ERRORS = 503;
+const STATUS_LAST_CLIENT_ERROR = 499;
 const DEFAULT_PORT = 6060;
 const EPHEMERAL_PORT = "0";
 const API_HOST = "http://api.test";
@@ -59,7 +66,7 @@ let npmCacheDir: string;
 let openServers: http.Server[] = [];
 
 type LimitLog = { expressJson: unknown[]; urlencoded: unknown[]; parserJson: unknown[]; parserText: unknown[] };
-type Booted = { server: http.Server; port: number; limits: LimitLog };
+type Booted = { server: http.Server; port: number; limits: LimitLog; app: any };
 
 function applyEnv(env: Record<string, string | undefined>) {
   for (const [k, v] of Object.entries(env)) {
@@ -128,7 +135,7 @@ function load(env: Record<string, string | undefined>, requestedPorts?: unknown[
     const server: http.Server = createServerSpy.mock.results[0].value;
     openServers.push(server);
     const port = 0;
-    return { server, port, limits };
+    return { server, port, limits, app: createServerSpy.mock.calls[0][0] };
   } finally {
     createServerSpy.mockRestore();
     listenSpy?.mockRestore();
@@ -279,6 +286,52 @@ describe("server routes and middleware", () => {
     expect(console.error).toHaveBeenCalled();
   });
 
+  test("B25: an unsupported content encoding gets 415", async () => {
+    const b = shared.get();
+    const r = await call(b, "POST", RUN_PLUGIN_QUERY, {
+      headers: { ...JSON_HEADERS, "content-encoding": "bogus" },
+      body: "{}",
+    });
+    expect(r.status).toBe(UNSUPPORTED_MEDIA_TYPE);
+    expect(r.json()).toEqual({ message: 'unsupported content encoding "bogus"' });
+  });
+
+  test("B25: only exposed 4xx statuses are passed through", async () => {
+    // no HTTP route throws a status-carrying error without `expose`, so the real error handler of the booted
+    // server is called directly. Relies on Express 4's `app._router` (Express 5 renamed it `app.router`).
+    const b = shared.get();
+    const handlers = b.app._router.stack.filter((layer: any) => layer.handle.length === ERROR_HANDLER_ARITY);
+    expect(handlers).toHaveLength(1);
+    const rows: [string, Error, number][] = [
+      ["exposed 404", Object.assign(new Error("row 404"), { status: NOT_FOUND, expose: true }), NOT_FOUND],
+      ["exposed 400", Object.assign(new Error("row 400"), { status: BAD_REQUEST, expose: true }), BAD_REQUEST],
+      ["exposed 499", Object.assign(new Error("row 499"), { status: STATUS_LAST_CLIENT_ERROR, expose: true }), STATUS_LAST_CLIENT_ERROR],
+      ["exposed 399", Object.assign(new Error("row 399"), { status: STATUS_BELOW_CLIENT_ERRORS, expose: true }), SERVER_ERROR],
+      ["exposed 503", Object.assign(new Error("row 503"), { status: STATUS_ABOVE_CLIENT_ERRORS, expose: true }), SERVER_ERROR],
+      ["string status", Object.assign(new Error("row string status"), { status: "400", expose: true }), SERVER_ERROR],
+      ["no expose", Object.assign(new Error("row no expose"), { status: NOT_FOUND }), SERVER_ERROR],
+      [
+        "axios error",
+        new AxiosError("row axios", "ERR_BAD_REQUEST", undefined, undefined, { status: NOT_FOUND } as any),
+        SERVER_ERROR,
+      ],
+    ];
+    for (const [name, err, expectedCode] of rows) {
+      const res: any = {
+        status(c: number) {
+          this.code = c;
+          return this;
+        },
+        json(body: unknown) {
+          this.body = body;
+          return this;
+        },
+      };
+      handlers[0].handle(err, {}, res, () => undefined);
+      expect({ row: name, code: res.code, body: res.body }).toEqual({ row: name, code: expectedCode, body: { message: err.message } });
+    }
+  });
+
   it("parses a JSON body when x-encrypted is absent", async () => {
     const b = shared.get();
     const r = await call(b, "POST", RUN_JS, { headers: JSON_HEADERS, body: JSON.stringify({ jsCode: "return 40 + 2" }) });
@@ -368,13 +421,44 @@ describe("request size limit end to end (1kb)", () => {
   it("rejects a body of 1030 bytes just over the 1kb limit without running it", async () => {
     const b = oneKb.get();
     const r = await call(b, "POST", RUN_JS, { headers: JSON_HEADERS, body: runJsBodyOfSize(JUST_OVER_LIMIT_BYTES) });
-    // the exact status is B25 (500 today, 413 intended), so only the rejection is asserted here: it catches a limit
-    // that is too large (e.g. "kb" converted with the MB factor), which the under-limit cases cannot
-    expect(r.status).toBeGreaterThanOrEqual(BAD_REQUEST);
+    // the over-limit body gets 413: this catches a limit that is too large (e.g. "kb" converted with the MB factor),
+    // which the under-limit cases cannot
+    expect(r.status).toBe(PAYLOAD_TOO_LARGE);
     expect(r.json()).not.toEqual({ result: 1 });
   });
 
-  test.failing("B25: malformed JSON gives 400 and an oversized body 413", async () => {
+  test("B25: error bodies keep the {message} shape", async () => {
+    const b = oneKb.get();
+    const oversized = await call(b, "POST", RUN_JS, {
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ jsCode: "return 1", pad: "x".repeat(2 * KB) }),
+    });
+    const malformed = await call(b, "POST", RUN_JS, { headers: JSON_HEADERS, body: '{"jsCode": ' });
+    expect(oversized.json()).toEqual({ message: TOO_LARGE_MESSAGE });
+    const malformedBody = malformed.json();
+    expect(Object.keys(malformedBody)).toEqual(["message"]);
+    expect(typeof malformedBody.message).toBe("string");
+    expect(malformedBody.message.length).toBeGreaterThan(0);
+  });
+
+  test("B25: an oversized encrypted text body gets 413", async () => {
+    const b = oneKb.get();
+    const r = await call(b, "POST", RUN_PLUGIN_QUERY, { headers: TEXT_HEADERS, body: "ab".repeat(KB) });
+    expect(r.status).toBe(PAYLOAD_TOO_LARGE);
+    expect(r.json()).toEqual({ message: TOO_LARGE_MESSAGE });
+  });
+
+  test("B25: an oversized urlencoded body gets 413", async () => {
+    const b = oneKb.get();
+    const r = await call(b, "POST", RUN_PLUGIN_QUERY, {
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: "a=" + "x".repeat(2 * KB),
+    });
+    expect(r.status).toBe(PAYLOAD_TOO_LARGE);
+    expect(r.json()).toEqual({ message: TOO_LARGE_MESSAGE });
+  });
+
+  test("B25: malformed JSON gives 400 and an oversized body 413", async () => {
     const b = oneKb.get();
     // both requests are sent before either is asserted, so the 413 half runs even while the 400 half fails
     const malformed = await call(b, "POST", RUN_JS, { headers: JSON_HEADERS, body: '{"jsCode": ' });

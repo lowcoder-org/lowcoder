@@ -13,6 +13,7 @@ const REQUEST_TIMEOUT_MS = 20_000;
 const STATUS_OK = 200;
 const BAD_REQUEST = 400;
 const NOT_FOUND = 404;
+const INTERNAL_ERROR = 500;
 const API = "/node-service/api";
 const PLUGINS = `${API}/plugins`;
 const DYNAMIC_CONFIG = `${API}/getPluginDynamicConfig`;
@@ -160,12 +161,25 @@ describe("GET /plugins response cache", () => {
     expect(listPluginsSpy).toHaveBeenCalledTimes(2);
   });
 
-  test.failing("B8: the /plugins cache respects Accept-Language", async () => {
+  test("B8: the /plugins cache respects Accept-Language", async () => {
     const zh = await getJson(`${PLUGINS}?id=oss`, { "accept-language": "zh" });
     // the localized list differs from English, so the first call really is the Chinese one
     expect(zh.json()[0].name).not.toBe("OSS");
     const en = await getJson(`${PLUGINS}?id=oss`, { "accept-language": "en" });
     expect(en.json()[0].name).toBe("OSS");
+  });
+
+  test("B8: headers that parse to the same language list share one entry", async () => {
+    const first = await getJson(`${PLUGINS}?id=b8-order`, { "accept-language": "en-US, zh;q=0.8" });
+    const second = await getJson(`${PLUGINS}?id=b8-order`, { "accept-language": "zh;q=0.8, en-US" });
+    expect(second.text).toBe(first.text);
+    expect(listPluginsSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("B8: the same language twice is still served from the cache", async () => {
+    await getJson(`${PLUGINS}?id=b8-same`, { "accept-language": "zh" });
+    await getJson(`${PLUGINS}?id=b8-same`, { "accept-language": "zh" });
+    expect(listPluginsSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -194,7 +208,11 @@ describe("POST /getPluginDynamicConfig response cache", () => {
     const nonJson = await call("POST", DYNAMIC_CONFIG, { headers: TEXT_HEADERS, body: "plain text" });
     expect(nonJson.status).toBe(BAD_REQUEST);
     expect(nonJson.json()).toEqual({ message: NOT_ARRAY_MESSAGE });
-    // a JSON POST to the same path has its own key, so it is not answered with the cached refusal
+    // the refusal is not cached (B7): the same request is refused again instead of being answered as 200
+    const nonJsonAgain = await call("POST", DYNAMIC_CONFIG, { headers: TEXT_HEADERS, body: "plain text" });
+    expect(nonJsonAgain.status).toBe(BAD_REQUEST);
+    expect(nonJsonAgain.json()).toEqual({ message: NOT_ARRAY_MESSAGE });
+    // a JSON POST to the same path has its own key and runs the service
     const valid = await postJson(DYNAMIC_CONFIG, [dynamicItem("after-non-json")]);
     expect(valid.status).toBe(STATUS_OK);
     expect(valid.json()).toHaveLength(1);
@@ -202,7 +220,7 @@ describe("POST /getPluginDynamicConfig response cache", () => {
   });
 
   it("leaves a non-JSON (encrypted text) body out of the key: different bodies share one entry, unlike JSON bodies", async () => {
-    // Own query string: the key without a body is `path?query`, and the earlier non-JSON test already cached a refusal under the bare path.
+    // Own query string: the key without a body is `path?query`, and the own query string keeps this test independent of the entries other tests store under the bare path.
     // The body is a hex string, so only the `req.is("application/json")` condition keeps it out of the key.
     const encA = encryptLikeSpring(JSON.stringify([dynamicItem("enc-key-a")]));
     const encB = encryptLikeSpring(JSON.stringify([dynamicItem("enc-key-b")]));
@@ -222,7 +240,17 @@ describe("POST /getPluginDynamicConfig response cache", () => {
     expect(dynamicDefSpy).toHaveBeenCalledTimes(3);
   });
 
-  test.failing("B7: two identical bad requests both get 400", async () => {
+  test("B8: /getPluginDynamicConfig keys on the language too", async () => {
+    const body = JSON.stringify([dynamicItem("b8-lang")]);
+    const postIn = (language: string) =>
+      call("POST", DYNAMIC_CONFIG, { headers: { ...JSON_HEADERS, "accept-language": language }, body });
+    await postIn("en");
+    await postIn("zh");
+    await postIn("en");
+    expect(dynamicDefSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test("B7: two identical bad requests both get 400", async () => {
     const badBody = { not: "an array", unique: "b7" };
     const first = await postJson(DYNAMIC_CONFIG, badBody);
     expect(first.status).toBe(BAD_REQUEST);
@@ -230,6 +258,28 @@ describe("POST /getPluginDynamicConfig response cache", () => {
     const second = await postJson(DYNAMIC_CONFIG, badBody);
     expect(second.status).toBe(BAD_REQUEST);
     expect(second.json()).toEqual({ message: NOT_ARRAY_MESSAGE });
+  });
+
+  test("B7: a refusal from the plugin service is not cached; the service runs again", async () => {
+    const body = [{ pluginName: "no-such-plugin-b7", path: DYNAMIC_PATH, dataSourceConfig: {} }];
+    const first = await postJson(DYNAMIC_CONFIG, body);
+    const second = await postJson(DYNAMIC_CONFIG, body);
+    for (const reply of [first, second]) {
+      expect(reply.status).toBe(BAD_REQUEST);
+      expect(reply.json()).toEqual({ message: "plugin not found: no-such-plugin-b7" });
+    }
+    expect(dynamicDefSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test("B7: a 500 is not cached", async () => {
+    const body = [{ pluginName: DYNAMIC_PLUGIN, path: DYNAMIC_PATH, dataSourceConfig: { specVersion: "no-such-version-b7" } }];
+    const first = await postJson(DYNAMIC_CONFIG, body);
+    const second = await postJson(DYNAMIC_CONFIG, body);
+    for (const reply of [first, second]) {
+      expect(reply.status).toBe(INTERNAL_ERROR);
+      expect(reply.json().message).toBe("Expected a file path, URL, or object. Got undefined");
+    }
+    expect(dynamicDefSpy).toHaveBeenCalledTimes(2);
   });
 });
 
