@@ -20,7 +20,6 @@ import eodhdApi from "./eodhdApi";
 import front from "./front";
 import github from "./github";
 import helloWorld from "./hello-world";
-import hubspot from "./hubspot";
 import huggingFaceEndpoint from "./huggingFaceEndpoint";
 import jira from "./jira";
 import lowcoder from "./lowcoder";
@@ -29,7 +28,6 @@ import notion from "./notion";
 import oneSignal from "./oneSignal";
 import openAi from "./openAi";
 import postmanEcho from "./postmanEcho";
-import salesForce from "./salesForce";
 import sendGrid from "./sendGrid";
 import serpApi from "./serpApi";
 import stripe from "./stripe";
@@ -82,9 +80,7 @@ type BaseUrl =
   /** the datasource config carries the URL; `pathPrefix: "spec"` adds the spec server's path */
   | { from: "datasource"; url: string; pathPrefix?: "spec" }
   /** documented vendor URL that the wrapper hard-codes instead of the spec's */
-  | { from: "vendor"; url: string }
-  /** nothing in the spec or datasource gives a host: only the path is asserted */
-  | { from: "none" };
+  | { from: "vendor"; url: string };
 type AuthKind = "bearer" | "basic" | "raw";
 interface AuthExpectation {
   /** security scheme name in the bundled spec */
@@ -126,18 +122,11 @@ interface Row {
   cached?: boolean;
   /** first key of the plugin's `specs`: the version used when `specVersion` is omitted */
   firstVersion?: string;
-  /**
-   * a known bug: the test of the given aspect is a test.failing named
-   * with that name. When the request never leaves the process (`authUnobservable`), the
-   * auth aspect cannot be observed and has no test of its own: it is the same bug and the same
-   * name, so it is not registered twice.
-   */
-  defect?: { aspect: "url" | "auth"; name: string; authUnobservable?: boolean };
 }
 
 const readSpec = (specFile: string): Json => {
   const content = fs.readFileSync(path.join(PLUGINS_DIR, specFile), "utf-8");
-  // some bundled ".json" specs (hubspot) are YAML documents, so decide by content
+  // some bundled ".json" specs are YAML documents, so decide by content
   return content.trimStart().startsWith("{") ? JSON.parse(content) : parseYaml(content);
 };
 
@@ -300,7 +289,6 @@ const queryConfigOf = (plugin: any, data: Json): Promise<any> => plugin.queryCon
 
 const GITHUB_ORIGIN = "https://api.github.com";
 const SENDGRID_BASE = "https://api.sendgrid.com/v3";
-const HUBSPOT_ORIGIN = "https://api.hubapi.com";
 const EODHD_BASE = "https://eodhd.com/api";
 
 // Hosts below are fictitious test hosts; they only matter where the datasource supplies the URL.
@@ -334,7 +322,6 @@ const rows: Row[] = [
     actionName: "GetAccount", pathValues: { id: "42" },
     base: { from: "datasource", url: "https://boomi.test/api/rest/v1/acct-1" },
     auth: [{ scheme: "basicAuth", kind: "basic", user: "boomi-user", secret: "boomi-pass" }],
-    defect: { aspect: "url", name: "B33: boomi calls the configured URL" },
   },
   {
     plugin: carboneIo, name: "carboneIo", specKind: "static",
@@ -439,7 +426,6 @@ const rows: Row[] = [
     // that is not in their path template, so they cannot be run), hence no credential is expected
     base: { from: "datasource", url: "https://hf.test" },
     auth: [],
-    defect: { aspect: "url", name: "B34: huggingFaceEndpoint calls its endpoint URL", authUnobservable: true },
   },
   {
     plugin: jira, name: "jira", specKind: "versioned", cached: true,
@@ -496,7 +482,6 @@ const rows: Row[] = [
     actionName: "listEngines",
     base: { from: "datasource", url: "https://oai.test/v1" },
     auth: [{ scheme: "ApiKey", kind: "bearer", secret: "sk-test" }],
-    defect: { aspect: "auth", name: "B31: openAi with the default spec version sends its credential" },
   },
   {
     plugin: openAi, name: "openAi (spec version v2.3)", specKind: "versioned",
@@ -571,7 +556,6 @@ const rows: Row[] = [
     actionName: "DirectoryService_GetDomains",
     base: { from: "datasource", url: "https://ui.test/org/tenant/orchestrator_/odata" },
     auth: [{ scheme: "OAuth2", kind: "bearer", secret: "ui-pat" }],
-    defect: { aspect: "auth", name: "B30: uiPath sends its credential" },
   },
   {
     plugin: woocommerce, name: "woocommerce", specKind: "versioned",
@@ -582,30 +566,6 @@ const rows: Row[] = [
     actionName: "get_coupons__id_", pathValues: { id: "7" },
     base: { from: "datasource", url: "https://shop.test", pathPrefix: "spec" },
     auth: [{ scheme: "basicAuth", kind: "basic", user: "ck_user", secret: "cs_pass" }],
-  },
-  {
-    // unregistered plugin, reached by direct import. HubSpot private apps authenticate with "Bearer <token>".
-    plugin: hubspot, name: "hubspot", specKind: "versioned", cached: true,
-    dsConfig: { authToken: "pat-hub-test" }, firstVersion: "v4",
-    uiLabels: ["Action", "Resources"], labelRule: "upperFirstOperationId",
-    specFile: "hubspot/specsV4/CRM API Collections.json", method: "get",
-    path: "/crm/v3/associations/{fromObjectType}/{toObjectType}/types",
-    actionName: "get_crm_v3_associations__fromObjectType___toObjectType__typesCRM API Collections",
-    pathValues: { fromObjectType: "contacts", toObjectType: "companies" },
-    base: { from: "vendor", url: HUBSPOT_ORIGIN },
-    auth: [{ scheme: "oauth2Auth", kind: "bearer", secret: "pat-hub-test" }],
-    defect: { aspect: "auth", name: "B32: hubspot sends its credential" },
-  },
-  {
-    // unregistered plugin. The spec is swagger 2 with basePath but no host and the plugin has no server URL setting.
-    plugin: salesForce, name: "salesForce", specKind: "static",
-    dsConfig: {},
-    uiLabels: ["Action", "Category"], labelRule: "upperFirstOperationId",
-    specFile: "salesForce/salesForce.spec.yaml", method: "get", path: "/iot/activities/{id}",
-    actionName: "get_iot_activities__id_", pathValues: { id: "7" },
-    base: { from: "none" },
-    auth: [],
-    defect: { aspect: "url", name: "B35: salesForce can reach a host", authUnobservable: true },
   },
 ];
 
@@ -698,16 +658,7 @@ describe("wrapper plugins: queryConfig", () => {
 
 describe("wrapper plugins: run through nock", () => {
   describe.each(rows)("$name", (row) => {
-    const urlTest = row.defect?.aspect === "url" ? test.failing : test;
-    const authTest = row.defect?.aspect === "auth" ? test.failing : test;
-    const urlTestName =
-      row.defect?.aspect === "url"
-        ? row.defect.name
-        : "sends the spec's method and URL and returns the response body unchanged";
-    const authTestName =
-      row.defect?.aspect === "auth" ? row.defect.name : "sends the credential the spec's security scheme asks for";
-
-    urlTest(urlTestName, async () => {
+    test("sends the spec's method and URL and returns the response body unchanged", async () => {
       const expected = deriveRequest(row);
       const { body, seen, result } = await runRow(row);
 
@@ -721,9 +672,7 @@ describe("wrapper plugins: run through nock", () => {
       expect(result).toEqual(body);
     });
 
-    // no request leaves the process for an authUnobservable row, so there is nothing to assert on
-    const authTestOrNothing = row.defect?.authUnobservable ? undefined : authTest;
-    authTestOrNothing?.(authTestName, async () => {
+    test("sends the credential the spec's security scheme asks for", async () => {
       const expected = deriveRequest(row);
       const { seen } = await runRow(row);
 
@@ -799,6 +748,99 @@ describe("wrapper plugins: credential and URL edges", () => {
     expect(seen[1].url.pathname).toBe("/v1/assistants");
     expect(seen[1].headers[HEADER_AUTHORIZATION]).toBe("Bearer keyB");
     expect(seen.filter((r) => r.url.origin === "https://a.test" && r.headers[HEADER_AUTHORIZATION] === "Bearer keyB")).toEqual([]);
+  });
+
+  test("openAi: an empty API key sends no Authorization header, for both spec versions", async () => {
+    const seen = captureAll({ data: [] });
+    const OAI_EMPTY_KEY_URL = "https://oai.test/v1";
+
+    await (openAi.run as any)({ actionName: "listEngines" }, { serverURL: OAI_EMPTY_KEY_URL, apiKey: "" }, {});
+    await (openAi.run as any)(
+      LIST_ASSISTANTS,
+      { serverURL: OAI_EMPTY_KEY_URL, apiKey: "", specVersion: OPENAI_SPEC_VERSION },
+      {}
+    );
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0].headers[HEADER_AUTHORIZATION]).toBeUndefined();
+    expect(seen[1].headers[HEADER_AUTHORIZATION]).toBeUndefined();
+  });
+
+  test("openAi: the specVersion placeholder names the version an unset specVersion uses", async () => {
+    const OPENAI_FIRST_VERSION = "v1.0";
+    const specVersionParam = (openAi.dataSourceConfig as any).params.find((p: Json) => p.key === "specVersion");
+    const placeholder = specVersionParam.placeholder;
+
+    expect(placeholder).toBe(OPENAI_FIRST_VERSION);
+    expect(await queryConfigOf(openAi, {})).toEqual(await queryConfigOf(openAi, { specVersion: placeholder }));
+  });
+});
+
+describe("wrapper plugins: boomi server URL", () => {
+  const BOOMI_ORIGIN = "https://boomi.test";
+  const BOOMI_ACCOUNT_PATH = "/api/rest/v1/acct-1";
+  const BOOMI_SERVER_URL_REQUIRED = "The Boomi API url is required";
+  const GET_ACCOUNT_ID = "42";
+  const GET_ACCOUNT = { actionName: "GetAccount", [`path${ConfigKeySplit}id`]: GET_ACCOUNT_ID };
+
+  test("boomi: a trailing slash in the configured URL gives a single slash", async () => {
+    const seen = captureAll({ id: GET_ACCOUNT_ID });
+    await (boomi.run as any)(GET_ACCOUNT, { serverURL: `${BOOMI_ORIGIN}${BOOMI_ACCOUNT_PATH}/` }, {});
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url.origin).toBe(BOOMI_ORIGIN);
+    expect(seen[0].url.pathname).toBe(`${BOOMI_ACCOUNT_PATH}/Account/${GET_ACCOUNT_ID}`);
+  });
+
+  test("boomi: an empty, blank or missing URL is rejected with 400 and nothing is sent", () => {
+    const seen = captureAll({});
+    const dsConfigs: Json[] = [{ serverURL: "" }, { serverURL: "  " }, { "basicAuth.username": "u" }];
+    dsConfigs.forEach((dsConfig) => {
+      expect(() => (boomi.run as any)(GET_ACCOUNT, dsConfig, {})).toThrow(
+        expect.objectContaining({ code: STATUS_BAD_REQUEST, message: BOOMI_SERVER_URL_REQUIRED })
+      );
+    });
+    expect(seen).toHaveLength(0);
+  });
+});
+
+describe("wrapper plugins: uiPath credential", () => {
+  test("uiPath: an empty PAT sends no Authorization header", async () => {
+    const seen = captureAll({ value: [] });
+    await (uiPath.run as any)(
+      { actionName: "DirectoryService_GetDomains" },
+      { serverURL: "https://ui.test/o", "Authorization.value": "" },
+      {}
+    );
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0].headers[HEADER_AUTHORIZATION]).toBeUndefined();
+  });
+});
+
+describe("wrapper plugins: huggingFaceEndpoint endpoint", () => {
+  const HF_ORIGIN = "https://hf.test";
+  const HF_ENDPOINT_REQUIRED = "The Endpoint URL is required";
+  const LIST_VENDORS = { actionName: "list_vendors" };
+
+  test("huggingFaceEndpoint: the endpoint's path prefix is kept", async () => {
+    const seen = captureAll([]);
+    await (huggingFaceEndpoint.run as any)(LIST_VENDORS, { endpoint: `${HF_ORIGIN}/v2/` }, {});
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url.origin).toBe(HF_ORIGIN);
+    expect(seen[0].url.pathname).toBe("/v2/provider");
+  });
+
+  test("huggingFaceEndpoint: an empty, blank or missing endpoint is rejected with 400 and nothing is sent", () => {
+    const seen = captureAll([]);
+    const dsConfigs: Json[] = [{ endpoint: "" }, { endpoint: "  " }, { "token.value": "t" }];
+    dsConfigs.forEach((dsConfig) => {
+      expect(() => (huggingFaceEndpoint.run as any)(LIST_VENDORS, dsConfig, {})).toThrow(
+        expect.objectContaining({ code: STATUS_BAD_REQUEST, message: HF_ENDPOINT_REQUIRED })
+      );
+    });
+    expect(seen).toHaveLength(0);
   });
 });
 

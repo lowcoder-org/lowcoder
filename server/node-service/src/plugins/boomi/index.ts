@@ -3,10 +3,13 @@ import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
+import { badRequest } from "../../common/error";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from './boomi.spec.json';
+
+const SERVER_URL_REQUIRED_MESSAGE = "The Boomi API url is required";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -15,7 +18,7 @@ const dataSourceConfig = {
     key: "serverURL",
     type: "textInput",
     label: "Boomi API URL",
-    rules: [{ required: true, message: "The Boomi API url is required" }],
+    rules: [{ required: true, message: SERVER_URL_REQUIRED_MESSAGE }],
     placeholder: "https://api.boomi.com/api/rest/v1/<atomsphere_account_ID>/",
   },
   {
@@ -68,9 +71,12 @@ const boomiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const { serverURL, ...otherDataSourceConfig } = dataSourceConfig;
+    if (!serverURL?.trim()) {
+      throw badRequest(SERVER_URL_REQUIRED_MESSAGE);
+    }
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
+      serverURL,
       dynamicParamsConfig: otherDataSourceConfig,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);

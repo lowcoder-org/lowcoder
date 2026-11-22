@@ -8,6 +8,9 @@ import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from './uiPath.spec.json';
 
+const AUTHORIZATION_HEADER = "Authorization";
+const BEARER_PREFIX = "Bearer ";
+
 const dataSourceConfig = {
   type: "dataSource",
   params: [
@@ -59,15 +62,14 @@ const uiPathPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const { serverURL } = dataSourceConfig;
+    const token = dataSourceConfig["Authorization.value"];
     const runApiDsConfig = {
       url: "",
       serverURL: serverURL,
-      dynamicParamsConfig: {
-        ...dataSourceConfig,
-        "Authorization.value": "Bearer " + dataSourceConfig["Authorization.value"],
-      },
+      dynamicParamsConfig: dataSourceConfig,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    const headers = token ? { [AUTHORIZATION_HEADER]: BEARER_PREFIX + token } : undefined;
+    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document, headers);
   },
 };
 
