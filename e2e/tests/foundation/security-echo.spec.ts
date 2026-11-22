@@ -183,4 +183,45 @@ test.describe("echo helpers", () => {
   test("npmRegistryPath builds the proxy path of an app and package", () => {
     expect(npmRegistryPath("app1", "e2e-pkg")).toBe("/api/npm/registry/app1/e2e-pkg");
   });
+
+  test("a canned answer is served for its prefix, still recorded, the longest prefix wins and other paths keep the {} answer", async () => {
+    const path = echoTargetPath({ workerIndex: 3, repeatEachIndex: 0, retry: 0 });
+    const canned = async (prefix: string, status: number, body: string, contentType = "application/json"): Promise<number> =>
+      (await fetch(`${baseUrl}${ECHO_PATHS.ANSWERS}`, { method: "POST", body: JSON.stringify({ prefix, status, contentType, body }) })).status;
+    expect(await canned(`${path}/token`, 200, JSON.stringify({ access_token: "abc" })), "the control answer").toBe(204);
+    expect(await canned(`${path}/token/special`, 418, "teapot", "text/plain")).toBe(204);
+
+    const plain = await fetch(`${baseUrl}${path}/token?x=1`, { method: "POST", body: "form" });
+    const longest = await fetch(`${baseUrl}${path}/token/special`);
+    const other = await fetch(`${baseUrl}${path}/other`);
+
+    expect({ status: plain.status, body: await plain.json() }, "the canned answer, the query string is ignored").toEqual({ status: 200, body: { access_token: "abc" } });
+    expect({ status: longest.status, text: await longest.text(), type: longest.headers.get("content-type") }, "the longer prefix").toEqual({ status: 418, text: "teapot", type: "text/plain" });
+    expect({ status: other.status, body: await other.json() }, "a path with no canned answer").toEqual({ status: 200, body: {} });
+    expect((await recordsOf(path)).map((record) => record.path), "all three requests were recorded").toEqual([`${path}/token?x=1`, `${path}/token/special`, `${path}/other`]);
+  });
+
+  test("the latest canned answer of a prefix replaces the earlier one, and an invalid one is refused with 400 and changes nothing", async () => {
+    const path = echoTargetPath({ workerIndex: 3, repeatEachIndex: 1, retry: 0 });
+    const post = async (entry: unknown): Promise<number> => (await fetch(`${baseUrl}${ECHO_PATHS.ANSWERS}`, { method: "POST", body: typeof entry === "string" ? entry : JSON.stringify(entry) })).status;
+    expect(await post({ prefix: `${path}/a`, status: 201, contentType: "text/plain", body: "first" })).toBe(204);
+    expect(await post({ prefix: `${path}/a`, status: 202, contentType: "text/plain", body: "second" })).toBe(204);
+
+    const invalid = [
+      "not json",
+      { prefix: "no-slash", status: 200, contentType: "text/plain", body: "x" },
+      { prefix: `${path}/a`, status: 99, contentType: "text/plain", body: "x" },
+      { prefix: `${path}/a`, status: 600, contentType: "text/plain", body: "x" },
+      { prefix: `${path}/a`, status: 200.5, contentType: "text/plain", body: "x" },
+      { prefix: `${path}/a`, status: 200, contentType: 5, body: "x" },
+      { prefix: `${path}/a`, status: 200, contentType: "text/plain", body: 5 },
+      { prefix: `${path}/a`, status: 200, contentType: "text/plain", body: "y".repeat(MAX_BODY_BYTES + 1) },
+    ];
+    for (const entry of invalid) {
+      expect(await post(entry), `refused: ${typeof entry === "string" ? entry : JSON.stringify(entry).slice(0, 60)}`).toBe(400);
+    }
+
+    const answer = await fetch(`${baseUrl}${path}/a`);
+    expect({ status: answer.status, text: await answer.text() }, "the latest valid answer still stands").toEqual({ status: 202, text: "second" });
+  });
 });

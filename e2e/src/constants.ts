@@ -42,6 +42,8 @@ export const API_PATHS = {
   USER_PASSWORD: "/api/users/password",
   USER_RESET_PASSWORD: "/api/users/reset-password",
   USER_LOST_PASSWORD: "/api/users/lost-password",
+  AUTH_TP_LOGIN: "/api/auth/tp/login",
+  AUTH_EMAIL_BIND: "/api/auth/email/bind",
   USER_RESET_LOST_PASSWORD: "/api/users/reset-lost-password",
   INVITATION_EMAIL: "/api/invitation/email/invite",
   AUTH_LOGOUT: "/api/auth/logout",
@@ -73,7 +75,7 @@ export const NPM_REGISTRIES_SETTING_KEY = "npmRegistries";
 export const ECHO_ENV = "E2E_ECHO_URL";
 
 /** The control routes of the echo sidecar; every other path is recorded and answered `{}`. */
-export const ECHO_PATHS = { HEALTH: "/__e2e/health", REQUESTS: "/__e2e/requests", MAILS: "/__e2e/mails" } as const;
+export const ECHO_PATHS = { HEALTH: "/__e2e/health", REQUESTS: "/__e2e/requests", MAILS: "/__e2e/mails", ANSWERS: "/__e2e/answers" } as const;
 
 /** Path prefix of the echo targets: a test's own target is `<ECHO_TARGET_PREFIX><worker>-<unique id>`, so parallel tests never read each other's records. */
 export const ECHO_TARGET_PREFIX = "/t/";
@@ -405,6 +407,10 @@ export const API_ERRORS = {
   INVALID_PASSWORD: { status: 403, code: 5608 }, // :92
   /** A second sign-in configuration of a provider type that already has one (`AuthenticationApiServiceImpl.java` [3.0.0] `:308-323`; NOT enforced on the image, D-61). */
   DUPLICATE_AUTH_CONFIG_ADDITION: { status: 400, code: 5621 },
+  /** A provider sign-in whose user the workspace's configuration may not create ("Allow Registration" off). */
+  USER_NOT_EXIST: { status: 400, code: 5618 },
+  /** A provider sign-in whose token or user-info call failed (`Failed to get OIDC information`; measured for an `invalid_grant` token answer). */
+  OIDC_INFORMATION_FAILED: { status: 500, code: 5601 },
   /** Disabling or deleting the last enabled sign-in configuration of a workspace (measured). */
   DISABLE_AUTH_CONFIG_FORBIDDEN: { status: 403, code: 5617 },
   /** The form sign-up of an address that does not look like an e-mail address (`FormAuthRequest.java`). */

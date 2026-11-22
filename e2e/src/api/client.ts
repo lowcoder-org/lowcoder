@@ -90,6 +90,8 @@ interface CurrentUserData {
   name?: string;
   /** The name the app shows for the user (measured: the e-mail address until the user sets a nickname). */
   username?: string;
+  /** The sign-in connections of the user (`UserProfileView.connections`): the e-mail connection and one per provider, with the address each knows. */
+  connections?: { source: string; email?: string }[];
   /** UI language code (`en`, `de`...). */
   uiLanguage?: string;
   /** The avatar's URL; `null` or absent without an avatar. */

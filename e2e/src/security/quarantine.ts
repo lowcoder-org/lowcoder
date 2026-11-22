@@ -61,7 +61,7 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
 /**
  * Scenarios that fail on this branch's server too (open defects, listed in the table "Security findings" of
  * `e2e/README.md`), scenario id to defect id. SEC-E05 (ENTERPRISE stack, `tests/security/enterprise-takeover.spec.ts`)
- * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07, LC-AU15 (`tests/auth/signup-edge.spec.ts`), LC-PR06 (`tests/account/profile.spec.ts`), LC-PR13 and LC-PR14 (`tests/account/password.spec.ts`), LC-PW08, LC-PW11, LC-PW12 and LC-PW15 (`tests/auth/password-recovery.spec.ts`), LC-DL03 and LC-DL04 (`tests/workspace/leave-removal.spec.ts`), LC-IP07 (`tests/auth/providers-config.spec.ts`) are lifecycle ids.
+ * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07, LC-AU15 (`tests/auth/signup-edge.spec.ts`), LC-PR06 (`tests/account/profile.spec.ts`), LC-PR13 and LC-PR14 (`tests/account/password.spec.ts`), LC-PW08, LC-PW11, LC-PW12 and LC-PW15 (`tests/auth/password-recovery.spec.ts`), LC-DL03 and LC-DL04 (`tests/workspace/leave-removal.spec.ts`), LC-IP07 (`tests/auth/providers-config.spec.ts`), LC-IP14 (`tests/auth/providers-login.spec.ts`) are lifecycle ids.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-C09": "D-7",
@@ -99,6 +99,7 @@ export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "LC-DL04": "D-60",
   "LC-GR09": "D-52",
   "LC-IP07": "D-61",
+  "LC-IP14": "D-62",
   "LC-PR06": "D-50",
   "LC-PR13": "D-49",
   "LC-PR14": "D-48",

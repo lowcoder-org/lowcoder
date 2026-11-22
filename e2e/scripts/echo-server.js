@@ -11,6 +11,11 @@
  *   (the oldest are dropped).
  * - GET /__e2e/health answers `ok`.
  * - GET /__e2e/requests?prefix=<p> answers the records whose path starts with <p>, as a JSON array.
+ * - POST /__e2e/answers { prefix, status, contentType, body } stores a canned answer: a request (any method) whose path starts with
+ *   `prefix` is still recorded and then gets that status, content type and body instead of `{}`. One entry per prefix (the latest wins),
+ *   the longest matching prefix answers, at most MAX_RECORDS entries are kept (the oldest are dropped). The control answer is 204; an
+ *   invalid entry (prefix not starting with "/", status outside 100-599, a non-string body or content type, body over MAX_BODY_BYTES) is 400.
+ *   Every other path keeps the `{}` answer, so the outbound tests are unaffected.
  *
  * It is also the run's mail sink: a minimal SMTP listener on MAIL_PORT (default 2525) accepts every message the SERVER
  * sends (password reset, invitation) and delivers it nowhere.
@@ -37,6 +42,11 @@ const CONTROL_PREFIX = "/__e2e/";
 const HEALTH_PATH = "/__e2e/health";
 const REQUESTS_PATH = "/__e2e/requests";
 const MAILS_PATH = "/__e2e/mails";
+const ANSWERS_PATH = "/__e2e/answers";
+const STATUS_NO_CONTENT = 204;
+const STATUS_BAD_REQUEST = 400;
+const MIN_HTTP_STATUS = 100;
+const MAX_HTTP_STATUS = 599;
 const STATUS_OK = 200;
 const STATUS_NOT_FOUND = 404;
 const MAIL_PORT = Number(process.env.MAIL_PORT || 2525);
@@ -51,14 +61,70 @@ const TERMINATOR_HOLD_BACK_BYTES = DATA_TERMINATOR.length - 1;
 const records = [];
 /** @type {{ from: string, to: string[], data: string }[]} */
 const mails = [];
+/** @type {Map<string, { status: number, contentType: string, body: string }>} canned answers by path prefix, oldest first */
+const answers = new Map();
 
 function send(response, status, contentType, text) {
   response.writeHead(status, { "content-type": contentType });
   response.end(text);
 }
 
+/** Validates and stores one canned answer; returns whether it was valid. */
+function storeAnswer(text) {
+  let entry;
+  try {
+    entry = JSON.parse(text);
+  } catch {
+    return false;
+  }
+  const valid =
+    entry !== null &&
+    typeof entry === "object" &&
+    typeof entry.prefix === "string" &&
+    entry.prefix.startsWith("/") &&
+    Number.isInteger(entry.status) &&
+    entry.status >= MIN_HTTP_STATUS &&
+    entry.status <= MAX_HTTP_STATUS &&
+    typeof entry.contentType === "string" &&
+    typeof entry.body === "string" &&
+    Buffer.byteLength(entry.body) <= MAX_BODY_BYTES;
+  if (!valid) {
+    return false;
+  }
+  answers.delete(entry.prefix);
+  answers.set(entry.prefix, { status: entry.status, contentType: entry.contentType, body: entry.body });
+  if (answers.size > MAX_RECORDS) {
+    answers.delete(answers.keys().next().value);
+  }
+  return true;
+}
+
+/** The canned answer of the longest stored prefix of a path (the query string is ignored), or undefined. */
+function cannedAnswerFor(path) {
+  const pathname = path.split("?")[0];
+  let best;
+  for (const [prefix, answer] of answers) {
+    if (pathname.startsWith(prefix) && (best === undefined || prefix.length > best.prefix.length)) {
+      best = { prefix, answer };
+    }
+  }
+  return best?.answer;
+}
+
 function handleControl(request, response) {
   const url = new URL(request.url, "http://echo.invalid");
+  if (request.method === "POST" && url.pathname === ANSWERS_PATH) {
+    const chunks = [];
+    request.on("data", (chunk) => chunks.push(chunk));
+    request.on("end", () => {
+      if (storeAnswer(Buffer.concat(chunks).toString("utf8"))) {
+        response.writeHead(STATUS_NO_CONTENT).end();
+      } else {
+        send(response, STATUS_BAD_REQUEST, "text/plain", "invalid canned answer");
+      }
+    });
+    return;
+  }
   if (request.method === "GET" && url.pathname === HEALTH_PATH) {
     return send(response, STATUS_OK, "text/plain", "ok");
   }
@@ -97,6 +163,10 @@ function handleRecorded(request, response) {
     records.push({ method: request.method, path: request.url, headers: request.headers, body });
     if (records.length > MAX_RECORDS) {
       records.splice(0, records.length - MAX_RECORDS);
+    }
+    const canned = cannedAnswerFor(request.url);
+    if (canned) {
+      return send(response, canned.status, canned.contentType, canned.body);
     }
     send(response, STATUS_OK, "application/json", "{}");
   });
