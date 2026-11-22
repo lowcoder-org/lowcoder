@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { encodeJwtPart, forgeApiKeyToken, forgeUnsignedToken, signJwtParts, tokenIsSignedWith, withRandomSignature } from "../../src/security/tokens";
+import { bearerHeader, encodeJwtPart, forgeApiKeyToken, issuedAtSecond, forgeUnsignedToken, signJwtParts, tokenIsSignedWith, withRandomSignature } from "../../src/security/tokens";
 
 /** Stack-free unit tests of src/security/tokens.ts (RFC 7515 appendix A.1 is the oracle of the signer). */
 
@@ -77,5 +77,14 @@ test.describe("security tokens", () => {
     expect(first.split(".")[2], "signature replaced").not.toBe(token.split(".")[2]);
     expect(first, "random each time").not.toBe(second);
     expect(tokenIsSignedWith(first, SECRET), "no longer a valid signature").toBe(false);
+  });
+
+  test("bearerHeader builds the Authorization header of a token, issuedAtSecond reads its iat", () => {
+    const token = forgeApiKeyToken(SECRET, USER_ID, USER_NAME);
+
+    expect(bearerHeader(token)).toEqual({ Authorization: `Bearer ${token}` });
+    expect(issuedAtSecond(token), "the forged token is issued 'now', in seconds").toBeGreaterThan(1_700_000_000);
+    expect(issuedAtSecond(token)).toBeLessThanOrEqual(Math.floor(Date.now() / 1000));
+    expect(() => issuedAtSecond(`${encodeJwtPart({ alg: "HS256" })}.${encodeJwtPart({})}.signature`), "a token without iat").toThrow(/no numeric iat/);
   });
 });
