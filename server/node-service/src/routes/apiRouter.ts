@@ -9,6 +9,8 @@ const apiRouter = express.Router();
 
 // In-memory cache object
 const cache: { [key: string]: any } = {};
+const HTTP_SUCCESS_MIN = 200;
+const HTTP_SUCCESS_MAX = 299;
 
 // Helper function to flatten Request Query object
 function flatQuery(query: ParsedQs) {
@@ -28,7 +30,9 @@ function flatQuery(query: ParsedQs) {
 // Middleware to cache responses for specific routes
 function cacheMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
 
-    let cacheKey = req.path + "?" + querystring.stringify(flatQuery(req.query));
+    // the responses are localized from req.acceptsLanguages() (services/plugin.ts getPluginContext), so it is part of the key (B8)
+    const languages = JSON.stringify(req.acceptsLanguages());
+    let cacheKey = languages + req.path + "?" + querystring.stringify(flatQuery(req.query));
 
     if (req.method === "POST" && req.is("application/json") && req.body) {
         cacheKey += JSON.stringify(req.body);
@@ -42,7 +46,10 @@ function cacheMiddleware(req: express.Request, res: express.Response, next: expr
     // Override res.json instead of res.send to store response in cache as JSON
     const originalJson = res.json.bind(res);
     res.json = (body: any) => {
-        cache[cacheKey] = body; // Cache the JSON response
+        // only successful responses are cached; an error must reach every caller with its own status (B7)
+        if (res.statusCode >= HTTP_SUCCESS_MIN && res.statusCode <= HTTP_SUCCESS_MAX) {
+            cache[cacheKey] = body;
+        }
         originalJson(body); // Send the JSON response
         return res;
     };
