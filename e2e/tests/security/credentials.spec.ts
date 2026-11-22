@@ -14,8 +14,6 @@ import {
   API_KEYS_LIST_PATH,
   API_PATHS,
   APP_ROLES,
-  AUTHORIZATION_HEADER,
-  BEARER_PREFIX,
   CHANGED_PASSWORD,
   COOKIE_HEADER,
   FORWARDED_FOR_HEADER,
@@ -33,7 +31,7 @@ import { SEEDED_BUTTON_TEST_ID, adminOfApiUser, grantApp } from "../../src/secur
 import { expectAnswer } from "../../src/security/assertions";
 import { securityTestDetails } from "../../src/security/quarantine";
 import { memberOf, sceneOf } from "../../src/security/scene";
-import { forgeApiKeyToken, forgeUnsignedToken, tokenIsSignedWith, withRandomSignature } from "../../src/security/tokens";
+import { bearerHeader, forgeApiKeyToken, forgeUnsignedToken, tokenIsSignedWith, withRandomSignature } from "../../src/security/tokens";
 
 /**
  * Forged and revoked credentials (A01 and A03). The anonymous caller is a browser context that never signed in,
@@ -44,10 +42,6 @@ const SECURITY_CORE = [TAGS.CORE];
 const API_KEY_NAME = "e2e-sec-real-key";
 const ALLOWED = { status: 200, code: API_OK } as const;
 
-function bearer(token: string): Record<string, string> {
-  return { [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${token}` };
-}
-
 test.describe("security: forged and revoked credentials", () => {
   test("SEC-A01a a token forged with the published default secret is anonymous", securityTestDetails("SEC-A01a", SECURITY_CORE), async ({ page, apiUser, newUserSession }) => {
     const a = await adminOfApiUser(page.request, apiUser);
@@ -55,17 +49,17 @@ test.describe("security: forged and revoked credentials", () => {
     // Controls: a key A really created authenticates through the header, and the signer below reproduces its signature,
     // so the forgery fails because the token is not a stored key, not because the header or the signer is broken.
     const realKey = await createApiKey(a.request, API_KEY_NAME);
-    expectAnswer(await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearer(realKey.token) }), ALLOWED, "before: A's real key authenticates");
+    expectAnswer(await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearerHeader(realKey.token) }), ALLOWED, "before: A's real key authenticates");
     expect(tokenIsSignedWith(realKey.token, PUBLIC_DEFAULT_API_KEY_SECRET), "the image signs with the published default secret").toBe(true);
     const forged = forgeApiKeyToken(PUBLIC_DEFAULT_API_KEY_SECRET, a.userId, a.email);
     expect(forged, "the forgery is not the real key").not.toBe(realKey.token);
     expect(tokenIsSignedWith(forged, PUBLIC_DEFAULT_API_KEY_SECRET), "and carries a valid signature").toBe(true);
 
-    const answer = await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearer(forged) });
+    const answer = await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearerHeader(forged) });
 
     expectAnswer(answer, API_ERRORS.UNAUTHENTICATED, "the forged token on an authenticated route");
     expect(answer.body, "the entry point sets only the status").toBe("");
-    const me = await apiRaw(anonymous, "GET", API_PATHS.CURRENT_USER, { headers: bearer(forged) });
+    const me = await apiRaw(anonymous, "GET", API_PATHS.CURRENT_USER, { headers: bearerHeader(forged) });
     expect((me.json as { data: { id: string } }).data.id, "the forged token does not make the caller A").not.toBe(a.userId);
     expect(me.body, "and the answer carries nothing of A").not.toContain(a.email);
   });
@@ -102,14 +96,14 @@ test.describe("security: forged and revoked credentials (further rows)", () => {
     const a = await adminOfApiUser(page.request, apiUser);
     const anonymous = (await newUserSession()).page.request;
     const realKey = await createApiKey(a.request, API_KEY_NAME);
-    expectAnswer(await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearer(realKey.token) }), ALLOWED, "before: A's real key authenticates through the header");
+    expectAnswer(await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearerHeader(realKey.token) }), ALLOWED, "before: A's real key authenticates through the header");
     const unsigned = forgeUnsignedToken(a.userId, a.email);
     const wrongSignature = withRandomSignature(forgeApiKeyToken(PUBLIC_DEFAULT_API_KEY_SECRET, a.userId, a.email));
     const tamperedRealKey = withRandomSignature(realKey.token);
     expect(tamperedRealKey, "the tampered real key differs from the real one").not.toBe(realKey.token);
 
     for (const [label, token] of [["alg none", unsigned], ["a random signature on a forged token", wrongSignature], ["a random signature on A's real key", tamperedRealKey]] as const) {
-      const answer = await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearer(token) });
+      const answer = await apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearerHeader(token) });
       expectAnswer(answer, API_ERRORS.UNAUTHENTICATED, `the token with ${label}`);
       expect(answer.body, `the answer to ${label} sets only the status`).toBe("");
     }
@@ -119,7 +113,7 @@ test.describe("security: forged and revoked credentials (further rows)", () => {
     const a = await adminOfApiUser(page.request, apiUser);
     const anonymous = (await newUserSession()).page.request;
     const key = await createApiKey(a.request, API_KEY_NAME);
-    const withKey = () => apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearer(key.token) });
+    const withKey = () => apiRaw(anonymous, "GET", API_PATHS.USER_MY_ORG, { headers: bearerHeader(key.token) });
     expectAnswer(await withKey(), ALLOWED, "before: the key authenticates");
     expect((await apiRaw(a.request, "GET", API_KEYS_LIST_PATH)).body, "before: the key is listed").toContain(key.id);
 
@@ -135,11 +129,11 @@ test.describe("security: forged and revoked credentials (further rows)", () => {
     await grantApp(a, seeded.appId, m, APP_ROLES.VIEWER);
     const anonymous = (await newUserSession()).page.request;
     const key = await createApiKey(m.request, API_KEY_NAME);
-    expectAnswer(await apiRaw(anonymous, "GET", appViewPath(seeded.appId), { headers: bearer(key.token) }), ALLOWED, "before: M's key views the granted app");
+    expectAnswer(await apiRaw(anonymous, "GET", appViewPath(seeded.appId), { headers: bearerHeader(key.token) }), ALLOWED, "before: M's key views the granted app");
 
     await removeOrgMember(a.request, a.orgId, m.userId);
 
-    const answer = await apiRaw(anonymous, "GET", appViewPath(seeded.appId), { headers: bearer(key.token) });
+    const answer = await apiRaw(anonymous, "GET", appViewPath(seeded.appId), { headers: bearerHeader(key.token) });
     expectAnswer(answer, API_ERRORS.NO_PERMISSION_TO_REQUEST_APP, "after: M's key on the app of the workspace M left");
     expect(answer.body, "no app in the denial").not.toContain(SEEDED_BUTTON_TEST_ID);
   });
@@ -152,9 +146,9 @@ test.describe("security: forged and revoked credentials (further rows)", () => {
 
     // No role gate on creating one's own key (the profile UI hides the card from non-developers, a client gate only).
     const key = await createApiKey(m.request, API_KEY_NAME);
-    const me = await apiRaw(anonymous, "GET", API_PATHS.CURRENT_USER, { headers: bearer(key.token) });
+    const me = await apiRaw(anonymous, "GET", API_PATHS.CURRENT_USER, { headers: bearerHeader(key.token) });
     expect((me.json as { data: { id: string } }).data.id, "before: the key authenticates as M").toBe(m.userId);
-    const answer = await apiRaw(anonymous, "PUT", orgUpdatePath(a.orgId), { headers: bearer(key.token), data: { orgName: RENAMED_ORG } });
+    const answer = await apiRaw(anonymous, "PUT", orgUpdatePath(a.orgId), { headers: bearerHeader(key.token), data: { orgName: RENAMED_ORG } });
 
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "M's key on an admin route");
     expect((await currentUser(a.request)).orgAndRoles.find((row) => row.org.id === a.orgId)?.org.name, "after: the workspace name is unchanged").toBe(orgNameBefore);

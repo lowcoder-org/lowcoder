@@ -1,6 +1,8 @@
 import { currentUser } from "../../src/api/client";
 import { UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
+import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
+import { issuedAtSecond } from "../../src/security/tokens";
 import { ProfileModal } from "../../src/pages/ProfileModal";
 import { ProfilePage } from "../../src/pages/ProfilePage";
 import { UserMenu } from "../../src/pages/UserMenu";
@@ -35,5 +37,31 @@ test.describe("lifecycle page objects", () => {
 
     await expect(modal.passwordFields, "old, new and confirmation").toHaveCount(3);
     await expect(modal.submitButton).toBeEnabled();
+  });
+
+  test("ApiKeysCard creates a key, reads its token and deletes it; a listed token is masked", async ({ actor }) => {
+    const user = await actor("pgkeys");
+    const profile = new ProfilePage(user.session.page);
+    const keys = new ApiKeysCard(user.session.page);
+    await profile.open();
+    await expect(keys.title).toBeVisible();
+    await expect(keys.rows, "before: an empty table").toHaveCount(0);
+
+    await keys.create("pg-key", "page object");
+
+    await expect(keys.rowOf("pg-key")).toBeVisible();
+    await expect(keys.newKeyAlert).toBeVisible();
+    expect((await keys.tokenOf("pg-key")).length, "the new key shows its full token").toBeGreaterThan(MASKED_TOKEN_PATTERN.source.length);
+    const issuedAt = issuedAtSecond(await keys.tokenOf("pg-key"));
+    await user.session.page.reload();
+    expect(MASKED_TOKEN_PATTERN.test(await keys.tokenOf("pg-key")), "a listed token is masked").toBe(true);
+    await expect.poll(() => Math.floor(Date.now() / 1000), "wait for the next second").toBeGreaterThan(issuedAt);
+    await keys.create("pg-key-second");
+    await expect(keys.rowOf("pg-key-second")).toBeVisible();
+
+    await keys.deleteKey("pg-key");
+
+    await expect(keys.rowOf("pg-key"), "deleteKey removes the row of a key that is not the last").toHaveCount(0);
+    await expect(keys.rowOf("pg-key-second")).toBeVisible();
   });
 });

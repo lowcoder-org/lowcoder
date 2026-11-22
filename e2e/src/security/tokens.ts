@@ -1,4 +1,5 @@
 import { createHmac, randomBytes } from "node:crypto";
+import { AUTHORIZATION_HEADER, BEARER_PREFIX } from "../constants";
 
 /** Algorithm of an API-key token (api/authentication/util/JWTUtils.java signs with HS256). */
 const JWT_ALGORITHM = "HS256";
@@ -70,4 +71,18 @@ export function forgeUnsignedToken(userId: string, createdBy: string): string {
 export function withRandomSignature(token: string): string {
   const [header, payload] = token.split(".") as [string, string];
   return `${header}.${payload}.${randomBytes(RANDOM_SIGNATURE_BYTES).toString("base64url")}`;
+}
+
+/** The request header that authenticates a call with an API-key token: `{ Authorization: "Bearer <token>" }`. */
+export function bearerHeader(token: string): Record<string, string> {
+  return { [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${token}` };
+}
+
+/** The `iat` claim (seconds) of an API-key token: its payload is the second part, base64url JSON. */
+export function issuedAtSecond(token: string): number {
+  const payload = JSON.parse(Buffer.from(token.split(".")[1] ?? "", "base64url").toString("utf8")) as { iat?: unknown };
+  if (typeof payload.iat !== "number") {
+    throw new Error("the token has no numeric iat claim");
+  }
+  return payload.iat;
 }

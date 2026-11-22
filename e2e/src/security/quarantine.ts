@@ -47,6 +47,8 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
   "SEC-R16c": "D-23",
   "SEC-R16d": "D-24",
   "SEC-A02a": "D-45",
+  "LC-AK04": "D-45",
+  "LC-AK08": "D-51",
   "SEC-A06b": "D-23",
   "SEC-A07a": "D-19",
   "SEC-A09a": "D-25",
