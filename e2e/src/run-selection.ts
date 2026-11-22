@@ -14,8 +14,10 @@ export interface RunFlags {
    */
   includeEnterpriseTakeover: boolean;
   /**
-   * The stack of the run: `default` (SAAS workspace mode) or `enterprise` (ENTERPRISE workspace mode, one shared
-   * workspace). The enterprise profile runs the `@enterprise` tests and nothing else; the default profile never runs them.
+   * The stack of the run: `default` (SAAS workspace mode), `enterprise` (ENTERPRISE workspace mode, one shared workspace) or
+   * `signup-disabled` (the e-mail sign-up switched off by the deployment). The enterprise profile runs the `@enterprise` tests
+   * and nothing else, the signup-disabled profile the `@signup-disabled` tests and nothing else; the default profile never
+   * runs either.
    */
   stackProfile: StackProfile;
 }
@@ -50,13 +52,16 @@ export function runFlagsFromEnv(env: Record<string, string | undefined>): RunFla
 
 /**
  * The tags a run leaves out. Default profile: each opt-in tag unless its own flag is set (the three flags are
- * independent), and always `@enterprise` and `@enterprise-takeover`. Enterprise profile: `@quarantine` unless its flag is set,
+ * independent), and always `@enterprise`, `@enterprise-takeover` and `@signup-disabled`. Signup-disabled profile: `@quarantine` unless its flag is set. Enterprise profile: `@quarantine` unless its flag is set,
  * and `@enterprise-takeover` unless ITS flag is set; the other two flags do not apply there (`@insert-all` tests are outside
  * the `@enterprise` selection anyway, and the super admin of that stack is a member of ONE workspace, so the D-47 capacity
  * limit behind `@superadmin` does not arise: SEC-E01 to E06a use it and carry the tag for the guard of
  * tests/foundation/run-selection.spec.ts).
  */
 export function excludedTags(flags: RunFlags): string[] {
+  if (flags.stackProfile === STACK_PROFILES.SIGNUP_DISABLED) {
+    return flags.includeQuarantine ? [] : [TAGS.QUARANTINE];
+  }
   if (flags.stackProfile === STACK_PROFILES.ENTERPRISE) {
     return [
       ...(flags.includeQuarantine ? [] : [TAGS.QUARANTINE]),
@@ -69,6 +74,7 @@ export function excludedTags(flags: RunFlags): string[] {
     ...(flags.includeSuperAdmin ? [] : [TAGS.SUPERADMIN]),
     TAGS.ENTERPRISE,
     TAGS.ENTERPRISE_TAKEOVER,
+    TAGS.SIGNUP_DISABLED,
   ];
 }
 
@@ -87,13 +93,14 @@ export function grepInvertFor(flags: RunFlags): RegExp | undefined {
 }
 
 /**
- * The `grep` of the Playwright config. Default profile: `undefined`. Enterprise profile: `/@enterprise/` (only the tests made
+ * The `grep` of the Playwright config. Default profile: `undefined`. Signup-disabled profile: `/@signup-disabled/`. Enterprise profile: `/@enterprise/` (only the tests made
  * for that stack, whatever files the run names), or `/@enterprise-takeover/` with the takeover flag, so that run holds SEC-E05
  * alone and never shares its stack with another test. Measured with Playwright 1.64 (`--list` with the config's `grep` and a
  * `--grep` on the command line): a command-line `--grep` does NOT replace the config's `grep`, it narrows it further, so a
  * command-line pattern can only select fewer tests of the profile, never reach a test outside it.
  */
 export function grepFor(flags: RunFlags): RegExp | undefined {
+  if (flags.stackProfile === STACK_PROFILES.SIGNUP_DISABLED) return new RegExp(TAGS.SIGNUP_DISABLED);
   if (flags.stackProfile !== STACK_PROFILES.ENTERPRISE) return undefined;
   return new RegExp(flags.includeEnterpriseTakeover ? TAGS.ENTERPRISE_TAKEOVER : TAGS.ENTERPRISE);
 }

@@ -131,11 +131,19 @@ export async function registerUser(request: APIRequestContext, email: string): P
 
 /**
  * The form sign-up of `registerUser` as a raw answer (no unwrap), for the call under test: the answer of a refused
- * sign-up is the subject. The request context keeps the session cookie when the sign-up works.
+ * sign-up is the subject. The request context keeps the session cookie when the sign-up works. `invitation` adds the two
+ * query parameters `invitationId` and `orgId` the register page sends when the visitor came through an invitation link
+ * (`UserApi.formLogin` in `client/packages/lowcoder/src/api/userApi.ts`; the server reads them with `@RequestParam`).
  */
-export async function registerRaw(request: APIRequestContext, email: string, password: string): Promise<RawAnswer> {
+export async function registerRaw(
+  request: APIRequestContext,
+  email: string,
+  password: string,
+  invitation?: { invitationId: string; orgId: string },
+): Promise<RawAnswer> {
   return apiRaw(request, "POST", API_PATHS.LOGIN, {
     data: { loginId: email, password, register: true, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
+    params: invitation,
   });
 }
 
