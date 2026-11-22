@@ -49,4 +49,12 @@ export class ProfilePage {
     await this.nameInput.fill(name);
     await this.nameInput.press("Enter");
   }
+
+  /**
+   * The number on an "Info" card (`UserProfileLayout.tsx`): the `data-target` span after the card's label, which counts up
+   * for two seconds, so wait with a web-first assertion on its text.
+   */
+  infoCount(label: string): Locator {
+    return this.page.getByText(label, { exact: true }).locator("xpath=following::span[@data-target][1]");
+  }
 }

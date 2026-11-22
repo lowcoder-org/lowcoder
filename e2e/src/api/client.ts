@@ -86,6 +86,8 @@ export interface RegisteredUser {
 }
 
 interface CurrentUserData {
+  /** The user's id (`GET /api/users/me`). */
+  id?: string;
   /** Display name of the user (`GET /api/users/me`). */
   name?: string;
   /** The name the app shows for the user (measured: the e-mail address until the user sets a nickname). */
