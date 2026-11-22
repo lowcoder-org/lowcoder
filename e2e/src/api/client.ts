@@ -41,6 +41,7 @@ import {
   recyclePath,
   restorePath,
   snapshotsPath,
+  orgLeavePath,
   switchOrgPath,
   TEST_PASSWORD,
   apiKeyPath,
@@ -813,6 +814,17 @@ export async function signInRaw(request: APIRequestContext, email: string, passw
   return apiRaw(request, "POST", API_PATHS.LOGIN, {
     data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
   });
+}
+
+/** `DELETE /api/organizations/{id}/leave`: the caller leaves the workspace (a plain member has no UI control for it). */
+export async function leaveOrganization(request: APIRequestContext, orgId: string): Promise<void> {
+  await unwrap<unknown>(`leave organisation ${orgId}`, await request.delete(orgLeavePath(orgId)));
+}
+
+/** `POST /api/organizations`: creates a workspace the caller administers (SAAS mode only); returns its id. */
+export async function createOrganization(request: APIRequestContext, name: string): Promise<string> {
+  const org = await unwrap<{ orgId: string }>(`create organisation ${name}`, await request.post(API_PATHS.ORGANIZATIONS, { data: { name } }));
+  return org.orgId;
 }
 
 /** `PUT /api/users`: sets the caller's display name (`username` in the profile answer) and UI language; a blank value is skipped. */

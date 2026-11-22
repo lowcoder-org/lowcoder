@@ -15,4 +15,16 @@ export class UserMenu {
     await this.page.getByTitle(name).first().click();
     await this.page.locator(".ant-dropdown:visible").getByText(name, { exact: true }).first().click();
   }
+
+  /** Creates a workspace from the avatar menu: the app makes it at once (default name "New Workspace (Organization)<n>") and opens /setting/organization. */
+  async createWorkspace(name: string): Promise<void> {
+    await this.page.getByTitle(name).first().click();
+    await this.page.getByText("Create Workspace", { exact: true }).click();
+  }
+
+  /** Switches to a workspace from the avatar menu's "Switch Workspace" list. */
+  async switchWorkspace(userName: string, workspaceName: string): Promise<void> {
+    await this.page.getByTitle(userName).first().click();
+    await this.page.locator(".ant-dropdown:visible").getByText(workspaceName, { exact: true }).last().click();
+  }
 }

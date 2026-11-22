@@ -657,5 +657,9 @@ export const SETTING_PATHS = {
   /** The members of the "All Users" group: user name, joining time, role select. */
   MEMBERS: "/setting/permission/users",
   OAUTH_PROVIDER: "/setting/oauth-provider",
+  /** The user groups: the group list with "Create Group" and "Invite Members". */
+  GROUPS: "/setting/permission",
+  /** The workspaces of the user: create, switch, edit, delete. */
+  WORKSPACES: "/setting/organization",
 } as const;
 export const DATASOURCE_PAGE_PATH = "/datasource";

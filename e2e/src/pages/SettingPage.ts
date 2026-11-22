@@ -35,4 +35,19 @@ export class SettingPage {
   roleSelectOf(email: string): Locator {
     return this.memberRow(email).locator(".ant-select");
   }
+
+  /** The "Invite Members" button of the group list page (/setting/permission). */
+  get inviteMembersButton(): Locator {
+    return this.page.getByText("Invite Members", { exact: true });
+  }
+
+  /** The invitation link in the open invite dialog: the value of its first input (shape `<origin>/invite/<code>`). */
+  async inviteLink(): Promise<string> {
+    return this.page.locator(".ant-modal:visible input").first().inputValue();
+  }
+
+  /** The operation cell of a member's row on the All Users group page (empty: that group is a synchronised group). */
+  operationsOf(email: string): Locator {
+    return this.memberRow(email).locator(".operation-cell-div-wrapper");
+  }
 }

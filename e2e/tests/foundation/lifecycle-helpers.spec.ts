@@ -1,6 +1,12 @@
-import { apiRaw, currentUser, deleteProfilePhoto, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
+import { apiRaw, createOrganization, currentUser, deleteProfilePhoto, leaveOrganization, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
 import { API_ERRORS, API_OK, API_PATHS, SESSION_COOKIE_NAME, SET_COOKIE_HEADER, TEST_PASSWORD } from "../../src/constants";
 import { randomPng } from "../../src/media";
+import { createInvitation, acceptInvitation } from "../../src/api/client";
+
+/** Joins `guest` to the workspace `orgId` that `owner` administers. */
+async function joinWorkspaceOf(owner: { request: import("@playwright/test").APIRequestContext }, guest: { request: import("@playwright/test").APIRequestContext }, orgId: string): Promise<void> {
+  await acceptInvitation(guest.request, await createInvitation(owner.request, orgId));
+}
 import { expect, test, uniqueEmail } from "../../src/fixtures";
 
 /** Stack tests of the raw account helpers of the lifecycle specs (`registerRaw`, `signInRaw`). */
@@ -47,6 +53,19 @@ test.describe("lifecycle account helpers", () => {
     expect((await readProfilePhoto(user.request)).status, "the avatar is gone").not.toBe(200);
     await uploadProfilePhoto(user.request, png);
     expect((await readProfilePhoto(user.request)).status, "and can be set again").toBe(200);
+  });
+
+  test("createOrganization makes a workspace the caller administers, leaveOrganization leaves one", async ({ actor }) => {
+    const owner = await actor("rawlocal");
+    const guest = await actor("rawguest");
+    const orgId = await createOrganization(owner.request, "E2E Helper Workspace");
+    expect((await currentUser(owner.request)).orgAndRoles.find((entry) => entry.org.id === orgId)?.role, "the creator administers it").toBe("admin");
+
+    await joinWorkspaceOf(owner, guest, orgId);
+    expect((await currentUser(guest.request)).orgAndRoles.map((entry) => entry.org.id), "before: the guest belongs to it").toContain(orgId);
+    await leaveOrganization(guest.request, orgId);
+
+    expect((await currentUser(guest.request)).orgAndRoles.map((entry) => entry.org.id), "after leaving").not.toContain(orgId);
   });
 
   test("randomPng builds a valid PNG of the size its dimensions give", () => {

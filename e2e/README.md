@@ -216,7 +216,7 @@ e2e/
 
 Test titles carry these ids.
 
-- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids). Built: AU01 to AU16 (sign-up and sign-in edge cases, `auth/signup-edge.spec.ts` and `auth/signin-session.spec.ts`), PR01 to PR15 (profile and password, `account/profile.spec.ts` and `account/password.spec.ts`), AK01 to AK08 (API keys, `account/api-keys.spec.ts`).
+- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids). Built: AU01 to AU16 (sign-up and sign-in edge cases, `auth/signup-edge.spec.ts` and `auth/signin-session.spec.ts`), PR01 to PR15 (profile and password, `account/profile.spec.ts` and `account/password.spec.ts`), AK01 to AK08 (API keys, `account/api-keys.spec.ts`), WM01, WM03, WM04, WM06, WM08 to WM12 (members and workspaces in the UI, `workspace/members-gui.spec.ts` and `workspace/workspaces-gui.spec.ts`).
 
 - S1 insert, save, publish, load every one of the 112 types (`@insert-all`; catalog unit tests in `insert-catalog.spec.ts`).
 - S2 text inputs; S3 choice components; S4 date and time; S5 sliders and colour picker; S6 buttons and menus; S7 display components.
@@ -230,11 +230,11 @@ Test titles carry these ids.
 ## Test catalogue
 
 Counts: `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`:
-default **508 tests in 86 files**; with `E2E_INCLUDE_QUARANTINE=1` **566 in 88**; with `E2E_INCLUDE_SUPERADMIN=1` **511 in 86**; with both of those **571 in 88**;
-with `E2E_INCLUDE_INSERT_ALL=1` **620 in 87**; with all three opt-in variables **683 in 89** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **520 tests in 88 files**; with `E2E_INCLUDE_QUARANTINE=1` **578 in 90**; with `E2E_INCLUDE_SUPERADMIN=1` **523 in 88**; with both of those **583 in 90**;
+with `E2E_INCLUDE_INSERT_ALL=1` **632 in 89**; with all three opt-in variables **695 in 91** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **6 in 1** (SEC-E01 to E04, E06a, E06b; also with `E2E_INCLUDE_QUARANTINE=1` alone), **1 in 1** with `E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (SEC-E05 alone), **0** with the takeover variable alone (SEC-E05 is quarantined too); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 7 tests, none in a default-stack listing.
-Default-run tag counts: `@smoke` 5, `@core` 54, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 60 (58 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
-also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 32 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 7 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-PR06, LC-PR13, LC-PR14).
+Default-run tag counts: `@smoke` 5, `@core` 55, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 60 (58 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
+also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 41 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 7 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-PR06, LC-PR13, LC-PR14).
 
 ### smoke (4)
 
@@ -245,7 +245,7 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | smoke/editor-drag.spec.ts | a component dragged from the insert panel is on the canvas and saved (D-3 prone) | @smoke | 1 |
 | smoke/network-guard.spec.ts | requests to lowcoder.cloud are blocked, the app is let through | @smoke | 1 |
 
-### auth, workspace, apps (27), account (23)
+### auth, workspace, apps (36), account (23)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -255,6 +255,8 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | account/profile.spec.ts | LC-PR01 to PR08, PR15: display name on the profile page and in the My Profile modal, an empty name refused, avatar upload, SVG refused, an oversized avatar (LC-PR06 quarantined: D-50), delete, UI language, status flags | @lifecycle, @quarantine for 1 | 9 (8 default) |
 | account/password.spec.ts | LC-PR09 to PR14: password change in the modal, a wrong old password, the rule, a blank old password, replacing a password without the old one (LC-PR13 quarantined: D-49), a weak new password (LC-PR14 quarantined: D-48) | @lifecycle, @core for PR09, @quarantine for 2 | 6 (4 default) |
 | account/api-keys.spec.ts | LC-AK01 to AK08: a key created in the UI authenticates, the token is shown once and listed masked, a key deleted in the UI stops working, no key card for a plain member, a name is required, a key follows the user's current workspace, two keys of one second never share a token (LC-AK04 quarantined: D-45; LC-AK08: D-51, both fixed on the branch) | @lifecycle, @quarantine for 2 | 8 (6 default) |
+| workspace/members-gui.spec.ts | LC-WM01, WM03, WM04, WM06, WM12: the All Users group page (group roles, Remove from Group leaves the membership: O-16), the invite dialog's link lets a user in, a plain member has no settings and the API leave works, an unknown invitation code | @lifecycle, @core for WM04 | 5 |
+| workspace/workspaces-gui.spec.ts | LC-WM08 to WM11: Create Workspace in the avatar menu, switching, renaming, deleting with the exact name | @lifecycle | 4 |
 | workspace/member-access.spec.ts | invited member sees only shared apps; invitation link flow | @core | 2 |
 | apps/public-app.spec.ts | public app renders for an anonymous visitor, a private one does not | @core | 1 |
 | apps/publish-draft.spec.ts | published view shows the last published version, not the draft | @smoke @core | 1 |
@@ -409,7 +411,7 @@ Listing, from `e2e/` (no stack): `E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL
 
 Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order-dependent (the batched data-source check; measured 8 failures and 2 passes in 10 repeats), so a quarantine run can show it passing. Accounting of `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the @superadmin tag existed, so it included SEC-R16c and R16d; they now need `E2E_INCLUDE_SUPERADMIN=1` as well): 44 listed, 43 failed, 1 passed (SEC-R09d), 0 skipped, 0 did not run; the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (216, unit and builder tests; several touch the stack)
+### foundation (219, unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -430,8 +432,8 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | foundation/security-echo.spec.ts | the echo sidecar (`scripts/echo-server.js` started on a loopback port: record and read back, per-target prefixes, control paths, body cut) and `src/security/echo.ts`, `n8nDatasourceBody`, `npmRegistryPath` (no stack) | none | 16 |
 | foundation/security-api-raw.spec.ts | `apiRaw` against a local server: status, code, body, params, request and response headers (no stack) | none | 7 |
 | foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 16 |
-| foundation/lifecycle-pages.spec.ts | `ProfilePage`, `ProfileModal`, `UserMenu.openProfile`, `ApiKeysCard` | none | 3 |
-| foundation/lifecycle-helpers.spec.ts | `registerRaw`, `signInRaw`, `updateProfile`, `deleteProfilePhoto`, the multipart option of `apiRaw`, `randomPng` | none | 4 |
+| foundation/lifecycle-pages.spec.ts | `ProfilePage`, `ProfileModal`, `UserMenu` (profile, create and switch workspace), `ApiKeysCard`, `WorkspacesPage` | none | 4 |
+| foundation/lifecycle-helpers.spec.ts | `registerRaw`, `signInRaw`, `updateProfile`, `deleteProfilePhoto`, `createOrganization`, `leaveOrganization`, the multipart option of `apiRaw`, `randomPng` | none | 5 |
 | foundation/security-constants.spec.ts | `API_ERRORS`, roles, security path builders (no stack) | none | 6 |
 | foundation/security-tokens.spec.ts | `src/security/tokens.ts`: the HS256 signer against RFC 7515 A.1, forged, unsigned and wrongly signed tokens, `bearerHeader`, `issuedAtSecond` (no stack) | none | 9 |
 | foundation/security-assertions.spec.ts | `expectAnswer` and `expectDeniedAs` pass on a match and fail on a wrong status or code (no stack) | none | 6 |
@@ -454,6 +456,7 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | O-13 | observation: a mounted host never reloads a module that was republished under it while the module id is unchanged | `modules/module-versions.spec.ts` asserts the old version stays over `MOUNTED_HOST_OBSERVATION_MS` |
 | O-14 | observation: the chat controller's `messageSent` fires only when the answer succeeds, `messageReceived` fires either way | `components/chat.spec.ts` |
 | O-15 | observation: the bound `connectionStatus` of the chat controller reads `Online` at its first read | `components/chat.spec.ts` uses a received frame as the signal of the connection |
+| O-16 | observation: the 3.0.0 client has no working page for a workspace's own members (`orgUsersPermission.tsx` is not routed): `/setting/permission/users` is the All Users group page with group roles, and its Remove from Group takes the user off that page but leaves the workspace membership; changing a workspace role or removing a member is API-only | `workspace/members-gui.spec.ts` LC-WM01, LC-WM03 (annotation `observation`) |
 | D-45 | on the 3.0.0 image `DELETE /api/auth/api-key/{id}` of the user's last key answers 200 but the key stays listed and keeps authenticating (fixed on the branch by `86fe43f9d`, NOT VERIFIED at runtime) | `security/credentials.spec.ts` SEC-A02a and the helper test in `foundation/security-helpers.spec.ts`, `@quarantine`, annotation `D-45`; LC-AK04 (the UI delete of the last key) |
 | D-46 | on the 3.0.0 image recycling a bundle sets the status and answers 500 / 5005 (suspected open at HEAD, NOT VERIFIED) | `security/bundles.spec.ts` SEC-R17f and the helper test, `@quarantine`, annotation `D-46`; `recycleBundle` tolerates exactly this answer |
 

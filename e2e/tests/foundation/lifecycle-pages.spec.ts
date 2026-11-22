@@ -1,8 +1,11 @@
 import { currentUser } from "../../src/api/client";
-import { UI_PATHS } from "../../src/constants";
+import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
 import { issuedAtSecond } from "../../src/security/tokens";
+import { SettingPage } from "../../src/pages/SettingPage";
+import { joinWorkspace } from "../../src/security/actors";
+import { WorkspacesPage } from "../../src/pages/WorkspacesPage";
 import { ProfileModal } from "../../src/pages/ProfileModal";
 import { ProfilePage } from "../../src/pages/ProfilePage";
 import { UserMenu } from "../../src/pages/UserMenu";
@@ -63,5 +66,38 @@ test.describe("lifecycle page objects", () => {
 
     await expect(keys.rowOf("pg-key"), "deleteKey removes the row of a key that is not the last").toHaveCount(0);
     await expect(keys.rowOf("pg-key-second")).toBeVisible();
+  });
+
+  test("WorkspacesPage lists rows, creates through UserMenu and switches", async ({ actor }) => {
+    const user = await actor("pgorgs");
+    const page = user.session.page;
+    const list = new WorkspacesPage(page);
+    await page.goto("/apps");
+
+    await new UserMenu(page).createWorkspace(user.email);
+
+    await expect(list.rows, "the user has two workspaces").toHaveCount(2);
+    const created = (await currentUser(user.request)).orgAndRoles.find((entry) => entry.org.id !== user.orgId)?.org.name;
+    await expect(list.row(created!).getByText("Switch", { exact: true }), "the new workspace offers Switch").toBeVisible();
+    await list.switchTo(created!);
+    await expect.poll(async () => (await currentUser(user.request)).currentOrgId, "WorkspacesPage.switchTo switches").not.toBe(user.orgId);
+    await new UserMenu(page).switchWorkspace(user.email, (await currentUser(user.request)).orgAndRoles.find((entry) => entry.org.id === user.orgId)!.org.name!);
+    await expect.poll(async () => (await currentUser(user.request)).currentOrgId, "UserMenu.switchWorkspace switches back").toBe(user.orgId);
+  });
+
+  test("SettingPage: the invite dialog link and the operations cell of a row", async ({ actor }) => {
+    const admin = await actor("pgsetting");
+    const member = await actor("pgsettingm");
+    await joinWorkspace(admin, member);
+    const settings = new SettingPage(admin.session.page);
+
+    await admin.session.page.goto(SETTING_PATHS.GROUPS);
+    await settings.inviteMembersButton.click();
+    expect(await settings.inviteLink(), "the dialog's link").toMatch(/\/invite\/[^/]+$/);
+    await admin.session.page.keyboard.press("Escape");
+    await settings.openMembers();
+    await settings.memberRow(member.email).hover();
+
+    await expect(settings.operationsOf(member.email)).toContainText("Remove from Group");
   });
 });
