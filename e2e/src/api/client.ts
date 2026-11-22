@@ -816,6 +816,26 @@ export async function signInRaw(request: APIRequestContext, email: string, passw
   });
 }
 
+/** `POST /api/users/lost-password`: asks for a reset mail for an address (anonymous route; the answer is empty whatever the address). */
+export async function requestPasswordReset(request: APIRequestContext, address: string): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.USER_LOST_PASSWORD, { data: { userEmail: address } });
+}
+
+/** `POST /api/users/reset-lost-password`: sets a new password from a mailed token (anonymous route). The call under test, so raw. */
+export async function resetLostPasswordRaw(
+  request: APIRequestContext,
+  credentials: { address: string; token: string; password: string },
+): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.USER_RESET_LOST_PASSWORD, {
+    data: { userEmail: credentials.address, token: credentials.token, newPassword: credentials.password },
+  });
+}
+
+/** `POST /api/invitation/email/invite`: creates an invitation of a workspace and mails its link to the addresses. */
+export async function sendInvitationEmails(request: APIRequestContext, orgId: string, addresses: string[]): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.INVITATION_EMAIL, { data: { emails: addresses, orgId } });
+}
+
 /** `DELETE /api/organizations/{id}/leave`: the caller leaves the workspace (a plain member has no UI control for it). */
 export async function leaveOrganization(request: APIRequestContext, orgId: string): Promise<void> {
   await unwrap<unknown>(`leave organisation ${orgId}`, await request.delete(orgLeavePath(orgId)));

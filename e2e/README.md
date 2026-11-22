@@ -228,7 +228,7 @@ e2e/
 
 Test titles carry these ids.
 
-- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids). Built: AU01 to AU16 (sign-up and sign-in edge cases, `auth/signup-edge.spec.ts` and `auth/signin-session.spec.ts`), PR01 to PR15 (profile and password, `account/profile.spec.ts` and `account/password.spec.ts`), AK01 to AK08 (API keys, `account/api-keys.spec.ts`), WM01, WM03, WM04, WM06, WM08 to WM12 (members and workspaces in the UI, `workspace/members-gui.spec.ts` and `workspace/workspaces-gui.spec.ts`), GR01 to GR10 (groups, `workspace/groups-gui.spec.ts`), SH01 to SH06 (sharing, `workspace/share-gui.spec.ts`).
+- LC-<area><nn> user-lifecycle tests (`@lifecycle`, quarantined through the same two maps as the SEC ids). Built: AU01 to AU16 (sign-up and sign-in edge cases, `auth/signup-edge.spec.ts` and `auth/signin-session.spec.ts`), PR01 to PR15 (profile and password, `account/profile.spec.ts` and `account/password.spec.ts`), PW01 to PW15 (password recovery and invitation mails, `auth/password-recovery.spec.ts`), AK01 to AK08 (API keys, `account/api-keys.spec.ts`), WM01, WM03, WM04, WM06, WM08 to WM12 (members and workspaces in the UI, `workspace/members-gui.spec.ts` and `workspace/workspaces-gui.spec.ts`), GR01 to GR10 (groups, `workspace/groups-gui.spec.ts`), SH01 to SH06 (sharing, `workspace/share-gui.spec.ts`).
 
 - S1 insert, save, publish, load every one of the 112 types (`@insert-all`; catalog unit tests in `insert-catalog.spec.ts`).
 - S2 text inputs; S3 choice components; S4 date and time; S5 sliders and colour picker; S6 buttons and menus; S7 display components.
@@ -242,11 +242,11 @@ Test titles carry these ids.
 ## Test catalogue
 
 Counts: `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`:
-default **559 tests in 93 files**; with `E2E_INCLUDE_QUARANTINE=1` **619 in 95**; with `E2E_INCLUDE_SUPERADMIN=1` **562 in 93**; with both of those **624 in 95**;
-with `E2E_INCLUDE_INSERT_ALL=1` **671 in 94**; with all three opt-in variables **736 in 96** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **572 tests in 95 files**; with `E2E_INCLUDE_QUARANTINE=1` **639 in 97**; with `E2E_INCLUDE_SUPERADMIN=1` **575 in 95**; with both of those **644 in 97**;
+with `E2E_INCLUDE_INSERT_ALL=1` **684 in 96**; with all three opt-in variables **756 in 98** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **6 in 1** (SEC-E01 to E04, E06a, E06b; also with `E2E_INCLUDE_QUARANTINE=1` alone), **1 in 1** with `E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (SEC-E05 alone), **0** with the takeover variable alone (SEC-E05 is quarantined too); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 7 tests, none in a default-stack listing.
-Default-run tag counts: `@smoke` 5, `@core` 56, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 62 (60 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
-also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 56 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 9 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-GR03, LC-GR09, LC-PR06, LC-PR13, LC-PR14).
+Default-run tag counts: `@smoke` 5, `@core` 57, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 69 (67 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
+also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 64 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 16 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-GR03, LC-GR09, LC-PR06, LC-PR13, LC-PR14, LC-PW08, LC-PW09, LC-PW10, LC-PW11, LC-PW12, LC-PW14, LC-PW15).
 
 ### smoke (4)
 
@@ -264,6 +264,7 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | auth/login.spec.ts | sign-in and sign-out; wrong password stays on sign-in | @core | 2 |
 | auth/signup-edge.spec.ts | LC-AU01 to AU08, AU15, AU16: a registered address in any casing, a malformed address, the password rules of the form, the invitation link, a workspace sign-up page, a mismatched confirmation (LC-AU07 and LC-AU15 are quarantined: D-48 password rule, D-30) | @lifecycle, @core for AU08, @quarantine for 2 | 10 (8 default) |
 | auth/signin-session.spec.ts | LC-AU09 to AU14: unknown address, choosing among two workspaces, UI sign-out ends the server session, cookie lifetime, redirects of signed-in and anonymous visitors | @lifecycle, @core for AU11 | 6 |
+| auth/password-recovery.spec.ts | LC-PW01 to PW15: the forgot page mails one reset link, the reset page sets the password from the link, a token works once, a new request kills the earlier token, a wrong or another user's token is refused, the answer hides whether an address has an account, the invitation mail from the dialog lets the addressee in (LC-PW08 D-34, PW09 D-56, PW10 D-57, PW11 D-58, PW12 D-54, PW14 D-18, PW15 D-55 quarantined). Trace off: the pages and requests carry tokens | @lifecycle, @core for PW02, @quarantine for 7 | 15 (8 default) |
 | account/profile.spec.ts | LC-PR01 to PR08, PR15: display name on the profile page and in the My Profile modal, an empty name refused, avatar upload, SVG refused, an oversized avatar (LC-PR06 quarantined: D-50), delete, UI language, status flags | @lifecycle, @quarantine for 1 | 9 (8 default) |
 | account/password.spec.ts | LC-PR09 to PR14: password change in the modal, a wrong old password, the rule, a blank old password, replacing a password without the old one (LC-PR13 quarantined: D-49), a weak new password (LC-PR14 quarantined: D-48) | @lifecycle, @core for PR09, @quarantine for 2 | 6 (4 default) |
 | account/api-keys.spec.ts | LC-AK01 to AK08: a key created in the UI authenticates, the token is shown once and listed masked, a key deleted in the UI stops working, no key card for a plain member, a name is required, a key follows the user's current workspace, two keys of one second never share a token (LC-AK04 quarantined: D-45; LC-AK08: D-51, both fixed on the branch) | @lifecycle, @quarantine for 2 | 8 (6 default) |
@@ -425,7 +426,7 @@ Listing, from `e2e/` (no stack): `E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL
 
 Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order-dependent (the batched data-source check; measured 8 failures and 2 passes in 10 repeats), so a quarantine run can show it passing. Accounting of `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the @superadmin tag existed, so it included SEC-R16c and R16d; they now need `E2E_INCLUDE_SUPERADMIN=1` as well): 44 listed, 43 failed, 1 passed (SEC-R09d), 0 skipped, 0 did not run; the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (244, unit and builder tests; several touch the stack)
+### foundation (249, unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -446,11 +447,12 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | foundation/security-echo.spec.ts | the echo sidecar (`scripts/echo-server.js` started on a loopback port: record and read back, per-target prefixes, control paths, body cut) and `src/security/echo.ts`, `n8nDatasourceBody`, `npmRegistryPath` (no stack) | none | 16 |
 | foundation/security-api-raw.spec.ts | `apiRaw` against a local server: status, code, body, params, request and response headers (no stack) | none | 7 |
 | foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 16 |
-| foundation/lifecycle-pages.spec.ts | `ProfilePage`, `ProfileModal`, `UserMenu` (profile, create and switch workspace), `ApiKeysCard`, `WorkspacesPage`, `GroupsPage`, `ShareDialog`, `SettingPage` (invite link, operations) | none | 7 |
-| foundation/lifecycle-mail.spec.ts | `src/lifecycle/mail.ts` against the two recorded mails (`fixtures/mail/`) and built messages: encodings, charsets, nested multipart, encoded-word subjects, `resetTokenOf`, `inviteCodeOf`, the error types (no stack) | none | 11 |
+| foundation/lifecycle-pages.spec.ts | `ProfilePage`, `ProfileModal`, `UserMenu` (profile, create and switch workspace), `ApiKeysCard`, `WorkspacesPage`, `GroupsPage`, `ShareDialog`, `SettingPage` (invite link, operations), `PasswordRecoveryPage`, `LoginPage.forgotPasswordLink`, the invite dialog of `SettingPage` (send, notice) | none | 9 |
+| foundation/lifecycle-mail.spec.ts | `src/lifecycle/mail.ts` against the two recorded mails (`fixtures/mail/`) and built messages: encodings, charsets, nested multipart, encoded-word subjects, `resetTokenOf`, `inviteCodeOf`, the error types (no stack), `resetLinkOf` (cut at the token characters), `withSingleSlashes` | none | 13 |
 | foundation/lifecycle-mail-sink.spec.ts | the mail sink of `scripts/echo-server.js` on loopback ports with a raw SMTP client: a recorded conversation, case-insensitive match, dot-stuffing, 502, byte-by-byte commands, pipelining, a split terminator, RSET, 503, the over-long line, the body cut (also across writes, with the terminator split at the cut), `mailboxAt` (no stack) | none | 11 |
 | foundation/lifecycle-mail-stack.spec.ts | the sink on the stack: a reset request makes the server mail one reset link whose token the parser extracts | `@lifecycle` | 1 |
 | foundation/lifecycle-helpers.spec.ts | `registerRaw`, `signInRaw`, `updateProfile`, `deleteProfilePhoto`, `createOrganization`, `leaveOrganization`, the multipart option of `apiRaw`, `randomPng` | none | 5 |
+| foundation/lifecycle-recovery-helpers.spec.ts | `requestPasswordReset`, `resetLostPasswordRaw`, `sendInvitationEmails` against the stack and the mail sink (its own file, trace off: a live token passes through a request context) | none | 1 |
 | foundation/security-constants.spec.ts | `API_ERRORS`, roles, security path builders (no stack) | none | 6 |
 | foundation/security-tokens.spec.ts | `src/security/tokens.ts`: the HS256 signer against RFC 7515 A.1, forged, unsigned and wrongly signed tokens, `bearerHeader`, `issuedAtSecond` (no stack) | none | 9 |
 | foundation/security-assertions.spec.ts | `expectAnswer` and `expectDeniedAs` pass on a match and fail on a wrong status or code (no stack) | none | 6 |
@@ -501,7 +503,7 @@ and passes.
 | D-15 | API keys are signed with a published default secret; a forged token is refused only because it must equal a stored key | open, defended (pin) | SEC-A01a |
 | D-16 | any signed-in user writes deployment-wide server config | fixed on branch (`24295707f`) | SEC-R08c (positive half SEC-R16b) |
 | D-17 | library queries of other workspaces can be read and run | fixed on branch (`e84499a0b`) | SEC-C15 |
-| D-18 | any signed-in user invites itself into any workspace | fixed on branch (`2ae399ef2`) | SEC-C17a, C17b |
+| D-18 | any signed-in user invites itself into any workspace | fixed on branch (`2ae399ef2`) | SEC-C17a, C17b, LC-PW14 (the invitation mail of another workspace) |
 | D-19 | folder create with a client-chosen id replaces another workspace's folder | fixed on branch (`f3e4b2908`) | SEC-A07a |
 | D-20 | a query naming its datasource by gid skips the use permission | fixed on branch (`a8e6531ec`) | SEC-R09c |
 | D-21 | any signed-in user lists any app's versions | fixed on branch (`f698f98ef`) | SEC-C20 |
@@ -517,7 +519,7 @@ and passes.
 | D-31 | an editor of any app reads any history snapshot by id | open | SEC-C21 |
 | D-32 | any workspace member reads the full live DSL of any of its apps | open | SEC-R01d |
 | D-33 | credentialed CORS from any origin with CSRF protection off (default allowed origins `*`) | open | SEC-A12 (`@quarantine`), SEC-A13 (pin) |
-| D-34 | sessions survive a password change | open | SEC-A04 |
+| D-34 | sessions survive a password change | open | SEC-A04, LC-PW08 (a password reset), `@quarantine` |
 | D-35 | anonymous callers use any app's workspace npm registry settings | open | SEC-X01b, X01c |
 | D-36 | the collaboration server checks neither the user nor the room | open | SEC-A11 |
 | D-37 | the app slug route has no permission check (latent while no slug is stored) | open | SEC-C16f |
@@ -537,6 +539,11 @@ and passes.
 | D-51 | an API-key token is the user id and the second it was created in (no unique id): two keys of one user created in the same second are the same token, so deleting one of them does not revoke it (measured on the image: back-to-back keys collide) | fixed on branch (`0da2e7f76`, a random `jti` in every new key token; not verified at runtime) | LC-AK08, `@quarantine`; LC-AK03 creates its second key in a later second to avoid it |
 | D-52 | `PUT /api/groups/{id}/update` renames the all-users group (measured on the image) and, by the same code, the developers group (not measured): the rename has no system-group check, the UI only hides the control (HEAD unchanged by the commit log) | open | LC-GR09, `@quarantine` |
 | D-53 | deleting a group leaves its members the access the group granted: a member of a deleted group still views the app the group was granted on, 30 s after the delete (measured on the image; HEAD unchanged by the commit log) | open | LC-GR03, `@quarantine` |
+| D-54 | the reset link of the mail has a double slash (`<public URL>//user/auth/lost-password?token=...`, because the public URL, in the shipped default too, ends in a slash) and the client opens a blank page for it; the same link with one slash opens the reset form (measured on the image; the link is built in `EmailCommunicationServiceImpl`, HEAD unchanged by the commit log) | open | LC-PW12, `@quarantine` |
+| D-55 | the invite dialog confirms with a raw translation key (`oups! membersSettings.inviteByEmailSuccess`): the client asks for keys that do not exist (`inviteDialog.tsx`, HEAD unchanged by the commit log) | open | LC-PW15, `@quarantine` |
+| D-56 | the password-reset mail ignores the workspace's own template (the template is read with the wrong key; measured on the image: the marker of a stored template is absent) | fixed on branch (`adfe89327`; not run at HEAD) | LC-PW09, `@quarantine` |
+| D-57 | an account in no workspace gets no reset mail while the forgot page still confirms (measured on the image: a member removed from its only workspace gets none) | fixed on branch (`49e759ed9`; not run at HEAD) | LC-PW10, `@quarantine` |
+| D-58 | a reset request for a display name that is not an address mails that user's token to the typed text: whoever can rename a user sets the victim's name to an address of its own and receives the victim's token (measured on the image: the alias received a mail; the reset itself was not run; HEAD code read, `UserServiceImpl.java:437`) | open | LC-PW11, `@quarantine` |
 
 Quarantine decision rule: a test that asserts the DESIRED behaviour and fails today is `@quarantine`. A
 characterisation or workaround test that passes while documenting a defect (CD-5, CD-7, CD-3 limits, D-3 handling) is not.

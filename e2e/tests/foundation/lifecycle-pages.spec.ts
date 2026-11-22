@@ -1,6 +1,8 @@
 import { createGroup, currentUser, listGroupMembers, listGroups } from "../../src/api/client";
 import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
+import { LoginPage } from "../../src/pages/LoginPage";
+import { PasswordRecoveryPage } from "../../src/pages/PasswordRecoveryPage";
 import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
 import { issuedAtSecond } from "../../src/security/tokens";
 import { ShareDialog } from "../../src/pages/ShareDialog";
@@ -146,5 +148,35 @@ test.describe("lifecycle page objects", () => {
 
     await expect(share.publicSwitch).toBeVisible();
     await expect(share.publicSwitch).not.toBeChecked();
+  });
+
+  test("LoginPage.forgotPasswordLink and PasswordRecoveryPage reach the forgot page and show its confirmation", async ({ actor, newUserSession }) => {
+    const user = await actor("pgforgot");
+    const session = await newUserSession();
+    const login = new LoginPage(session.page);
+    const recovery = new PasswordRecoveryPage(session.page);
+
+    await login.open();
+    await login.emailInput.fill(user.email);
+    await login.continueButton.click();
+    await login.forgotPasswordLink.click();
+    await expect(recovery.emailInput, "the forgot page has an empty address field").toHaveValue("");
+    await recovery.submitForgot(user.email);
+
+    await expect(recovery.forgotSuccessMessage).toBeVisible();
+    await recovery.openForgot();
+    await expect(recovery.submitButton, "openForgot opens the forgot page again").toBeVisible();
+  });
+
+  test("SettingPage.sendInvitationTo sends from the invite dialog and inviteNotice shows its notice", async ({ actor }, testInfo) => {
+    const admin = await actor("pginvite");
+    const settings = new SettingPage(admin.session.page);
+
+    await admin.session.page.goto(SETTING_PATHS.GROUPS);
+    await settings.inviteMembersButton.click();
+    await expect(settings.inviteDialog).toBeVisible();
+    await settings.sendInvitationTo(`pginvitee-${testInfo.workerIndex}-${Date.now()}@example.test`);
+
+    await expect(settings.inviteNotice).toBeVisible();
   });
 });

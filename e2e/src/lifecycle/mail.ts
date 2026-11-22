@@ -45,6 +45,8 @@ const IDENTITY_ENCODINGS = ["7bit", "8bit", "binary", ""];
 const DEFAULT_CHARSET = "utf-8";
 const ENCODED_WORD = /=\?([^?]+)\?([bBqQ])\?([^?]*)\?=/g;
 const MAX_MIME_DEPTH = 8;
+/** The characters of a URL-encoded token (`URLEncoder` leaves letters, digits and `.-*_`; the rest is `%XX`): a delimiter after the link is not part of it. */
+const LINK_TOKEN_CHARS = "[A-Za-z0-9%.*_~-]+";
 
 /** The headers of a block as a lower-case name -> value map (folded lines unfolded, the first of a repeated name wins). */
 function parseHeaders(block: string): Map<string, string> {
@@ -184,7 +186,7 @@ export function textOf(mail: ParsedMail): string {
  * Throws MalformedMailError when the mail holds no such link (the message names neither the token nor the mail).
  */
 export function resetTokenOf(mail: ParsedMail): string {
-  const match = new RegExp(`${RESET_PASSWORD_PAGE.replace(/\//g, "\\/")}\\?${RESET_TOKEN_PARAM}=([^\\s<"']+)`).exec(textOf(mail));
+  const match = new RegExp(`${RESET_PASSWORD_PAGE.replace(/\//g, "\\/")}\\?${RESET_TOKEN_PARAM}=(${LINK_TOKEN_CHARS})`).exec(textOf(mail));
   const encoded = match?.[1];
   if (encoded === undefined) {
     throw new MalformedMailError(`no ${RESET_PASSWORD_PAGE} link with a ${RESET_TOKEN_PARAM}`);
@@ -194,6 +196,25 @@ export function resetTokenOf(mail: ParsedMail): string {
   } catch {
     throw new MalformedMailError("the token of the reset link is not valid percent-encoding");
   }
+}
+
+/**
+ * The reset link of a password-reset mail exactly as mailed (the path starts with whatever slashes the server's public URL
+ * leaves). It holds the token: use it to open a page, never put it into a matcher or a message.
+ */
+export function resetLinkOf(mail: ParsedMail): string {
+  const match = new RegExp(`https?:\\/\\/[^\\s<"']*${RESET_PASSWORD_PAGE.replace(/\//g, "\\/")}\\?${RESET_TOKEN_PARAM}=${LINK_TOKEN_CHARS}`).exec(textOf(mail));
+  if (!match) {
+    throw new MalformedMailError(`no ${RESET_PASSWORD_PAGE} link with a ${RESET_TOKEN_PARAM}`);
+  }
+  return match[0];
+}
+
+/** A link with the repeated slashes of its path collapsed (`http://h//user/x` -> `http://h/user/x`): what a browser needs when the public URL ends in a slash. */
+export function withSingleSlashes(link: string): string {
+  const url = new URL(link);
+  url.pathname = url.pathname.replace(/\/{2,}/g, "/");
+  return url.toString();
 }
 
 /** The invitation code of an invitation mail: the text after `/invite/` in its link. */

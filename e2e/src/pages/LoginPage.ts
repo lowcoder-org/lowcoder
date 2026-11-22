@@ -31,6 +31,11 @@ export class LoginPage {
     return this.page.getByText(USER_NOT_FOUND_TEXT);
   }
 
+  /** The link of the password step that leads to the forgot page (`formLoginSteps.tsx:355-362`). */
+  get forgotPasswordLink(): Locator {
+    return this.page.getByText("Forgot Password?", { exact: true });
+  }
+
   get selectWorkspaceHeading(): Locator {
     return this.page.getByText(SELECT_WORKSPACE_TEXT);
   }

@@ -9,7 +9,9 @@ import {
   isInvitation,
   isPasswordReset,
   parseMail,
+  resetLinkOf,
   resetTokenOf,
+  withSingleSlashes,
   textOf,
   type SinkMail,
 } from "../../src/lifecycle/mail";
@@ -133,6 +135,23 @@ test.describe("mail parser", () => {
     const mail = parseMail(simple(['Content-Type: multipart/mixed; boundary="B1"'], body));
 
     expect(mail.parts.map((part) => part.text)).toEqual(["see --B1 inside and x--B1 too"]);
+  });
+
+  test("resetLinkOf returns the link as mailed and withSingleSlashes collapses only the slashes of its path", () => {
+    const mail = parseMail(fixture("password-reset.eml"));
+    const link = resetLinkOf(mail);
+
+    expect(link.replace(/token=.*/, "token=<T>"), "the link keeps the double slash of the public URL").toBe("http://lowcoder-e2e-app:3000//user/auth/lost-password?token=<T>");
+    expect(withSingleSlashes(link).replace(/token=.*/, "token=<T>")).toBe("http://lowcoder-e2e-app:3000/user/auth/lost-password?token=<T>");
+    expect(withSingleSlashes("http://h:1/a/b?x=//y"), "a link with single slashes and slashes in the query is unchanged").toBe("http://h:1/a/b?x=//y");
+    expect(() => resetLinkOf(parseMail(fixture("invitation.eml"))), "an invitation holds no reset link").toThrow(MalformedMailError);
+  });
+
+  test("a link followed by a delimiter in plain text is cut at the token's own characters", () => {
+    const mail = parseMail(simple(["Content-Type: text/plain"], "Open (http://h//user/auth/lost-password?token=ab%3Ccd-1), then \"http://h//user/auth/lost-password?token=zz\"."));
+
+    expect(resetTokenOf(mail), "the first link, up to the closing parenthesis").toBe("ab<cd-1");
+    expect(resetLinkOf(mail).endsWith("token=ab%3Ccd-1"), "the link ends where the token does").toBe(true);
   });
 
   test("a mail with no reset link, or a token that is not percent-encoding, is refused without echoing the text", () => {

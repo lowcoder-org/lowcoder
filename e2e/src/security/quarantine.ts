@@ -49,6 +49,9 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
   "SEC-A02a": "D-45",
   "LC-AK04": "D-45",
   "LC-AK08": "D-51",
+  "LC-PW09": "D-56",
+  "LC-PW10": "D-57",
+  "LC-PW14": "D-18",
   "SEC-A06b": "D-23",
   "SEC-A07a": "D-19",
   "SEC-A09a": "D-25",
@@ -58,7 +61,7 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
 /**
  * Scenarios that fail on this branch's server too (open defects, listed in the table "Security findings" of
  * `e2e/README.md`), scenario id to defect id. SEC-E05 (ENTERPRISE stack, `tests/security/enterprise-takeover.spec.ts`)
- * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07, LC-AU15 (`tests/auth/signup-edge.spec.ts`), LC-PR06 (`tests/account/profile.spec.ts`), LC-PR13 and LC-PR14 (`tests/account/password.spec.ts`) are lifecycle ids.
+ * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07, LC-AU15 (`tests/auth/signup-edge.spec.ts`), LC-PR06 (`tests/account/profile.spec.ts`), LC-PR13 and LC-PR14 (`tests/account/password.spec.ts`), LC-PW08, LC-PW11, LC-PW12 and LC-PW15 (`tests/auth/password-recovery.spec.ts`) are lifecycle ids.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-C09": "D-7",
@@ -96,6 +99,10 @@ export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "LC-PR06": "D-50",
   "LC-PR13": "D-49",
   "LC-PR14": "D-48",
+  "LC-PW08": "D-34",
+  "LC-PW11": "D-58",
+  "LC-PW12": "D-54",
+  "LC-PW15": "D-55",
 };
 
 /** What a security test passes to `test(title, details, body)`: the `tag` and, for a quarantined test, the annotation. */
