@@ -174,18 +174,6 @@ describe("fauna", () => {
     await expect(faunaPlugin.run(actionOf(), { region: "eu", apiKey: API_KEY } as any, CTX)).resolves.toEqual(DATA);
     expect(scope.isDone()).toBe(true);
   });
-
-  // B41: kvToRecord drops every falsy value (common/util.ts:14), so the
-  // GraphQL variables 0 and false are silently removed from the request. The test asserts the CORRECT
-  // behaviour: a variable whose value is 0 or false is sent.
-  test.failing("B41: GraphQL variables 0 and false are sent", async () => {
-    let seenBody: any;
-    nock(FAUNA_ENDPOINTS.us.origin)
-      .post(FAUNA_ENDPOINTS.us.path, (body) => ((seenBody = body), true))
-      .reply(STATUS_OK, { data: DATA });
-    await faunaPlugin.run(actionOf({ variables: [kv("offset", 0), kv("flag", false)] }), { region: "us", apiKey: API_KEY } as any, CTX);
-    expect(seenBody.variables).toEqual({ offset: 0, flag: false });
-  });
 });
 
 describe("gitlab", () => {
@@ -209,6 +197,18 @@ describe("gitlab", () => {
     expect(headers["x-shared"]).toBe("from-query");
     expect(headers["x-blank"]).toBeUndefined();
     expect(headers["private-token"]).toBe(GITLAB_TOKEN);
+  });
+
+  // kvToRecord used to drop every falsy value, so the variables 0 and false never reached the server
+  test("B41: GraphQL variables 0 and false are sent", async () => {
+    await gitlabPlugin.run(actionOf({ variables: [kv("offset", 0), kv("flag", false)] }), dataSource(), CTX);
+    expect(captured[0].body.variables).toEqual({ offset: 0, flag: false });
+  });
+
+  test("a query header whose value is the number 0 is sent as \"0\"", async () => {
+    await gitlabPlugin.run(actionOf({ headers: [kv("X-Zero", 0), kv("X-Blank", "")] }), dataSource(), CTX);
+    expect(captured[0].headers["x-zero"]).toBe("0");
+    expect(captured[0].headers["x-blank"]).toBeUndefined();
   });
 
   test("a GraphQL error response is a 400", async () => {

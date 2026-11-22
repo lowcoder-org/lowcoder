@@ -148,6 +148,25 @@ describe("kvToRecord", () => {
   test("a later duplicate key wins", () => {
     expect(kvToRecord([{ key: "k", value: "1" }, { key: "k", value: "2" }])).toEqual({ k: "2" });
   });
+
+  test("keeps 0, false, NaN, whitespace, objects and arrays; drops only undefined, null and empty string", () => {
+    const mixed: { key: string; value: unknown }[] = [
+      { key: "zero", value: 0 }, { key: "no", value: false }, { key: "nan", value: NaN }, { key: "ws", value: " " },
+      { key: "obj", value: { a: 1 } }, { key: "arr", value: [] },
+      { key: "u", value: undefined }, { key: "n", value: null }, { key: "e", value: "" },
+    ];
+    const result = kvToRecord(mixed);
+    // toEqual ignores keys whose value is undefined, so the key list is checked separately
+    expect(Object.keys(result).sort()).toEqual(["arr", "nan", "no", "obj", "ws", "zero"]);
+    expect(result).toEqual({ zero: 0, no: false, nan: NaN, ws: " ", obj: { a: 1 }, arr: [] });
+    expect(Object.keys(kvToRecord(mixed, false)).sort()).toEqual(["arr", "e", "n", "nan", "no", "obj", "u", "ws", "zero"]);
+  });
+
+  test("a later empty duplicate does not erase an earlier value; a later 0 or false replaces it", () => {
+    expect(kvToRecord([{ key: "k", value: "first" }, { key: "k", value: "" }])).toEqual({ k: "first" });
+    expect(kvToRecord<unknown>([{ key: "k", value: "first" }, { key: "k", value: 0 }])).toEqual({ k: 0 });
+    expect(kvToRecord<unknown>([{ key: "k", value: "first" }, { key: "k", value: false }])).toEqual({ k: false });
+  });
 });
 
 describe("toString", () => {
@@ -199,8 +218,13 @@ describe("toNumber", () => {
     expect(toNumber("Infinity")).toBe(0);
   });
 
-  test.failing("B27: toNumber(Infinity) is 0", () => {
+  test("B27: toNumber(Infinity) is 0", () => {
     expect(toNumber(Infinity)).toBe(0);
+  });
+
+  test("-Infinity gives 0 and the largest finite number is kept", () => {
+    expect(toNumber(-Infinity)).toBe(0);
+    expect(toNumber(Number.MAX_VALUE)).toBe(Number.MAX_VALUE);
   });
 });
 

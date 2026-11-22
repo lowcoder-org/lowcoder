@@ -193,6 +193,17 @@ test("eval to value", async () => {
   expect(value).toBe(11);
 });
 
+test("a numberInput whose context value overflowed to Infinity converts to 0", async () => {
+  const overflowed = JSON.parse("1e400");
+  expect(overflowed).toBe(Infinity);
+  await expect(
+    evalToValue({ key: "a", type: "numberInput" }, "{{a}}", [{ key: "a", value: overflowed }], {})
+  ).resolves.toBe(0);
+  await expect(
+    evalToValue({ key: "a", type: "numberInput" }, "{{a}}", [{ key: "a", value: 5 }], {})
+  ).resolves.toBe(5);
+});
+
 test("list plugins", () => {
   const plugins = listPlugins({ languages: ["en"] });
   expect(plugins.length).toBeGreaterThan(0);

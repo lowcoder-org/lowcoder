@@ -5,13 +5,13 @@ import path from "path";
 import { appendTags } from "../plugins/openApi/util";
 import _ from "lodash";
 
-export function kvToRecord(
-  kvs: { key: string; value: string }[],
+export function kvToRecord<V>(
+  kvs: { key: string; value: V }[],
   trimEmpty: boolean = true
-): Record<string, string> {
-  const ret: Record<string, string> = {};
+): Record<string, V> {
+  const ret: Record<string, V> = {};
   (kvs || []).forEach(({ key, value }) => {
-    if (trimEmpty && !value) {
+    if (trimEmpty && (value === undefined || value === null || value === "")) {
       return;
     }
     ret[key] = value;
@@ -46,7 +46,7 @@ export function toNumber(value: any): number {
     return 0;
   }
   if (typeof value === "number") {
-    return value;
+    return Number.isFinite(value) ? value : 0;
   }
   const result = Number(value);
   return Number.isFinite(result) ? result : 0;
