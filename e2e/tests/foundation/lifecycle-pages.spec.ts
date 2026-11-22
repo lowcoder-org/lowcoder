@@ -3,6 +3,9 @@ import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
 import { issuedAtSecond } from "../../src/security/tokens";
+import { ShareDialog } from "../../src/pages/ShareDialog";
+import { EditorPage } from "../../src/pages/EditorPage";
+import { createApp } from "../../src/api/client";
 import { GroupsPage } from "../../src/pages/GroupsPage";
 import { SettingPage } from "../../src/pages/SettingPage";
 import { joinWorkspace } from "../../src/security/actors";
@@ -122,5 +125,26 @@ test.describe("lifecycle page objects", () => {
 
     await expect(groups.row("pg-team-2")).toHaveCount(0);
     expect((await listGroups(admin.request)).some((group) => group.groupId === groupId)).toBe(false);
+  });
+
+  test("ShareDialog opens from the editor, lists rows, adds a member, changes the role and reaches the public switch", async ({ actor }) => {
+    const owner = await actor("pgshare");
+    const member = await actor("pgsharem");
+    await joinWorkspace(owner, member);
+    const { appId } = await createApp(owner.request, { orgId: owner.orgId, name: "pg-share-app" });
+    await new EditorPage(owner.session.page).open(appId);
+    const share = new ShareDialog(owner.session.page);
+    await expect(share.publishButton).toBeVisible();
+
+    await share.open();
+    await expect(share.rowOf(owner.email), "the creator's row").toBeVisible();
+    await share.addMember(member.email);
+    await expect(share.roleSelectOf(member.email)).toContainText("Viewer");
+    await share.chooseRole(member.email, "Editor");
+    await expect(share.roleSelectOf(member.email)).toContainText("Editor");
+    await share.next();
+
+    await expect(share.publicSwitch).toBeVisible();
+    await expect(share.publicSwitch).not.toBeChecked();
   });
 });
