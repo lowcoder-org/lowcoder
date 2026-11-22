@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { evalCodeToValue, evalToValue, getPlugin, listPlugins } from "./plugin";
+import { evalCodeToValue, evalToValue, getPlugin, listPlugins, runPluginQuery } from "./plugin";
 
 const action1 = {
   actionName: "action1",
@@ -213,4 +213,26 @@ test("get plugins", () => {
   const ctx = { languages: ["en"] };
   expect(() => getPlugin("not-found", ctx)).toThrow("plugin not found: not-found");
   expect(() => getPlugin("s3", ctx)).not.toThrow();
+});
+
+test("B16: a saved query naming a removed AppConfig action is a 400 from the query DSL check, and the plugin's run is never called", async () => {
+  const appConfigPlugin = (await import("../plugins/appconfig")).default;
+  const runSpy = jest.spyOn(appConfigPlugin, "run");
+  try {
+    await expect(
+      runPluginQuery(
+        "appconfig",
+        { actionName: "DeleteExtensionCommand", action: {} },
+        [],
+        { accessKey: "ak", secretKey: "sk", region: "us-east-1" },
+        { languages: ["en"] }
+      )
+    ).rejects.toMatchObject({
+      code: 400,
+      message: "invalid query dsl, the action name DeleteExtensionCommand not defined in plugin",
+    });
+    expect(runSpy).not.toHaveBeenCalled();
+  } finally {
+    runSpy.mockRestore();
+  }
 });

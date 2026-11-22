@@ -24,6 +24,8 @@ const TIMEOUT_MS = 60_000;
 const BUSY_LOOP_CAP = 20;
 const RUNNING_FOREVER_CAP = 100;
 const UNKNOWN_STATE_ANSWERS = 3;
+const STATUS_GATEWAY_TIMEOUT = 504;
+const TIMEOUT_POLLS = TIMEOUT_MS / POLL_DELAY_MS;
 const FAKE_TIMER_OPTIONS = { doNotFake: ["nextTick", "setImmediate"] as ("nextTick" | "setImmediate")[] };
 
 const dataSource = { accessKey: ACCESS_KEY, secretKey: SECRET_KEY, region: REGION, s3Location: S3_LOCATION };
@@ -184,12 +186,17 @@ describe("parseResultSet (through Query)", () => {
 });
 
 describe("B14", () => {
-  test.failing("B14: Rows [] gives []", async () => {
+  test("B14: Rows [] gives []", async () => {
     resultSet = { Rows: [] };
     expect(await runQuery()).toEqual([]);
   });
 
-  test.failing("B14: RUNNING after 60 s rejects with a timeout", async () => {
+  test("a ResultSet without Rows gives []", async () => {
+    resultSet = {};
+    expect(await runQuery()).toEqual([]);
+  });
+
+  test("B14: RUNNING after 60 s rejects with a timeout", async () => {
     stateAnswers = ["RUNNING"];
     executionCap = RUNNING_FOREVER_CAP;
     const outcome = runQuery().then(
@@ -203,7 +210,7 @@ describe("B14", () => {
     expect(sentOf(GetQueryResultsCommand)).toHaveLength(0);
   });
 
-  test.failing("B14: an unknown state is not re-polled without the 2 s wait", async () => {
+  test("B14: an unknown state is not re-polled without the 2 s wait", async () => {
     // GetQueryExecution answers a state outside the plugin's switch (no Status) 3 times, then SUCCEEDED, so
     // the loop ends either way; the 20th call throws, so a loop that never ends fails fast.
     stateAnswers = [...Array(UNKNOWN_STATE_ANSWERS).fill(undefined), "SUCCEEDED"];
@@ -213,5 +220,62 @@ describe("B14", () => {
     await jest.advanceTimersByTimeAsync((UNKNOWN_STATE_ANSWERS + 1) * POLL_DELAY_MS);
     await promise;
     expect(callsBeforeAnyWait).toBe(1);
+  });
+
+  const settle = (promise: Promise<unknown>) =>
+    promise.then(
+      (value) => ({ resolved: value }),
+      (error) => ({ rejected: error })
+    );
+
+  test("the timeout is a 504 ServiceError naming the last state, after exactly 30 polls", async () => {
+    stateAnswers = ["RUNNING"];
+    executionCap = RUNNING_FOREVER_CAP;
+    const outcome = settle(runQuery());
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS + POLL_DELAY_MS);
+    const result: any = await outcome;
+    expect(result.rejected).toBeInstanceOf(ServiceError);
+    expect(result.rejected).toMatchObject({
+      code: STATUS_GATEWAY_TIMEOUT,
+      message: "query execution timed out after 60 s, last state: RUNNING",
+    });
+    expect(getExecutionCalls).toBe(TIMEOUT_POLLS);
+    expect(sentOf(GetQueryResultsCommand)).toHaveLength(0);
+  });
+
+  test("a state that is never known times out with last state UNKNOWN", async () => {
+    stateAnswers = [undefined];
+    executionCap = RUNNING_FOREVER_CAP;
+    const outcome = settle(runQuery());
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS + POLL_DELAY_MS);
+    const result: any = await outcome;
+    expect(result.rejected).toBeInstanceOf(ServiceError);
+    expect(result.rejected.code).toBe(STATUS_GATEWAY_TIMEOUT);
+    expect(String(result.rejected.message)).toMatch(/last state: UNKNOWN$/);
+    expect(getExecutionCalls).toBe(TIMEOUT_POLLS);
+    expect(sentOf(GetQueryResultsCommand)).toHaveLength(0);
+  });
+
+  test("SUCCEEDED on the last poll before the deadline still returns the rows", async () => {
+    stateAnswers = [...Array(TIMEOUT_POLLS - 1).fill("RUNNING"), "SUCCEEDED"];
+    executionCap = RUNNING_FOREVER_CAP;
+    const outcome = settle(runQuery());
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS);
+    const result: any = await outcome;
+    expect(result).toStrictEqual({ resolved: [{ a: "1" }] });
+    expect(getExecutionCalls).toBe(TIMEOUT_POLLS);
+    expect(sentOf(GetQueryResultsCommand)).toHaveLength(1);
+  });
+
+  test("an unknown state followed by FAILED still rejects with the FAILED error", async () => {
+    stateAnswers = [undefined, "FAILED"];
+    const outcome = settle(runQuery());
+    await jest.advanceTimersByTimeAsync(POLL_DELAY_MS);
+    const result: any = await outcome;
+    expect(result.rejected).toMatchObject({
+      message: "query execution state: FAILED, reason: reason of FAILED",
+      code: 500,
+    });
+    expect(sentOf(GetQueryResultsCommand)).toHaveLength(0);
   });
 });

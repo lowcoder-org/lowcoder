@@ -61,7 +61,7 @@ export async function runDynamoDbQuery(
       secretAccessKey: secretKey,
     },
     region,
-    endpoint: endpointUrl,
+    endpoint: endpointUrl || undefined,
   });
 
   const Command = commandMap[actionName];

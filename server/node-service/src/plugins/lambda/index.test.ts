@@ -162,18 +162,36 @@ describe("InvokeFunction", () => {
     await expect(invoke({ invocationType: INVOCATION_EVENT, payload: {} })).rejects.toThrow("ResourceNotFoundException");
   });
 
-  test.failing("B15: the payload is sent as UTF-8 bytes", async () => {
+  test("B15: the payload is sent as UTF-8 bytes", async () => {
     respondTo(InvokeCommand, () => ({ StatusCode: HTTP_ACCEPTED }));
     await invoke({ invocationType: INVOCATION_EVENT, payload: { s: "€" } });
     expect(hex(sent[0].input.Payload)).toBe(hex(textBytes('{"s":"€"}')));
     expect(hex(sent[0].input.Payload)).toContain("e282ac");
   });
 
-  test("Latin-1 characters of the payload are sent as the same code points as single bytes", async () => {
-    // Characterisation of the part of the charCodeAt mapping that is correct; the multi-byte case is B15.
+  test("ASCII characters of the payload are sent as single bytes", async () => {
     respondTo(InvokeCommand, () => ({ StatusCode: HTTP_ACCEPTED }));
     await invoke({ invocationType: INVOCATION_EVENT, payload: { s: "abc" } });
     expect(hex(sent[0].input.Payload)).toBe(hex(textBytes('{"s":"abc"}')));
+  });
+
+  test("a Latin-1 character is sent as its two UTF-8 bytes", async () => {
+    respondTo(InvokeCommand, () => ({ StatusCode: HTTP_ACCEPTED }));
+    await invoke({ invocationType: INVOCATION_EVENT, payload: { s: "é" } });
+    expect(hex(sent[0].input.Payload)).toBe(hex(textBytes('{"s":"é"}')));
+    expect(hex(sent[0].input.Payload)).toContain("c3a9");
+  });
+
+  test("a 4-byte character is sent as UTF-8", async () => {
+    respondTo(InvokeCommand, () => ({ StatusCode: HTTP_ACCEPTED }));
+    await invoke({ invocationType: INVOCATION_EVENT, payload: { s: "😀" } });
+    expect(hex(sent[0].input.Payload)).toContain("f09f9880");
+  });
+
+  test("a lone surrogate is sent as its JSON escape", async () => {
+    respondTo(InvokeCommand, () => ({ StatusCode: HTTP_ACCEPTED }));
+    await invoke({ invocationType: INVOCATION_EVENT, payload: { s: "\ud800" } });
+    expect(hex(sent[0].input.Payload)).toBe(hex(textBytes('{"s":"\\ud800"}')));
   });
 });
 

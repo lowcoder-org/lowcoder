@@ -56,11 +56,7 @@ const lambdaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
         new InvokeCommand({
           FunctionName: actionData.functionName,
           InvocationType: actionData.invocationType as InvocationType,
-          Payload: Uint8Array.from(
-            JSON.stringify(actionData.payload || {})
-              .split("")
-              .map((i) => i.charCodeAt(0))
-          ),
+          Payload: Buffer.from(JSON.stringify(actionData.payload || {}), "utf8"),
         })
       );
       if (actionData.invocationType === InvocationType.RequestResponse) {

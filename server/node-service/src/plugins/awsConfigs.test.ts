@@ -5,6 +5,7 @@ import { AppConfigClient } from "@aws-sdk/client-appconfig";
 import { AppConfigDataClient, GetLatestConfigurationCommand, StartConfigurationSessionCommand } from "@aws-sdk/client-appconfigdata";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { InvokeCommand, LambdaClient, ListFunctionsCommand } from "@aws-sdk/client-lambda";
+import { ServiceError } from "../common/error";
 import appconfigDataSourceConfig from "./appconfig/dataSourceConfig";
 import appconfigPlugin from "./appconfig";
 import appconfigQueryConfig from "./appconfig/queryConfig";
@@ -32,7 +33,9 @@ import lambdaQueryConfig from "./lambda/queryConfig";
  * Limits of the behavioural part: it proves a declared key reaches SOME field of the command input, not the
  * right field (a param swapped with another of the same action is not detected; the per-action tests in
  * each plugin's own suite pin the exact field). Which actions are implemented is DISCOVERED by whether a
- * command is sent, so an action silently turned into a no-op fails the pinned counts, not a source scan.
+ * command is sent: an AppConfig action counts as unimplemented when it rejects with the 400 "not supported"
+ * error, and one that neither sends a command nor rejects fails the `silent` assertion, so an action
+ * silently turned into a no-op fails the pinned counts, not a source scan.
  *
  * TEXTUAL part (residual risk, kept because it cannot be observed through `run`): (1) the key list of the
  * `commandMap` in dynamodb/run.ts and (2) the `case "..."` labels of the switch in appconfig/index.ts are
@@ -139,6 +142,16 @@ async function runConfigured(plugin: { run: (a: any, d: any, c: any) => Promise<
   sent = [];
   await plugin.run(action, dataSource, {});
   return sent;
+}
+/** like runConfigured, but a rejection is returned instead of thrown, together with the calls recorded before it */
+async function runSettled(plugin: { run: (a: any, d: any, c: any) => Promise<unknown> }, action: Record<string, unknown>, dataSource: Record<string, unknown>): Promise<{ calls: Sent[]; error?: unknown }> {
+  sent = [];
+  try {
+    await plugin.run(action, dataSource, {});
+  } catch (error) {
+    return { calls: sent, error };
+  }
+  return { calls: sent };
 }
 const DATA_SOURCE = { accessKey: "AKIASENTINEL", secretKey: "sentinel-secret", region: "sentinel-region-1", s3Location: "s3://sentinel-bucket/out/", endpointUrl: SENTINEL_ENDPOINT, specVersion: "" };
 
@@ -308,33 +321,41 @@ describe("awsConfigs: appconfig", () => {
   const NO_PARAM_SENTINEL_ACTION = "GetLatestConfiguration";
   const UNREAD_PARAM = "ConfigurationToken";
   const IMPLEMENTED_COUNT = 21;
-  const UNIMPLEMENTED_COUNT = 25;
+  const UNIMPLEMENTED_COUNT = 0;
 
   /** runs every action with its declared params and records which ones sent a command, and which params did not reach it */
   async function probe() {
     const implemented: string[] = [];
     const notReached: string[] = [];
     const unimplemented: Action[] = [];
+    const silent: string[] = [];
     for (const action of actions) {
       const actionObject = actionFromConfig(action) as Record<string, unknown>;
-      const calls = await runConfigured(appconfigPlugin as any, actionObject, DATA_SOURCE);
-      const matching = calls.filter((c) => commandNameMatches(c.command.constructor.name, action.actionName));
-      if (calls.length === 0) {
+      const { calls, error } = await runSettled(appconfigPlugin as any, actionObject, DATA_SOURCE);
+      if (error !== undefined) {
+        const notSupported = error instanceof ServiceError && error.code === 400 && error.message === `AppConfig action "${action.actionName}" is not supported`;
+        if (!notSupported || calls.length !== 0) throw error;
         unimplemented.push(action);
         continue;
       }
+      if (calls.length === 0) {
+        silent.push(action.actionName);
+        continue;
+      }
+      const matching = calls.filter((c) => commandNameMatches(c.command.constructor.name, action.actionName));
       expect(matching.length).toBeGreaterThan(0);
       implemented.push(action.actionName);
       for (const param of action.params) {
         if (!calls.some((c) => reaches(c.input, actionObject[param.key]))) notReached.push(`${action.actionName}.${param.key}`);
       }
     }
-    return { implemented, notReached, unimplemented };
+    return { implemented, notReached, unimplemented, silent };
   }
 
   test("every implemented action sends its matching SDK command, and every param its config declares reaches the command input, except the session token of GetLatestConfiguration", async () => {
-    const { implemented, notReached } = await probe();
+    const { implemented, notReached, silent } = await probe();
     expect(implemented).toHaveLength(IMPLEMENTED_COUNT);
+    expect(silent).toStrictEqual([]);
     expect(notReached).toStrictEqual([`${NO_PARAM_SENTINEL_ACTION}.${UNREAD_PARAM}`]);
   });
 
@@ -345,15 +366,19 @@ describe("awsConfigs: appconfig", () => {
     expect(latest.input).toStrictEqual({ ConfigurationToken: SESSION_TOKEN });
   });
 
-  test("the unimplemented actions send nothing and offer no params", async () => {
-    const { unimplemented } = await probe();
+  test("every offered action is implemented; none rejects as unsupported", async () => {
+    const { unimplemented, silent } = await probe();
+    expect(unimplemented).toStrictEqual([]);
+    expect(silent).toStrictEqual([]);
     expect(unimplemented).toHaveLength(UNIMPLEMENTED_COUNT);
-    for (const a of unimplemented) expect(a.params).toHaveLength(0);
-    expect(IMPLEMENTED_COUNT + UNIMPLEMENTED_COUNT).toBe(actions.length);
+    expect(IMPLEMENTED_COUNT).toBe(actions.length);
   });
 
-  test("an action name the UI does not offer sends nothing", async () => {
-    expect(await runConfigured(appconfigPlugin as any, { actionName: "NotAnAction" }, DATA_SOURCE)).toHaveLength(0);
+  test("an action name the UI does not offer is rejected with 400 and sends nothing", async () => {
+    const { calls, error } = await runSettled(appconfigPlugin as any, { actionName: "NotAnAction" }, DATA_SOURCE);
+    expect(error).toBeInstanceOf(ServiceError);
+    expect(error).toMatchObject({ code: 400, message: 'AppConfig action "NotAnAction" is not supported' });
+    expect(calls).toHaveLength(0);
   });
 
   test("TEXTUAL (residual risk, see header): the case labels in index.ts are exactly the offered action names", () => {
