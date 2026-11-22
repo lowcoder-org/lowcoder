@@ -32,8 +32,8 @@ import supabaseQueryConfig from "./supabase/queryConfig";
  * way. Because it observes calls, it does not care how run.ts reads a key (destructuring, computed access,
  * switch or if).
  *
- * Known-unwired params are exempt by name, each with its bug number, so the contract does not pin a bug:
- * supabase listObjects `search` (B38) and aliyunOss data-source `endpointUrl` (B37). Data-source keys that
+ * Known-unwired params are exempt by name, each with its bug number, so the contract does not pin a bug;
+ * none is registered today. The aliyunOss data-source `endpointUrl` (B37) is exempt the same way. Data-source keys that
  * run.ts must NOT use (s3 `specVersion`, gcs `region` and `specVersion`) are checked the opposite way: changing
  * them leaves every recorded call identical.
  *
@@ -571,7 +571,7 @@ const behaviouralPlugins = (): BehaviouralPlugin[] => [
     dataSource: { projectUrl: SUPABASE_URL, apiKey: "cfg-api-key" },
     dataSourceWitness: { projectUrl: "cfg-project.test", apiKey: "cfg-api-key" },
     ignoredDataSourceKeys: {},
-    knownUnwiredParams: { "listObjects.search": "B38" },
+    knownUnwiredParams: {},
     knownUnwiredDataSourceKeys: {},
     signedWitness: SIGNED_MARKER,
     probeAction: { actionName: "listBuckets" },
@@ -655,7 +655,7 @@ describe("behavioural contract: configured params reach the SDK", () => {
     });
 
     test("known-unwired params and data-source keys are only the registered ones", () => {
-      expect(plugin.knownUnwiredParams).toEqual(plugin.name === "supabase" ? { "listObjects.search": "B38" } : {});
+      expect(plugin.knownUnwiredParams).toEqual({});
       expect(plugin.knownUnwiredDataSourceKeys).toEqual(plugin.name === "aliyunOss" ? { endpointUrl: "B37" } : {});
     });
   });

@@ -1,7 +1,7 @@
 import nock from "nock";
 import { ServiceError } from "../../common/error";
 import supabasePlugin from "./index";
-import run, { validateDataSourceConfig } from "./run";
+import run from "./run";
 
 /**
  * supabase storage plugin. The real supabase-js / storage-js client is used; nock plays the
@@ -43,7 +43,7 @@ afterEach(() => {
   expect({ done, pending }).toEqual({ done: true, pending: [] });
 });
 
-/** Settles a call into a result object so an unexpected rejection cannot satisfy a test.failing for the wrong reason. */
+/** Settles a call into a result object so an unexpected rejection shows up as an explicit outcome instead of a thrown error. */
 type Outcome<T> = { ok: T } | { err: any };
 const settle = <T>(call: Promise<T>): Promise<Outcome<T>> =>
   call.then(
@@ -91,7 +91,7 @@ describe("listObjects", () => {
     ]);
   });
 
-  test.failing("B38: listObjects sends the search param", async () => {
+  test("B38: listObjects sends the search param", async () => {
     let body: any;
     storage()
       .post(`${STORAGE}/object/list/${BUCKET}`, (b) => {
@@ -100,8 +100,20 @@ describe("listObjects", () => {
       })
       .reply(STATUS_OK, []);
     const outcome = await settle(run(act({ actionName: "listObjects", bucket: BUCKET, path: "", search: "report" }), dataSource));
-    expect(outcome).toEqual({ ok: [] }); // the call itself succeeds today, so only the search assertion below fails
+    expect(outcome).toEqual({ ok: [] });
     expect(body?.search).toBe("report");
+  });
+
+  test("an empty search is not sent", async () => {
+    let body: any;
+    storage()
+      .post(`${STORAGE}/object/list/${BUCKET}`, (b) => {
+        body = b;
+        return true;
+      })
+      .reply(STATUS_OK, []);
+    await run(act({ actionName: "listObjects", bucket: BUCKET, path: "", search: "" }), dataSource);
+    expect(body).not.toHaveProperty("search");
   });
 
   test("returnSignedUrl signs path.join(path, name) for every item and maps results by path; items without a path are skipped", async () => {
@@ -120,7 +132,7 @@ describe("listObjects", () => {
       ]);
     const res: any = await run(act({ actionName: "listObjects", bucket: BUCKET, path: "docs", returnSignedUrl: true }), dataSource);
     expect(signBody.paths).toEqual(["docs/a.txt", "docs/b.txt"]);
-    expect(signBody.expiresIn).toEqual(expect.any(Number));
+    expect(signBody.expiresIn).toBe(SIGNED_URL_SECONDS);
     expect(res[0].signedUrl).toBe(signed(`/object/sign/${BUCKET}/docs/a.txt?token=ta`));
     expect(res[1].signedUrl).toBeUndefined();
   });
@@ -282,6 +294,7 @@ describe("plugin run (index.ts)", () => {
     const err = await (supabasePlugin as any).run(act({ actionName: "listBuckets" }), dataSource).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ServiceError);
     expect(err.message).toBe(direct.message);
+    expect(err.message).toBe("db down");
   });
 
   test("a non-storage error passes through unchanged", async () => {
@@ -294,38 +307,72 @@ describe("plugin run (index.ts)", () => {
   });
 });
 
-describe("validateDataSourceConfig", () => {
-  test.failing("B9: a healthy listing validates as success", async () => {
-    storage().get(`${STORAGE}/bucket`).reply(STATUS_OK, []);
-    const outcome = await settle(validateDataSourceConfig(dataSource));
-    expect(outcome).toEqual({ ok: expect.objectContaining({ success: true }) });
-  });
-
-  test("a client that cannot be created (no project URL) is thrown, not reported", async () => {
-    await expect(validateDataSourceConfig({ projectUrl: "", apiKey: API_KEY })).rejects.toThrow("supabaseUrl is required");
-  });
-
-  test("a failing listing carries a reason", async () => {
-    storage().get(`${STORAGE}/bucket`).reply(401, { message: "Invalid API key" });
-    const res = await validateDataSourceConfig(dataSource);
-    expect(typeof res.reason).toBe("string");
-    expect(res.reason).not.toBe("");
-  });
-});
-
 describe("storage error messages", () => {
-  // storage-js tests `error instanceof Response` with the GLOBAL Response, but this service fetches with
-  // node-fetch, whose Response is a different class: the server's JSON error body is never read and the
-  // message becomes JSON.stringify(response), e.g. {"size":0,"timeout":0}.
-  test.failing("B36: a supabase error carries the server's message", async () => {
+  // storage-js tests `error instanceof Response` with the GLOBAL Response, while this service fetches with
+  // node-fetch, whose Response is a different class. Non-2xx responses are converted to the global Response,
+  // so the server's JSON error body is read instead of JSON.stringify(response), e.g. {"size":0,"timeout":0}.
+  test("B36: a supabase error carries the server's message", async () => {
     storage().get(`${STORAGE}/bucket`).reply(401, { message: "Invalid API key" });
     const outcome = await settle(run(act({ actionName: "listBuckets" }), dataSource));
     expect(outcome).toEqual({ err: expect.objectContaining({ __isStorageError: true, message: "Invalid API key" }) });
   });
+
+  const readFile = (f: string) => run(act({ actionName: "readFile", bucket: BUCKET, fileName: f }), dataSource);
+  const STATUS_NOT_FOUND = 404;
+  const STATUS_BAD_GATEWAY = 502;
+  const STATUS_UNAVAILABLE = 503;
+  const STATUS_NOT_MODIFIED = 304;
+  const BAD_GATEWAY_HTML = "<html>bad gateway</html>";
+  const OBJECT_PATH = (f: string) => `${STORAGE}/object/${BUCKET}/${f}`;
+
+  test("readFile 404 carries the server's message", async () => {
+    storage().get(OBJECT_PATH("missing.txt")).reply(STATUS_NOT_FOUND, { message: "Object not found" });
+    await expect(readFile("missing.txt")).rejects.toMatchObject({ __isStorageError: true, message: "Object not found" });
+  });
+
+  test("readFile with a JSON error field and no message carries the error field", async () => {
+    storage().get(OBJECT_PATH("e.txt")).reply(STATUS_BAD_REQUEST, { error: "invalid_jwt" });
+    await expect(readFile("e.txt")).rejects.toMatchObject({ __isStorageError: true, message: "invalid_jwt" });
+  });
+
+  test("readFile with a non-JSON error body carries the text", async () => {
+    storage().get(OBJECT_PATH("h.txt")).reply(STATUS_BAD_GATEWAY, BAD_GATEWAY_HTML);
+    await expect(readFile("h.txt")).rejects.toMatchObject({ __isStorageError: true, message: BAD_GATEWAY_HTML });
+  });
+
+  test("readFile with an empty error body carries the status text", async () => {
+    storage().get(OBJECT_PATH("n.txt")).reply(STATUS_UNAVAILABLE);
+    await expect(readFile("n.txt")).rejects.toMatchObject({ __isStorageError: true, message: "Service Unavailable" });
+  });
+
+  test("a 304 is converted without a body: readFile gives the status text", async () => {
+    storage().get(OBJECT_PATH("nm.txt")).reply(STATUS_NOT_MODIFIED);
+    await expect(readFile("nm.txt")).rejects.toMatchObject({ __isStorageError: true, message: "Not Modified" });
+  });
+
+  test("a readFile transport failure keeps the transport message", async () => {
+    storage().get(OBJECT_PATH("net.txt")).replyWithError("socket hang up");
+    const err: any = await readFile("net.txt").catch((e) => e);
+    expect(err.__isStorageError).toBe(true);
+    expect(err.message).toContain("socket hang up");
+  });
+
+  test("a JSON action keeps the status", async () => {
+    storage().get(`${STORAGE}/bucket`).reply(401, { message: "Invalid API key" });
+    await expect(run(act({ actionName: "listBuckets" }), dataSource)).rejects.toMatchObject({ name: "StorageApiError", status: 401 });
+  });
+
+  test("a non-JSON error body on a JSON action is a storage error, not a crash", async () => {
+    storage().get(`${STORAGE}/bucket`).reply(STATUS_BAD_GATEWAY, BAD_GATEWAY_HTML);
+    const err: any = await run(act({ actionName: "listBuckets" }), dataSource).catch((e) => e);
+    expect(err.__isStorageError).toBe(true);
+    expect(err.message).not.toBe('{"size":0,"timeout":0}');
+    expect(err.message).toMatch(/JSON/);
+  });
 });
 
 describe("signed URL lifetime", () => {
-  test.failing("B10: signed URLs expire in 300 seconds", async () => {
+  test("B10: signed URLs expire in 300 seconds", async () => {
     const bodies: any[] = [];
     storage()
       .post(`${STORAGE}/object/sign/${BUCKET}/f.txt`, (b) => {
@@ -334,7 +381,20 @@ describe("signed URL lifetime", () => {
       })
       .reply(STATUS_OK, { signedURL: `/object/sign/${BUCKET}/f.txt?token=t` });
     const outcome = await settle(run(act({ actionName: "createSignedUrl", bucket: BUCKET, fileName: "f.txt" }), dataSource));
-    expect(outcome).toEqual({ ok: { signedUrl: expect.any(String) } }); // succeeds today; only the lifetime assertion fails
+    expect(outcome).toEqual({ ok: { signedUrl: expect.any(String) } });
     expect(bodies[0]?.expiresIn).toBe(SIGNED_URL_SECONDS);
+  });
+
+  test("uploadData with returnSignedUrl signs for 300 seconds", async () => {
+    let signBody: any;
+    storage().post(`${STORAGE}/object/${BUCKET}/s.txt`).reply(STATUS_OK, { Id: "id-1", Key: `${BUCKET}/s.txt` });
+    storage()
+      .post(`${STORAGE}/object/sign/${BUCKET}/s.txt`, (b) => {
+        signBody = b;
+        return true;
+      })
+      .reply(STATUS_OK, { signedURL: `/object/sign/${BUCKET}/s.txt?token=tok` });
+    await run(act({ actionName: "uploadData", bucket: BUCKET, fileName: "s.txt", data: "QQ==", contentType: "text/plain", returnSignedUrl: true }), dataSource);
+    expect(signBody.expiresIn).toBe(SIGNED_URL_SECONDS);
   });
 });
