@@ -41,6 +41,7 @@ export const API_PATHS = {
   USER_PHOTO: "/api/users/photo",
   USER_PASSWORD: "/api/users/password",
   USER_RESET_PASSWORD: "/api/users/reset-password",
+  USER_LOST_PASSWORD: "/api/users/lost-password",
   AUTH_LOGOUT: "/api/auth/logout",
   AUTH_CONFIG: "/api/auth/config",
   AUTH_CONFIGS: "/api/auth/configs",
@@ -70,10 +71,19 @@ export const NPM_REGISTRIES_SETTING_KEY = "npmRegistries";
 export const ECHO_ENV = "E2E_ECHO_URL";
 
 /** The control routes of the echo sidecar; every other path is recorded and answered `{}`. */
-export const ECHO_PATHS = { HEALTH: "/__e2e/health", REQUESTS: "/__e2e/requests" } as const;
+export const ECHO_PATHS = { HEALTH: "/__e2e/health", REQUESTS: "/__e2e/requests", MAILS: "/__e2e/mails" } as const;
 
 /** Path prefix of the echo targets: a test's own target is `<ECHO_TARGET_PREFIX><worker>-<unique id>`, so parallel tests never read each other's records. */
 export const ECHO_TARGET_PREFIX = "/t/";
+
+/** Subjects of the mails the server sends (EmailCommunicationServiceImpl): a mail is told apart by its subject. */
+export const MAIL_SUBJECTS = { PASSWORD_RESET: "Reset Your Lost Password", INVITATION: "You've been invited!" } as const;
+
+/** The page a reset link opens (client routesURL.ts), and the query parameter that carries the token. */
+export const RESET_PASSWORD_PAGE = "/user/auth/lost-password";
+export const RESET_TOKEN_PARAM = "token";
+/** The path of an invitation link in a mail, followed by the invitation code. */
+export const INVITE_LINK_PATH = "/invite/";
 
 export function applicationPath(appId: string): string {
   return `${API_PATHS.APPLICATIONS}/${appId}`;

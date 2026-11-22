@@ -3,6 +3,7 @@ import { ECHO_PATHS, TEST_EMAIL_DOMAIN } from "./constants";
 import { currentUserId, registerUser, signIn, type RegisteredUser } from "./api/client";
 import type { Actor } from "./security/actors";
 import { echoBaseUrl, echoReadPrefix, echoTargetPath, type EchoRecord, type EchoTarget } from "./security/echo";
+import { mailboxAt, type Mailbox } from "./lifecycle/mail";
 import { superAdminCredentials, withCapacityHint, type SuperAdmin } from "./security/super-admin";
 
 export interface NetworkGuard {
@@ -96,6 +97,11 @@ interface Fixtures {
    * runs lands in its trace, so the trace holds the records read (a leaked secret would be in it).
    */
   echo: EchoTarget;
+  /**
+   * The mails the server sent to the run's mail sink (the echo sidecar), found by recipient. Read with Node's `fetch`, not a
+   * request context, so no mail (they hold reset tokens) reaches a trace. Mails live for the whole run: use an address of the test's own.
+   */
+  mailbox: Mailbox;
 }
 
 /**
@@ -193,6 +199,10 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
     } finally {
       await reader?.dispose();
     }
+  },
+
+  mailbox: async ({}, use) => {
+    await use(mailboxAt(echoBaseUrl(process.env)));
   },
 
   superAdminState: [

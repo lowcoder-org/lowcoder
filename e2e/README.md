@@ -43,6 +43,17 @@ lifecycle (insert, save, publish, load) is covered by S1 when `@insert-all` runs
   does not apply to these requests (they are made by the backend), so the echo is the only host the tests point the backend at; the
   sidecar starts in every run, also on the enterprise profile; an echo test that finds nothing proves nothing unless a positive control
   shows that the echo does receive from that path (every denial row of `outbound*.spec.ts` has one). The app and runner containers resolve `e2e-echo` through `--add-host e2e-echo:<sidecar IP>` (read with `docker inspect` after the sidecar starts), not DNS: measured with the sidecar stopped, `getent hosts e2e-echo` in the app container printed the sidecar's network IP and `curl` failed with "No route to host" (the runner got ECONNREFUSED on the same IP); without the entry the name resolved to a LAN address on the measuring host.
+- **Mail sink** (the same sidecar, SMTP on port 2525; the app gets `LOWCODER_ADMIN_SMTP_HOST=e2e-echo`, port 2525, no login, no STARTTLS): accepts every
+  mail the SERVER sends (password reset, invitation) and delivers it nowhere. One record `{ from, to[], data }` per message (`data` is the message as
+  latin1 text, dot-stuffing undone; the 65536-byte cut counts the bytes as sent, before dot-stuffing is undone; 10000 records kept); `GET /__e2e/mails?to=<address>` answers those sent to an address
+  (case-insensitive). Parsing is stream-safe (a command or the end of data may arrive in any number of TCP chunks); only EHLO, HELO, MAIL, RCPT,
+  DATA, RSET, NOOP and QUIT are understood, anything else is 502. The `mailbox` fixture (`mailsTo`, `waitForMail`) reads it with Node's `fetch`, never a
+  Playwright request context: a context created during a test lands in the trace, and the mails hold reset tokens (measured: a trace of a
+  `newContext` read held the mail body, a trace of the `fetch` read held none). `src/lifecycle/mail.ts` parses a mail (nested multipart, 7bit, 8bit,
+  binary, quoted-printable, base64, charsets, encoded-word subjects) and takes the token out of a reset link (`resetTokenOf`) or the code out of an
+  invitation (`inviteCodeOf`). Limits: no STARTTLS, no AUTH, and mails live for the whole run, so a test uses an address of its own. The links of the
+  mails carry the configured public URL as is; the run script's URL ends in a slash, so the links read `http://lowcoder-e2e-app:3000//user/auth/lost-password?token=...`
+  (a property of this run's setting, not a defect).
 - **Fixed app host name `lowcoder-e2e-app`** (`scripts/app-host.sh`): network alias of the app container;
   `LOWCODER_BASE_URL` is `http://lowcoder-e2e-app:3000`. Reason: the client's hocuspocus URL
   (`REACT_APP_HOCUSPOCUS_URL=ws://lowcoder-e2e-app:3000/hocuspocus`) is baked in at client build time and the guard
@@ -186,7 +197,8 @@ e2e/
   playwright.config.ts              config; grep and grepInvert from src/run-selection.ts; D-3 reporter
   tsconfig.json                     strict, noUncheckedIndexedAccess
   client-hooks.patch                test hooks applied to the 3.0.0 client
-  scripts/                          run-in-docker.sh, build-e2e-image.sh, app-host.sh, echo-server.js (the HTTP echo sidecar)
+  scripts/                          run-in-docker.sh, build-e2e-image.sh, app-host.sh, echo-server.js (the HTTP echo sidecar and the mail sink)
+  fixtures/mail/                    the two mails the 3.0.0 image sent (reset, invitation), with placeholders for address, token and code
   fixtures/sql/init.sql             PostgreSQL data: items, products, notes
   fixtures/dsl/<type>.json          112 DSL defaults recorded from the editor
   fixtures/dsl/n8n/                 n8nQuery.json (the query the editor saved for "Retrieve all workflows", reduced to type and action) and n8nDatasource.json (the data source form's create body, without workspace, target or key); no id or timestamp of the recording session survives (a unit test checks); a subfolder so the component catalog test does not count them
@@ -230,11 +242,11 @@ Test titles carry these ids.
 ## Test catalogue
 
 Counts: `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`:
-default **536 tests in 90 files**; with `E2E_INCLUDE_QUARANTINE=1` **596 in 92**; with `E2E_INCLUDE_SUPERADMIN=1` **539 in 90**; with both of those **601 in 92**;
-with `E2E_INCLUDE_INSERT_ALL=1` **648 in 91**; with all three opt-in variables **713 in 93** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **559 tests in 93 files**; with `E2E_INCLUDE_QUARANTINE=1` **619 in 95**; with `E2E_INCLUDE_SUPERADMIN=1` **562 in 93**; with both of those **624 in 95**;
+with `E2E_INCLUDE_INSERT_ALL=1` **671 in 94**; with all three opt-in variables **736 in 96** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **6 in 1** (SEC-E01 to E04, E06a, E06b; also with `E2E_INCLUDE_QUARANTINE=1` alone), **1 in 1** with `E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` (SEC-E05 alone), **0** with the takeover variable alone (SEC-E05 is quarantined too); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 7 tests, none in a default-stack listing.
 Default-run tag counts: `@smoke` 5, `@core` 56, `@slow` 39, `@npm` 32, `@security` 99. On request: `@quarantine` 62 (60 with `E2E_INCLUDE_QUARANTINE=1` alone; the two that
-also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 55 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 9 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-GR03, LC-GR09, LC-PR06, LC-PR13, LC-PR14).
+also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. `@lifecycle` 56 (user-lifecycle tests, ids `LC-<area><nn>`, default run; 9 more are quarantined: LC-AK04, LC-AK08, LC-AU07, LC-AU15, LC-GR03, LC-GR09, LC-PR06, LC-PR13, LC-PR14).
 
 ### smoke (4)
 
@@ -413,7 +425,7 @@ Listing, from `e2e/` (no stack): `E2E_STACK_PROFILE=enterprise LOWCODER_BASE_URL
 
 Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order-dependent (the batched data-source check; measured 8 failures and 2 passes in 10 repeats), so a quarantine run can show it passing. Accounting of `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the @superadmin tag existed, so it included SEC-R16c and R16d; they now need `E2E_INCLUDE_SUPERADMIN=1` as well): 44 listed, 43 failed, 1 passed (SEC-R09d), 0 skipped, 0 did not run; the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (221, unit and builder tests; several touch the stack)
+### foundation (244, unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -435,6 +447,9 @@ Quarantined tests that behave unexpectedly on the 3.0.0 image: SEC-R09d is order
 | foundation/security-api-raw.spec.ts | `apiRaw` against a local server: status, code, body, params, request and response headers (no stack) | none | 7 |
 | foundation/security-quarantine.spec.ts | `securityTestDetails`, `securityCandidateDetails`, `lifecycleTestDetails`, `lifecycleCandidateDetails` and the two quarantine maps (no stack) | none | 16 |
 | foundation/lifecycle-pages.spec.ts | `ProfilePage`, `ProfileModal`, `UserMenu` (profile, create and switch workspace), `ApiKeysCard`, `WorkspacesPage`, `GroupsPage`, `ShareDialog`, `SettingPage` (invite link, operations) | none | 7 |
+| foundation/lifecycle-mail.spec.ts | `src/lifecycle/mail.ts` against the two recorded mails (`fixtures/mail/`) and built messages: encodings, charsets, nested multipart, encoded-word subjects, `resetTokenOf`, `inviteCodeOf`, the error types (no stack) | none | 11 |
+| foundation/lifecycle-mail-sink.spec.ts | the mail sink of `scripts/echo-server.js` on loopback ports with a raw SMTP client: a recorded conversation, case-insensitive match, dot-stuffing, 502, byte-by-byte commands, pipelining, a split terminator, RSET, 503, the over-long line, the body cut (also across writes, with the terminator split at the cut), `mailboxAt` (no stack) | none | 11 |
+| foundation/lifecycle-mail-stack.spec.ts | the sink on the stack: a reset request makes the server mail one reset link whose token the parser extracts | `@lifecycle` | 1 |
 | foundation/lifecycle-helpers.spec.ts | `registerRaw`, `signInRaw`, `updateProfile`, `deleteProfilePhoto`, `createOrganization`, `leaveOrganization`, the multipart option of `apiRaw`, `randomPng` | none | 5 |
 | foundation/security-constants.spec.ts | `API_ERRORS`, roles, security path builders (no stack) | none | 6 |
 | foundation/security-tokens.spec.ts | `src/security/tokens.ts`: the HS256 signer against RFC 7515 A.1, forged, unsigned and wrongly signed tokens, `bearerHeader`, `issuedAtSecond` (no stack) | none | 9 |

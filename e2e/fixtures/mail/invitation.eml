@@ -1,0 +1,21 @@
+Date: Sun, 22 Nov 2026 10:55:50 +0000 (UTC)
+From: info@localhost
+To: user@example.test
+Message-ID: <1051115562.5.1795344950476@33907fb065a4>
+Subject: You've been invited!
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3_1845517189.1795344950473"
+
+------=_Part_3_1845517189.1795344950473
+Content-Type: multipart/related; 
+	boundary="----=_Part_4_1783775357.1795344950474"
+
+------=_Part_4_1783775357.1795344950474
+Content-Type: text/html;charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+You have been invited to join our platform. Click here to accept the invitation: http://lowcoder-e2e-app:3000//invite/INVITECODEPLACEHOLDER000
+------=_Part_4_1783775357.1795344950474--
+
+------=_Part_3_1845517189.1795344950473--
