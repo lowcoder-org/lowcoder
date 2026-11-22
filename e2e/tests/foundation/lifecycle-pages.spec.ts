@@ -1,6 +1,7 @@
 import { createGroup, currentUser, listGroupMembers, listGroups } from "../../src/api/client";
 import { SETTING_PATHS, UI_PATHS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
+import { ProvidersPage } from "../../src/pages/ProvidersPage";
 import { LoginPage } from "../../src/pages/LoginPage";
 import { PasswordRecoveryPage } from "../../src/pages/PasswordRecoveryPage";
 import { ApiKeysCard, MASKED_TOKEN_PATTERN } from "../../src/pages/ApiKeysCard";
@@ -178,5 +179,18 @@ test.describe("lifecycle page objects", () => {
     await settings.sendInvitationTo(`pginvitee-${testInfo.workerIndex}-${Date.now()}@example.test`);
 
     await expect(settings.inviteNotice).toBeVisible();
+  });
+
+  test("ProvidersPage lists the e-mail row, opens the add modal and offers the five provider types", async ({ actor }) => {
+    const admin = await actor("pgproviders");
+    const providers = new ProvidersPage(admin.session.page);
+
+    await providers.open();
+    await expect(providers.enabledRows("Email"), "e-mail is listed as enabled").toHaveCount(1);
+    await expect(providers.disabledRows("Email"), "and not as disabled").toHaveCount(0);
+    await providers.openAddModal();
+    await admin.session.page.locator(".ant-modal:visible .ant-select").first().click();
+
+    await expect(admin.session.page.locator(".ant-select-item-option"), "GitHub, Google, Ory, KeyCloak and Generic").toHaveText(["GitHub", "Google", "Ory", "KeyCloak", "Generic"]);
   });
 });

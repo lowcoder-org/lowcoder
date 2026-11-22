@@ -403,6 +403,10 @@ export const API_ERRORS = {
   USER_LOGIN_ID_EXIST: { status: 403, code: 5607 }, // :107
   /** The form login of a wrong password, an unknown address and (ENTERPRISE mode, measured) a user deleted by a removal. */
   INVALID_PASSWORD: { status: 403, code: 5608 }, // :92
+  /** A second sign-in configuration of a provider type that already has one (`AuthenticationApiServiceImpl.java` [3.0.0] `:308-323`; NOT enforced on the image, D-61). */
+  DUPLICATE_AUTH_CONFIG_ADDITION: { status: 400, code: 5621 },
+  /** Disabling or deleting the last enabled sign-in configuration of a workspace (measured). */
+  DISABLE_AUTH_CONFIG_FORBIDDEN: { status: 403, code: 5617 },
   /** The form sign-up of an address that does not look like an e-mail address (`FormAuthRequest.java`). */
   INVALID_EMAIL_FORMAT: { status: 400, code: 5623 }, // :91
   LIBRARY_QUERY_AND_ORG_NOT_MATCH: { status: 400, code: 6103 }, // :131
@@ -690,6 +694,14 @@ export const RESET_TOKEN_MESSAGES = {
  * deleted workspace, were gone within 40 ms; the bound leaves room for a loaded runner.
  */
 export const MEMBERSHIP_CLEANUP_TIMEOUT_MS = 10_000;
+
+/** The path of a workspace's own sign-in page, which lists its enabled providers. */
+export function orgLoginPath(orgId: string): string {
+  return `/org/${orgId}/auth/login`;
+}
+
+/** The notice the provider page shows for the last enabled configuration (`detail/index.tsx`; measured text). */
+export const LAST_PROVIDER_NOTICE = "You can't disable/delete config as this is the only enabled configuration.";
 
 /** The password a scenario changes to (meets the password rules like TEST_PASSWORD, differs from it). */
 export const CHANGED_PASSWORD = "Passw0rd-e2e-changed";

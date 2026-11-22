@@ -1,4 +1,4 @@
-import { apiRaw, createOrganization, currentUser, deleteOrganizationRaw, deleteProfilePhoto, leaveOrganization, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
+import { apiRaw, addGithubConfigRaw, createOrganization, currentUser, listAuthConfigs, removeAuthConfigRaw, deleteOrganizationRaw, deleteProfilePhoto, leaveOrganization, readProfilePhoto, registerRaw, signInRaw, updateProfile, uploadProfilePhoto } from "../../src/api/client";
 import { API_ERRORS, API_OK, API_PATHS, SESSION_COOKIE_NAME, SET_COOKIE_HEADER, TEST_PASSWORD } from "../../src/constants";
 import { randomPng } from "../../src/media";
 import { createInvitation, acceptInvitation } from "../../src/api/client";
@@ -87,5 +87,18 @@ test.describe("lifecycle account helpers", () => {
 
     expect({ status: deleted.status, code: deleted.code }, "the deletion").toEqual({ status: 200, code: API_OK });
     await expect.poll(async () => (await currentUser(owner.request)).orgAndRoles.map((entry) => entry.org.id)).not.toContain(orgId);
+  });
+
+  test("listAuthConfigs lists the e-mail configuration without its secret, addGithubConfigRaw and removeAuthConfigRaw answer without a throw", async ({ actor }) => {
+    const admin = await actor("rawconfigs");
+    expect(await listAuthConfigs(admin.request), "a new workspace has only e-mail sign-in").toEqual([{ id: "EMAIL", authType: "FORM", enable: true }]);
+    const added = await addGithubConfigRaw(admin.request, { clientId: "raw-client", clientSecret: "raw-secret" });
+    const github = (await listAuthConfigs(admin.request)).find((entry) => entry.authType === "GITHUB");
+    const removed = await removeAuthConfigRaw(admin.request, github?.id ?? "missing", { remove: true });
+
+    expect({ status: added.status, code: added.code }, "the GitHub configuration is added").toEqual({ status: 200, code: API_OK });
+    expect(github?.enable, "and enabled").toBe(true);
+    expect(Object.keys(github ?? {}).sort(), "an entry carries no secret").toEqual(["authType", "enable", "id"]);
+    expect({ status: removed.status, code: removed.code }, "the GitHub configuration is deleted").toEqual({ status: 200, code: API_OK });
   });
 });
