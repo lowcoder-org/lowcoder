@@ -367,6 +367,10 @@ export const API_ERRORS = {
   LAST_ADMIN_CANNOT_LEAVE_ORG: { status: 500, code: 5102 }, // :30
   UNABLE_TO_FIND_VALID_ORG: { status: 500, code: 5105 }, // :33
   INVALID_GROUP_ID: { status: 500, code: 5150 }, // :38
+  /** The last admin of a group leaving it (`BizError.java`). */
+  CANNOT_LEAVE_GROUP: { status: 500, code: 5152 }, // :40
+  /** Deleting the all-users or the developers group. */
+  CANNOT_DELETE_SYSTEM_GROUP: { status: 500, code: 5154 }, // :42
   NEED_DEV_TO_CREATE_RESOURCE: { status: 500, code: 5155 }, // :44
   INVALID_INVITATION_CODE: { status: 400, code: 5200 }, // :47
   QUERY_NOT_FOUND: { status: 500, code: 5300 }, // :55
@@ -542,6 +546,21 @@ export function groupMembersPath(groupId: string): string {
 
 export function groupPotentialMembersPath(groupId: string): string {
   return `${API_PATHS.GROUPS}/${groupId}/potential-members`;
+}
+
+/** `DELETE /api/groups/{id}`: deletes a group (a system group answers `API_ERRORS.CANNOT_DELETE_SYSTEM_GROUP`). */
+export function groupPath(groupId: string): string {
+  return `${API_PATHS.GROUPS}/${groupId}`;
+}
+
+/** `PUT /api/groups/{id}/update`: renames a group. */
+export function groupUpdatePath(groupId: string): string {
+  return `${groupPath(groupId)}/update`;
+}
+
+/** `DELETE /api/groups/{id}/leave`: the caller leaves the group (the last group admin cannot). */
+export function groupLeavePath(groupId: string): string {
+  return `${groupPath(groupId)}/leave`;
 }
 
 export function groupAddMemberPath(groupId: string): string {
