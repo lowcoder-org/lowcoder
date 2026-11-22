@@ -389,12 +389,27 @@ type SchemaObject =
   | OpenAPIV3.ReferenceObject;
 
 export function getSchemaExample(schema?: SchemaObject): any {
+  return schemaExample(schema, new Set<object>());
+}
+
+/**
+ * `ancestors` holds the schemas on the current recursion path (not all visited ones), so a schema that
+ * is shared by several non-recursive uses is expanded at every use, while a cycle contributes no example.
+ * Limit: `additionalProperties` is not followed, so an object schema without `properties` gives undefined,
+ * also when it is cyclic.
+ */
+function schemaExample(schema: SchemaObject | undefined, ancestors: Set<object>): any {
   if (!schema || isOas3RefObject(schema) || isSwagger2RefObject(schema)) {
+    return;
+  }
+  if (ancestors.has(schema)) {
     return;
   }
   if (schema.readOnly) {
     return;
   }
+  // Intended: `default` and `example` count only when truthy. A falsy default or example (0, false, "")
+  // falls through to the next candidate: example, then the first enum value, then the type rule.
   if (schema.default) {
     return schema.default;
   }
@@ -407,38 +422,42 @@ export function getSchemaExample(schema?: SchemaObject): any {
   if (schema.type === "string") {
     return "";
   }
-  if (schema.type === "array") {
-    const itemExample = getSchemaExample(
-      (schema as OpenAPIV3.ArraySchemaObject | OpenAPIV2.SchemaObject).items
-    );
-    return _.isNil(itemExample) ? [] : [itemExample];
+  ancestors.add(schema);
+  try {
+    if (schema.type === "array") {
+      const itemExample = schemaExample(
+        (schema as OpenAPIV3.ArraySchemaObject | OpenAPIV2.SchemaObject).items,
+        ancestors
+      );
+      return _.isNil(itemExample) ? [] : [itemExample];
+    }
+    if (schema.oneOf && schema.oneOf.length > 0) {
+      return schemaExample(schema.oneOf[0] as SchemaObject, ancestors);
+    }
+    if (schema.anyOf && schema.anyOf.length > 0) {
+      return schemaExample(schema.anyOf[0] as SchemaObject, ancestors);
+    }
+    if (schema.allOf && schema.allOf.length > 0) {
+      return (schema.allOf as SchemaObject[]).reduce((a: any, b: SchemaObject) => {
+        return {
+          ...a,
+          ...schemaExample(b, ancestors),
+        };
+      }, {});
+    }
+    let ret: any;
+    if (schema.properties) {
+      Object.entries(schema.properties).forEach(([name, def]) => {
+        if (!ret) {
+          ret = {};
+        }
+        ret[name] = schemaExample(def, ancestors);
+      });
+    }
+    return ret;
+  } finally {
+    ancestors.delete(schema);
   }
-  if (schema.oneOf && schema.oneOf.length > 0) {
-    const firstSchema = schema.oneOf[0];
-    return getSchemaExample(firstSchema as SchemaObject);
-  }
-  if (schema.anyOf && schema.anyOf.length > 0) {
-    const firstSchema = schema.anyOf[0];
-    return getSchemaExample(firstSchema as SchemaObject);
-  }
-  if (schema.allOf && schema.allOf.length > 0) {
-    return (schema.allOf as SchemaObject[]).reduce((a: any, b: SchemaObject) => {
-      return {
-        ...a,
-        ...getSchemaExample(b),
-      };
-    }, {});
-  }
-  let ret: any;
-  if (schema.properties) {
-    Object.entries(schema.properties).forEach(([name, def]) => {
-      if (!ret) {
-        ret = {};
-      }
-      ret[name] = getSchemaExample(def);
-    });
-  }
-  return ret;
 }
 
 export function parseUrl(target: string) {

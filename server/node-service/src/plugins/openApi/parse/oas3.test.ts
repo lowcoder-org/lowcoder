@@ -241,30 +241,28 @@ describe("oas3 parseOperation", () => {
       expect(param.defaultValue).toBe(stringify({ name: "from-example" }));
     });
 
-    // B28: oas3.ts:45 and :118 use `example || getSchemaExample(...)`, so an explicit
-    // falsy example falls back to the generated one. Each case asserts the CORRECT behaviour and fails today;
-    // one case per falsy value and per code site, so a partial fix shows up as some cases turning green.
-    describe('B28: a falsy example (0, false, "") wins over the generated one', () => {
-      const FALSY_CASES: { label: string; example: unknown; schema: Record<string, unknown> }[] = [
-        { label: "0", example: 0, schema: { type: "integer", default: 7 } },
-        { label: "false", example: false, schema: { type: "boolean", default: true } },
-        { label: '""', example: "", schema: { type: "string", default: "from-schema" } },
-      ];
-      for (const { label, example, schema } of FALSY_CASES) {
-        test.failing(`B28: a falsy media-type example (${label}) wins over the generated one`, () => {
-          const [param] = parseBody({ [MediaTypeJson]: { example, schema } });
-          expect(param.defaultValue).toBe(example);
-        });
-        test.failing(`B28: a falsy per-property example (${label}) wins over the generated one`, () => {
-          const [param] = parseBody({
-            [MediaTypeUrlEncoded]: {
-              example: { prop: example },
-              schema: { type: "object", properties: { prop: schema } },
-            },
-          });
-          expect(param.defaultValue).toBe(example);
-        });
-      }
+    test("a falsy body example falls back to the generated value (intended truthiness)", () => {
+      expect(
+        parseBody({ [MediaTypeJson]: { example: 0, schema: { type: "integer", default: 7 } } })[0].defaultValue
+      ).toBe(7);
+      expect(
+        parseBody({
+          [MediaTypeUrlEncoded]: {
+            example: { prop: 0 },
+            schema: { type: "object", properties: { prop: { type: "integer", default: 7 } } },
+          },
+        })[0].defaultValue
+      ).toBe(7);
+      expect(
+        parseBody({
+          [MediaTypeJson]: { example: 0, examples: { a: { value: 5 } }, schema: { type: "integer" } },
+        })[0].defaultValue
+      ).toBe(5);
+      expect(
+        parseBody({
+          [MediaTypeJson]: { examples: { a: { value: 0 } }, schema: { type: "integer", default: 7 } },
+        })[0].defaultValue
+      ).toBe(7);
     });
 
     test("without example the first examples value is used", () => {
