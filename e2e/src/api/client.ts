@@ -88,6 +88,12 @@ interface CurrentUserData {
   name?: string;
   /** The name the app shows for the user (measured: the e-mail address until the user sets a nickname). */
   username?: string;
+  /** UI language code (`en`, `de`...). */
+  uiLanguage?: string;
+  /** The avatar's URL; `null` or absent without an avatar. */
+  avatarUrl?: string | null;
+  /** Flags set through `PUT /api/users/mark-status`. */
+  userStatus?: Record<string, boolean>;
   orgAndRoles: { org: { id: string; name?: string }; role?: string }[];
   /** The workspace the user's routes act in (a flag on the membership row, not on the session). */
   currentOrgId?: string;
@@ -385,6 +391,8 @@ export interface RawRequestOptions {
   data?: unknown;
   params?: Record<string, string | number | boolean>;
   headers?: Record<string, string>;
+  /** A multipart form body (a file upload); sent instead of `data`. */
+  multipart?: Record<string, { name: string; mimeType: string; buffer: Buffer }>;
 }
 
 /**
@@ -401,6 +409,7 @@ export async function apiRaw(
   const response = await request.fetch(path, {
     method,
     data: options.data,
+    multipart: options.multipart,
     params: options.params,
     headers: options.headers,
   });
@@ -804,6 +813,19 @@ export async function signInRaw(request: APIRequestContext, email: string, passw
   return apiRaw(request, "POST", API_PATHS.LOGIN, {
     data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
   });
+}
+
+/** `PUT /api/users`: sets the caller's display name (`username` in the profile answer) and UI language; a blank value is skipped. */
+export async function updateProfile(request: APIRequestContext, fields: { name?: string; uiLanguage?: string }): Promise<void> {
+  await unwrap<unknown>("update profile", await request.put(API_PATHS.USERS, { data: fields }));
+}
+
+/** `DELETE /api/users/photo`: removes the caller's avatar (answers 200 with an empty body, measured; 500 / 5000 without an avatar). */
+export async function deleteProfilePhoto(request: APIRequestContext): Promise<void> {
+  const response = await request.delete(API_PATHS.USER_PHOTO);
+  if (!response.ok()) {
+    throw new LowcoderApiError("delete profile photo", response.status(), await response.text());
+  }
 }
 
 /** What `GET /api/applications/{id}` (the editing view) reports about an app: the fields security tests compare. */

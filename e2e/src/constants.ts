@@ -127,6 +127,9 @@ export const UI_PATHS = {
 /** Meets the password rules of the sign-up form. */
 export const TEST_PASSWORD = "Passw0rd-e2e";
 
+/** User status flag of the pop-up for older non-developer users (`UserStatusType.java`). */
+export const USER_STATUS_OLDER_NON_DEV_POPUP = "olderUserNonDevPopup";
+
 /** User status flag that the new-user tour sets when it is finished (HomeTutorialsV2.tsx). */
 export const NEW_USER_GUIDANCE_STATUS = "newUserGuidance";
 
@@ -376,6 +379,10 @@ export const API_ERRORS = {
   DATASOURCE_NOT_FOUND: { status: 500, code: 5500 }, // :69
   DATASOURCE_AND_APP_ORG_NOT_MATCH: { status: 500, code: 5510 }, // :80
   USER_NOT_SIGNED_IN: { status: 401, code: 5600 }, // :85
+  /** An upload above the configured limit (`avatarMaxSizeInKb`, 300; read in the code, not measured: 3.0.0 accepts it). */
+  PAYLOAD_TOO_LARGE: { status: 413, code: 5700 },
+  /** `PUT /api/users/mark-status` with a type that is not a user status (`UserController.java`; `BizError` INVALID_USER_STATUS). */
+  INVALID_USER_STATUS: { status: 500, code: 6200 }, // :135
   /** The form sign-up of an address that is registered, in any casing (`FormAuthRequest.java`). */
   USER_LOGIN_ID_EXIST: { status: 403, code: 5607 }, // :107
   /** The form login of a wrong password, an unknown address and (ENTERPRISE mode, measured) a user deleted by a removal. */
@@ -632,6 +639,9 @@ export const LOOPBACK_ADDRESS = "127.0.0.1";
 
 /** `GET /api/auth/api-keys`: the API keys of the signed-in user. */
 export const API_KEYS_LIST_PATH = "/api/auth/api-keys";
+
+/** Query parameter of `POST /api/users/password`, the route that sets a password with no old one ("Set Password"). */
+export const USER_SET_PASSWORD_PARAM = "password";
 
 /** The password a scenario changes to (meets the password rules like TEST_PASSWORD, differs from it). */
 export const CHANGED_PASSWORD = "Passw0rd-e2e-changed";

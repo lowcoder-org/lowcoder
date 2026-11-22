@@ -16,9 +16,9 @@ import {
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: 21 fixed-on-branch scenarios, and 30 open ones (27 security ids plus the lifecycle ids LC-AU07 and LC-AU15, which are 2 of the 30). */
+/** Sizes of the two maps: 21 fixed-on-branch scenarios, and 33 open ones (28 security ids plus the lifecycle ids LC-AU07, LC-AU15, LC-PR06, LC-PR13 and LC-PR14). */
 const FIXED_ON_BRANCH_COUNT = 21;
-const OPEN_DEFECTS_COUNT = 30;
+const OPEN_DEFECTS_COUNT = 33;
 /** Lifecycle ids: LC-AU07 and LC-AU15 are in a map so far; the listed-id branches are also tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
