@@ -293,13 +293,6 @@ export function isValidHttpMethods(method: string) {
   return isOas3HttpMethods(method) || isSwagger2HttpMethods(method);
 }
 
-function fixServers(server: OpenAPIV3.ServerObject, url: string) {
-  if (server.url) {
-    server.url = url;
-    return server;
-  }
-}
-
 export function traversalOpenApiOperation(
   schema: OpenAPI.Document,
   fn: (operation: OpenAPI.Operation) => void
@@ -334,31 +327,46 @@ export function appendTags(schema: OpenAPI.Document, tag: string) {
   });
 }
 
-export function replaceServersUrl(schema: OpenAPIV3.Document, url: string) {
-  if (schema.servers) {
-    // Root level servers array's fixup
-    schema.servers.map((server) => fixServers(server, url));
-  } else {
-    schema.servers = [{ url }];
-  }
+/** `server` with `url`, as a new object; a server without a url is returned as is. */
+function withServerUrl(server: OpenAPIV3.ServerObject, url: string): OpenAPIV3.ServerObject {
+  return server.url ? { ...server, url } : server;
+}
 
-  Object.keys(schema.paths).forEach((path) => {
-    const pathItem = schema.paths[path];
+/**
+ * A copy of `schema` whose root, path-item and operation servers point at `url` (root servers are created
+ * when absent). `schema` itself is never written: wrapper plugins pass one module-level spec object to every
+ * run (B44). Only the objects on the way to a server are copied (the document, `paths`, a path item or
+ * operation that declares `servers`, and the server objects); everything else is shared with `schema`.
+ * Limit: a caller that writes into the shared parts would still write into `schema`.
+ */
+export function replaceServersUrl(schema: OpenAPIV3.Document, url: string): OpenAPIV3.Document {
+  const paths: OpenAPIV3.PathsObject = {};
+  for (const [path, pathItem] of Object.entries(schema.paths)) {
     if (!pathItem) {
-      return;
+      paths[path] = pathItem;
+      continue;
     }
-    Object.keys(pathItem).forEach((opItem) => {
-      if (opItem === "servers") {
-        // servers at path item level
-        pathItem[opItem]?.forEach((server) => fixServers(server, url));
-      } else if (isOas3HttpMethods(opItem)) {
-        // servers at operation level
-        if (pathItem[opItem]?.servers) {
-          pathItem[opItem]?.servers?.forEach((server) => fixServers(server, url));
-        }
+    let item: any = pathItem;
+    const copy = () => (item === pathItem ? (item = { ...pathItem }) : item);
+    if (pathItem.servers) {
+      copy().servers = pathItem.servers.map((s) => withServerUrl(s, url));
+    }
+    for (const op of Object.keys(pathItem)) {
+      const operation = (pathItem as any)[op];
+      if (isOas3HttpMethods(op) && operation?.servers) {
+        copy()[op] = {
+          ...operation,
+          servers: operation.servers.map((s: OpenAPIV3.ServerObject) => withServerUrl(s, url)),
+        };
       }
-    });
-  });
+    }
+    paths[path] = item;
+  }
+  return {
+    ...schema,
+    servers: schema.servers ? schema.servers.map((s) => withServerUrl(s, url)) : [{ url }],
+    paths,
+  };
 }
 
 export function getSchemaType(

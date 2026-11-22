@@ -784,6 +784,29 @@ describe("woocommerce.prepareServerUrl", () => {
   });
 });
 
+describe("wrapper plugins: credential and URL edges", () => {
+  const OPENAI_A_URL = "https://a.test/v1";
+  const OPENAI_SPEC_ORIGIN = "https://api.openai.com";
+  const OPENAI_SPEC_VERSION = "v2.3";
+  const LIST_ASSISTANTS = { actionName: "listAssistants" };
+
+  test("openAi: a data source without serverURL after one with a URL goes to the spec's server with its own key", async () => {
+    const seen = captureAll({ data: [] });
+    const run = (dsConfig: Json) => (openAi.run as any)(LIST_ASSISTANTS, dsConfig, {});
+
+    await run({ serverURL: OPENAI_A_URL, apiKey: "keyA", specVersion: OPENAI_SPEC_VERSION });
+    await run({ serverURL: "", apiKey: "keyB", specVersion: OPENAI_SPEC_VERSION });
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0].url.origin).toBe("https://a.test");
+    expect(seen[0].headers[HEADER_AUTHORIZATION]).toBe("Bearer keyA");
+    expect(seen[1].url.origin).toBe(OPENAI_SPEC_ORIGIN);
+    expect(seen[1].url.pathname).toBe("/v1/assistants");
+    expect(seen[1].headers[HEADER_AUTHORIZATION]).toBe("Bearer keyB");
+    expect(seen.filter((r) => r.url.origin === "https://a.test" && r.headers[HEADER_AUTHORIZATION] === "Bearer keyB")).toEqual([]);
+  });
+});
+
 describe("hello-world plugin (unregistered demo)", () => {
   const credentials = { username: "ann", password: "pw" };
   const run = (action: Json) => (helloWorld.run as any)(action, credentials, {});

@@ -180,9 +180,9 @@ describe("runOpenApi", () => {
 
   describe("B44: one spec object shared between runs", () => {
     // The same object is passed to both runs, as a wrapper plugin passes its imported spec.
-    // NEW_HOST is intercepted twice so that today's misrouted second request is answered and the
+    // NEW_HOST is intercepted twice so that a misrouted second request is answered and the
     // assertion, not a nock error, shows where it went.
-    test.failing("B44: OAS3: a run without serverURL is not sent to the URL an earlier run set", async () => {
+    test("B44: OAS3: a run without serverURL is not sent to the URL an earlier run set", async () => {
       const spec = oas3Spec();
       intercept(NEW_HOST, "get", "/api/pets/5", STATUS_OK, PET);
       intercept(NEW_HOST, "get", "/api/pets/5", STATUS_OK, PET);
@@ -191,7 +191,7 @@ describe("runOpenApi", () => {
       await runOpenApi(getPetAction, oas3Config(), spec);
       expect(seen.map((r) => r.headers.host)).toEqual(["new.test:8080", "old.test"]);
     });
-    test.failing("B44: Swagger 2: a run without serverURL is not sent to the host an earlier run set", async () => {
+    test("B44: Swagger 2: a run without serverURL is not sent to the host an earlier run set", async () => {
       const spec = swagger2Spec();
       intercept(NEW_HOST, "get", "/base/pets/5", STATUS_OK, PET);
       intercept(NEW_HOST, "get", "/base/pets/5", STATUS_OK, PET);
@@ -199,6 +199,29 @@ describe("runOpenApi", () => {
       await runOpenApi(getPetAction, oas3Config({ serverURL: `${NEW_HOST}/base` }), spec);
       await runOpenApi(getPetAction, oas3Config(), spec);
       expect(seen.map((r) => r.headers.host)).toEqual(["new.test:8080", "old.test"]);
+    });
+
+    test.each([
+      ["OAS3", oas3Spec, "/api/pets/5", `${NEW_HOST}/api`],
+      ["Swagger 2", swagger2Spec, "/base/pets/5", `${NEW_HOST}/base`],
+    ])("a run with a serverURL leaves the %s spec object unchanged", async (_name, makeSpec, wirePath, serverURL) => {
+      const spec = makeSpec();
+      const before = structuredClone(spec);
+      intercept(NEW_HOST, "get", wirePath, STATUS_OK, PET);
+      await runOpenApi(getPetAction, oas3Config({ serverURL }), spec);
+      expect(seen.map((r) => r.headers.host)).toEqual(["new.test:8080"]);
+      expect(spec).toEqual(before);
+    });
+
+    test("two data sources with different URLs run concurrently, each to its own host", async () => {
+      const spec = oas3Spec();
+      intercept(NEW_HOST, "get", "/api/pets/5", STATUS_OK, PET);
+      intercept("http://other.test", "get", "/api/pets/5", STATUS_OK, PET);
+      await Promise.all([
+        runOpenApi(getPetAction, oas3Config({ serverURL: `${NEW_HOST}/api` }), spec),
+        runOpenApi(getPetAction, oas3Config({ serverURL: "http://other.test/api" }), spec),
+      ]);
+      expect(seen.map((r) => r.headers.host).sort()).toEqual(["new.test:8080", "other.test"]);
     });
   });
 
