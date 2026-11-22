@@ -128,12 +128,26 @@ describe("client construction", () => {
     expect(sent[0].endpoint).toBeUndefined();
   });
 
-  // The s3 plugin passes `endpointUrl || undefined`; dynamodb/run.ts:64 passes the value as is, so an empty
-  // string (a cleared field) becomes a custom endpoint "" and the SDK throws `Invalid URL` on every request.
-  test.failing("B39: an empty endpoint URL is treated as unset", async () => {
+  // A cleared endpoint field arrives as "": it must not become a custom endpoint "" (the SDK throws `Invalid URL`).
+  test("B39: an empty endpoint URL is treated as unset", async () => {
     respondTo(ListTablesCommand, () => ({ TableNames: [], $metadata: METADATA }));
     await runDynamoDbQuery(act({ actionName: "ListTables", params: {} }), dataSource({ endpointUrl: "" }));
     expect(sent[0].endpoint).toBeUndefined();
+  });
+
+  test("a null endpoint URL is treated as unset", async () => {
+    respondTo(ListTablesCommand, () => ({ TableNames: [], $metadata: METADATA }));
+    await runDynamoDbQuery(act({ actionName: "ListTables", params: {} }), dataSource({ endpointUrl: null as unknown as string }));
+    expect(sent).toHaveLength(1);
+    expect(sent[0].endpoint).toBeUndefined();
+  });
+
+  test("a non-empty invalid endpoint URL still reaches the client and the request fails", async () => {
+    respondTo(ListTablesCommand, () => ({ TableNames: [], $metadata: METADATA }));
+    const outcome = runDynamoDbQuery(act({ actionName: "ListTables", params: {} }), dataSource({ endpointUrl: "not a url" }));
+    // The SDK's TypeError comes from another realm than the test's, so match on name and message.
+    await expect(outcome).rejects.toMatchObject({ name: "TypeError", message: "Invalid URL" });
+    expect(sent).toHaveLength(0);
   });
 });
 

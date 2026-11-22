@@ -152,6 +152,7 @@ The community work spans **data access, prepared queries, forms, dates, tables, 
 
 - Correct datasource access-control behavior. [#2133](https://github.com/lowcoder-org/lowcoder/issues/2133)
 - Fix execution of JavaScript Prepared Data Queries. [#2177](https://github.com/lowcoder-org/lowcoder/issues/2177)
+- Remove the 25 AWS AppConfig query actions that never did anything. A saved query that still uses one now fails with "invalid query dsl, the action name `<name>` not defined in plugin" instead of succeeding with empty data.
 
 ### Forms and dates
 

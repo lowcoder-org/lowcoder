@@ -480,21 +480,6 @@ const queryConfig = {
         }]
     },
     {
-      actionName: "DeleteExtensionAssociationCommand",
-      label: "Delete Extension Association",
-      params: []
-    },
-    {
-      actionName: "DeleteExtensionCommand",
-      label: "Delete Extension",
-      params: []
-    },
-    {
-      actionName: "DeleteHostedConfigurationVersionCommand",
-      label: "Delete Hosted Configuration Version",
-      params: []
-    },
-    {
       actionName: "GetApplicationCommand",
       label: "Get Application",
       params: [
@@ -505,26 +490,6 @@ const queryConfig = {
           tooltip: "Specify the applicationId to retrieve"
         }
       ]
-    },
-    {
-      actionName: "GetConfigurationCommand (Deprecated)",
-      label: "Get Configuration",
-      params: []
-    },
-    {
-      actionName: "GetConfigurationProfileCommand",
-      label: "Get Configuration Profile",
-      params: []
-    },
-    {
-      actionName: "GetDeploymentCommand",
-      label: "Get Deployment",
-      params: []
-    },
-    {
-      actionName: "GetDeploymentStrategyCommand",
-      label: "Get Deployment Strategy",
-      params: []
     },
     {
       actionName: "GetEnvironmentCommand",
@@ -545,26 +510,6 @@ const queryConfig = {
       ]
     },
     {
-      actionName: "GetExtensionAssociationCommand",
-      label: "Get Extension Association",
-      params: []
-    },
-    {
-      actionName: "GetExtensionCommand",
-      label: "Get Extension",
-      params: []
-    },
-    {
-      actionName: "GetHostedConfigurationVersionCommand",
-      label: "Get Hosted Configuration Version",
-      params: []
-    },
-    {
-      actionName: "ListApplicationsCommand",
-      label: "List Applications",
-      params: []
-    },
-    {
       actionName: "ListConfigurationProfilesCommand",
       label: "List Configuration Profiles",
       params: [
@@ -577,16 +522,6 @@ const queryConfig = {
       ]
     },
     {
-      actionName: "ListDeploymentStrategiesCommand",
-      label: "List Deployment Strategies",
-      params: []
-    },
-    {
-      actionName: "ListDeploymentsCommand",
-      label: "List Deployments",
-      params: []
-    },
-    {
       actionName: "ListEnvironmentsCommand",
       label: "List Environments",
       params: [
@@ -597,26 +532,6 @@ const queryConfig = {
           tooltip: "Specify the Application ID to retrieve the environments for."
         }
       ]
-    },
-    {
-      actionName: "ListExtensionAssociationsCommand",
-      label: "List Extension Associations",
-      params: []
-    },
-    {
-      actionName: "ListExtensionsCommand",
-      label: "List Extensions",
-      params: []
-    },
-    {
-      actionName: "ListHostedConfigurationVersionsCommand",
-      label: "List Hosted Configuration Versions",
-      params: []
-    },
-    {
-      actionName: "ListTagsForResourceCommand",
-      label: "List Tags For Resource",
-      params: []
     },
     {
       actionName: "StartDeploymentCommand",
@@ -683,21 +598,6 @@ const queryConfig = {
         }
       ]
 
-    },
-    {
-      actionName: "StopDeploymentCommand",
-      label: "Stop Deployment",
-      params: []
-    },
-    {
-      actionName: "TagResourceCommand",
-      label: "Tag Resource",
-      params: []
-    },
-    {
-      actionName: "UntagResourceCommand",
-      label: "Untag Resource",
-      params: []
     },
     {
       actionName: "UpdateApplicationCommand",
@@ -771,31 +671,6 @@ const queryConfig = {
         }
       ]
 
-    },
-    {
-      actionName: "UpdateDeploymentStrategyCommand",
-      label: "Update Deployment Strategy",
-      params: []
-    },
-    {
-      actionName: "UpdateEnvironmentCommand",
-      label: "Update Environment",
-      params: []
-    },
-    {
-      actionName: "UpdateExtensionAssociationCommand",
-      label: "Update Extension Association",
-      params: []
-    },
-    {
-      actionName: "UpdateExtensionCommand",
-      label: "Update Extension",
-      params: []
-    },
-    {
-      actionName: "ValidateConfigurationCommand",
-      label: "Validate Configuration",
-      params: []
     }
   ]
 } as const;

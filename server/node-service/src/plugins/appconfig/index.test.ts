@@ -443,13 +443,14 @@ describe("actions that are offered but not implemented", () => {
     "NoSuchAction",
   ];
 
-  test("the list is exactly the queryConfig actions that the implemented table does not cover (plus an unknown name for the default case)", () => {
+  test("every offered action is implemented, and none of the removed names is offered any more", () => {
     const offered = queryConfig.actions.map((a) => a.actionName as string);
     const unimplemented = offered.filter((n) => !IMPLEMENTED_ACTIONS.includes(n));
-    expect([...unimplemented].sort()).toStrictEqual(UNIMPLEMENTED_ACTIONS.filter((n) => n !== "NoSuchAction").sort());
+    expect(unimplemented).toStrictEqual([]);
+    expect(offered.filter((n) => UNIMPLEMENTED_ACTIONS.includes(n))).toStrictEqual([]);
   });
 
-  test.failing("B16: unimplemented actions reject with 400 and send nothing", async () => {
+  test("B16: unimplemented actions reject with 400 and send nothing", async () => {
     // every action is run before anything is asserted, so one failure does not hide the others
     const outcomes: { actionName: string; rejected?: any; resolved?: unknown }[] = [];
     for (const actionName of UNIMPLEMENTED_ACTIONS) {
@@ -462,6 +463,28 @@ describe("actions that are offered but not implemented", () => {
     }
     const notRejectedWith400 = outcomes.filter((o) => o.rejected?.code !== STATUS_BAD_REQUEST).map((o) => o.actionName);
     expect(notRejectedWith400).toStrictEqual([]);
+    expect(configSpy).not.toHaveBeenCalled();
+    expect(dataSpy).not.toHaveBeenCalled();
+  });
+
+  test("the 400 names the action, not [object Object]", async () => {
+    await expect(run({ actionName: "NoSuchAction" })).rejects.toMatchObject({
+      code: STATUS_BAD_REQUEST,
+      message: 'AppConfig action "NoSuchAction" is not supported',
+    });
+  });
+
+  test("an action name that differs only in case is not supported", async () => {
+    await expect(run({ actionName: "listapplications" })).rejects.toMatchObject({ code: STATUS_BAD_REQUEST });
+    expect(configSpy).not.toHaveBeenCalled();
+    expect(dataSpy).not.toHaveBeenCalled();
+  });
+
+  test("a missing actionName is a 400", async () => {
+    await expect(run({})).rejects.toMatchObject({
+      code: STATUS_BAD_REQUEST,
+      message: 'AppConfig action "undefined" is not supported',
+    });
     expect(configSpy).not.toHaveBeenCalled();
     expect(dataSpy).not.toHaveBeenCalled();
   });

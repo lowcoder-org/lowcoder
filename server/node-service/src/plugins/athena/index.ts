@@ -19,6 +19,9 @@ function parseResultSet(resultSet?: ResultSet) {
   }
   const rows: any[] = [];
   const [header, ...data] = resultSet.Rows || [];
+  if (!header) {
+    return [];
+  }
   const columns = header.Data?.map((i) => i.VarCharValue) || [];
   data?.forEach((row) => {
     const entries: [string, string][] = [];
@@ -37,6 +40,8 @@ function parseResultSet(resultSet?: ResultSet) {
 
 // fixme: should use the timeout config filled in frontend
 const timeout = 1000 * 60; // 60s
+const POLL_DELAY_MS = 2000;
+const STATUS_GATEWAY_TIMEOUT = 504;
 
 const athenaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "athena",
@@ -67,22 +72,34 @@ const athenaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
       const start = Date.now();
 
       let execution: GetQueryExecutionCommandOutput | undefined = undefined;
+      let succeeded = false;
+      let lastState: string | undefined;
       waitLoop: while (Date.now() - start < timeout) {
         execution = await client.send(
           new GetQueryExecutionCommand({ QueryExecutionId: startRet.QueryExecutionId })
         );
         const { State, StateChangeReason } = execution.QueryExecution?.Status || {};
+        lastState = State;
         switch (State) {
-          case QueryExecutionState.RUNNING:
-          case QueryExecutionState.QUEUED:
-            await new Promise((r) => setTimeout(r, 2000));
-            break;
           case QueryExecutionState.CANCELLED:
           case QueryExecutionState.FAILED:
             throw new ServiceError(`query execution state: ${State}, reason: ${StateChangeReason}`);
           case QueryExecutionState.SUCCEEDED:
+            succeeded = true;
             break waitLoop;
+          case QueryExecutionState.RUNNING:
+          case QueryExecutionState.QUEUED:
+          default:
+            await new Promise((r) => setTimeout(r, POLL_DELAY_MS));
+            break;
         }
+      }
+
+      if (!succeeded) {
+        throw new ServiceError(
+          `query execution timed out after ${timeout / 1000} s, last state: ${lastState ?? "UNKNOWN"}`,
+          STATUS_GATEWAY_TIMEOUT
+        );
       }
 
       const result = await client.send(

@@ -30,6 +30,7 @@ import {
   GetLatestConfigurationCommand,
   StartConfigurationSessionCommand
 } from "@aws-sdk/client-appconfigdata";
+import { badRequest } from "../../common/error";
 
 
 function getClient(dataSourceConfig: DataSourceDataType) {
@@ -72,6 +73,7 @@ const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
     const client = getClient(dataSourceConfig);
     const appConfigDataClient = getAppConfigDataClient(dataSourceConfig);
     let input;
+    const actionName: string = actionData.actionName;
     switch (actionData.actionName) {
       case "ListApplications":
         logger.info("AppConfig ListApplications");
@@ -88,18 +90,6 @@ const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
             ApplicationId: actionData.applicationId
           })
         );
-      case "GetConfigurationCommand (Deprecated)":
-        // input = { // GetConfigurationRequest
-        //   Application: "STRING_VALUE", // required
-        //   Environment: "STRING_VALUE", // required
-        //   Configuration: "STRING_VALUE", // required
-        //   ClientId: "STRING_VALUE", // required
-        //   ClientConfigurationVersion: "STRING_VALUE",
-        // };
-        // return await client.send(
-        //   new GetConfigurationCommand(input)
-        // )
-        break;
       case "GetLatestConfiguration":
         logger.info("AppConfig GetLatestConfiguration");
         let startConfigurationSessionInput = {
@@ -215,70 +205,22 @@ const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
           ApplicationId: actionData.ApplicationId,
           EnvironmentId: actionData.EnvironmentId,
         }));
-      case "DeleteExtensionAssociationCommand":
-        logger.info("AppConfig DeleteExtensionAssociationCommand");
-        break;
-      case "DeleteExtensionCommand":
-        logger.info("AppConfig DeleteExtensionCommand");
-        break;
-      case "DeleteHostedConfigurationVersionCommand":
-        logger.info("AppConfig DeleteHostedConfigurationVersionCommand");
-        break;
-      case "GetConfigurationProfileCommand":
-        logger.info("AppConfig GetConfigurationProfileCommand");
-        break;
-      case "GetDeploymentCommand":
-        logger.info("AppConfig GetDeploymentCommand");
-        break;
-      case "GetDeploymentStrategyCommand":
-        logger.info("AppConfig GetDeploymentStrategyCommand");
-        break;
       case "GetEnvironmentCommand":
         logger.info("AppConfig GetEnvironmentCommand");
         return await client.send(new GetEnvironmentCommand({
           ApplicationId: actionData.ApplicationId,
           EnvironmentId: actionData.EnvironmentId
         }));
-      case "GetExtensionAssociationCommand":
-        logger.info("AppConfig GetExtensionAssociationCommand");
-        break;
-      case "GetExtensionCommand":
-        logger.info("AppConfig GetExtensionCommand");
-        break;
-      case "GetHostedConfigurationVersionCommand":
-        logger.info("AppConfig GetHostedConfigurationVersionCommand");
-        break;
-      case "ListApplicationsCommand":
-        logger.info("AppConfig ListApplicationsCommand");
-        break;
       case "ListConfigurationProfilesCommand":
         logger.info("AppConfig ListConfigurationProfilesCommand");
         return await client.send(new ListConfigurationProfilesCommand({
           ApplicationId: actionData.ApplicationId
         }));
-      case "ListDeploymentStrategiesCommand":
-        logger.info("AppConfig ListDeploymentStrategiesCommand");
-        break;
-      case "ListDeploymentsCommand":
-        logger.info("AppConfig ListDeploymentsCommand");
-        break;
       case "ListEnvironmentsCommand":
         logger.info("AppConfig ListEnvironmentsCommand");
         return await client.send(new ListEnvironmentsCommand({
           ApplicationId: actionData.ApplicationId
         }));
-      case "ListExtensionAssociationsCommand":
-        logger.info("AppConfig ListExtensionAssociationsCommand");
-        break;
-      case "ListExtensionsCommand":
-        logger.info("AppConfig ListExtensionsCommand");
-        break;
-      case "ListHostedConfigurationVersionsCommand":
-        logger.info("AppConfig ListHostedConfigurationVersionsCommand");
-        break;
-      case "ListTagsForResourceCommand":
-        logger.info("AppConfig ListTagsForResourceCommand");
-        break;
       case "StartDeploymentCommand":
         logger.info("AppConfig StartDeploymentCommand");
         return await client.send(new StartDeploymentCommand({
@@ -292,15 +234,6 @@ const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
           KmsKeyIdentifier: actionData.KmsKeyIdentifier || undefined,
           Tags: actionData.Tags
         }));
-      case "StopDeploymentCommand":
-        logger.info("AppConfig StopDeploymentCommand");
-        break;
-      case "TagResourceCommand":
-        logger.info("AppConfig TagResourceCommand");
-        break;
-      case "UntagResourceCommand":
-        logger.info("AppConfig UntagResourceCommand");
-        break;
       case "UpdateApplicationCommand":
         logger.info("AppConfig UpdateApplicationCommand");
         return await client.send(new UpdateApplicationCommand({
@@ -319,24 +252,8 @@ const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
           RetrievalRoleArn: actionData.RetrievalRoleArn,
           Validators: actionData.Validators
         }));
-      case "UpdateDeploymentStrategyCommand":
-        logger.info("AppConfig UpdateDeploymentStrategyCommand");
-        break;
-      case "UpdateEnvironmentCommand":
-        logger.info("AppConfig UpdateEnvironmentCommand");
-        break;
-      case "UpdateExtensionAssociationCommand":
-        logger.info("AppConfig UpdateExtensionAssociationCommand");
-        break;
-      case "UpdateExtensionCommand":
-        logger.info("AppConfig UpdateExtensionCommand");
-        break;
-      case "ValidateConfigurationCommand":
-        logger.info("AppConfig ValidateConfigurationCommand");
-        break;
       default:
-        logger.info(`Unable to find action ${actionData}`);
-        break;
+        throw badRequest(`AppConfig action "${actionName}" is not supported`);
     }
   }
 };
