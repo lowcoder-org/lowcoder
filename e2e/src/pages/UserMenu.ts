@@ -9,4 +9,10 @@ export class UserMenu {
     await this.page.getByTitle(email).first().click();
     await this.page.getByText("Log Out", { exact: true }).click();
   }
+
+  /** Opens the "My Profile" modal: the avatar menu's header, which shows the user's name, opens it (measured). */
+  async openProfile(name: string): Promise<void> {
+    await this.page.getByTitle(name).first().click();
+    await this.page.locator(".ant-dropdown:visible").getByText(name, { exact: true }).first().click();
+  }
 }
