@@ -24,6 +24,8 @@ const TITLE_SUPERADMIN = `a super admin test ${TAGS.SECURITY} ${TAGS.SUPERADMIN}
 const TITLE_SUPERADMIN_QUARANTINE = `a super admin test that is also quarantined ${TAGS.SECURITY} ${TAGS.QUARANTINE} ${TAGS.SUPERADMIN}`;
 const TITLE_ENTERPRISE = `an enterprise test ${TAGS.SECURITY} ${TAGS.ENTERPRISE}`;
 const TITLE_ENTERPRISE_SUPERADMIN = `an enterprise test that uses the super admin ${TAGS.SECURITY} ${TAGS.SUPERADMIN} ${TAGS.ENTERPRISE}`;
+const TITLE_SIGNUP_DISABLED = `a sign-up test ${TAGS.LIFECYCLE} ${TAGS.SIGNUP_DISABLED}`;
+const TITLE_SIGNUP_DISABLED_QUARANTINE = `a sign-up test that is also quarantined ${TAGS.LIFECYCLE} ${TAGS.QUARANTINE} ${TAGS.SIGNUP_DISABLED}`;
 /** SEC-E05: quarantined, enterprise and takeover (the real test carries @superadmin too, which no combination reads on the enterprise profile). */
 const TITLE_TAKEOVER = `the takeover test ${TAGS.SECURITY} ${TAGS.QUARANTINE} ${TAGS.ENTERPRISE} ${TAGS.ENTERPRISE_TAKEOVER} ${TAGS.SUPERADMIN}`;
 const ALL_TITLES = [
@@ -37,11 +39,14 @@ const ALL_TITLES = [
   TITLE_ENTERPRISE,
   TITLE_ENTERPRISE_SUPERADMIN,
   TITLE_TAKEOVER,
+  TITLE_SIGNUP_DISABLED,
+  TITLE_SIGNUP_DISABLED_QUARANTINE,
 ];
 const DEFAULT_ONLY_TITLES = [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE, TITLE_INSERT_ALL, TITLE_BOTH, TITLE_SUPERADMIN, TITLE_SUPERADMIN_QUARANTINE];
 
 const DEFAULT_STACK = STACK_PROFILES.DEFAULT;
 const ENTERPRISE_STACK = STACK_PROFILES.ENTERPRISE;
+const SIGNUP_DISABLED_STACK = STACK_PROFILES.SIGNUP_DISABLED;
 
 /** Flags with everything off on the default stack, except what the case names. */
 function flagsOf(overrides: Partial<RunFlags> = {}): RunFlags {
@@ -70,42 +75,42 @@ const COMBINATIONS: Combination[] = [
   {
     description: "neither flag (the default run)",
     flags: flagsOf(),
-    expectedSource: "@quarantine|@insert-all|@superadmin|@enterprise|@enterprise-takeover",
+    expectedSource: "@quarantine|@insert-all|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM],
   },
   {
     description: "only E2E_INCLUDE_QUARANTINE (the quarantined tests without the 112 S1 tests)",
     flags: flagsOf({ includeQuarantine: true }),
-    expectedSource: "@insert-all|@superadmin|@enterprise|@enterprise-takeover",
+    expectedSource: "@insert-all|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE],
   },
   {
     description: "only E2E_INCLUDE_INSERT_ALL (S1 without the quarantined tests)",
     flags: flagsOf({ includeInsertAll: true }),
-    expectedSource: "@quarantine|@superadmin|@enterprise|@enterprise-takeover",
+    expectedSource: "@quarantine|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_INSERT_ALL],
   },
   {
     description: "only E2E_INCLUDE_SUPERADMIN (the super admin tests that are not quarantined)",
     flags: flagsOf({ includeSuperAdmin: true }),
-    expectedSource: "@quarantine|@insert-all|@enterprise|@enterprise-takeover",
+    expectedSource: "@quarantine|@insert-all|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_SUPERADMIN],
   },
   {
     description: "E2E_INCLUDE_SUPERADMIN and E2E_INCLUDE_QUARANTINE (all four SEC-R16 tests)",
     flags: flagsOf({ includeQuarantine: true, includeSuperAdmin: true }),
-    expectedSource: "@insert-all|@enterprise|@enterprise-takeover",
+    expectedSource: "@insert-all|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE, TITLE_SUPERADMIN, TITLE_SUPERADMIN_QUARANTINE],
   },
   {
     description: "all flags on the default stack, the takeover flag included (everything except the enterprise tests)",
     flags: flagsOf({ includeQuarantine: true, includeInsertAll: true, includeSuperAdmin: true, includeEnterpriseTakeover: true }),
-    expectedSource: "@enterprise|@enterprise-takeover",
+    expectedSource: "@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: DEFAULT_ONLY_TITLES,
   },
@@ -224,18 +229,41 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
   });
 
   test("excludedTags lists each opt-in tag unless its own flag is set, and the enterprise tags on the default stack", () => {
-    expect(excludedTags(flagsOf())).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER]);
-    expect(excludedTags(flagsOf({ includeQuarantine: true }))).toEqual([TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER]);
-    expect(excludedTags(flagsOf({ includeInsertAll: true }))).toEqual([TAGS.QUARANTINE, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER]);
-    expect(excludedTags(flagsOf({ includeSuperAdmin: true }))).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER]);
+    expect(excludedTags(flagsOf())).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeQuarantine: true }))).toEqual([TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeInsertAll: true }))).toEqual([TAGS.QUARANTINE, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeSuperAdmin: true }))).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
     expect(excludedTags(flagsOf({ includeQuarantine: true, includeInsertAll: true, includeSuperAdmin: true, includeEnterpriseTakeover: true }))).toEqual([
       TAGS.ENTERPRISE,
       TAGS.ENTERPRISE_TAKEOVER,
+      TAGS.SIGNUP_DISABLED,
     ]);
     expect(excludedTags(flagsOf({ stackProfile: ENTERPRISE_STACK }))).toEqual([TAGS.QUARANTINE, TAGS.ENTERPRISE_TAKEOVER]);
     expect(excludedTags(flagsOf({ stackProfile: ENTERPRISE_STACK, includeQuarantine: true }))).toEqual([TAGS.ENTERPRISE_TAKEOVER]);
     expect(excludedTags(flagsOf({ stackProfile: ENTERPRISE_STACK, includeEnterpriseTakeover: true }))).toEqual([TAGS.QUARANTINE]);
     expect(excludedTags(flagsOf({ stackProfile: ENTERPRISE_STACK, includeQuarantine: true, includeEnterpriseTakeover: true }))).toEqual([]);
+  });
+
+  test("a sign-up-disabled test never runs on another stack, and that stack runs nothing else, whatever the flags", () => {
+    for (const stack of [DEFAULT_STACK, ENTERPRISE_STACK]) {
+      for (const flags of everyFlagCombination(stack)) {
+        expect(keptTitles(flags).filter((title) => title.includes(TAGS.SIGNUP_DISABLED)), `sign-up-disabled titles kept by ${JSON.stringify(flags)}`).toEqual([]);
+      }
+    }
+    for (const flags of everyFlagCombination(SIGNUP_DISABLED_STACK)) {
+      const kept = keptTitles(flags);
+      expect(kept.filter((title) => !title.includes(TAGS.SIGNUP_DISABLED)), `other titles kept by ${JSON.stringify(flags)}`).toEqual([]);
+      expect(kept.includes(TITLE_SIGNUP_DISABLED), `the plain sign-up test under ${JSON.stringify(flags)}`).toBe(true);
+      expect(kept.includes(TITLE_SIGNUP_DISABLED_QUARANTINE), `the quarantined one under ${JSON.stringify(flags)}`).toBe(flags.includeQuarantine);
+    }
+  });
+
+  test("the sign-up-disabled profile: grep is its tag, grepInvert is the quarantine tag unless its flag is set, the other flags change nothing", () => {
+    expect(grepFor(flagsOf({ stackProfile: SIGNUP_DISABLED_STACK }))?.source).toBe("@signup-disabled");
+    expect(excludedTags(flagsOf({ stackProfile: SIGNUP_DISABLED_STACK }))).toEqual([TAGS.QUARANTINE]);
+    expect(excludedTags(flagsOf({ stackProfile: SIGNUP_DISABLED_STACK, includeQuarantine: true }))).toEqual([]);
+    expect(excludedTags(flagsOf({ stackProfile: SIGNUP_DISABLED_STACK, includeInsertAll: true, includeSuperAdmin: true, includeEnterpriseTakeover: true }))).toEqual([TAGS.QUARANTINE]);
+    expect(runFlagsFromEnv({ [STACK_PROFILE_ENV]: "signup-disabled" }), "the profile named in the environment").toEqual({ ...flagsOf(), stackProfile: SIGNUP_DISABLED_STACK });
   });
 
   test("runFlagsFromEnv: a flag is on when its variable is set and not empty", () => {
@@ -263,7 +291,7 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
     for (const value of ["Enterprise", "saas", "enterprise ", "1"]) {
       expect(() => stackProfileFromEnv({ [STACK_PROFILE_ENV]: value }), `profile "${value}"`).toThrow(UnknownStackProfileError);
     }
-    expect(() => stackProfileFromEnv({ [STACK_PROFILE_ENV]: "saas" })).toThrow(/default or enterprise/);
+    expect(() => stackProfileFromEnv({ [STACK_PROFILE_ENV]: "saas" })).toThrow(/default or enterprise or signup-disabled/);
   });
 
   test("playwright.config.ts uses the selection for the environment this run has", () => {

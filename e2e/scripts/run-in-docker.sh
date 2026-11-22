@@ -26,7 +26,10 @@
 ##                       E2E_INCLUDE_QUARANTINE=1 too). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
 ##   E2E_STACK_PROFILE   which stack to start: `default` (the all-in-one image in its SAAS workspace mode; the default) or
 ##                       `enterprise` (the same image with LOWCODER_WORKSPACE_MODE=ENTERPRISE: one workspace shared by every
-##                       user; it runs only the @enterprise tests, SEC-E01 to SEC-E04, E06a, E06b). Any other value is an error.
+##                       user; it runs only the @enterprise tests, SEC-E01 to SEC-E04, E06a, E06b) or `signup-disabled` (the same
+##                       image with LOWCODER_EMAIL_SIGNUP_ENABLED=false: nobody may sign up with e-mail; it runs only the
+##                       @signup-disabled tests, LC-AU20 to AU24, because every fixture that makes a user signs up). Any other value
+##                       is an error.
 ##                       A --grep of the command line narrows the profile's own selection further (measured, Playwright 1.64:
 ##                       it does not replace it). Gate: E2E_STACK_PROFILE=enterprise $0 --repeat-each=10 --workers=4 tests/security/enterprise.spec.ts
 ##   E2E_INCLUDE_ENTERPRISE_TAKEOVER  set to 1, with E2E_STACK_PROFILE=enterprise (any other profile is an error), to run SEC-E05
@@ -88,6 +91,7 @@ readonly SUPERUSER_PASSWORD_BYTES=18
 readonly DEFAULT_PROFILE="default"
 readonly ENTERPRISE_PROFILE="enterprise"
 readonly ENTERPRISE_WORKSPACE_MODE="ENTERPRISE"
+readonly SIGNUP_DISABLED_PROFILE="signup-disabled"
 readonly STACK_PROFILE="${E2E_STACK_PROFILE:-$DEFAULT_PROFILE}"
 
 # shellcheck source=app-host.sh
@@ -136,8 +140,8 @@ trap cleanup EXIT
 
 check_stack_profile() {
     case "$STACK_PROFILE" in
-        "$DEFAULT_PROFILE" | "$ENTERPRISE_PROFILE") ;;
-        *) fail "E2E_STACK_PROFILE=\"$STACK_PROFILE\" names no stack; use $DEFAULT_PROFILE or $ENTERPRISE_PROFILE" ;;
+        "$DEFAULT_PROFILE" | "$ENTERPRISE_PROFILE" | "$SIGNUP_DISABLED_PROFILE") ;;
+        *) fail "E2E_STACK_PROFILE=\"$STACK_PROFILE\" names no stack; use $DEFAULT_PROFILE, $ENTERPRISE_PROFILE or $SIGNUP_DISABLED_PROFILE" ;;
     esac
     if [ -n "${E2E_INCLUDE_ENTERPRISE_TAKEOVER:-}" ] && [ "$STACK_PROFILE" != "$ENTERPRISE_PROFILE" ]; then
         fail "E2E_INCLUDE_ENTERPRISE_TAKEOVER needs E2E_STACK_PROFILE=$ENTERPRISE_PROFILE"
@@ -190,6 +194,8 @@ start_app() {
     fi
     if [ "$STACK_PROFILE" = "$ENTERPRISE_PROFILE" ]; then
         profile_env=(-e "LOWCODER_WORKSPACE_MODE=$ENTERPRISE_WORKSPACE_MODE")
+    elif [ "$STACK_PROFILE" = "$SIGNUP_DISABLED_PROFILE" ]; then
+        profile_env=(-e "LOWCODER_EMAIL_SIGNUP_ENABLED=false")
     fi
     log "Starting $APP_IMAGE as $APP_CONTAINER (stack profile $STACK_PROFILE)"
     docker run -d --name "$APP_CONTAINER" --network "$NETWORK" --network-alias "$E2E_APP_HOST" --add-host "${ECHO_ALIAS}:${ECHO_IP}" "${publish[@]}" "${profile_env[@]}" \

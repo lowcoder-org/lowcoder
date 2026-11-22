@@ -191,6 +191,12 @@ export const TAGS = {
    * then the ONLY test of the run (enterprise profile only; see src/run-selection.ts). It also carries @enterprise and @quarantine.
    */
   ENTERPRISE_TAKEOVER: "@enterprise-takeover",
+  /**
+   * The tests of the third stack, with the deployment setting LOWCODER_EMAIL_SIGNUP_ENABLED=false (tests/auth/signup-disabled.spec.ts):
+   * out of every run on the other stacks, the only ones of a run with E2E_STACK_PROFILE=signup-disabled (see src/run-selection.ts).
+   * Every fixture that makes a user signs up, so no other test can run on that stack.
+   */
+  SIGNUP_DISABLED: "@signup-disabled",
 } as const;
 
 /** Environment variables that widen the run beyond the default selection (read by playwright.config.ts). */
@@ -209,7 +215,7 @@ export const STACK_PROFILE_ENV = "E2E_STACK_PROFILE";
  * The stacks `run-in-docker.sh` starts: `default` is the all-in-one image in its SAAS workspace mode, `enterprise` the same
  * image with LOWCODER_WORKSPACE_MODE=ENTERPRISE (one workspace shared by all users). A missing variable means `default`.
  */
-export const STACK_PROFILES = { DEFAULT: "default", ENTERPRISE: "enterprise" } as const;
+export const STACK_PROFILES = { DEFAULT: "default", ENTERPRISE: "enterprise", SIGNUP_DISABLED: "signup-disabled" } as const;
 export type StackProfile = (typeof STACK_PROFILES)[keyof typeof STACK_PROFILES];
 
 /**
