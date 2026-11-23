@@ -1,7 +1,7 @@
 import http from "http";
 import "./common/logger";
 import "express-async-errors";
-import express, { Response, Request, NextFunction } from "express";
+import express, { Response, Request, NextFunction, RequestHandler } from "express";
 import { ServiceError } from "./common/error";
 import path from "node:path";
 import morgan from "morgan";
@@ -36,17 +36,27 @@ const MAX_REQUEST_SIZE_BYTES = parseRequestLimitNoLib(
   "50mb"
 );
 
-/** Parse the request */
-router.use(express.urlencoded({ extended: false, limit: MAX_REQUEST_SIZE_BYTES }));
+// the code of /runJs and /batchRunJs is held in memory while it waits for an evaluation slot, so these routes take far less than the global limit
+const RUN_JS_MAX_REQUEST_SIZE_BYTES = 5 * 1024 * 1024;
+const RUN_JS_ROUTES = [`${prefix}/api/runJs`, `${prefix}/api/batchRunJs`];
 
-/** Custom middleware: use raw body for encrypted requests */
-router.use((req, res, next) => {
-  if (req.headers["x-encrypted"]) {
-    bodyParser.text({ type: "*/*", limit: MAX_REQUEST_SIZE_BYTES })(req, res, next);
-  } else {
-    bodyParser.json({ limit: MAX_REQUEST_SIZE_BYTES })(req, res, next);
-  }
-});
+function requestBodyParsers(limit: number): RequestHandler[] {
+  return [
+    express.urlencoded({ extended: false, limit }),
+    /** Custom middleware: use raw body for encrypted requests */
+    (req, res, next) => {
+      if (req.headers["x-encrypted"]) {
+        bodyParser.text({ type: "*/*", limit })(req, res, next);
+      } else {
+        bodyParser.json({ limit })(req, res, next);
+      }
+    },
+  ];
+}
+
+/** Parse the request: the evaluation routes first (a request already parsed is skipped by the parsers below), then everything else */
+router.post(RUN_JS_ROUTES, ...requestBodyParsers(Math.min(RUN_JS_MAX_REQUEST_SIZE_BYTES, MAX_REQUEST_SIZE_BYTES)));
+router.use(...requestBodyParsers(MAX_REQUEST_SIZE_BYTES));
 
 /** Takes care of JSON data */
 router.use(express.json({ limit: MAX_REQUEST_SIZE_BYTES }));

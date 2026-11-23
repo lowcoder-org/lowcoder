@@ -1,4 +1,5 @@
 import nock from "nock";
+import { EVAL_MAX_CONCURRENT_ISOLATES, EVAL_MAX_QUEUED } from "../eval/evalScript";
 
 const API_HOST = "http://api.test";
 const EXECUTE_PATH = "/api/query/execute-from-node";
@@ -92,6 +93,18 @@ describe("runJavascript", () => {
 
     expect(res.statusCode).toBe(STATUS_OK);
     expect(res.body).toEqual({ error: "Error: boom" });
+  });
+
+  test("throw new Error in user code gives {error: 'Error: boom'}", async () => {
+    const res = await run({ jsCode: 'throw new Error("boom")' });
+
+    expect(res.body).toEqual({ error: "Error: boom" });
+  });
+
+  test("a context key named runQueryLibrary does not replace the bridge", async () => {
+    const res = await run({ jsCode: "return typeof runQueryLibrary", context: { runQueryLibrary: 5 } });
+
+    expect(res.body).toEqual({ result: "function" });
   });
 
   test("code that throws a non-Error value gives the generic unknown-exception message", async () => {
@@ -194,6 +207,21 @@ describe("batchRunJavascript", () => {
     expect(res.body).toEqual({
       results: [{ result: "first" }, { error: "Error: second failed" }, { result: 3 }],
     });
+  });
+
+  test("batch entries do not share globals", async () => {
+    const res = await runBatch({
+      requests: [{ jsCode: "globalThis.shared = 1; return 1" }, { jsCode: "return typeof shared" }],
+    });
+
+    expect(res.body).toEqual({ results: [{ result: 1 }, { result: "undefined" }] });
+  });
+
+  test("a batch with more entries than the slot and queue bounds runs every entry", async () => {
+    const count = EVAL_MAX_CONCURRENT_ISOLATES + EVAL_MAX_QUEUED + 1;
+    const res = await runBatch({ requests: Array.from({ length: count }, (_unused, i) => ({ jsCode: `return ${i}` })) });
+
+    expect(res.body).toEqual({ results: Array.from({ length: count }, (_unused, i) => ({ result: i })) });
   });
 
   test("every request in a batch forwards the same Cookie header to the api-service", async () => {

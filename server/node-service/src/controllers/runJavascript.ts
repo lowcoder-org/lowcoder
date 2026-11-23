@@ -40,7 +40,7 @@ async function evalJs(req: EvalRequest, cookie?: string): Promise<EvalResult> {
       return Promise.reject(new Error(`API failed. code:${data.code} message:${data.message}`));
     });
   try {
-    return { result: await evalFunc(req.jsCode || "", { ...req.context, runQueryLibrary }) };
+    return { result: await evalFunc(req.jsCode || "", req.context, { runQueryLibrary }) };
   } catch (e) {
     console.error("get error when eval js:", e);
     return { error: getErrorMessage(e) };
@@ -52,7 +52,12 @@ async function batchEvalJs(req: BatchEvalRequest, cookie?: string): Promise<Batc
   if (!Array.isArray(requests)) {
     return { error: "No requests" };
   }
-  return { results: await Promise.all(requests.map((r) => evalJs(r, cookie))) };
+  // one after another: a batch holds at most one evaluation slot or queue place at a time
+  const results: EvalResult[] = [];
+  for (const request of requests) {
+    results.push(await evalJs(request, cookie));
+  }
+  return { results };
 }
 
 const runJavascript = async (req: Request, res: Response, next: NextFunction) => {

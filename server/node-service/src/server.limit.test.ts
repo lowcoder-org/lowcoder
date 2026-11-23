@@ -21,6 +21,9 @@ const JSON_HEADERS = { "content-type": "application/json" };
 const TEXT_HEADERS = { "content-type": "text/plain", [ENCRYPTED_HEADER]: "true" };
 const KB = 1024;
 const MB = KB * KB;
+// /runJs and /batchRunJs take at most this much, or the configured limit when that is smaller
+const RUN_JS_LIMIT = 5 * MB;
+const RUN_JS_PATH = "/node-service/api/runJs";
 
 jest.setTimeout(TEST_TIMEOUT_MS);
 
@@ -201,11 +204,22 @@ describe("request size limit (parseRequestLimitNoLib)", () => {
     await call(b, "GET", "/nope");
     await call(b, "POST", "/nope", { headers: JSON_HEADERS, body: "{}" });
     await call(b, "POST", "/nope", { headers: TEXT_HEADERS, body: "abc" });
-    // express.urlencoded and express.json are built once at import; bodyParser.json and bodyParser.text are built per request
-    expect(b.limits.urlencoded).toEqual([expected]);
+    // express.urlencoded and express.json are built once at import (urlencoded twice: for the evaluation routes, then for all routes);
+    // bodyParser.json and bodyParser.text are built per request
+    expect(b.limits.urlencoded).toEqual([Math.min(RUN_JS_LIMIT, expected), expected]);
     expect(b.limits.expressJson).toEqual([expected]);
     expect(b.limits.parserJson).toEqual([expected, expected]);
     expect(b.limits.parserText).toEqual([expected]);
+  });
+
+  it.each([
+    ["the default limit is capped at 5 MiB", undefined, 50 * MB, RUN_JS_LIMIT],
+    ["a configured limit below 5 MiB is kept", "2MB", 2 * MB, 2 * MB],
+  ])("the evaluation routes: %s", async (_label, value, global, scoped) => {
+    const b = await boot({ [ENV_LIMIT]: value });
+    await call(b, "POST", RUN_JS_PATH, { headers: JSON_HEADERS, body: JSON.stringify({ jsCode: "return 1" }) });
+    // the parser of the evaluation routes runs first, the global one finds the body already parsed
+    expect(b.limits.parserJson).toEqual([scoped, global]);
   });
 
   const REJECTED: [string, string, string][] = [
