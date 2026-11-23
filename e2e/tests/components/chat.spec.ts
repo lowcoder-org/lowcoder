@@ -1,10 +1,12 @@
 import type { Page } from "@playwright/test";
-import { createApp, publishApp } from "../../src/api/client";
+import { createApp, publishApp, setPublicToAll } from "../../src/api/client";
 import { NEGATIVE_EVENT_WINDOW_MS } from "../../src/constants";
 import {
   appDsl,
+  button,
   component,
   eventHandler,
+  executeComp,
   jsQuery,
   recordedHookOf,
   setTempState,
@@ -141,6 +143,72 @@ test.describe("S18 chat controller", () => {
       networkGuard.blockedUrls.filter((url) => /^wss?:/.test(url)),
       "the network guard blocked no WebSocket",
     ).toEqual([]);
+  });
+
+  const SEND_A_TEST_ID = "e2e-chat-send-a";
+  const SEND_B_TEST_ID = "e2e-chat-send-b";
+  const SHARED_TEST_ID = "e2e-chat-shared";
+  const READY_TEST_ID = "e2e-chat-ready";
+  const MESSAGE_FROM_A = "hello from viewer A";
+  const MESSAGE_FROM_B = "hello from viewer B";
+  const EMPTY_SHARED_TEXT = "shared={}";
+
+  /** A chat controller (default room, no `applicationId` override) with one share button per viewer and the room's state as text. */
+  function twoWayRoomApp(): object {
+    const controller = recordedHookOf("chatController");
+    return appDsl(
+      stackItems([
+        button({
+          id: "ba",
+          name: "shareA",
+          text: "Share A",
+          testId: SEND_A_TEST_ID,
+          onEvent: [eventHandler("click", executeComp("chatController1", "setSharedState", [{ name: "key", value: "fromA" }, { name: "value", value: MESSAGE_FROM_A }]))],
+        }),
+        button({
+          id: "bb",
+          name: "shareB",
+          text: "Share B",
+          testId: SEND_B_TEST_ID,
+          onEvent: [eventHandler("click", executeComp("chatController1", "setSharedState", [{ name: "key", value: "fromB" }, { name: "value", value: MESSAGE_FROM_B }]))],
+        }),
+        text({ id: "tr", name: "ready", text: "ready={{chatController1.ready}}", testId: READY_TEST_ID }),
+        text({ id: "ts", name: "shared", text: "shared={{JSON.stringify(chatController1.sharedState)}}", testId: SHARED_TEST_ID }),
+      ]),
+      { hooks: [controller] },
+    );
+  }
+
+  test("two viewers in the same room: each one's share reaches the other", async ({ page, apiUser, newUserSession }) => {
+    const { appId } = await createApp(page.request, { orgId: apiUser.orgId, name: "e2e-chat-two-way", dsl: twoWayRoomApp() });
+    await publishApp(page.request, appId);
+    // Viewer B is a second, independent session with no login of its own (`newUserSession`); the app must be public
+    // for it to open the view at all (`apps/public-app.spec.ts`).
+    await setPublicToAll(page.request, appId, true);
+
+    const viewA = new AppViewPage(page);
+    await viewA.open(appId);
+    const sessionB = await newUserSession();
+    const viewB = new AppViewPage(sessionB.page);
+    await viewB.open(appId);
+
+    // Same connection-establishment budget as "the chat controller connects..." above.
+    await expect(viewA.byTestId(READY_TEST_ID), "before: A's controller is connected to the room").toHaveText("ready=true", { timeout: CONNECTION_FRAME_TIMEOUT_MS });
+    await expect(viewB.byTestId(READY_TEST_ID), "before: B's controller is connected to the same room").toHaveText("ready=true", { timeout: CONNECTION_FRAME_TIMEOUT_MS });
+    await expect(viewA.byTestId(SHARED_TEST_ID), "before: the room is empty for A").toHaveText(EMPTY_SHARED_TEXT);
+    await expect(viewB.byTestId(SHARED_TEST_ID), "before: the room is empty for B").toHaveText(EMPTY_SHARED_TEXT);
+
+    await viewA.buttonByTestId(SEND_A_TEST_ID).click();
+    await expect(viewA.byTestId(SHARED_TEST_ID), "control: A's own view carries A's message").toContainText(MESSAGE_FROM_A);
+    await expect(viewB.byTestId(SHARED_TEST_ID), "B receives A's message").toContainText(MESSAGE_FROM_A);
+
+    await viewB.buttonByTestId(SEND_B_TEST_ID).click();
+    await expect(viewB.byTestId(SHARED_TEST_ID), "control: B's own view carries B's message").toContainText(MESSAGE_FROM_B);
+    await expect(viewA.byTestId(SHARED_TEST_ID), "A receives B's message").toContainText(MESSAGE_FROM_B);
+
+    // Both messages coexist (the second share did not overwrite the first) on both sides.
+    await expect(viewA.byTestId(SHARED_TEST_ID), "A still has A's own message after B's share").toContainText(MESSAGE_FROM_A);
+    await expect(viewB.byTestId(SHARED_TEST_ID), "B still has A's message after sharing its own").toContainText(MESSAGE_FROM_A);
   });
 });
 

@@ -325,7 +325,7 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | modules/module-editor-host.spec.ts | M3: host built in the editor, D-3 retry and handler retry | @slow | 1 |
 | modules/module-helpers.spec.ts | unit tests of `src/modules/moduleScenario.ts` | none | 6 |
 
-### components (101 default, 214 with S1 and the quarantined one)
+### components (102 default, 215 with S1 and the quarantined one)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -342,7 +342,7 @@ also carry `@superadmin` need both variables), `@superadmin` 5 (the four SEC-R16
 | components/media.spec.ts | S12 image, carousel, avatarGroup, comment, card, audio, video, fileViewer | none | 8 |
 | components/lists.spec.ts | S13 listView and grid rows | none | 5 |
 | components/timer.spec.ts | S14 display runs, stops after Pause, `pause` event (CD-3 limits it) | none | 1 |
-| components/chat.spec.ts | S17 AI Chat, S18 chat controller, S20 chat box | none | 7 |
+| components/chat.spec.ts | S17 AI Chat, S18 chat controller (two viewers exchange messages in the same room), S20 chat box | none | 8 |
 | components/iframe.spec.ts | S18 `url` decides `src` | none | 1 |
 | components/npm-components.spec.ts | S15 npm components render; calendar with a pinned clock; barChart bound to a query (annotation CD-5) | @npm @slow | 26 |
 | components/npm-plugins.spec.ts | S16/S19 npm plugin and template listed, kept after reload | @npm | 3 |
