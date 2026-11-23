@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Section, sectionNames } from "lowcoder-design";
 import { PropertyViewDocLink } from "comps/utils/propertyViewDocLink";
 import {
@@ -452,7 +453,16 @@ const ChatControllerBase = withViewFn(
     const userName = comp.children.userName.getView().value;
     const applicationId = comp.children.applicationId.getView().value;
 
-    const roomName = `signal_${applicationId || "lowcoder_app"}`;
+    // The room must be bound to the HOST application the viewer actually has READ on,
+    // not the immediate ExternalEditorContext.applicationId, which a module's own Provider overrides with the
+    // module's own id (moduleComp.tsx) -- a weaker authorization boundary than the host's (see
+    // ExternalEditorContext.ts / moduleComp.tsx for why). The `applicationId` property here now names a SUB-ROOM
+    // of the host, not another app.
+    const externalContext = useContext(ExternalEditorContext);
+    const hostAppId = externalContext.hostApplicationId ?? externalContext.applicationId;
+    const roomName = (!applicationId || applicationId === "lowcoder_app" || applicationId === hostAppId)
+      ? `signal_${hostAppId || "lowcoder_app"}`
+      : `signal_${hostAppId || "lowcoder_app"}:${applicationId}`;
 
     return (
       <HocuspocusRoomProvider

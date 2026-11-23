@@ -36,6 +36,7 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -179,6 +180,17 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
+    /**
+     * Resolves the account for an authentication attempt, in order: (1) an existing connection of the same source
+     * and subject -- update it; (2) an account found by e-mail address not yet connected this way -- link it ONLY
+     * when {@link #linkByAddressOrRefuse} allows it, else refuse with no session opened; (3) register, or
+     * {@code USER_NOT_EXIST}.
+     * <p>
+     * Limits: a person who already has an e-mail account and signs in with a provider
+     * for the first time is refused here and must link the provider from their profile instead of being linked by
+     * address automatically; the same for a SCIM-provisioned placeholder that already had a prior account. Identities
+     * remain keyed by provider type plus subject for branch 1/{@code updateConnection}, unchanged by this phase.
+     */
     public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser, boolean isSuperAdmin) {
 
         if(linkExistingUser) {
@@ -200,10 +212,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     }
 
                     //If the user connection is not found with login id, but the user is
-                    // found for the same id in some different connection, then just add a new connection to the user
+                    // found for the same id in some different connection, then only link it when it is safe to
                     if(findByAuthUserSecond.userExist()) {
-                        User user = findByAuthUserSecond.user();
-                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser);
+                        return linkByAddressOrRefuse(authUser, findByAuthUserSecond.user(), isSuperAdmin);
                     }
 
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
@@ -211,6 +222,47 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     }
                     return Mono.error(new BizException(USER_NOT_EXIST, "USER_NOT_EXIST"));
                 });
+    }
+
+    /**
+     * An account found only by e-mail address (not by the same source/subject
+     * connection) is linked ONLY when that is safe, never merely because the address matches:
+     * <ul>
+     * <li>{@code isSuperAdmin}: the deployment-configured super-admin setup, unchanged;</li>
+     * <li>otherwise, only for a non-EMAIL source, an account with NO connections at all (a SCIM placeholder), AND an
+     * EXCLUSIVE raw membership of the provider's own workspace ({@code authUser.getOrgId()}) -- not merely "is a
+     * member of it among possibly others". A plain membership check is not enough: {@code
+     * UserController#createSCIMUserAndAddToOrg} lets an admin of ANY org pull an existing placeholder found by
+     * e-mail into their own org as a second raw membership regardless of its connection state, which would satisfy a
+     * looser check; requiring exactly one raw row defeats that, since the polluted placeholder then has two.</li>
+     * </ul>
+     * Every other match is refused, with no connection added and no account mutated: {@code USER_LOGIN_ID_EXIST} for
+     * an EMAIL-source (form) attempt, the answer of an existing login id; {@code ALREADY_BIND} for any other source.
+     * The raw memberships are read ONCE via {@link OrgMemberService#getRawOrgMemberships}, not {@code
+     * countAllActiveOrgs} (which is ENTERPRISE-mode-aware and collapses multiple real memberships down to one, so it
+     * would not catch a cross-org SCIM-pollution attack there) and not as two separate queries (which would reopen a
+     * race window against a concurrent {@code createSCIMUserAndAddToOrg} call between them).
+     */
+    private Mono<User> linkByAddressOrRefuse(AuthUser authUser, User found, boolean isSuperAdmin) {
+        if (isSuperAdmin) {
+            return userService.addNewConnectionAndReturnUser(found.getId(), authUser);
+        }
+        boolean isEmailSource = AuthSourceConstants.EMAIL.equals(authUser.getSource());
+        if (isEmailSource) {
+            return Mono.error(new BizException(USER_LOGIN_ID_EXIST, "USER_LOGIN_ID_EXIST"));
+        }
+        if (CollectionUtils.isEmpty(found.getConnections())) {
+            return orgMemberService.getRawOrgMemberships(found.getId())
+                    .flatMap(orgMembers -> {
+                        boolean isExclusiveMemberOfProviderOrg = orgMembers.size() == 1
+                                && orgMembers.get(0).getOrgId().equals(authUser.getOrgId());
+                        if (isExclusiveMemberOfProviderOrg) {
+                            return userService.addNewConnectionAndReturnUser(found.getId(), authUser);
+                        }
+                        return Mono.<User>error(new BizException(ALREADY_BIND, "ALREADY_BIND"));
+                    });
+        }
+        return Mono.error(new BizException(ALREADY_BIND, "ALREADY_BIND"));
     }
 
     protected Mono<FindByAuthUser> findByAuthUserSourceAndRawId(AuthUser authUser) {

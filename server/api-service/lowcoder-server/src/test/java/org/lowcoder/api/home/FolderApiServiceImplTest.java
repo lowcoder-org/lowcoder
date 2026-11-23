@@ -504,6 +504,95 @@ class FolderApiServiceImplTest {
         assertThat(written).as("a member who is not the creator writes nothing").isFalse();
     }
 
+    // ---------------------------------------------------- cross-org manage
+
+    /**
+     * An ADMIN of the visitor's CURRENT org on ANOTHER org's folder -> {@code
+     * FOLDER_OPERATE_NO_PERMISSION} for all four operations {@code checkManagePermissionInCurrentOrg} guards, with
+     * nothing written -- proved with the file's subscription-flag pattern, not {@code verify(..., never())}, since
+     * each of {@code update}'s {@code updateById}, {@code updatePermission}'s {@code updateRoleById} and {@code
+     * removePermission}'s {@code removeById} is the argument of a {@code .then(mono)} call and is INVOKED while the
+     * chain is assembled even when the preceding check fails.
+     */
+    @Test
+    void crossOrgAdmin_update_grant_updatePermission_removePermission_refusedFolderOperateNoPermission() {
+        signedInAs(MemberRole.ADMIN);
+        when(folderService.findById("foreign")).thenReturn(Mono.just(folder("foreign", OTHER_ORG, null, "foreign", OTHER_USER)));
+
+        AtomicBoolean updateWritten = new AtomicBoolean();
+        when(folderService.updateById(eq("foreign"), any(Folder.class))).thenReturn(flagged(updateWritten, true));
+        expectBizError(service.update(request("foreign", null, "renamed")), BizError.FOLDER_OPERATE_NO_PERMISSION);
+        assertThat(updateWritten).as("cross-org admin update must not write anything").isFalse();
+
+        AtomicBoolean granted = new AtomicBoolean();
+        when(permissionService.insertBatchPermission(any(), anyString(), any(), any(), any())).thenReturn(flaggedVoid(granted));
+        expectBizError(service.grantPermission("foreign", Set.of("u2"), Set.of(), ResourceRole.VIEWER), BizError.FOLDER_OPERATE_NO_PERMISSION);
+        verify(permissionService, never()).insertBatchPermission(any(), anyString(), any(), any(), any());
+        assertThat(granted).as("cross-org admin grant must not insert anything").isFalse();
+
+        when(permissionService.getById("p-foreign-folder")).thenReturn(Mono.just(ResourcePermission.builder().id("p-foreign-folder").resourceId("foreign").build()));
+        AtomicBoolean updatedRole = new AtomicBoolean();
+        when(permissionService.updateRoleById(anyString(), any())).thenReturn(flagged(updatedRole, true));
+        expectBizError(service.updatePermission("foreign", "p-foreign-folder", ResourceRole.EDITOR), BizError.FOLDER_OPERATE_NO_PERMISSION);
+        assertThat(updatedRole).as("cross-org admin updatePermission must not write anything").isFalse();
+
+        AtomicBoolean removed = new AtomicBoolean();
+        when(permissionService.removeById(anyString())).thenReturn(flagged(removed, true));
+        expectBizError(service.removePermission("foreign", "p-foreign-folder"), BizError.FOLDER_OPERATE_NO_PERMISSION);
+        assertThat(removed).as("cross-org admin removePermission must not remove anything").isFalse();
+
+        System.out.println("[FolderApiServiceImplTest] cross-org admin refused on update/grant/updatePermission/removePermission, nothing written");
+    }
+
+    /** The folder's own creator, whose CURRENT org is a different one now, is refused the same way an admin is. */
+    @Test
+    void crossOrgCreator_update_refusedFolderOperateNoPermission() {
+        when(folderService.findById("foreign")).thenReturn(Mono.just(folder("foreign", OTHER_ORG, null, "foreign", VISITOR)));
+        AtomicBoolean written = new AtomicBoolean();
+        when(folderService.updateById(eq("foreign"), any(Folder.class))).thenReturn(flagged(written, true));
+
+        expectBizError(service.update(request("foreign", null, "renamed")), BizError.FOLDER_OPERATE_NO_PERMISSION);
+
+        assertThat(written).as("the creator's own org no longer matches the folder's -> refused, nothing written").isFalse();
+    }
+
+    /**
+     * An unknown folder id for update/grantPermission/updatePermission/removePermission answers {@code
+     * FOLDER_NOT_EXIST} -- a NEW answer for these four operations (distinct from {@code delete}'s own pinned
+     * unknown-id behaviour, unaffected: {@link #delete_unknownFolder_asANonAdmin_completesEmpty_withoutDeleting}
+     * and {@link #delete_unknownFolderInTheTree_asAnAdmin_failsWithFolderNotExist} above still pass unchanged).
+     */
+    @Test
+    void unknownFolderId_update_grant_updatePermission_removePermission_answerFolderNotExist() {
+        signedInAs(MemberRole.ADMIN);
+        when(folderService.findById("ghost")).thenReturn(Mono.empty());
+        // Each mutation call below is the argument of a .then(mono) call and so is INVOKED while its chain is
+        // assembled, even though checkManagePermissionInCurrentOrg errors before any of them is ever subscribed
+        // (the file's own eager-.then() gotcha, documented at the top of this class) -- stub them so the eager
+        // Java call does not NPE on an unstubbed mock.
+        when(folderService.updateById(eq("ghost"), any(Folder.class))).thenReturn(Mono.just(true));
+        when(permissionService.getById(anyString())).thenReturn(Mono.just(ResourcePermission.builder().id("p").resourceId("ghost").build()));
+        when(permissionService.updateRoleById(anyString(), any())).thenReturn(Mono.just(true));
+        when(permissionService.removeById(anyString())).thenReturn(Mono.just(true));
+
+        expectBizError(service.update(request("ghost", null, "renamed")), BizError.FOLDER_NOT_EXIST);
+        expectBizError(service.grantPermission("ghost", Set.of("u2"), Set.of(), ResourceRole.VIEWER), BizError.FOLDER_NOT_EXIST);
+        expectBizError(service.updatePermission("ghost", "p", ResourceRole.VIEWER), BizError.FOLDER_NOT_EXIST);
+        expectBizError(service.removePermission("ghost", "p"), BizError.FOLDER_NOT_EXIST);
+    }
+
+    /** A non-admin, non-creator member of the SAME org as the folder is still refused -- the pre-existing rule, unaffected. */
+    @Test
+    void sameOrgNonAdminNonCreator_update_refusedFolderOperateNoPermission() {
+        when(folderService.findById("f1")).thenReturn(Mono.just(folder("f1", ORG, null, "f1", OTHER_USER)));
+        AtomicBoolean written = new AtomicBoolean();
+        when(folderService.updateById(eq("f1"), any(Folder.class))).thenReturn(flagged(written, true));
+
+        expectBizError(service.update(request("f1", null, "renamed")), BizError.FOLDER_OPERATE_NO_PERMISSION);
+
+        assertThat(written).isFalse();
+    }
+
     // ------------------------------------------------------------- move/bundle
 
     private Mono<Void> doMove(boolean bundle, String id, String target) {
@@ -767,6 +856,10 @@ class FolderApiServiceImplTest {
     @Test
     void updateAndRemovePermission_rejectUnknownAndForeignPermissionIds_beforeMutating() {
         signedInAs(MemberRole.ADMIN);
+        // checkManagePermissionInCurrentOrg looks the folder up for every caller, admin
+        // included (unlike the old checkManagePermission, which never called findById for an admin) -- stub it so
+        // the admin path still succeeds past the new lookup.
+        when(folderService.findById("f1")).thenReturn(Mono.just(folder("f1", ORG, null, "f1", OTHER_USER)));
         AtomicBoolean updated = new AtomicBoolean();
         AtomicBoolean removed = new AtomicBoolean();
         when(permissionService.updateRoleById(anyString(), any())).thenReturn(flagged(updated, true));

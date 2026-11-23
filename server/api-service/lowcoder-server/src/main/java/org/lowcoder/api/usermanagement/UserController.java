@@ -199,8 +199,8 @@ public class UserController implements UserEndpoints
 
     @Override
     public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
-        return orgApiService.checkVisitorAdminRole(orgId)
-                .flatMap(__ -> updateUser(userId, updateUserRequest, exchange));
+        return checkVisitorManagesMember(orgId, userId)
+                .flatMap(__ -> updateManagedUser(userId, updateUserRequest));
     }
 
     public Mono<ResponseView<UserProfileView>> updateUser(String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
@@ -226,9 +226,9 @@ public class UserController implements UserEndpoints
 
     @Override
     public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono) {
-        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
-                .zipWith(fileMono)
-                .flatMap(tuple -> userService.saveProfilePhoto(tuple.getT2(), tuple.getT1()))
+        return checkVisitorManagesMember(orgId, userId)
+                .then(userService.findById(userId))
+                .flatMap(user -> fileMono.flatMap(file -> userService.saveProfilePhoto(file, user)))
                 .map(ResponseView::success);
     }
 
@@ -241,7 +241,7 @@ public class UserController implements UserEndpoints
 
     @Override
     public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId) {
-        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+        return checkVisitorManagesMember(orgId, userId).then(userService.findById(userId))
                 .flatMap(user -> userService.deleteProfilePhoto(user)
                         .map(ResponseView::success));
     }
@@ -322,5 +322,68 @@ public class UserController implements UserEndpoints
     public Mono<ResponseView<?>> getUserDetail(@PathVariable("id") String userId) {
         return userApiService.getUserDetailById(userId)
                 .map(ResponseView::success);
+    }
+
+    /**
+     * The admin route's own mutation: same field mapping as {@link #updateUser}, but answers the reduced
+     * {@link #managedUserView(User)} instead of {@link UserHomeApiService#buildUserProfileView}, so the target's
+     * session tokens and other workspaces never go back to the admin that renamed them.
+     */
+    private Mono<ResponseView<UserProfileView>> updateManagedUser(String userId, UpdateUserRequest updateUserRequest) {
+        User updateUser = new User();
+        if (StringUtils.isNotBlank(updateUserRequest.getName())) {
+            updateUser.setName(updateUserRequest.getName());
+            updateUser.setHasSetNickname(true);
+        }
+        if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+            updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
+        }
+        return userService.update(userId, updateUser)
+                .map(UserController::managedUserView)
+                .map(ResponseView::success);
+    }
+
+    /**
+     * The admin route's answer for a managed user: only the UI-relevant fields an admin needs to see the
+     * result of a rename or photo change. {@code UserProfileView} actually serializes 19 top-level keys, not its
+     * 17 fields (Jackson's duplicate aliases for {@code isAnonymous}/{@code isEnabled}, and {@code isOrgDev}
+     * serializing as {@code orgDev}) -- every key this method leaves
+     * unset stays at the builder's default, so the target's session tokens ({@code connections}), other
+     * workspaces ({@code orgAndRoles}), current org, status, IP and creation time never reach the caller.
+     */
+    private static UserProfileView managedUserView(User user) {
+        return UserProfileView.builder()
+                .id(user.getId())
+                .username(user.getName())
+                .isAnonymous(user.isAnonymous())
+                .uiLanguage(user.getUiLanguage())
+                .avatarUrl(user.getAvatarUrl())
+                .avatar(user.getAvatar())
+                .hasSetNickname(user.isHasSetNickname())
+                .isEnabled(org.apache.commons.lang3.BooleanUtils.isNotFalse(user.getIsEnabled()))
+                .build();
+    }
+
+    /**
+     * The visitor must be ADMIN or SUPER_ADMIN of {@code orgId} ({@link OrgApiService#checkVisitorAdminRole}), and
+     * {@code userId} must be a member of {@code orgId} -- else {@code NOT_AUTHORIZED}, the same answer for both,
+     * so "no such user" and "not in this workspace" cannot be told apart. A SUPER_ADMIN target can only be
+     * managed by itself or another SUPER_ADMIN of {@code orgId}, the same rank rule
+     * {@code OrgApiServiceImpl#checkSuperAdminRoleUnchanged} applies to a role change; otherwise
+     * {@code UNSUPPORTED_OPERATION}. Limits: check-then-act, not fixed here -- a role or membership change between
+     * this check and the caller's mutation is not caught.
+     */
+    private Mono<OrgMember> checkVisitorManagesMember(String orgId, String userId) {
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(visitor -> orgMemberService.getOrgMember(orgId, userId)
+                        .switchIfEmpty(ofError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                        .flatMap(target -> {
+                            boolean visitorIsTarget = visitor.getUserId().equals(userId);
+                            boolean visitorIsSuperAdmin = visitor.getRole() == MemberRole.SUPER_ADMIN;
+                            if (target.getRole() == MemberRole.SUPER_ADMIN && !visitorIsTarget && !visitorIsSuperAdmin) {
+                                return ofError(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+                            }
+                            return Mono.just(target);
+                        }));
     }
 }

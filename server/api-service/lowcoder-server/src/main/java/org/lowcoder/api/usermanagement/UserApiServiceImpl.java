@@ -58,10 +58,42 @@ public class UserApiServiceImpl implements UserApiService {
                 });
     }
 
+    /**
+     * After the existing admin/membership check, a target that is SUPER_ADMIN of the
+     * visitor's current org, or whose account-wide {@code superAdmin} flag is set (the instance super admin is a
+     * SUPER_ADMIN member of every workspace), is refused with {@code UNSUPPORTED_OPERATION} unless the visitor is
+     * resetting their OWN password -- the same rank rule {@code OrgApiServiceImpl#checkSuperAdminRoleUnchanged}
+     * applies to a role change. Limits: an ADMIN may still reset another ADMIN's password (unchanged, by design);
+     * no session of the target is ended by a reset, fixed or not (tracked separately).
+     */
     @Override
     public Mono<String> resetPassword(String userId) {
         return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
+                .then(checkResetTargetBelowSuperAdmin(userId))
                 .then(userService.resetPassword(userId));
+    }
+
+    private Mono<Void> checkResetTargetBelowSuperAdmin(String userId) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> {
+                    if (visitorId.equals(userId)) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .flatMap(visitorOrgMember -> orgMemberService.getOrgMember(visitorOrgMember.getOrgId(), userId))
+                            .flatMap(targetOrgMember -> {
+                                if (targetOrgMember.isSuperAdmin()) {
+                                    return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
+                                }
+                                return userService.findById(userId)
+                                        .flatMap(user -> {
+                                            if (Boolean.TRUE.equals(user.getSuperAdmin())) {
+                                                return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
+                                            }
+                                            return Mono.empty();
+                                        });
+                            });
+                });
     }
 
     @Override

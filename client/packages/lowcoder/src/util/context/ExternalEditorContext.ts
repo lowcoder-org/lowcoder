@@ -10,6 +10,17 @@ export interface ExternalEditorContextState {
   applicationId: string;
 
   /**
+   * The outermost, actually READ-checked application id. Additive -- `applicationId`
+   * keeps its existing meaning and uses unchanged. A module's own `Provider` overrides `applicationId` with its
+   * own id (moduleComp.tsx), so a nested component (e.g. the chat controller) that needs the HOST app a viewer
+   * was actually granted READ on -- not an embedded module's own id, which may not itself be directly
+   * READ-checked -- reads this field instead. Unset at the top level (the host page itself, module or not); a
+   * module propagates it from its own enclosing context so nested modules keep pointing at the same, outermost
+   * host (see moduleComp.tsx).
+   */
+  hostApplicationId?: string;
+
+  /**
    * uneditable, hide the left/bottom/right panel
    */
   readOnly?: boolean;

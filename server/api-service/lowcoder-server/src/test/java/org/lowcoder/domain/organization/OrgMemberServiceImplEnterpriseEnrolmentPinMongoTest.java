@@ -105,6 +105,32 @@ class OrgMemberServiceImplEnterpriseEnrolmentPinMongoTest extends OrganizationMo
         assertThat(rows(ORG_MEMBER, enterpriseOrg, user)).hasSize(1);
     }
 
+    /**
+     * {@code getRawOrgMemberships} must answer EVERY raw membership row, even in
+     * ENTERPRISE mode with an {@code enterpriseOrgId} configured, where {@code countAllActiveOrgs} collapses
+     * multiple real memberships down to one (BF-131's own collapsing, exercised above) -- the exact gap this new
+     * method exists to close for the branch-2 exclusivity check.
+     */
+    @Test
+    void getRawOrgMembershipsAnswersEveryRowEvenWhenCountAllActiveOrgsCollapsesThemInEnterpriseMode() {
+        String enterpriseOrg = createActiveOrg();
+        String otherOrg = createActiveOrg();
+        String user = newId();
+        orgMemberService.addMember(enterpriseOrg, user, MemberRole.ADMIN).block(TIMEOUT);
+        orgMemberService.addMember(otherOrg, user, MemberRole.ADMIN).block(TIMEOUT);
+        enterpriseMode(enterpriseOrg);
+
+        Long collapsedCount = orgMemberService.countAllActiveOrgs(user).block(TIMEOUT);
+        List<String> rawOrgIds = orgMemberService.getRawOrgMemberships(user).block(TIMEOUT)
+                .stream().map(OrgMember::getOrgId).toList();
+
+        System.out.println("[OrgMemberServiceImplEnterpriseEnrolmentPinMongoTest] collapsed count=" + collapsedCount
+                + " raw memberships=" + rawOrgIds);
+        assertThat(collapsedCount).as("countAllActiveOrgs collapses to 1 in enterprise mode").isEqualTo(1L);
+        assertThat(rawOrgIds).as("getRawOrgMemberships must not be fooled by the enterprise-mode collapsing")
+                .containsExactlyInAnyOrder(enterpriseOrg, otherOrg);
+    }
+
     private void enterpriseMode(String enterpriseOrgId) {
         commonConfig.getWorkspace().setMode(WorkspaceMode.ENTERPRISE);
         commonConfig.getWorkspace().setEnterpriseOrgId(enterpriseOrgId);

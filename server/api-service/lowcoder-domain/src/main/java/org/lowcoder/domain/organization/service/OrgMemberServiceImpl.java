@@ -268,6 +268,11 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                 .map(OrgMember::from);
     }
 
+    @Override
+    public Mono<List<OrgMember>> getRawOrgMemberships(String userId) {
+        return membershipsOf(userId).collectList();
+    }
+
     /**
      * The org ids {@link #getAllActiveOrgs} answers memberships of, and whether finding them enrolled the user in the
      * enterprise org, a membership written after the memberships were read (BF-131).
