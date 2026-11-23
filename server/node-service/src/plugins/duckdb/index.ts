@@ -24,19 +24,24 @@ const duckdbPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
         const { databaseFile, options } = dataSourceConfig;
         const parsedOptions = JSON.parse(options);
         const instance = await DuckDBInstance.create(databaseFile, parsedOptions);
-        const db = await instance.connect();
-
-        if (actionData.actionName === "Query") {
+        try {
+            const db = await instance.connect();
             try {
-                const result = await db.runAndReadAll(actionData.queryString);
-                const data = await result.getRows();
-                // Apply BigInt serialization to each row
-                return data.map(serializeBigInts);
-            } catch (error) {
-                throw new ServiceError((error as Error).message);
+                if (actionData.actionName === "Query") {
+                    try {
+                        const result = await db.runAndReadAll(actionData.queryString);
+                        const data = result.getRowObjects();
+                        // Apply BigInt serialization to each row
+                        return data.map(serializeBigInts);
+                    } catch (error) {
+                        throw new ServiceError((error as Error).message);
+                    }
+                }
             } finally {
-                await db.closeSync();
+                db.closeSync();
             }
+        } finally {
+            instance.closeSync();
         }
     },
 };
