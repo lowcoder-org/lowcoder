@@ -215,6 +215,13 @@ test("get plugins", () => {
   expect(() => getPlugin("s3", ctx)).not.toThrow();
 });
 
+test("a deleted fauna plugin is not listed, and a query naming it gives 400 plugin not found: fauna", () => {
+  const ctx = { languages: ["en"] };
+  expect(listPlugins(ctx).map((p) => p.id)).not.toContain("fauna");
+  expect(listPlugins(ctx, ["fauna"])).toEqual([]);
+  expect(() => getPlugin("fauna", ctx)).toThrow(expect.objectContaining({ code: 400, message: "plugin not found: fauna" }));
+});
+
 test("B16: a saved query naming a removed AppConfig action is a 400 from the query DSL check, and the plugin's run is never called", async () => {
   const appConfigPlugin = (await import("../plugins/appconfig")).default;
   const runSpy = jest.spyOn(appConfigPlugin, "run");

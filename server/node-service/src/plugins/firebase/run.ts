@@ -11,6 +11,39 @@ import {
 import { DataSourceDataType } from "./dataSourceConfig";
 import { ActionDataType } from "./queryConfig";
 
+const INTEGER_STRING = /^-?\d+$/;
+
+// Firestore's JSON form encodes int64 as a decimal string. Values above 2^53 become a bigint, which the
+// Admin SDK sends as an exact integerValue; a number there would be sent as a double. int64 has no
+// negative zero, so -0 is normalised to 0.
+function decodeIntegerValue(raw: unknown): number | bigint {
+  if (typeof raw === "number") {
+    return raw === 0 ? 0 : raw;
+  }
+  if (typeof raw === "string" && INTEGER_STRING.test(raw)) {
+    const n = Number(raw);
+    if (n === 0) {
+      return 0;
+    }
+    return Number.isSafeInteger(n) ? n : BigInt(raw);
+  }
+  throw badRequest(`Invalid integerValue: ${String(raw)}`);
+}
+
+// The first value field present (not undefined) wins; only an integerValue is converted.
+function decodeQueryValue(v: any): unknown {
+  if (v.integerValue !== undefined) {
+    return decodeIntegerValue(v.integerValue);
+  }
+  if (v.stringValue !== undefined) {
+    return v.stringValue;
+  }
+  if (v.booleanValue !== undefined) {
+    return v.booleanValue;
+  }
+  return v.doubleValue;
+}
+
 function applyFieldFilter(
   query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
   fieldPath: string,
@@ -30,7 +63,7 @@ function applyFieldFilter(
       throw badRequest(`Unsupported operator: ${operator}`);
   }
 
-  const actualValue = value.integerValue ?? value.stringValue ?? value.booleanValue ?? value.doubleValue;
+  const actualValue = decodeQueryValue(value);
   if (actualValue === undefined) {
     throw badRequest("Unsupported value type in structuredQuery");
   }
@@ -45,23 +78,22 @@ function applyUnaryFilter(
   operator: string
 ): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
   let firestoreOp: FirebaseFirestore.WhereFilterOp;
+  let value: number | null;
   switch (operator) {
-    case "IS_NAN": firestoreOp = "=="; break;
-    case "IS_NULL": firestoreOp = "=="; break;
-    case "IS_NOT_NAN": firestoreOp = "!="; break;
-    case "IS_NOT_NULL": firestoreOp = "!="; break;
+    case "IS_NAN": firestoreOp = "=="; value = NaN; break;
+    case "IS_NULL": firestoreOp = "=="; value = null; break;
+    case "IS_NOT_NAN": firestoreOp = "!="; value = NaN; break;
+    case "IS_NOT_NULL": firestoreOp = "!="; value = null; break;
     default:
       throw badRequest(`Unsupported unary operator: ${operator}`);
   }
 
-  return query.where(fieldPath, firestoreOp, null);
+  return query.where(fieldPath, firestoreOp, value);
 }
 
 // Helper function to extract cursor values
 function extractCursorValues(values: any[]): any[] {
-  return values.map((v: { integerValue?: any; stringValue?: any; booleanValue?: any; doubleValue?: any; }) =>
-    v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue ?? v.booleanValue
-  ).filter(value => value !== undefined);
+  return values.map(decodeQueryValue).filter(value => value !== undefined);
 }
 
 const appCache: { [firestoreId: string]: any } = {}; // A cache for storing initialized apps by firestoreId
@@ -292,10 +324,11 @@ export async function runFirebasePlugin(
     
         // Execute the query
         const snapshot = await query.get();
+        // An empty result is [], a non-empty one {totalCount, documents}.
         if (snapshot.empty) {
           return [];
         }
-        const documents = snapshot.empty ? [] : snapshot.docs.map((doc) => doc.data());
+        const documents = snapshot.docs.map((doc) => doc.data());
         return { totalCount, documents };
       });
       return data;

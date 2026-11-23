@@ -2,16 +2,15 @@ import http from "http";
 import { AddressInfo } from "net";
 import nock from "nock";
 import { ServiceError } from "../../common/error";
-import faunaPlugin from "../fauna";
 import gitlabPlugin from "../gitlab";
 import shopifyPlugin from "../shopify";
 import { runGraphQL } from "./run";
 
 /**
- * GraphQL plugins: runGraphQL (graphql-request) and the fauna, gitlab and shopify plugins on top of it.
- * graphql-request 6 goes through node-fetch, so nock intercepts it: fauna (fixed https endpoints) uses
- * nock; runGraphQL, gitlab and shopify (configurable endpoint) use a local http server on an ephemeral
- * port. Nothing leaves the process. console.info (runGraphQL logs every error) is silenced.
+ * GraphQL plugins: runGraphQL (graphql-request) and the gitlab and shopify plugins on top of it.
+ * runGraphQL, gitlab and shopify (configurable endpoint) use a local http server on an ephemeral
+ * port; nock only blocks every other host. Nothing leaves the process. console.info (runGraphQL logs
+ * every error) is silenced.
  */
 
 const STATUS_OK = 200;
@@ -20,16 +19,10 @@ const STATUS_SERVER_ERROR = 500;
 const QUERY = "query Q($id: ID!) { thing(id: $id) { name } }";
 const OPERATION_NAME = "Q"; // graphql-request adds the parsed operation name
 const DATA = { thing: { name: "n" } };
-const API_KEY = "fauna-key";
 const GITLAB_TOKEN = "glpat-123";
+const SHOPIFY_TOKEN = "shpat_ds";
 const PROXY_ENV_KEYS = ["HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "NO_PROXY", "no_proxy"];
 const CTX = { languages: ["en"] } as any;
-const FAUNA_ENDPOINTS: Record<string, { origin: string; path: string }> = {
-  us: { origin: "https://graphql.us.fauna.com", path: "/graphql" },
-  es: { origin: "https://graphql.eu.fauna.com", path: "/graphql" },
-  classic: { origin: "https://graphql.fauna.com", path: "/graphql" },
-  preview: { origin: "https://graphql.fauna-preview.com", path: "/graphql" },
-};
 
 type Captured = { method?: string; url?: string; headers: http.IncomingHttpHeaders; body: any };
 let server: http.Server;
@@ -124,58 +117,6 @@ describe("runGraphQL", () => {
   });
 });
 
-describe("fauna", () => {
-  test.each(Object.entries(FAUNA_ENDPOINTS).map(([region, t]) => [region, `${t.origin}${t.path}`, t]))("region %s posts to %s", async (region, _url, target) => {
-    const t = target as { origin: string; path: string };
-    const scope = nock(t.origin).post(t.path).reply(STATUS_OK, { data: DATA });
-    await expect(faunaPlugin.run(actionOf(), { region: region as string, apiKey: API_KEY } as any, CTX)).resolves.toEqual(DATA);
-    expect(scope.isDone()).toBe(true);
-  });
-
-  test("sends Authorization: Bearer <apiKey>, the query headers, and the variables from key-value lists; empty values are dropped", async () => {
-    let seenHeaders: Record<string, unknown> = {};
-    let seenBody: any;
-    nock(FAUNA_ENDPOINTS.us.origin)
-      .post(FAUNA_ENDPOINTS.us.path, (body) => ((seenBody = body), true))
-      .reply(function () {
-        seenHeaders = this.req.headers;
-        return [STATUS_OK, { data: DATA }];
-      });
-    await faunaPlugin.run(
-      actionOf({
-        variables: [kv("id", "7"), kv("empty", ""), kv("name", "n")],
-        headers: [kv("X-Trace", "t1"), kv("X-Empty", ""), kv("Authorization", "Bearer user-supplied")],
-      }),
-      { region: "us", apiKey: API_KEY } as any,
-      CTX
-    );
-    expect(seenBody).toEqual({ operationName: OPERATION_NAME, query: QUERY, variables: { id: "7", name: "n" } });
-    expect(String(seenHeaders["x-trace"])).toBe("t1");
-    expect(seenHeaders["x-empty"]).toBeUndefined();
-    // the data source key always wins over a query-level Authorization header
-    expect(String(seenHeaders["authorization"])).toBe(`Bearer ${API_KEY}`);
-  });
-
-  test("a GraphQL error response is a 400", async () => {
-    nock(FAUNA_ENDPOINTS.us.origin).post(FAUNA_ENDPOINTS.us.path).reply(STATUS_OK, { errors: [{ message: "bad" }] });
-    await expect(faunaPlugin.run(actionOf(), { region: "us", apiKey: API_KEY } as any, CTX)).rejects.toMatchObject({ code: STATUS_BAD_REQUEST });
-  });
-
-  test("the region select offers the regions us, eu, classic and preview", () => {
-    const region = (faunaPlugin.dataSourceConfig as any).params.find((p: any) => p.key === "region");
-    expect(region.options.map((o: any) => o.value)).toEqual(["us", "eu", "classic", "preview"]);
-  });
-
-  // B40: fauna/index.ts:15 offers the region value "eu" in the UI select,
-  // but the endpoint table (fauna/index.ts:34) is keyed "es". Region "eu" therefore resolves to an undefined
-  // endpoint. The test asserts the CORRECT behaviour: the EU region posts to the EU endpoint.
-  test.failing("B40: fauna region eu resolves an endpoint", async () => {
-    const scope = nock("https://graphql.eu.fauna.com").post("/graphql").reply(STATUS_OK, { data: DATA });
-    await expect(faunaPlugin.run(actionOf(), { region: "eu", apiKey: API_KEY } as any, CTX)).resolves.toEqual(DATA);
-    expect(scope.isDone()).toBe(true);
-  });
-});
-
 describe("gitlab", () => {
   const dataSource = (headers: unknown[] = []) => ({ endpoint, token: GITLAB_TOKEN, headers } as any);
 
@@ -232,9 +173,37 @@ describe("shopify", () => {
     await expect(shopifyPlugin.run(actionOf(), dataSource(), CTX)).rejects.toMatchObject({ code: STATUS_BAD_REQUEST });
   });
 
-  // SUSPECTED BUG B18 (shopify/index.ts:29-31): the query headers are destructured but dropped.
-  test.failing("B18: shopify forwards the query headers", async () => {
+  test("B18: shopify forwards the query headers", async () => {
     await shopifyPlugin.run(actionOf({ headers: [kv("X-Shopify-Access-Token", "shpat_1")] }), dataSource(), CTX);
     expect(captured[0].headers["x-shopify-access-token"]).toBe("shpat_1");
+  });
+
+  test("an empty query header value is not sent", async () => {
+    await shopifyPlugin.run(actionOf({ headers: [kv("X-A", "a"), kv("X-Blank", "")] }), dataSource(), CTX);
+    expect(captured[0].headers["x-a"]).toBe("a");
+    expect(captured[0].headers["x-blank"]).toBeUndefined();
+  });
+
+  test("the data source accessToken is sent as X-Shopify-Access-Token and wins over a query header in any case", async () => {
+    await shopifyPlugin.run(
+      actionOf({ headers: [kv("x-shopify-access-token", "from-query")] }),
+      { endpoint, accessToken: SHOPIFY_TOKEN } as any,
+      CTX
+    );
+    expect(captured[0].headers["x-shopify-access-token"]).toBe(SHOPIFY_TOKEN);
+  });
+
+  test("no accessToken sends no token header", async () => {
+    await shopifyPlugin.run(actionOf(), dataSource(), CTX);
+    expect(captured[0].headers["x-shopify-access-token"]).toBeUndefined();
+  });
+
+  test("an empty data-source accessToken leaves a query-level token header untouched", async () => {
+    await shopifyPlugin.run(
+      actionOf({ headers: [kv("X-Shopify-Access-Token", "from-query")] }),
+      { endpoint, accessToken: "" } as any,
+      CTX
+    );
+    expect(captured[0].headers["x-shopify-access-token"]).toBe("from-query");
   });
 });

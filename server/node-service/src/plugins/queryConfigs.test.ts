@@ -13,7 +13,6 @@ import { dataSourceConfig as bigQueryDataSourceConfig } from "./bigQuery/dataSou
 import bigQueryQueryConfig from "./bigQuery/queryConfig";
 import duckdbDataSourceConfig from "./duckdb/dataSourceConfig";
 import duckdbQueryConfig from "./duckdb/queryConfig";
-import faunaPlugin, { dataSourceConfig as faunaDataSourceConfig } from "./fauna";
 import firebaseDataSourceConfig from "./firebase/dataSourceConfig";
 import firebaseQueryConfig from "./firebase/queryConfig";
 import getFirebirdDataSourceConfig from "./firebirdsql/dataSourceConfig";
@@ -46,7 +45,7 @@ jest.mock("@google-cloud/bigquery", () => ({ BigQuery: jest.fn() }));
  *    query plugin the real `run` is called with an action and a data source built from the DECLARED param
  *    keys (marker values), wrapped in a recording Proxy, against the same boundaries as the plugin tests
  *    (module fakes for firebase-admin, node-firebird and @google-cloud/bigquery; a local http server for
- *    slack, gitlab, shopify and turso; nock for fauna; a global fetch spy for Hugging Face; the real
+ *    slack, gitlab, shopify and turso; a global fetch spy for Hugging Face; the real
  *    in-memory DuckDB). It asserts (a) the keys `run` really reads at runtime (get and `in`, so optional
  *    chaining, aliases and computed access are all seen) are exactly the declared keys, and (b) the value
  *    of each declared key arrives at the boundary (SDK call, HTTP request or query result).
@@ -57,8 +56,7 @@ jest.mock("@google-cloud/bigquery", () => ({ BigQuery: jest.fn() }));
  * Limits, stated so they are not over-read:
  * - The runtime layer sees only a key that the probe's values make `run` read. Branches guarded by a
  *   falsy value (for example firebase `orderBy` absent) are not entered; every probe value is truthy.
- * - Boundary observation covers every declared key except the ones in UNOBSERVABLE (empty today) and the
- *   known defect shopify `headers` (B18, a `test.failing`). The firebase `FS.QueryFireStore` `query` key is
+ * - Boundary observation covers every declared key except the ones in UNOBSERVABLE (empty today). The firebase `FS.QueryFireStore` `query` key is
  *   observed only through the `where` field path; the rest of the structured query is covered by
  *   firebase/run.test.ts.
  * - Residual risk: a key that is read AND forwarded but under a wrong boundary name is caught only for the
@@ -245,11 +243,10 @@ describe("slack", () => {
   });
 });
 
-describe("graphql family (fauna, gitlab, shopify)", () => {
+describe("graphql family (gitlab, shopify)", () => {
   const PLUGINS: Record<string, { ds: readonly Param[]; dsKeys: string[] }> = {
-    fauna: { ds: faunaDataSourceConfig.params, dsKeys: ["apiKey", "region"] },
     gitlab: { ds: gitlabDataSourceConfig.params, dsKeys: ["endpoint", "headers", "token"] },
-    shopify: { ds: shopifyDataSourceConfig.params, dsKeys: ["endpoint"] },
+    shopify: { ds: shopifyDataSourceConfig.params, dsKeys: ["accessToken", "endpoint"] },
   };
 
   test("the shared query config has the query, variables and headers keys the plugins read", () => {
@@ -347,12 +344,9 @@ const PROBE_PAGE_NUMBER = 3;
 const FIRESTORE_COUNT = 1;
 const HOOK_PATH = "/hook";
 const GRAPHQL_PATH = "/graphql";
-const FAUNA_ORIGIN = "https://graphql.us.fauna.com";
-const FAUNA_REGION = "us";
 const HF_URL_PREFIX = "https://api-inference.huggingface.co/models/";
 const PROXY_ENV_KEYS = ["HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "NO_PROXY", "no_proxy"];
 const CTX = { languages: ["en"] } as any;
-const B18_KNOWN_DEFECT = "B18";
 
 const marker = (key: string) => `probe_${key}`;
 const kv = (key: string, value: unknown) => ({ key, value });
@@ -387,8 +381,6 @@ type Plugin = {
   notRead?: string[];
   /** keys a run cannot show at the boundary: [action | dataSource, key] */
   unobservable?: [string, string][];
-  /** known defects: key -> B-number; the observation is expected to fail */
-  knownDefects?: Record<string, string>;
 };
 
 // --- shared local http server (slack, gitlab, shopify, turso) ---
@@ -627,7 +619,6 @@ const CASES: Record<string, Plugin> = {
   },
   gitlab: graphqlCase("gitlab"),
   shopify: graphqlCase("shopify"),
-  fauna: graphqlCase("fauna"),
   turso: {
     actions: async () => actionsOf(tursoPlugin.queryConfig as any),
     dataSourceParams: () => (tursoPlugin.dataSourceConfig as any).params,
@@ -669,18 +660,16 @@ const CASES: Record<string, Plugin> = {
   },
 };
 
-/** gitlab, shopify and fauna share the query config; they differ in their data source and endpoint. */
-function graphqlCase(name: "gitlab" | "shopify" | "fauna"): Plugin {
-  const plugin = { gitlab: gitlabPlugin, shopify: shopifyPlugin, fauna: faunaPlugin }[name];
+/** gitlab and shopify share the query config; they differ in their data source and endpoint. */
+function graphqlCase(name: "gitlab" | "shopify"): Plugin {
+  const plugin = { gitlab: gitlabPlugin, shopify: shopifyPlugin }[name];
   return {
     actions: async () => actionsOf(graphQLQueryConfig),
     dataSourceParams: () => (plugin.dataSourceConfig as any).params,
-    knownDefects: name === "shopify" ? { headers: B18_KNOWN_DEFECT } : undefined,
     dataSourceValues: (base) =>
       ({
         gitlab: { endpoint: `${base}${GRAPHQL_PATH}`, token: marker("token"), headers: [kv("x-probe-ds", marker("dsHeaders"))] },
-        shopify: { endpoint: `${base}${GRAPHQL_PATH}` },
-        fauna: { region: FAUNA_REGION, apiKey: marker("apiKey") },
+        shopify: { endpoint: `${base}${GRAPHQL_PATH}`, accessToken: marker("accessToken") },
       })[name],
     actionValues: () => ({
       query: "query ProbeQuery($v: String) { probe(v: $v) }",
@@ -690,24 +679,6 @@ function graphqlCase(name: "gitlab" | "shopify" | "fauna"): Plugin {
     execute: async (_n, action, dataSource, base) => {
       let headers: http.IncomingHttpHeaders;
       let body: any;
-      if (name === "fauna") {
-        const scope = nock(FAUNA_ORIGIN)
-          .post(GRAPHQL_PATH, (b) => ((body = b), true))
-          .reply(function () {
-            headers = this.req.headers as any;
-            return [STATUS_OK, { data: {} }];
-          });
-        const a = recording(action);
-        const d = recording(dataSource);
-        await plugin.run!(a.proxy as any, d.proxy as any, CTX);
-        expect(scope.isDone()).toBe(true);
-        return [
-          graphqlKvObserved(headers!, body, action),
-          { region: [FAUNA_REGION, scope.isDone() ? FAUNA_REGION : undefined], apiKey: [`Bearer ${dataSource.apiKey}`, [headers!["authorization"]].flat().join(",")] },
-          a.reads as any,
-          d.reads as any,
-        ];
-      }
       replyBody = JSON.stringify({ data: {} });
       const a = recording(action);
       const d = recording(dataSource);
@@ -721,7 +692,10 @@ function graphqlCase(name: "gitlab" | "shopify" | "fauna"): Plugin {
               token: [dataSource.token, headers["private-token"]],
               headers: [marker("dsHeaders"), headers["x-probe-ds"]],
             }
-          : { endpoint: [dataSource.endpoint, `${base}${lastSeen().url}`] };
+          : {
+              endpoint: [dataSource.endpoint, `${base}${lastSeen().url}`],
+              accessToken: [dataSource.accessToken, headers["x-shopify-access-token"]],
+            };
       return [graphqlKvObserved(graphqlHeaders(headers), body, action), dsObserved, a.reads as any, d.reads as any];
     },
   };
@@ -832,7 +806,6 @@ describe("behavioural contract: declared params are read by run and reach the bo
     slack: ["Query"],
     gitlab: ["query"],
     shopify: ["query"],
-    fauna: ["query"],
     turso: ["Query"],
     huggingFaceInference: ["InvokeInferenceApi"],
   };
@@ -873,9 +846,7 @@ describe("behavioural contract: declared params are read by run and reach the bo
     "%s / %s: every declared action and data source value arrives at the boundary",
     async (plugin, actionName) => {
       const { c, action, actionObserved, dsObserved, actionReads } = await executeAction(plugin, actionName);
-      const defects = c.knownDefects ?? {};
       for (const key of paramKeys(action.params)) {
-        if (key in defects) continue;
         expect(actionObserved).toHaveProperty([key]);
         expect({ key, actual: actionObserved[key][1] }).toEqual({ key, actual: actionObserved[key][0] });
       }
@@ -887,7 +858,7 @@ describe("behavioural contract: declared params are read by run and reach the bo
     }
   );
 
-  test.failing("B18: shopify forwards the query headers (contract: the declared headers key must reach the request)", async () => {
+  test("B18: shopify forwards the query headers (contract: the declared headers key must reach the request)", async () => {
     const { actionObserved } = await executeAction("shopify", "query");
     expect(actionObserved.headers[1]).toEqual(actionObserved.headers[0]);
   });
