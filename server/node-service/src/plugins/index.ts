@@ -28,7 +28,6 @@ import notionPlugin from "./notion";
 import datadogPlugin from "./datadog";
 import twilioPlugin from "./twilio";
 import gitlabPlugin from "./gitlab";
-import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
@@ -52,7 +51,6 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   dynamoDBPlugin,
   couchdbPlugin,
   duckdbPlugin,
-  faunaPlugin,
   tursoPlugin,
   firebirdsqlPlugin,
 

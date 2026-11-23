@@ -35,6 +35,7 @@ const COUNT_TOTAL = 42;
 const GENERATED_APP = { name: PROJECT_ID, generated: true };
 const CERT_MARKER = { certOf: "service-account" };
 const STRING_INTEGER_VALUE = { integerValue: "5" };
+const BIG_INTEGER_STRING = "9007199254740993"; // 2^53 + 1, not representable as a number
 
 type Call = unknown[];
 type Snapshot = { empty: boolean; docs: { data: () => unknown; id?: string }[] };
@@ -323,6 +324,12 @@ describe("FS.QueryFireStore", () => {
     expect(calls).toEqual([["collection", COLLECTION], ["count"], ["count.get"], ["get"]]);
   });
 
+  test("an empty FS.QueryFireStore result is []", async () => {
+    countValue = 0;
+    getSnapshots = [snapshotOf()];
+    await expect(run(queryAction({}))).resolves.toEqual([]);
+  });
+
   test("select.fields gives select(...paths) before any filter", async () => {
     getSnapshots = [snapshotOf({ a: 1 })];
     await run(queryAction({ select: { fields: [field("a"), field("b.c")] }, where: fieldFilter("a", "EQUAL", { stringValue: "x" }) }));
@@ -425,6 +432,64 @@ describe("FS.QueryFireStore", () => {
     getSnapshots = [snapshotOf()];
     await run(queryAction({ where: { compositeFilter: { op: "AND", filters: [{ unaryFilter: { field: field("f"), op } }] } } }));
     expect(callsNamed("where")).toEqual([["where", "f", firestoreOp, null]]);
+  });
+
+  test('integerValue strings: "-12" gives -12 and "0" gives 0 (not skipped as falsy)', async () => {
+    getSnapshots = [snapshotOf(), snapshotOf()];
+    await run(queryAction({ where: fieldFilter("f", "EQUAL", { integerValue: "-12" }) }));
+    expect(callsNamed("where")).toEqual([["where", "f", "==", -12]]);
+    calls.length = 0;
+    await run(queryAction({ where: fieldFilter("f", "EQUAL", { integerValue: "0" }) }));
+    expect(callsNamed("where")).toEqual([["where", "f", "==", 0]]);
+  });
+
+  test("an integerValue above 2^53 is passed as an exact bigint", async () => {
+    getSnapshots = [snapshotOf()];
+    await run(queryAction({ where: fieldFilter("f", "EQUAL", { integerValue: BIG_INTEGER_STRING }) }));
+    expect(callsNamed("where")).toEqual([["where", "f", "==", BigInt(BIG_INTEGER_STRING)]]);
+  });
+
+  test.each(["12abc", "", "1.5", true, null])("an invalid integerValue %p gives 400 and runs no query", async (invalid) => {
+    await expect(run(queryAction({ where: fieldFilter("f", "EQUAL", { integerValue: invalid }) }))).rejects.toMatchObject({
+      code: STATUS_BAD_REQUEST,
+      message: `Invalid integerValue: ${String(invalid)}`,
+    });
+    expect(callsNamed("get")).toEqual([]);
+    expect(callsNamed("count")).toEqual([]);
+  });
+
+  test("cursor integerValue strings are decoded", async () => {
+    getSnapshots = [snapshotOf()];
+    await run(queryAction({ startAt: { values: [{ integerValue: "3" }] }, endAt: { values: [{ integerValue: BIG_INTEGER_STRING }] } }));
+    expect(callsNamed("startAt")).toEqual([["startAt", 3]]);
+    expect(callsNamed("endAt")).toEqual([["endAt", BigInt(BIG_INTEGER_STRING)]]);
+  });
+
+  test('integerValue "-0" (and the number -0) gives +0 in a filter and a cursor', async () => {
+    getSnapshots = [snapshotOf()];
+    await run(queryAction({ where: fieldFilter("f", "EQUAL", { integerValue: "-0" }), startAt: { values: [{ integerValue: -0 }] } }));
+    const whereCall = callsNamed("where")[0];
+    const startAtCall = callsNamed("startAt")[0];
+    expect(Object.is(whereCall[3], 0)).toBe(true);
+    expect(Object.is(startAtCall[1], 0)).toBe(true);
+  });
+
+  test("IS_NAN and IS_NULL in one AND keep their own values", async () => {
+    getSnapshots = [snapshotOf()];
+    await run(
+      queryAction({
+        where: {
+          compositeFilter: {
+            op: "AND",
+            filters: [
+              { unaryFilter: { field: field("a"), op: "IS_NAN" } },
+              { unaryFilter: { field: field("b"), op: "IS_NULL" } },
+            ],
+          },
+        },
+      })
+    );
+    expect(callsNamed("where")).toEqual([["where", "a", "==", NaN], ["where", "b", "==", null]]);
   });
 
   test("an unsupported unary operator gives 400", async () => {
@@ -607,33 +672,27 @@ describe("plugin object (index.ts)", () => {
   });
 });
 
-describe("B13: IS_NAN filters NaN; integerValue is a number; empty results keep the shape", () => {
-  // SUSPECTED BUG B13 (firebase/run.ts:49-52, :33, :295-298). Each test asserts the CORRECT behaviour.
+describe("B13: IS_NAN filters NaN; integerValue is a number", () => {
+  // IS_NAN / IS_NOT_NAN must reach the SDK as NaN comparisons (not null ones), and a string integerValue must be decoded.
   const unaryQuery = (op: string) => ({
     where: { compositeFilter: { op: "AND", filters: [{ unaryFilter: { field: { fieldPath: "f" }, op } }] } },
   });
 
-  test.failing("B13: IS_NAN filters NaN", async () => {
+  test("B13: IS_NAN filters NaN", async () => {
     getSnapshots = [snapshotOf()];
     await run(queryAction(unaryQuery("IS_NAN")));
     expect(callsNamed("where")).toEqual([["where", "f", "==", NaN]]);
   });
 
-  test.failing("B13: IS_NOT_NAN filters not-NaN", async () => {
+  test("B13: IS_NOT_NAN filters not-NaN", async () => {
     getSnapshots = [snapshotOf()];
     await run(queryAction(unaryQuery("IS_NOT_NAN")));
     expect(callsNamed("where")).toEqual([["where", "f", "!=", NaN]]);
   });
 
-  test.failing("B13: integerValue is a number", async () => {
+  test("B13: integerValue is a number", async () => {
     getSnapshots = [snapshotOf()];
     await run(queryAction({ where: { fieldFilter: { field: { fieldPath: "f" }, op: "EQUAL", value: STRING_INTEGER_VALUE } } }));
     expect(callsNamed("where")).toEqual([["where", "f", "==", 5]]);
-  });
-
-  test.failing("B13: empty results keep the shape", async () => {
-    countValue = 0;
-    getSnapshots = [snapshotOf()];
-    await expect(run(queryAction({}))).resolves.toEqual({ totalCount: 0, documents: [] });
   });
 });
