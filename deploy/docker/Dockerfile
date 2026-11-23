@@ -371,7 +371,9 @@ RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg -
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       nginx=1.31.9-1~jammy \
       mongodb-org=7.0.48 \
-      redis=6:8.10.3-1rl1~jammy1 \
+      redis=6:8.12.0-1rl1~jammy1 \
+      redis-server=6:8.12.0-1rl1~jammy1 \
+      redis-tools=6:8.12.0-1rl1~jammy1 \
       supervisor \
       gosu \
       nodejs=22.23.5-1nodesource1 \
