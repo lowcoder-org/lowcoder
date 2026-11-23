@@ -9,13 +9,13 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "debug": "nodemon --inspect src/server.ts",
-    "start": "node ./build/server.js",
-    "test": "jest --coverage && yarn test:marketplace",
+    "start": "node --no-node-snapshot ./build/server.js",
+    "test": "NODE_OPTIONS=--no-node-snapshot jest --coverage && yarn test:marketplace",
     "copy": "copyfiles -u 1 src/**/*.!(ts|test.ts) build",
     "genOpenApiPlugin": "npx ts-node --files ./scripts/openApiDataSourceGen.ts",
     "build": "rm -rf build/ && yarn test && tsc && yarn copy",
     "test:marketplace": "node --test test/marketplacePreview.test.cjs",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "NODE_OPTIONS=--no-node-snapshot jest --coverage",
     "preview:dev": "node scripts/marketplace-preview-dev.cjs"
   },
   "devDependencies": {
@@ -63,6 +63,7 @@
     "formdata-node": "4",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
+    "isolated-vm": "6.2.0",
     "jsonpath": "^1.1.1",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
