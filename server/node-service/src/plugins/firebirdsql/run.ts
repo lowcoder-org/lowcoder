@@ -26,39 +26,72 @@ function getFirebirdOptions(params: DataSourceDataType) {
   return options;
 }
 
-export async function validateDataSourceConfig(dataSourceConfig: DataSourceDataType) {
+// Releases the connection. A failing detach is logged and never replaces the result or the error of the
+// work done on the connection. It calls node-firebird's callback `detach` directly, so it also works when
+// promisifyAll(db) has thrown. It does not cover a detach callback that is never called.
+async function detachQuietly(db: any) {
   try {
-    let db = await fbdAsync.attachAsync(getFirebirdOptions(dataSourceConfig));
-    promisifyAll(db);
-    let result = await db.queryAsync("SELECT 1 FROM RDB$DATABASE;");
-    db.detachAsync();
-    return {
-      success: true,
-    };
+    await new Promise<void>((resolve, reject) => db.detach((err?: Error | null) => (err ? reject(err) : resolve())));
   } catch (e) {
-    throw e;
+    logger.error(`firebird detach failed: ${e}`);
   }
 }
 
+export async function validateDataSourceConfig(dataSourceConfig: DataSourceDataType) {
+  const db = await fbdAsync.attachAsync(getFirebirdOptions(dataSourceConfig));
+  try {
+    promisifyAll(db);
+    await db.queryAsync("SELECT 1 FROM RDB$DATABASE;");
+  } finally {
+    await detachQuietly(db);
+  }
+  return {
+    success: true,
+  };
+}
+
+const PARAMETER_NAME_CHAR = /[_a-zA-Z0-9\[\]\.]/;
+
+// Replaces every `:name` placeholder with `?` and collects the values in statement order. Placeholders
+// are recognised only outside string literals, quoted identifiers and comments. An unterminated literal,
+// identifier or comment is copied to the end of the statement unchanged. Q'...' literals are not
+// recognised, and `:name` variables inside EXECUTE BLOCK are treated as parameters.
 async function prepareQueryParameters(stmt: string, parameters: object) {
-  const re : RegExp = /(:)([_a-zA-Z0-9\[\]\.]+)/gm;
+  const parametersArray: any[] = [];
+  let modifiedStmt = "";
+  let i = 0;
 
-  const placeholdersInStmt = stmt.matchAll(re);
+  while (i < stmt.length) {
+    const ch = stmt[i];
+    let end = i + 1;
 
-  let parametersArray: any[] = [];
-
-  for(const match of placeholdersInStmt) {
-    const paramName: string = match[2];
-    if (_.isNil(paramName)) {
+    if (ch === "'" || ch === '"') {
+      const close = stmt.indexOf(ch, i + 1);
+      end = close === -1 ? stmt.length : close + 1;
+    } else if (stmt.startsWith("--", i)) {
+      const nl = stmt.indexOf("\n", i);
+      end = nl === -1 ? stmt.length : nl;
+    } else if (stmt.startsWith("/*", i)) {
+      const close = stmt.indexOf("*/", i + 2);
+      end = close === -1 ? stmt.length : close + 2;
+    } else if (ch === ":" && PARAMETER_NAME_CHAR.test(stmt.charAt(i + 1))) {
+      end = i + 1;
+      while (PARAMETER_NAME_CHAR.test(stmt.charAt(end))) {
+        end++;
+      }
+      const paramName = stmt.slice(i + 1, end);
+      if (!_.has(parameters, paramName)) {
+        throw new ServiceError(`Named parameter "${paramName}" not found in Query Parameters object.`);
+      }
+      parametersArray.push(_.get(parameters, paramName));
+      modifiedStmt += "?";
+      i = end;
       continue;
     }
-    if (!_.has(parameters, paramName)) {
-      throw new ServiceError(`Named parameter "${paramName}" not found in Query Parameters object.`);
-    }
-    parametersArray.push(_.get(parameters, paramName));
-  }
 
-  const modifiedStmt = stmt.replaceAll(re, "?");
+    modifiedStmt += stmt.slice(i, end);
+    i = end;
+  }
 
   return {
     stmt: modifiedStmt,
@@ -68,14 +101,14 @@ async function prepareQueryParameters(stmt: string, parameters: object) {
 
 export default async function run(action: ActionDataType, dataSourceConfig: DataSourceDataType, i18n: FirebirdI18nTranslator) {
   if (action.actionName === "Query") {
-    let db = await fbdAsync.attachAsync(getFirebirdOptions(dataSourceConfig));
-    promisifyAll(db);
-
     const { stmt, parametersArray } = await prepareQueryParameters(action.sql, action.params);
 
-    const results = await db.queryAsync(stmt, parametersArray);
-
-    db.detachAsync();
-    return results;
+    const db = await fbdAsync.attachAsync(getFirebirdOptions(dataSourceConfig));
+    try {
+      promisifyAll(db);
+      return await db.queryAsync(stmt, parametersArray);
+    } finally {
+      await detachQuietly(db);
+    }
   }
 }

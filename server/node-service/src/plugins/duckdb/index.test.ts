@@ -1,12 +1,16 @@
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 import { ServiceError } from "../../common/error";
 import duckdbPlugin from "./index";
 
 /**
- * duckdb plugin against the real engine (in-memory). Nothing is faked. Resources: the plugin opens a
+ * duckdb plugin against the real engine (in-memory). Only one test fakes anything: the connect-failure
+ * test replaces DuckDBInstance.prototype.connect with a rejecting stub. Resources: the plugin opens a
  * DuckDBInstance and a DuckDBConnection on every run. Every instance the plugin creates is captured
  * through a pass-through spy on DuckDBInstance.create and closed in afterEach, so these tests never leave
- * native instances behind even while B21 (the plugin never closes the instance) is open. The B21 tests
+ * native instances behind even if the plugin fails to close one. The B21 tests
  * observe the PUBLIC closeSync() methods through pass-through spies; afterEach cleanup runs after the
  * assertions, so it is not counted.
  */
@@ -94,33 +98,71 @@ describe("Query", () => {
 });
 
 describe("B26: duckdb rows keep their column names", () => {
-  // SUSPECTED BUG B26 (duckdb/index.ts:8-14, :32-34): getRows() returns arrays, so each
-  // row becomes {"0": ..., "1": ...}. The test asserts the CORRECT behaviour.
-  test.failing("B26: duckdb rows keep their column names", async () => {
+  test("B26: duckdb rows keep their column names", async () => {
     await expect(query(BIGINT_QUERY)).resolves.toEqual([{ a: "1", b: "x" }]);
+  });
+
+  test("duplicate column names are kept apart", async () => {
+    await expect(query("select 1 as a, 2 as a")).resolves.toEqual([{ a: 1, "a:1": 2 }]);
+  });
+
+  test("a multi-row bigint column keeps its name", async () => {
+    await expect(query("select * from range(3)")).resolves.toEqual([{ range: "0" }, { range: "1" }, { range: "2" }]);
+  });
+
+  test("a HUGEINT keeps its name and its full value as a string", async () => {
+    await expect(query("select 170141183460469231731687303715884105727::HUGEINT as h")).resolves.toEqual([
+      { h: "170141183460469231731687303715884105727" },
+    ]);
+  });
+
+  test("an empty result is []", async () => {
+    await expect(query("select 1 as a where false")).resolves.toEqual([]);
   });
 });
 
 describe("B21: the instance is closed after every run", () => {
-  // SUSPECTED BUG B21 (duckdb/index.ts:26-40): the instance is never closed and a
-  // non-Query action leaks its connection. The tests assert the CORRECT behaviour.
-  test.failing("B21: the instance is closed after every run (successful Query)", async () => {
+  test("B21: the instance is closed after every run (successful Query)", async () => {
     await settle(query("select 1 as a"));
     expect(instanceClose).toHaveBeenCalledTimes(1);
   });
 
-  test.failing("B21: the instance is closed after every run (failing Query)", async () => {
+  test("B21: the instance is closed after every run (failing Query)", async () => {
     await settle(query(INVALID_SQL));
     expect(instanceClose).toHaveBeenCalledTimes(1);
   });
 
-  test.failing("B21: the instance is closed after every run (non-Query action)", async () => {
+  test("B21: the instance is closed after every run (non-Query action)", async () => {
     await settle(duckdbPlugin.run!({ actionName: "Other" } as any, DATA_SOURCE as any, CTX) as Promise<unknown>);
     expect(instanceClose).toHaveBeenCalledTimes(1);
   });
 
-  test.failing("B21: a non-Query action closes its connection", async () => {
+  test("B21: a non-Query action closes its connection", async () => {
     await settle(duckdbPlugin.run!({ actionName: "Other" } as any, DATA_SOURCE as any, CTX) as Promise<unknown>);
     expect(connectionClose).toHaveBeenCalledTimes(1);
+  });
+
+  test("the instance is closed when connect() fails", async () => {
+    jest.spyOn(DuckDBInstance.prototype, "connect").mockRejectedValueOnce(new Error("connect failed"));
+    await expect(query("select 1 as a")).rejects.toMatchObject({ message: "connect failed" });
+    expect(instanceClose).toHaveBeenCalledTimes(1);
+    expect(connectionClose).toHaveBeenCalledTimes(0);
+  });
+
+  test("the connection is closed before the instance", async () => {
+    await query("select 1 as a");
+    expect(connectionClose.mock.invocationCallOrder[0]).toBeLessThan(instanceClose.mock.invocationCallOrder[0]);
+  });
+
+  test("rows written by one run are read by the next (closing loses no data)", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "duckdb-"));
+    try {
+      const fileSource = { databaseFile: path.join(dir, "data.duckdb"), options: "{}" };
+      await query("create table t as select 1 as x", fileSource);
+      const rows: Record<string, unknown>[] = await query("select x from t", fileSource);
+      expect(rows.map((r) => Object.values(r))).toEqual([[1]]);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

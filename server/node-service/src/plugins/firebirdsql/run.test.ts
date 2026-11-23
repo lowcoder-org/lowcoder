@@ -51,6 +51,12 @@ beforeEach(() => {
   });
 });
 
+// bluebird's promisifyAll refuses an object that already has a plain method with the "Async" suffix
+const mockUnpromisifiableDb = () =>
+  (Firebird.attach as unknown as jest.Mock).mockImplementationOnce((_o: unknown, cb: (err: Error | null, db?: unknown) => void) =>
+    cb(null, { query: jest.fn(), queryAsync: () => undefined, detach })
+  );
+
 const attachOptions = () => (Firebird.attach as unknown as jest.Mock).mock.calls[0][0];
 const act = (sql: string, params: object = {}) => ({ actionName: "Query", sql, params } as any);
 
@@ -113,6 +119,51 @@ describe("named parameters", () => {
     expect(error.message).toBe('Named parameter "x" not found in Query Parameters object.');
     expect(queryCalls).toEqual([]);
   });
+
+  test("a missing parameter does not attach", async () => {
+    await run(act("select * from t where id = :x", {}), dataSource as any, i18n).catch(() => undefined);
+    expect(Firebird.attach).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    [
+      "a ':x' inside a literal with an escaped quote stays literal",
+      "select * from t where s = 'it''s :x' and id = :id",
+      { id: 1 },
+      "select * from t where s = 'it''s :x' and id = ?",
+      [1],
+    ],
+    [
+      "a ':x' inside a double-quoted identifier stays literal",
+      'select "a:b" from t where id = :id',
+      { id: 1 },
+      'select "a:b" from t where id = ?',
+      [1],
+    ],
+    [
+      "a ':x' inside a quoted identifier with an escaped double quote stays literal",
+      'select "a"":x" from t where id = :id',
+      { id: 1 },
+      'select "a"":x" from t where id = ?',
+      [1],
+    ],
+    ["an unterminated quoted identifier is sent unchanged with no parameters", 'select "a:x', {}, 'select "a:x', []],
+    [
+      "a ':x' in a line comment is ignored and the next line is scanned",
+      "select 1 -- :nope\nfrom t where id = :id",
+      { id: 1 },
+      "select 1 -- :nope\nfrom t where id = ?",
+      [1],
+    ],
+    ["a line comment at the end of the statement is copied to the end", "select :id -- :nope", { id: 1 }, "select ? -- :nope", [1]],
+    ["a ':x' in a block comment is ignored", "select /* :nope */ :id", { id: 1 }, "select /* :nope */ ?", [1]],
+    ["an unterminated block comment is sent unchanged with no parameters", "select :id /* :nope", { id: 1 }, "select ? /* :nope", [1]],
+    ["an unterminated literal is sent unchanged with no parameters", "select ':x", {}, "select ':x", []],
+    ["a ':' not followed by a name character is copied", "select a from t where b = : c", {}, "select a from t where b = : c", []],
+  ])("%s", async (_name, sql, params, expectedSql, expectedParams) => {
+    await run(act(sql as string, params as object), dataSource as any, i18n);
+    expect(queryCalls).toEqual([{ sql: expectedSql, params: expectedParams }]);
+  });
 });
 
 describe("results and detach", () => {
@@ -129,6 +180,47 @@ describe("results and detach", () => {
   test("an attach error is re-thrown (same message; bluebird may wrap the object)", async () => {
     attachError = new Error("connection refused");
     await expect(run(act("select 1"), dataSource as any, i18n)).rejects.toMatchObject({ message: attachError!.message });
+  });
+
+  test("B20: detach after a failed query", async () => {
+    queryImpl = (_s, _p, cb) => cb(new Error("syntax error"));
+    await run(act("select * from t"), dataSource as any, i18n).catch(() => undefined);
+    expect(detach).toHaveBeenCalledTimes(1);
+  });
+
+  test("run awaits detach before it resolves", async () => {
+    let detached = false;
+    detach.mockImplementation((cb: (err?: Error | null) => void) =>
+      setImmediate(() => {
+        detached = true;
+        cb(null);
+      })
+    );
+    await run(act("select 1"), dataSource as any, i18n);
+    expect(detached).toBe(true);
+  });
+
+  test("a detach error after a successful query is logged and the rows are returned", async () => {
+    const errorSpy = jest.spyOn(logger, "error").mockImplementation(() => undefined);
+    detach.mockImplementation((cb: (err?: Error | null) => void) => cb(new Error("detach failed")));
+    await expect(run(act("select * from t"), dataSource as any, i18n)).resolves.toBe(ROWS);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("detach failed"));
+    errorSpy.mockRestore();
+  });
+
+  test("a query error wins over a detach error", async () => {
+    const errorSpy = jest.spyOn(logger, "error").mockImplementation(() => undefined);
+    queryImpl = (_s, _p, cb) => cb(new Error("syntax error"));
+    detach.mockImplementation((cb: (err?: Error | null) => void) => cb(new Error("detach failed")));
+    await expect(run(act("select * from t"), dataSource as any, i18n)).rejects.toMatchObject({ message: "syntax error" });
+    errorSpy.mockRestore();
+  });
+
+  test("run detaches when promisifyAll fails after the attach", async () => {
+    mockUnpromisifiableDb();
+    await expect(run(act("select 1"), dataSource as any, i18n)).rejects.toBeInstanceOf(TypeError);
+    expect(detach).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -148,6 +240,19 @@ describe("validateDataSourceConfig", () => {
     const failure = new Error("table unknown");
     queryImpl = (_s, _p, cb) => cb(failure);
     await expect(validateDataSourceConfig(dataSource as any)).rejects.toMatchObject({ message: failure.message });
+  });
+
+  test("validate detaches after a failed query", async () => {
+    const failure = new Error("table unknown");
+    queryImpl = (_s, _p, cb) => cb(failure);
+    await expect(validateDataSourceConfig(dataSource as any)).rejects.toMatchObject({ message: failure.message });
+    expect(detach).toHaveBeenCalledTimes(1);
+  });
+
+  test("validate detaches when promisifyAll fails after the attach", async () => {
+    mockUnpromisifiableDb();
+    await expect(validateDataSourceConfig(dataSource as any)).rejects.toBeInstanceOf(TypeError);
+    expect(detach).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -174,15 +279,8 @@ describe("plugin factory (index.ts)", () => {
   });
 });
 
-describe("B20: detach after a failed query; ':30' in a string literal is not a parameter", () => {
-  // SUSPECTED BUG B20 (firebirdsql/run.ts:71-78, :44). Each test asserts the CORRECT behaviour.
-  test.failing("B20: detach after a failed query", async () => {
-    queryImpl = (_s, _p, cb) => cb(new Error("syntax error"));
-    await run(act("select * from t"), dataSource as any, i18n).catch(() => undefined);
-    expect(detach).toHaveBeenCalledTimes(1);
-  });
-
-  test.failing("B20: ':30' in a string literal is not a parameter", async () => {
+describe("B20: ':30' in a string literal is not a parameter", () => {
+  test("B20: ':30' in a string literal is not a parameter", async () => {
     await run(act("select * from t where at = '10:30'", {}), dataSource as any, i18n);
     expect(queryCalls).toEqual([{ sql: "select * from t where at = '10:30'", params: [] }]);
   });
