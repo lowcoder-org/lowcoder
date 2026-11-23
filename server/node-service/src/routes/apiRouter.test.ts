@@ -12,6 +12,7 @@ const TEST_TIMEOUT_MS = 90_000;
 const REQUEST_TIMEOUT_MS = 20_000;
 const STATUS_OK = 200;
 const BAD_REQUEST = 400;
+const PAYLOAD_TOO_LARGE = 413;
 const NOT_FOUND = 404;
 const INTERNAL_ERROR = 500;
 const API = "/node-service/api";
@@ -36,6 +37,9 @@ const AMBIENT_ENV = [
   "NPM_REGISTRY_CONFIG",
 ];
 const ENCRYPTED_KEY_PATH = `${DYNAMIC_CONFIG}?case=encrypted-body`;
+// /runJs and /batchRunJs take bodies up to 5 MiB; every other route keeps the global limit (50 MiB by default)
+const RUN_JS_LIMIT_BYTES = 5 * 1024 * 1024;
+const BODY_MARGIN_BYTES = 1024;
 const NOT_ARRAY_MESSAGE = "request body is not a valid array";
 const API_HOST = "http://api.test";
 const DYNAMIC_PLUGIN = "postmanEcho";
@@ -334,10 +338,8 @@ describe("route table", () => {
 });
 
 describe("B43: /runJs user code and the host realm", () => {
-  // Each row is user code that evaluates `typeof process` through one route out of the sandbox.
-  // "object" means the host process object was reached. Each row does run host-realm code (the host
-  // Function constructor, or _.template, builds a function that is then called), but no property or
-  // method of the recovered process object is used: only its typeof is returned.
+  // Each row is user code that evaluates `typeof process` through one route that used to lead out of the sandbox.
+  // "object" would mean the host process object was reached; the code runs in its own isolate, so it sees "undefined".
   // Not a row: a dynamic import() also reaches the host in plain Node, but jest's module
   // runtime rejects import() without --experimental-vm-modules, so it cannot be pinned here.
   const ESCAPE_ROUTES: [string, string][] = [
@@ -345,9 +347,53 @@ describe("B43: /runJs user code and the host realm", () => {
     ["the constructor of a caught host error", "try { null.f(); } catch (e) { return e.constructor.constructor('return typeof process')(); }"],
     ["lodash _.template", "return _.template('<%= typeof process %>')()"],
   ];
-  test.failing.each(ESCAPE_ROUTES)("B43: user code does not reach the host process through %s", async (_route, jsCode) => {
+  test.each(ESCAPE_ROUTES)("B43: user code does not reach the host process through %s", async (_route, jsCode) => {
     const reply = await postJson(`${API}/runJs`, { jsCode });
     const seenByCode = reply.status === STATUS_OK ? reply.json().result : undefined;
     expect(seenByCode).not.toBe("object");
+  });
+});
+
+describe("request size limit of the evaluation routes", () => {
+  // `pad` fills the body to the wanted size; the JSON overhead of the other keys is well under BODY_MARGIN_BYTES
+  const sizedBody = (key: "context" | "pluginName", bytes: number) =>
+    JSON.stringify(key === "context" ? { jsCode: "return pad.length", context: { pad: "x".repeat(bytes) } } : { pluginName: "x".repeat(bytes) });
+
+  it("answers /runJs with 200 for a body just below 5 MiB", async () => {
+    const reply = await call("POST", `${API}/runJs`, { headers: JSON_HEADERS, body: sizedBody("context", RUN_JS_LIMIT_BYTES - BODY_MARGIN_BYTES) });
+    expect(reply.status).toBe(STATUS_OK);
+    expect(reply.json()).toEqual({ result: RUN_JS_LIMIT_BYTES - BODY_MARGIN_BYTES });
+  });
+
+  it("answers /runJs with 413 for a body above 5 MiB", async () => {
+    const reply = await call("POST", `${API}/runJs`, { headers: JSON_HEADERS, body: sizedBody("context", RUN_JS_LIMIT_BYTES + BODY_MARGIN_BYTES) });
+    expect(reply.status).toBe(PAYLOAD_TOO_LARGE);
+  });
+
+  it("answers /batchRunJs with 200 below 5 MiB and 413 above", async () => {
+    const batch = (bytes: number) => JSON.stringify({ requests: [{ jsCode: "return pad.length", context: { pad: "x".repeat(bytes) } }] });
+    const below = await call("POST", `${API}/batchRunJs`, { headers: JSON_HEADERS, body: batch(RUN_JS_LIMIT_BYTES - BODY_MARGIN_BYTES) });
+    expect(below.status).toBe(STATUS_OK);
+    expect(below.json()).toEqual({ results: [{ result: RUN_JS_LIMIT_BYTES - BODY_MARGIN_BYTES }] });
+    const above = await call("POST", `${API}/batchRunJs`, { headers: JSON_HEADERS, body: batch(RUN_JS_LIMIT_BYTES + BODY_MARGIN_BYTES) });
+    expect(above.status).toBe(PAYLOAD_TOO_LARGE);
+  });
+
+  it("answers 413 for an encrypted text body above 5 MiB", async () => {
+    const reply = await call("POST", `${API}/runJs`, { headers: ENCRYPTED_HEADERS, body: "x".repeat(RUN_JS_LIMIT_BYTES + BODY_MARGIN_BYTES) });
+    expect(reply.status).toBe(PAYLOAD_TOO_LARGE);
+  });
+
+  it("answers 413 for a form body above 5 MiB", async () => {
+    const reply = await call("POST", `${API}/runJs`, {
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: `jsCode=${"x".repeat(RUN_JS_LIMIT_BYTES + BODY_MARGIN_BYTES)}`,
+    });
+    expect(reply.status).toBe(PAYLOAD_TOO_LARGE);
+  });
+
+  it("leaves the other routes on the global limit: a body above 5 MiB reaches /runPluginQuery", async () => {
+    const reply = await call("POST", `${API}/runPluginQuery`, { headers: JSON_HEADERS, body: sizedBody("pluginName", RUN_JS_LIMIT_BYTES + BODY_MARGIN_BYTES) });
+    expect(reply.status).toBe(BAD_REQUEST);
   });
 });
