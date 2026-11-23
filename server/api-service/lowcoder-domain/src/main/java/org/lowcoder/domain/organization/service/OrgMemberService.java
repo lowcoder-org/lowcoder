@@ -28,6 +28,15 @@ public interface OrgMemberService {
 
     Mono<Long> countAllActiveOrgs(String userId);
 
+    /**
+     * Every RAW membership row this user has, untouched by {@link #getAllActiveOrgs}/{@link #countAllActiveOrgs}'s
+     * ENTERPRISE-mode collapsing (which, with a configured enterprise org, answers a single row regardless of how
+     * many real memberships exist, and otherwise truncates to the first). A caller
+     * that needs to know whether an account's membership is genuinely EXCLUSIVE -- not merely "counts as 1 after
+     * enterprise collapsing" -- must read this instead.
+     */
+    Mono<List<OrgMember>> getRawOrgMemberships(String userId);
+
     Mono<OrgMember> getOrgMember(String orgId, String userId);
 
     Mono<Boolean> addMember(String orgId, String userId, MemberRole memberRole);

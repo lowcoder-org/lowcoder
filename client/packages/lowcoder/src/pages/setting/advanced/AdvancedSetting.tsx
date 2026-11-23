@@ -2,7 +2,7 @@ import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { GreyTextColor } from "constants/style";
 import { CustomModal, CustomSelect, TacoButton } from "lowcoder-design";
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
@@ -95,12 +95,20 @@ export function AdvancedSetting() {
     dispatch(fetchLastMonthAPIUsageAction(currentUser.currentOrgId));
   }, [currentUser.currentOrgId])
 
+  // One authoritative full-settings fetch per org, not content-based. An app view
+  // populates this same redux slice with a SANITIZED payload (no npmRegistries, among other excluded keys), so a
+  // condition keyed on "commonSettings looks empty" can be satisfied by that sanitized payload and skip this fetch
+  // entirely -- leaving the Advanced Settings form without the registry even though one is stored. A ref keyed on
+  // the org id (not on commonSettings' content, and not in the dependency array -- commonSettings gets a new
+  // object identity on every fetch success, which would otherwise re-fire this effect forever) fetches exactly
+  // once per org, superseding whatever a sanitized view may have left.
+  const fetchedSettingsOrgIdRef = useRef<string | null>(null);
   useEffect(() => {
-    // Only fetch common settings if not already loaded
-    if (Object.keys(commonSettings).length === 0) {
+    if (fetchedSettingsOrgIdRef.current !== currentUser.currentOrgId) {
+      fetchedSettingsOrgIdRef.current = currentUser.currentOrgId;
       dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
     }
-  }, [currentUser.currentOrgId, dispatch, commonSettings]);
+  }, [currentUser.currentOrgId, dispatch]);
 
   // Lazy load applications only when dropdown is opened
   const handleDropdownOpen = () => {

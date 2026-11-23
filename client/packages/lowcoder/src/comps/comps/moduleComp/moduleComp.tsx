@@ -23,7 +23,7 @@ import { API_STATUS_CODES } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { GreyTextColor } from "constants/style";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useContext, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
   ExternalEditorContext,
@@ -513,14 +513,22 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
   const error = comp.children.error.getView();
   const scrollbars = comp.children.scrollbars.getView();
 
+  // Read the ENCLOSING context before this component's own Provider (below) replaces
+  // it, so a nested chat controller can reach the outermost, actually READ-checked host app id rather than this
+  // module's own (moduleComp.tsx's Provider overrides `applicationId` with `appId`, which may not itself be
+  // directly READ-checked for a viewer who only has READ on the host -- see ExternalEditorContext.ts).
+  const enclosingContext = useContext(ExternalEditorContext);
+  const hostApplicationId = enclosingContext.hostApplicationId ?? enclosingContext.applicationId;
+
   const moduleExternalState: ExternalEditorContextState = useMemo(
     () => ({
       readOnly: true,
       hideHeader: true,
       applicationId: appId,
+      hostApplicationId,
       appType: AppTypeEnum.Module,
     }),
-    [appId]
+    [appId, hostApplicationId]
   );
 
   useEffect(() => {

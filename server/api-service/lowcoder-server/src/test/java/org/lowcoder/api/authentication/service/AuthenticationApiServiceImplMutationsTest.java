@@ -699,19 +699,23 @@ class AuthenticationApiServiceImplMutationsTest {
         System.out.println("[AuthenticationApiServiceImplMutationsTest] source+rawId hit -> connection updated and user saved");
     }
 
-    /** Catches the cross-source link being lost: a user known only by raw id gets the new connection added. */
+    /**
+     * Catches the cross-source link being lost: a user known only by raw id, with no connections of its own (a SCIM
+     * placeholder) and an exclusive raw membership of the provider's own org, gets the new connection added.
+     */
     @Test
-    void updateOrCreateUser_foundOnlyByRawId_addsANewConnection() {
+    void updateOrCreateUser_foundOnlyByRawId_placeholderExclusiveMemberOfProviderOrg_addsANewConnection() {
         User user = User.builder().id(USER_ID).build();
         AuthUser authUser = authUser(SOURCE_GOOGLE, UID, ORG_ID, CONFIG_A, true);
         when(userService.findByAuthUserSourceAndRawId(authUser)).thenReturn(Mono.empty());
         when(userService.findByAuthUserRawId(authUser)).thenReturn(Mono.just(user));
+        when(orgMemberService.getRawOrgMemberships(USER_ID)).thenReturn(Mono.just(List.of(member(MemberRole.MEMBER))));
         when(userService.addNewConnectionAndReturnUser(USER_ID, authUser)).thenReturn(Mono.just(user));
 
         StepVerifier.create(service.updateOrCreateUser(authUser, false, false)).expectNext(user).verifyComplete();
 
         verify(userService, never()).saveUser(any());
-        System.out.println("[AuthenticationApiServiceImplMutationsTest] rawId-only hit -> new connection added");
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] rawId-only hit, exclusive member of provider org -> new connection added");
     }
 
     /** Catches link-existing mode searching for a user: it must attach the connection to the current visitor. */

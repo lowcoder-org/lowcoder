@@ -21,11 +21,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import java.util.Set;
+
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
+import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserState;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
@@ -341,6 +345,131 @@ class UserServiceImplPasswordTest {
         verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
         verify(fixture.repository, never()).save(any(User.class));
         System.out.println("[UserServiceImplPasswordTest] unknown and deleted accounts -> no mail, no save");
+    }
+
+    private static final String TYPED_NAME = "UserServiceImplPasswordTest.typedDisplayName";
+    private static final String ALIAS_THE_REQUESTER_OWNS = "attacker-alias@example.com";
+    private static final String CONNECTION_EMAIL = "connection-lookup@example.com";
+    private static final String QUALIFYING_RAW_ID = "UserServiceImplPasswordTest.qualifyingRawId@example.com";
+    private static final String NOT_AN_ADDRESS = "UserServiceImplPasswordTest.notAnAddress";
+
+    private void stubNameLookup(String typed, User... users) {
+        when(fixture.repository.findByEmailOrConnections_Email(typed, typed)).thenReturn(Flux.empty());
+        when(fixture.repository.findByName(typed)).thenReturn(Mono.just(users[0]));
+    }
+
+    private static Connection emailConnection(String rawId) {
+        return Connection.builder().authId("auth-" + rawId).source(AuthSourceConstants.EMAIL).rawId(rawId).build();
+    }
+
+    /**
+     * An account resolved by DISPLAY NAME (the attacker typed an alias they own, which happens to be the
+     * account's display name) must still be mailed at its OWN address, never at the typed alias.
+     */
+    @Test
+    void lostPassword_resolvedByName_mailsTheAccountsOwnAddressNeverTheTypedText() {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        stubNameLookup(ALIAS_THE_REQUESTER_OWNS, user);
+        stubOrgOfUser();
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(USER_EMAIL), any(), any())).thenReturn(true);
+
+        StepVerifier.create(service.lostPassword(ALIAS_THE_REQUESTER_OWNS)).verifyComplete();
+
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(), any());
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(eq(ALIAS_THE_REQUESTER_OWNS), any(), any());
+        System.out.println("[UserServiceImplPasswordTest] account found by name -> mailed to its own address, not the typed alias");
+    }
+
+    /** No stored email, no EMAIL-source connection -> no address to recover, no mail, no save. */
+    @Test
+    void lostPassword_noEmailAndNoEmailConnection_sendsNothing() {
+        User user = User.builder().id(USER_ID).email("").connections(Set.of()).build();
+        stubEmailLookup(user);
+        stubOrgOfUser();
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
+        verify(fixture.repository, never()).save(any(User.class));
+    }
+
+    /** Resolved through a connection's own {@code email} field (the lookup keyspace); still mailed to the stored address. */
+    @Test
+    void lostPassword_resolvedThroughConnectionEmail_mailsTheStoredAddress() {
+        User user = User.builder().id(USER_ID).email(USER_EMAIL).build();
+        when(fixture.repository.findByEmailOrConnections_Email(CONNECTION_EMAIL, CONNECTION_EMAIL)).thenReturn(Flux.just(user));
+        stubOrgOfUser();
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(USER_EMAIL), any(), any())).thenReturn(true);
+
+        StepVerifier.create(service.lostPassword(CONNECTION_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(USER_EMAIL), any(), any());
+    }
+
+    /** Blank stored email, one EMAIL connection with an address-shaped {@code rawId} -> mailed to that {@code rawId}. */
+    @Test
+    void lostPassword_blankEmailOneQualifyingEmailConnection_mailsItsRawId() {
+        Connection connection = emailConnection(QUALIFYING_RAW_ID);
+        User user = User.builder().id(USER_ID).email("").connections(Set.of(connection)).build();
+        stubEmailLookup(user);
+        stubOrgOfUser();
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(QUALIFYING_RAW_ID), any(), any())).thenReturn(true);
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(QUALIFYING_RAW_ID), any(), any());
+    }
+
+    /**
+     * A stored {@code email} that is not address-shaped (a display name, as changeset 023's legacy backfill left
+     * behind) and no EMAIL connection -> the invalid stored value must not be mailed to; no mail, no save.
+     */
+    @Test
+    void lostPassword_storedEmailNotAddressShapedAndNoEmailConnection_sendsNothing() {
+        User user = User.builder().id(USER_ID).email(NOT_AN_ADDRESS).connections(Set.of()).build();
+        stubEmailLookup(user);
+        stubOrgOfUser();
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
+        verify(fixture.repository, never()).save(any(User.class));
+    }
+
+    /**
+     * Blank stored email, MULTIPLE EMAIL connections with address-shaped {@code rawId}s -- with no timestamp to
+     * say which is current, the fix must not guess: no mail, no save.
+     */
+    @Test
+    void lostPassword_blankEmailMultipleQualifyingEmailConnections_sendsNothing() {
+        User user = User.builder().id(USER_ID).email("")
+                .connections(Set.of(emailConnection("first-qualifying@example.com"), emailConnection("second-qualifying@example.com")))
+                .build();
+        stubEmailLookup(user);
+        stubOrgOfUser();
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService, never()).sendPasswordResetEmail(any(), any(), any());
+        verify(fixture.repository, never()).save(any(User.class));
+    }
+
+    /**
+     * Blank stored email, exactly ONE EMAIL connection has an address-shaped {@code rawId} (another present EMAIL
+     * connection does not) -> mailed to the one qualifying {@code rawId}.
+     */
+    @Test
+    void lostPassword_blankEmailExactlyOneQualifyingAmongSeveralEmailConnections_mailsThatOne() {
+        Connection nonQualifying = emailConnection(NOT_AN_ADDRESS);
+        Connection qualifying = emailConnection(QUALIFYING_RAW_ID);
+        User user = User.builder().id(USER_ID).email("").connections(Set.of(nonQualifying, qualifying)).build();
+        stubEmailLookup(user);
+        stubOrgOfUser();
+        when(fixture.emailCommunicationService.sendPasswordResetEmail(eq(QUALIFYING_RAW_ID), any(), any())).thenReturn(true);
+
+        StepVerifier.create(service.lostPassword(USER_EMAIL)).verifyComplete();
+
+        verify(fixture.emailCommunicationService).sendPasswordResetEmail(eq(QUALIFYING_RAW_ID), any(), any());
     }
 
     private static final Duration RESET_TOKEN_LIFETIME = Duration.ofHours(12);

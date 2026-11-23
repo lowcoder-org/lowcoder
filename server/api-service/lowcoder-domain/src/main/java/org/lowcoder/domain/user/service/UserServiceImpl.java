@@ -172,6 +172,31 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * The account's own address to mail a password-reset token to, never the text the requester typed (the
+     * account may have been resolved by display name, not by address). {@code user.getEmail()} when it is non-blank
+     * AND address-shaped ({@link EmailUtils#looksLikeEmail}: a legacy install can carry a display name there, from
+     * changeset 023's one-time {@code email = name} backfill, and {@link #addNewConnectionAndReturnUser} can set it
+     * from a connection's claimed email of any source); else, when exactly one EMAIL-source connection's
+     * {@code rawId} is address-shaped, that one. Zero or more than one qualifying connection -- with no timestamp on
+     * {@link Connection} to say which is current -- completes empty rather than guessing: mailing a wrong one of
+     * several would be worse than mailing none.
+     */
+    private static Optional<String> recoveryAddressOf(User user) {
+        if (EmailUtils.looksLikeEmail(user.getEmail())) {
+            return Optional.of(user.getEmail());
+        }
+        List<String> emailConnectionAddresses = user.getConnections().stream()
+                .filter(connection -> AuthSourceConstants.EMAIL.equals(connection.getSource()))
+                .map(Connection::getRawId)
+                .filter(EmailUtils::looksLikeEmail)
+                .toList();
+        if (emailConnectionAddresses.size() == 1) {
+            return Optional.of(emailConnectionAddresses.get(0));
+        }
+        return Optional.empty();
+    }
+
+    /**
      * One probe of the email keyspace, resolved deterministically.
      *
      * <p>This used to be {@code .next()} on the repository's {@link Flux}, which returns whichever document
@@ -422,14 +447,17 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Looks up the account named by {@code userEmail} (an email, else a name) and, when it can recover its password, mails a
-     * password reset link to {@code userEmail} as given and then stores the token's hash and a 12 hour expiry; completes
-     * empty when it ends normally, a mail that is not sent included, and fails when a lookup or the save fails or the mail
-     * call throws.
+     * password reset link to the ACCOUNT'S OWN address ({@link #recoveryAddressOf}) -- never to {@code userEmail} as
+     * typed, so an account resolved by display name does not leak its reset token to whatever text (an address the
+     * requester owns, not the account's) was typed -- and then stores the token's hash and a 12 hour expiry; completes
+     * empty when it ends normally, a mail that is not sent (no qualifying address, or the mail call itself declining)
+     * included, and fails when a lookup or the save fails or the mail call throws.
      * <p>
-     * Limits: for an account found by its name the recipient is that name, which the mail call uses as an address, so such a
-     * mail is sent only if the name is accepted as one; the mail is sent before the token is saved (NEW-93: kept, owner
-     * decision D6), so a save that fails after a sent mail leaves a link that no stored token matches; a mail that is not
-     * sent stores nothing ({@code lostPassword_mailSendFails_storesNothing}).
+     * Limits: the mail is sent before the token is saved (NEW-93: kept, owner decision D6), so a save that fails after a
+     * sent mail leaves a link that no stored token matches; a mail that is not sent stores nothing
+     * ({@code lostPassword_mailSendFails_storesNothing}). {@link #recoveryAddressOf}'s own limits:
+     * it trusts {@code user.getEmail()} once it is address-shaped without requiring that value
+     * came from an EMAIL-source connection, matching every other email-matching path in this class.
      */
     @Override
     public Mono<Boolean> lostPassword(String userEmail) {
@@ -440,10 +468,14 @@ public class UserServiceImpl implements UserService {
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     String emailTemplate = tuple.getT2();
+                    Optional<String> recoveryAddress = recoveryAddressOf(user);
+                    if (recoveryAddress.isEmpty()) {
+                        return Mono.empty();
+                    }
 
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
-                    if (!emailCommunicationService.sendPasswordResetEmail(userEmail, token, emailTemplate)) {
+                    if (!emailCommunicationService.sendPasswordResetEmail(recoveryAddress.get(), token, emailTemplate)) {
                         return Mono.empty();
                     }
                     user.setPasswordResetToken(HashUtils.hash(token.getBytes()));

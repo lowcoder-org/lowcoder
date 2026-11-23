@@ -463,6 +463,10 @@ class InvitationAndUserApiServiceTest {
     void userOperation_requiresAnAdminOfTheVisitorsOrgAndATargetInThatOrg(UserOperation operation, MemberRole role,
             boolean targetInOrg, boolean allowed) {
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember(ORG_ID, VISITOR_ID, role, "current", 0L)));
+        // resetPassword's checkResetTargetBelowSuperAdmin reads the visitor id first
+        // (to detect a self-reset), whatever the visitor's role -- stubbed here even for the GET_DETAIL rows,
+        // which never call it, since the row is parameterized across both operations.
+        lenient().when(sessionUserService.getVisitorId()).thenReturn(Mono.just(VISITOR_ID));
         lenient().when(orgMemberService.getOrgMember(ORG_ID, TARGET_ID)).thenReturn(
                 targetInOrg ? Mono.just(new OrgMember(ORG_ID, TARGET_ID, MemberRole.MEMBER, "normal", 0L)) : Mono.empty());
         User target = user(TARGET_ID, "Target");
@@ -477,7 +481,11 @@ class InvitationAndUserApiServiceTest {
         if (allowed) {
             Object expected = operation == UserOperation.GET_DETAIL ? detail : "new-password";
             StepVerifier.create(result.map(value -> (Object) value)).expectNext(expected).verifyComplete();
-            assertThat(events).isEqualTo(operation == UserOperation.GET_DETAIL ? List.of("findById", "detail") : List.of("reset"));
+            // resetPassword's new checkResetTargetBelowSuperAdmin also calls
+            // userService.findById(userId) (to read the superAdmin flag) before userService.resetPassword, reusing
+            // this test's existing logged("findById", target) stub -- so the allowed case now logs "findById" too.
+            assertThat(events).isEqualTo(operation == UserOperation.GET_DETAIL
+                    ? List.of("findById", "detail") : List.of("findById", "reset"));
         } else {
             StepVerifier.create(result)
                     .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))

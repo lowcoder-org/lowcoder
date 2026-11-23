@@ -112,6 +112,8 @@ class UserEndpointsContractTest {
     static final String VISITOR_ID = VISITOR.getId();
     static final OrgMember VISITOR_ORG_MEMBER = new OrgMember(UserManagementSamples.orgViewOrganization().getId(), VISITOR_ID,
             MemberRole.ADMIN, "UserEndpointsContractTest.state", 3_000_000_150L);
+    /** The path's user, a plain member of {@code ORG_ID}, for the admin routes' membership check. */
+    static final OrgMember TARGET_MEMBER = new OrgMember(ORG_ID, USER_ID, MemberRole.MEMBER, "UserEndpointsContractTest.targetState", 3_000_000_151L);
     static final int PAGE_NUM = 2;
     static final int PAGE_SIZE = 1;
     static final long ORG_TOTAL = 3;
@@ -147,6 +149,9 @@ class UserEndpointsContractTest {
         Mockito.when(orgApiService.checkVisitorAdminRole(ORG_ID)).thenReturn(Mono.just(VISITOR_ORG_MEMBER));
         Mockito.when(orgApiService.switchCurrentOrganizationTo(anyString(), eq(ORG_ID))).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(orgMemberService.tryAddOrgMember(eq(ORG_ID), anyString(), eq(MemberRole.MEMBER))).thenReturn(Mono.just(Boolean.TRUE));
+        // The three admin-on-member routes also require USER_ID to be a member of
+        // ORG_ID (UserController#checkVisitorManagesMember); the happy-path tests below rely on this default.
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(TARGET_MEMBER));
     }
 
     @AfterAll
@@ -310,10 +315,87 @@ class UserEndpointsContractTest {
         assertUpdate(UPDATE_SELF, VISITOR_ID);
     }
 
-    /** An admin updates another member: same body, same answer, for the path's user. */
+    /**
+     * An admin updates another member with the same body, but the answer is the REDUCED
+     * {@code UserProfileView} ({@code UserController#managedUserView}), not the full profile {@code buildUserProfileView}
+     * builds for the self route -- the target's session tokens and other workspaces must never reach the admin.
+     */
     @Test
     void updateById() {
-        assertUpdate(UPDATE_BY_ID, USER_ID, ORG_ID, USER_ID);
+        User updated = UserSamples.user();
+        Mockito.when(userService.update(eq(USER_ID), any())).thenReturn(Mono.just(updated));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_BY_ID, Map.of(),
+                    EndpointContract.d1(UpdateUserRequest.class), ORG_ID, USER_ID);
+            EndpointContract.assertResponse(result, HttpStatus.OK,
+                    EndpointContract.success(EndpointContract.fixture(UserProfileView.class, "Reduced")));
+            Mockito.verifyNoInteractions(userHomeApiService);
+            ArgumentCaptor<User> partial = ArgumentCaptor.forClass(User.class);
+            Mockito.verify(userService).update(eq(USER_ID), partial.capture());
+            UpdateUserRequest expected = (UpdateUserRequest) PayloadSamples.of(UpdateUserRequest.class).value();
+            assertThat(partial.getValue().getName()).isEqualTo(expected.getName());
+            assertThat(partial.getValue().getUiLanguage()).isEqualTo(expected.getUiLanguage());
+            assertThat(partial.getValue().isHasSetNickname()).isTrue();
+        }
+    }
+
+    /** The visitor is not ADMIN/SUPER_ADMIN of {@code orgId} -> {@code NOT_AUTHORIZED}, nothing read or written. */
+    @Test
+    void updateById_visitorNotAdmin_denied() {
+        Mockito.when(orgApiService.checkVisitorAdminRole(ORG_ID))
+                .thenReturn(Mono.error(new org.lowcoder.sdk.exception.BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_BY_ID, Map.of(),
+                    EndpointContract.d1(UpdateUserRequest.class), ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(userService, Mockito.never()).update(any(), any());
+            Mockito.verifyNoInteractions(userHomeApiService);
+        }
+    }
+
+    /** The {@code userId} is not a member of {@code orgId} -> the SAME {@code NOT_AUTHORIZED} answer, nothing read or written. */
+    @Test
+    void updateById_targetNotAMember_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.empty());
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_BY_ID, Map.of(),
+                    EndpointContract.d1(UpdateUserRequest.class), ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(userService, Mockito.never()).update(any(), any());
+            Mockito.verifyNoInteractions(userHomeApiService);
+        }
+    }
+
+    /** The target is SUPER_ADMIN and the visitor is a plain ADMIN (not SUPER_ADMIN, not the target) -> {@code UNSUPPORTED_OPERATION}. */
+    @Test
+    void updateById_targetSuperAdminVisitorAdmin_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_BY_ID, Map.of(),
+                    EndpointContract.d1(UpdateUserRequest.class), ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+            Mockito.verify(userService, Mockito.never()).update(any(), any());
+            Mockito.verifyNoInteractions(userHomeApiService);
+        }
+    }
+
+    /** The target is SUPER_ADMIN and the visitor is ALSO SUPER_ADMIN of {@code orgId} -> allowed. */
+    @Test
+    void updateById_targetSuperAdminVisitorSuperAdmin_allowed() {
+        Mockito.when(orgApiService.checkVisitorAdminRole(ORG_ID)).thenReturn(Mono.just(
+                new OrgMember(VISITOR_ORG_MEMBER.getOrgId(), VISITOR_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.state", VISITOR_ORG_MEMBER.getJoinTime())));
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
+        User updated = UserSamples.user();
+        Mockito.when(userService.update(eq(USER_ID), any())).thenReturn(Mono.just(updated));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, UPDATE_BY_ID, Map.of(),
+                    EndpointContract.d1(UpdateUserRequest.class), ORG_ID, USER_ID);
+            EndpointContract.assertResponse(result, HttpStatus.OK,
+                    EndpointContract.success(EndpointContract.fixture(UserProfileView.class, "Reduced")));
+            Mockito.verify(userService).update(eq(USER_ID), any());
+        }
     }
 
     /** NEW-136: a language-only body must leave the nickname flag unset in the partial, so the update does not write it. */
@@ -351,6 +433,55 @@ class UserEndpointsContractTest {
     }
 
     /**
+     * The {@code userId} is not a member of {@code orgId} -> {@code NOT_AUTHORIZED}; the uploaded part is never
+     * saved, proving the sequencing fix runs the membership check before {@code fileMono}
+     * is ever subscribed. {@code userService.findById} IS still invoked as a plain Java call while the chain is
+     * assembled (the same eager-assembly behaviour {@code .then(mono)} has throughout this codebase); it is stubbed
+     * here only so that call does not NPE -- the resulting {@code Mono} is never subscribed because
+     * {@code checkVisitorManagesMember} errors before it, so no real lookup happens and nothing is saved.
+     */
+    @Test
+    void uploadProfilePhotoById_targetNotAMember_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.empty());
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(UserSamples.user()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchangeMultipart(client, "uploadProfilePhotoById", Map.of(), photo(), ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(userService, Mockito.never()).saveProfilePhoto(any(), any());
+        }
+    }
+
+    /** The target is SUPER_ADMIN and the visitor is a plain ADMIN -> {@code UNSUPPORTED_OPERATION}, nothing saved. */
+    @Test
+    void uploadProfilePhotoById_targetSuperAdminVisitorAdmin_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(UserSamples.user()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchangeMultipart(client, "uploadProfilePhotoById", Map.of(), photo(), ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+            Mockito.verify(userService, Mockito.never()).saveProfilePhoto(any(), any());
+        }
+    }
+
+    /** The visitor is SUPER_ADMIN of {@code orgId} replacing another SUPER_ADMIN's photo -> allowed. */
+    @Test
+    void uploadProfilePhotoById_targetSuperAdminVisitorSuperAdmin_allowed() {
+        Mockito.when(orgApiService.checkVisitorAdminRole(ORG_ID)).thenReturn(Mono.just(
+                new OrgMember(VISITOR_ORG_MEMBER.getOrgId(), VISITOR_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.state", VISITOR_ORG_MEMBER.getJoinTime())));
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
+        User member = UserSamples.user();
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(member));
+        AtomicReference<byte[]> received = stubPhotoUpload(member);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchangeMultipart(client, "uploadProfilePhotoById", Map.of(), photo(), ORG_ID, USER_ID);
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
+            assertPhotoPart(member, received);
+        }
+    }
+
+    /**
      * {@code deleteProfilePhoto} maps the service's {@code Mono<Void>} to a {@code ResponseView}, which never happens:
      * the answer is HTTP 200 with a JSON {@code Content-Type} and an empty body, not an envelope (O21).
      */
@@ -367,6 +498,54 @@ class UserEndpointsContractTest {
     /** As {@link #deleteProfilePhoto()}, for the path's user (O21). */
     @Test
     void deleteProfilePhotoById() {
+        User member = UserSamples.user();
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(member));
+        Mockito.when(userService.deleteProfilePhoto(member)).thenReturn(Mono.empty());
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhotoById", Map.of(), null, ORG_ID, USER_ID);
+            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, MediaType.APPLICATION_JSON);
+            Mockito.verify(userService).deleteProfilePhoto(member);
+        }
+    }
+
+    /**
+     * The {@code userId} is not a member of {@code orgId} -> {@code NOT_AUTHORIZED}, nothing deleted.
+     * {@code userService.findById} IS still invoked as a plain Java call while the chain is assembled (the same
+     * eager-assembly behaviour {@code .then(mono)} has throughout this codebase); it is stubbed here only so that
+     * call does not NPE -- the resulting {@code Mono} is never subscribed because {@code checkVisitorManagesMember}
+     * errors before it, so no real lookup happens and nothing is deleted.
+     */
+    @Test
+    void deleteProfilePhotoById_targetNotAMember_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.empty());
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(UserSamples.user()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhotoById", Map.of(), null, ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.NOT_AUTHORIZED, BizError.NOT_AUTHORIZED.name());
+            Mockito.verify(userService, Mockito.never()).deleteProfilePhoto(any());
+        }
+    }
+
+    /** The target is SUPER_ADMIN and the visitor is a plain ADMIN -> {@code UNSUPPORTED_OPERATION}, nothing deleted. */
+    @Test
+    void deleteProfilePhotoById_targetSuperAdminVisitorAdmin_denied() {
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
+        Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(UserSamples.user()));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhotoById", Map.of(), null, ORG_ID, USER_ID);
+            EndpointContract.assertBizError(result, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST");
+            Mockito.verify(userService, Mockito.never()).deleteProfilePhoto(any());
+        }
+    }
+
+    /** The visitor is SUPER_ADMIN of {@code orgId} deleting another SUPER_ADMIN's photo -> allowed. */
+    @Test
+    void deleteProfilePhotoById_targetSuperAdminVisitorSuperAdmin_allowed() {
+        Mockito.when(orgApiService.checkVisitorAdminRole(ORG_ID)).thenReturn(Mono.just(
+                new OrgMember(VISITOR_ORG_MEMBER.getOrgId(), VISITOR_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.state", VISITOR_ORG_MEMBER.getJoinTime())));
+        Mockito.when(orgMemberService.getOrgMember(ORG_ID, USER_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, USER_ID, MemberRole.SUPER_ADMIN, "UserEndpointsContractTest.targetState", TARGET_MEMBER.getJoinTime())));
         User member = UserSamples.user();
         Mockito.when(userService.findById(USER_ID)).thenReturn(Mono.just(member));
         Mockito.when(userService.deleteProfilePhoto(member)).thenReturn(Mono.empty());

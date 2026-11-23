@@ -2171,7 +2171,7 @@ export const en = {
     "offlineStatus": "Offline",
     "authenticationFailed": "Authentication failed",
     "applicationIdLabel": "Application ID",
-    "applicationIdTooltip": "Scopes the signal room to this application. All users of the same app share presence and notifications.",
+    "applicationIdTooltip": "Names a sub-room of this application. All users of the same sub-room share presence and notifications.",
     "userIdLabel": "User ID",
     "userIdTooltip": "Current user's unique identifier",
     "userNameLabel": "User Name",

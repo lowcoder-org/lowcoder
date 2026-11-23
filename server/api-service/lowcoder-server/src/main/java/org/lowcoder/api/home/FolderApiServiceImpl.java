@@ -188,7 +188,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         newFolder.setCategory(folder.getCategory());
         newFolder.setDescription(folder.getDescription());
         newFolder.setImage(folder.getImage());
-        return checkManagePermission(folder.getId())
+        return checkManagePermissionInCurrentOrg(folder.getId())
                 .flatMap(orgMember -> checkFolderExist(folder.getId())
                         .flatMap(existing -> checkFolderNameUnique(existing.getParentFolderId(), folder.getName(),
                                 orgMember.getOrgId(), existing.getId())))
@@ -401,12 +401,45 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .flatMap(folder -> sessionUserService.getVisitorId().map(s -> s.equals(folder.getCreatedBy())));
     }
 
+    /**
+     * {@code checkManagePermission} passes any ADMIN/SUPER_ADMIN of the visitor's CURRENT
+     * org for ANY folder id, whichever org owns it -- this additive check compares the folder's own
+     * {@code organizationId} against the visitor's current org first, so a folder of another workspace is refused
+     * with {@code FOLDER_OPERATE_NO_PERMISSION} regardless of the visitor's role, before any admin/creator rule is
+     * even considered. Used ONLY by {@link #update}, {@link #grantPermission}, {@link #updatePermission} and
+     * {@link #removePermission} -- deliberately NOT by {@link #delete}, whose tree lookup (built from the current
+     * org's own folders) already scopes it to the current org, and which has its own pinned behaviour for an admin
+     * (never looks the folder up) and for a non-admin on an unknown id (completes empty, not an error) that a
+     * shared rewrite would break. A blank id falls back to the old, unchanged {@link #checkManagePermission} exactly
+     * (BF-159: {@code updatePermission}/{@code removePermission} with a null folder id must still be refused by
+     * {@code checkPermissionResource}'s own foreign-permission check, not by an eager {@code FOLDER_NOT_EXIST} from
+     * this method's new lookup).
+     */
+    private Mono<OrgMember> checkManagePermissionInCurrentOrg(String folderId) {
+        if (StringUtils.isBlank(folderId)) {
+            return checkManagePermission(folderId);
+        }
+        return sessionUserService.getVisitorOrgMemberCache()
+                .zipWith(checkFolderExist(folderId))
+                .flatMap(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    Folder folder = tuple.getT2();
+                    if (!orgMember.getOrgId().equals(folder.getOrganizationId())) {
+                        return ofError(FOLDER_OPERATE_NO_PERMISSION, "FOLDER_OPERATE_NO_PERMISSION");
+                    }
+                    if (isOrgAdmin(orgMember) || orgMember.getUserId().equals(folder.getCreatedBy())) {
+                        return Mono.just(orgMember);
+                    }
+                    return ofError(FOLDER_OPERATE_NO_PERMISSION, "FOLDER_OPERATE_NO_PERMISSION");
+                });
+    }
+
     @Override
     public Mono<Void> grantPermission(String folderId, Set<String> userIds, Set<String> groupIds, ResourceRole role) {
         if (CollectionUtils.isEmpty(userIds) && CollectionUtils.isEmpty(groupIds)) {
             return Mono.empty();
         }
-        return Mono.from(checkManagePermission(folderId))
+        return Mono.from(checkManagePermissionInCurrentOrg(folderId))
                 .then(checkFolderExist(folderId))
                 .then(Mono.defer(() -> resourcePermissionService.insertBatchPermission(ResourceType.FOLDER, folderId, userIds, groupIds, role)))
                 .then();
@@ -414,7 +447,7 @@ public class FolderApiServiceImpl implements FolderApiService {
 
     @Override
     public Mono<Void> updatePermission(String folderId, String permissionId, ResourceRole role) {
-        return Mono.from(checkManagePermission(folderId))
+        return Mono.from(checkManagePermissionInCurrentOrg(folderId))
                 .then(checkPermissionResource(permissionId, folderId))
                 .then(resourcePermissionService.updateRoleById(permissionId, role))
                 .then();
@@ -422,7 +455,7 @@ public class FolderApiServiceImpl implements FolderApiService {
 
     @Override
     public Mono<Void> removePermission(String folderId, String permissionId) {
-        return Mono.from(checkManagePermission(folderId))
+        return Mono.from(checkManagePermissionInCurrentOrg(folderId))
                 .then(checkPermissionResource(permissionId, folderId))
                 .then(resourcePermissionService.removeById(permissionId))
                 .then();

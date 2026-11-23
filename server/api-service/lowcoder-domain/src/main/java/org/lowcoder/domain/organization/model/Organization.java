@@ -96,6 +96,8 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
 
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
         public static final String PASSWORD_RESET_EMAIL_TEMPLATE = "PASSWORD_RESET_EMAIL_TEMPLATE";
+        /** A registry URL and its {@code auth.credentials} (a bearer token or base64 user:password). */
+        public static final String NPM_REGISTRIES = "npmRegistries";
         /** The suffix of the key that holds when a setting was last written ({@code <key>_updateTime}). */
         public static final String UPDATE_TIME_SUFFIX = "_updateTime";
 
@@ -103,7 +105,8 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
          * Settings excluded from sanitized export
          */
         private final Set<String> excludedKeys = Set.of(
-            PASSWORD_RESET_EMAIL_TEMPLATE
+            PASSWORD_RESET_EMAIL_TEMPLATE,
+            NPM_REGISTRIES
         );
 
         /** The key that holds when the setting {@code key} was last written. */
@@ -113,8 +116,9 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
 
         /**
          * A copy without the excluded settings and their update times (GH-02, GitHub #924: the update time of the
-         * password-reset template was kept), for views that are not the settings' own: the user profile and the
-         * application views, which reach anonymous visitors of a public application.
+         * password-reset template was kept; the npm registry credential is excluded the same way), for views that
+         * are not the settings' own: the user profile and the application views, which reach anonymous visitors of
+         * a public application.
          */
         public OrganizationCommonSettings sanitized() {
             OrganizationCommonSettings sanitized = new OrganizationCommonSettings();
