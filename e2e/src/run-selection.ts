@@ -9,6 +9,11 @@ export interface RunFlags {
   /** Tests tagged `@superadmin` (SEC-R16a to SEC-R16d: they break a stack that holds more than ~420 workspaces, D-47). */
   includeSuperAdmin: boolean;
   /**
+   * Tests tagged `@node-service-sidecar` (the node-service data sources that need a sidecar of their own, Firebird): they need the
+   * run script to start that sidecar, which it does only for this flag. Default stack only: the other stacks select their own tags.
+   */
+  includeNodeServiceSidecars: boolean;
+  /**
    * Enterprise profile only: run SEC-E05 (`@enterprise-takeover`) and NOTHING else of the stack, because it replaces the
    * super admin's password. Ignored on the default profile (the test is `@enterprise` as well and never runs there).
    */
@@ -46,14 +51,15 @@ export function runFlagsFromEnv(env: Record<string, string | undefined>): RunFla
     includeInsertAll: !!env[RUN_FLAGS.INCLUDE_INSERT_ALL],
     includeSuperAdmin: !!env[RUN_FLAGS.INCLUDE_SUPERADMIN],
     includeEnterpriseTakeover: !!env[RUN_FLAGS.INCLUDE_ENTERPRISE_TAKEOVER],
+    includeNodeServiceSidecars: !!env[RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS],
     stackProfile: stackProfileFromEnv(env),
   };
 }
 
 /**
- * The tags a run leaves out. Default profile: each opt-in tag unless its own flag is set (the three flags are
+ * The tags a run leaves out. Default profile: each opt-in tag unless its own flag is set (the four flags are
  * independent), and always `@enterprise`, `@enterprise-takeover` and `@signup-disabled`. Signup-disabled profile: `@quarantine` unless its flag is set. Enterprise profile: `@quarantine` unless its flag is set,
- * and `@enterprise-takeover` unless ITS flag is set; the other two flags do not apply there (`@insert-all` tests are outside
+ * and `@enterprise-takeover` unless ITS flag is set; the other three flags (insert-all, super admin, node-service sidecars) do not apply there (`@insert-all` and `@node-service-sidecar` tests are outside
  * the `@enterprise` selection anyway, and the super admin of that stack is a member of ONE workspace, so the D-47 capacity
  * limit behind `@superadmin` does not arise: SEC-E01 to E06a and SEC-E07a, E07b use it and carry the tag for the guard of
  * tests/foundation/run-selection.spec.ts).
@@ -72,6 +78,7 @@ export function excludedTags(flags: RunFlags): string[] {
     ...(flags.includeQuarantine ? [] : [TAGS.QUARANTINE]),
     ...(flags.includeInsertAll ? [] : [TAGS.INSERT_ALL]),
     ...(flags.includeSuperAdmin ? [] : [TAGS.SUPERADMIN]),
+    ...(flags.includeNodeServiceSidecars ? [] : [TAGS.NODE_SERVICE_SIDECAR]),
     TAGS.ENTERPRISE,
     TAGS.ENTERPRISE_TAKEOVER,
     TAGS.SIGNUP_DISABLED,
@@ -80,7 +87,7 @@ export function excludedTags(flags: RunFlags): string[] {
 
 /**
  * The `grepInvert` of the Playwright config: one alternation of the excluded tags, `undefined` when nothing is left
- * out. Default profile, no flag: `/@quarantine|@insert-all|@superadmin|@enterprise|@enterprise-takeover/` (the default run);
+ * out. Default profile, no flag: `/@quarantine|@insert-all|@superadmin|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled/` (the default run);
  * in between, the alternation of the tags whose flag is not set, the two enterprise tags always last. Enterprise profile:
  * `/@quarantine|@enterprise-takeover/` by default, `/@quarantine/` with the takeover flag only, `/@enterprise-takeover/`
  * with the quarantine flag only. A test tagged with several opt-in tags runs only when all their flags are set (SEC-E05 carries

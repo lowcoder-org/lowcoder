@@ -23,6 +23,11 @@
 ##                       tests); independent of E2E_INCLUDE_QUARANTINE. Nightly: E2E_INCLUDE_INSERT_ALL=1 $0 --grep @insert-all
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
 ##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
+##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources whose protocol is not HTTP
+##                       (today a Firebird server, FIREBIRD_IMAGE below) and run their @node-service-sidecar tests; independent of the
+##                       other flags, default stack only (any other profile is an error). Without it the run starts none of them,
+##                       neither lists nor runs those tests, and pulls no extra image.
+##                       Run only these: E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 $0 --grep @node-service-sidecar
 ##   E2E_STACK_PROFILE   which stack to start: `default` (the all-in-one image in its SAAS workspace mode; the default) or
 ##                       `enterprise` (the same image with LOWCODER_WORKSPACE_MODE=ENTERPRISE: one workspace shared by every
 ##                       user; it runs only the @enterprise tests, SEC-E01 to SEC-E04, E06a, E06b) or `signup-disabled` (the same
@@ -36,6 +41,7 @@
 ##                       It is quarantined, so it needs E2E_INCLUDE_QUARANTINE=1 as well:
 ##                       E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1 E2E_STACK_PROFILE=enterprise $0
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
+##   FIREBIRD_IMAGE      Firebird sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
 ## Set by the script for each run (a value of the caller is overwritten; the password is new every run, never printed,
@@ -64,6 +70,13 @@
 ## `--add-host e2e-echo:<sidecar IP on the run network>`, not through DNS: should the sidecar die, the name still points at that
 ## private address and the request fails locally (refused or unreachable) instead of the name resolving on an external resolver.
 ##
+## Only with E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 it also starts a Firebird sidecar (FIREBIRD_IMAGE, data of fixtures/firebird/init.sql) under the
+## alias e2e-firebird, port 3050: the target of the Firebird data source of node-service (the plugin speaks the Firebird wire protocol over TCP,
+## which the echo cannot stand in for). It starts after the echo, so the app can resolve the alias through `--add-host e2e-firebird:<IP>` like
+## the echo (the same reason), and the runner gets the alias as E2E_FIREBIRD_HOST. The script waits until a SELECT of the seeded table through
+## the image's own isql answers over TCP, and `cleanup` removes the container however the run ends. Its credentials are throw-away constants
+## that must equal FIREBIRD in e2e/src/constants.ts. Without the flag nothing of this runs: no container, no image pull, no variable for the runner.
+##
 ## Not covered: Firefox and WebKit (only Chromium runs), the multi-container compose setup, databases other than
 ## PostgreSQL.
 ##
@@ -81,6 +94,21 @@ readonly POSTGRES_IMAGE="${POSTGRES_IMAGE:-$DEFAULT_POSTGRES_IMAGE}"
 readonly POSTGRES_DATABASE="shop"
 readonly POSTGRES_USER="postgres"
 readonly POSTGRES_PASSWORD="e2e-postgres-password"
+# Firebird sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. Tag and digest of the image:
+# 3.0.12 with Legacy_Auth first (below): node-firebird 1.1.9 attached 100 of 100 times; with the image's default Srp, 12 of 100 attaches failed
+# with "Your user name and password are not defined" (README, "Firebird sidecar"). The values below must equal FIREBIRD in e2e/src/constants.ts;
+# they are throw-away, the container dies with the run.
+readonly DEFAULT_FIREBIRD_IMAGE="firebirdsql/firebird:3.0.12@sha256:e45c9bc4fdacaaddc1980a05b7bb8b297f09fe019eadefb059006efe4dafe875"
+readonly FIREBIRD_IMAGE="${FIREBIRD_IMAGE:-$DEFAULT_FIREBIRD_IMAGE}"
+readonly FIREBIRD_DATABASE_FILE="e2e.fdb"
+readonly FIREBIRD_DATABASE_PATH="/var/lib/firebird/data/$FIREBIRD_DATABASE_FILE"
+readonly FIREBIRD_USER="e2euser"
+readonly FIREBIRD_PASSWORD="e2e-firebird-password"
+readonly FIREBIRD_ROOT_PASSWORD="e2e-firebird-root-password"
+# The image's switch for Legacy_Auth before Srp and WireCrypt `Enabled` instead of `Required` (node-firebird 1.1.9 has no wire encryption)
+readonly FIREBIRD_USE_LEGACY_AUTH="true"
+readonly FIREBIRD_ALIAS="e2e-firebird"
+readonly FIREBIRD_PORT=3050
 # The instance super admin of the throw-away stack; the domain equals TEST_EMAIL_DOMAIN in e2e/src/constants.ts; the suite
 # reads the name from E2E_SUPERUSER_USERNAME (SUPER_ADMIN_ENV). The password is generated per run (generate_superuser_password).
 readonly SUPERUSER_USERNAME="e2e-superadmin@example.test"
@@ -113,6 +141,7 @@ readonly APP_CONTAINER="${NAME_PREFIX}-app"
 readonly POSTGRES_CONTAINER="${NAME_PREFIX}-pg"
 readonly RUNNER_CONTAINER="${NAME_PREFIX}-runner"
 readonly ECHO_CONTAINER="${NAME_PREFIX}-echo"
+readonly FIREBIRD_CONTAINER="${NAME_PREFIX}-fb"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
@@ -122,6 +151,9 @@ readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
 ECHO_IP=""
+# Set by start_firebird (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
+SIDECAR_ADD_HOST=()
+SIDECAR_RUNNER_ENV=()
 
 log() {
     echo "[$(date +%H:%M:%S)] $*"
@@ -133,10 +165,15 @@ fail() {
 }
 
 cleanup() {
-    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" > /dev/null 2>&1 || true
+    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" > /dev/null 2>&1 || true
     docker network rm "$NETWORK" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
+
+# True when the run was asked for the node-service sidecars (the variable is set and not empty).
+node_service_sidecars_enabled() {
+    [ -n "${E2E_INCLUDE_NODE_SERVICE_SIDECARS:-}" ]
+}
 
 check_stack_profile() {
     case "$STACK_PROFILE" in
@@ -145,6 +182,9 @@ check_stack_profile() {
     esac
     if [ -n "${E2E_INCLUDE_ENTERPRISE_TAKEOVER:-}" ] && [ "$STACK_PROFILE" != "$ENTERPRISE_PROFILE" ]; then
         fail "E2E_INCLUDE_ENTERPRISE_TAKEOVER needs E2E_STACK_PROFILE=$ENTERPRISE_PROFILE"
+    fi
+    if node_service_sidecars_enabled && [ "$STACK_PROFILE" != "$DEFAULT_PROFILE" ]; then
+        fail "E2E_INCLUDE_NODE_SERVICE_SIDECARS needs E2E_STACK_PROFILE=$DEFAULT_PROFILE (the other stacks run no @node-service-sidecar test)"
     fi
 }
 
@@ -198,7 +238,7 @@ start_app() {
         profile_env=(-e "LOWCODER_EMAIL_SIGNUP_ENABLED=false")
     fi
     log "Starting $APP_IMAGE as $APP_CONTAINER (stack profile $STACK_PROFILE)"
-    docker run -d --name "$APP_CONTAINER" --network "$NETWORK" --network-alias "$E2E_APP_HOST" --add-host "${ECHO_ALIAS}:${ECHO_IP}" "${publish[@]}" "${profile_env[@]}" \
+    docker run -d --name "$APP_CONTAINER" --network "$NETWORK" --network-alias "$E2E_APP_HOST" --add-host "${ECHO_ALIAS}:${ECHO_IP}" "${SIDECAR_ADD_HOST[@]}" "${publish[@]}" "${profile_env[@]}" \
         -e LOWCODER_PUBLIC_URL="http://${E2E_APP_HOST}:${APP_PORT}/" \
         -e LOWCODER_SUPERUSER_USERNAME -e LOWCODER_SUPERUSER_PASSWORD \
         -e LOWCODER_ADMIN_SMTP_HOST="$ECHO_ALIAS" -e LOWCODER_ADMIN_SMTP_PORT="$MAIL_PORT" \
@@ -254,6 +294,37 @@ wait_for_echo() {
     log "Echo sidecar ready after ${waited}s"
 }
 
+# The init script runs once, with isql, when the image creates the database; the server starts after it, so a SELECT of the seeded table over
+# TCP (127.0.0.1 inside the container: not the embedded engine) means the data is there and the server answers. The image's own isql, so no
+# client is needed here.
+start_firebird() {
+    log "Starting $FIREBIRD_IMAGE as $FIREBIRD_CONTAINER (alias $FIREBIRD_ALIAS, port $FIREBIRD_PORT)"
+    docker run -d --name "$FIREBIRD_CONTAINER" --network "$NETWORK" --network-alias "$FIREBIRD_ALIAS" \
+        -e FIREBIRD_ROOT_PASSWORD="$FIREBIRD_ROOT_PASSWORD" -e FIREBIRD_USER="$FIREBIRD_USER" -e FIREBIRD_PASSWORD="$FIREBIRD_PASSWORD" \
+        -e FIREBIRD_DATABASE="$FIREBIRD_DATABASE_FILE" -e FIREBIRD_USE_LEGACY_AUTH="$FIREBIRD_USE_LEGACY_AUTH" \
+        -v "$E2E_DIR/fixtures/firebird":/docker-entrypoint-initdb.d:ro \
+        "$FIREBIRD_IMAGE" > /dev/null
+    local firebird_ip
+    firebird_ip="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$FIREBIRD_CONTAINER")"
+    [ -n "$firebird_ip" ] || fail "no IP address for $FIREBIRD_CONTAINER on $NETWORK"
+    SIDECAR_ADD_HOST=(--add-host "${FIREBIRD_ALIAS}:${firebird_ip}")
+    SIDECAR_RUNNER_ENV=(-e "E2E_FIREBIRD_HOST=${FIREBIRD_ALIAS}")
+    log "Firebird sidecar is $FIREBIRD_ALIAS = $firebird_ip"
+}
+
+wait_for_firebird() {
+    local waited=0
+    until echo "SELECT COUNT(*) FROM FB_ITEMS;" | docker exec -i "$FIREBIRD_CONTAINER" /opt/firebird/bin/isql -b -user "$FIREBIRD_USER" -password "$FIREBIRD_PASSWORD" "127.0.0.1:${FIREBIRD_DATABASE_PATH}" > /dev/null 2>&1; do
+        if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
+            docker logs --tail "$LOG_TAIL_LINES" "$FIREBIRD_CONTAINER" >&2 || true
+            fail "the Firebird sidecar did not become ready within ${STARTUP_TIMEOUT}s"
+        fi
+        sleep "$POLL_INTERVAL"
+        waited=$((waited + POLL_INTERVAL))
+    done
+    log "Firebird sidecar ready after ${waited}s"
+}
+
 wait_for_app() {
     local waited=0
     log "Waiting for $READY_PATH (at most ${STARTUP_TIMEOUT}s)"
@@ -276,7 +347,7 @@ run_tests() {
     log "Running Playwright from $PLAYWRIGHT_IMAGE"
     local status=0
     # --init and --ipc=host: recommended by Playwright for Chromium in Docker (https://playwright.dev/docs/docker)
-    docker run --rm --name "$RUNNER_CONTAINER" --network "$NETWORK" --add-host "${ECHO_ALIAS}:${ECHO_IP}" --init --ipc=host \
+    docker run --rm --name "$RUNNER_CONTAINER" --network "$NETWORK" --add-host "${ECHO_ALIAS}:${ECHO_IP}" "${SIDECAR_ADD_HOST[@]}" --init --ipc=host \
         --user "$(id -u):$(id -g)" -e HOME=/tmp \
         -e CI="${CI:-}" \
         -e LOWCODER_BASE_URL="http://${E2E_APP_HOST}:${APP_PORT}" \
@@ -287,6 +358,8 @@ run_tests() {
         -e E2E_INCLUDE_INSERT_ALL="${E2E_INCLUDE_INSERT_ALL:-}" \
         -e E2E_INCLUDE_SUPERADMIN="${E2E_INCLUDE_SUPERADMIN:-}" \
         -e E2E_INCLUDE_ENTERPRISE_TAKEOVER="${E2E_INCLUDE_ENTERPRISE_TAKEOVER:-}" \
+        -e E2E_INCLUDE_NODE_SERVICE_SIDECARS="${E2E_INCLUDE_NODE_SERVICE_SIDECARS:-}" \
+        "${SIDECAR_RUNNER_ENV[@]}" \
         -e E2E_STACK_PROFILE="$STACK_PROFILE" \
         -e E2E_SUPERUSER_USERNAME -e E2E_SUPERUSER_PASSWORD \
         -v "$E2E_DIR":/work -w /work \
@@ -309,8 +382,14 @@ generate_superuser_password
 docker network create "$NETWORK" > /dev/null
 start_postgres
 start_echo
+if node_service_sidecars_enabled; then
+    start_firebird
+fi
 start_app
 wait_for_postgres
 wait_for_echo
+if node_service_sidecars_enabled; then
+    wait_for_firebird
+fi
 wait_for_app
 run_tests "$@"

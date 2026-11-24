@@ -1,0 +1,16 @@
+{
+ "compType": "firebird",
+ "comp": {
+  "actionName": "Query",
+  "action": {
+   "sql": "SELECT ID, NAME FROM FB_ITEMS WHERE ID = :id",
+   "params": "{\"id\": 1}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

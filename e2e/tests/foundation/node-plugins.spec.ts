@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
-import { API_OK, API_PATHS, orgDatasourceTypesPath, TAGS } from "../../src/constants";
+import { API_OK, API_PATHS, FIREBIRD, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
@@ -15,6 +15,7 @@ import {
   type RecordedPluginDatasource,
   type RecordedPluginQuery,
 } from "../../src/dsl/recorded";
+import { FIREBIRD_ITEMS, firebirdConnection, FirebirdSidecarMissingError } from "../../src/datasource/firebird";
 import {
   NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
   NODE_PLUGIN_IDS,
@@ -579,5 +580,112 @@ test.describe("node-service data source request helpers", { tag: [TAGS.NODE_SERV
     } finally {
       await request.dispose();
     }
+  });
+});
+
+/** The alias the run script gives the Firebird sidecar, the host of the recorded form body. */
+const FIREBIRD_ALIAS = "e2e-firebird";
+
+/** The text of `scripts/run-in-docker.sh` and of `fixtures/firebird/init.sql`. */
+const RUN_SCRIPT = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
+const FIREBIRD_INIT_SQL = readFileSync(join(__dirname, "..", "..", "fixtures", "firebird", "init.sql"), "utf8");
+
+/** The value of `readonly NAME="value"` in the run script. */
+function scriptConstant(name: string): string | undefined {
+  return new RegExp(`^readonly ${name}="([^"]*)"$`, "m").exec(RUN_SCRIPT)?.[1];
+}
+
+/** The lines of `RUN_SCRIPT` that call `fn` as a command (not its definition, not a comment). */
+function callLinesOf(fn: string): string[] {
+  return RUN_SCRIPT.split("\n").filter((line) => line.trim() === fn);
+}
+
+test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () => {
+  test("firebirdConnection reads the host from the environment and takes the rest from FIREBIRD", () => {
+    expect(firebirdConnection({ [FIREBIRD.HOST_ENV]: FIREBIRD_ALIAS })).toEqual({
+      host: FIREBIRD_ALIAS,
+      port: FIREBIRD.PORT,
+      database: FIREBIRD.DATABASE,
+      username: FIREBIRD.USERNAME,
+      password: FIREBIRD.PASSWORD,
+    });
+  });
+
+  test("firebirdConnection throws a named error that names the variable and the flag when the host is unset or empty", () => {
+    for (const env of [{}, { [FIREBIRD.HOST_ENV]: "" }]) {
+      expect(() => firebirdConnection(env), `env ${JSON.stringify(env)}`).toThrow(FirebirdSidecarMissingError);
+      expect(() => firebirdConnection(env)).toThrow(FIREBIRD.HOST_ENV);
+      expect(() => firebirdConnection(env)).toThrow(`${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}=1`);
+    }
+  });
+
+  test("the firebird recordings are the form's body and the editor's saved query, with no value of the recording session", () => {
+    const datasource = recordedPluginDatasource("firebird");
+    expect(datasource.type, "the data source type").toBe("firebird");
+    expect(Object.keys(datasource), "no workspace id").toEqual(["name", "type", "datasourceConfig"]);
+    expect(datasource.datasourceConfig, "the form's fields with the sidecar's own values (the host cannot be a placeholder)").toEqual({
+      host: FIREBIRD_ALIAS,
+      database: FIREBIRD.DATABASE,
+      port: FIREBIRD.PORT,
+      username: FIREBIRD.USERNAME,
+      password: FIREBIRD.PASSWORD,
+      lowercaseKeys: true,
+      blobAsText: true,
+      authConfigType: "NO_AUTH",
+      sslCertVerificationType: "VERIFY_CA_CERT",
+    });
+    const query = recordedPluginQuery("firebird");
+    expect(query.compType, "the query type").toBe("firebird");
+    expect(query.comp.actionName, "the plugin's one action").toBe("Query");
+    expect(Object.keys(query), "only what the builder keeps").toEqual(["compType", "comp"]);
+    expect(Object.keys(query.comp.action), "the form's two fields").toEqual(["sql", "params"]);
+    expect(query.comp.headers, "the editor's empty header row").toEqual([{ key: "", value: "" }]);
+    const text = ["firebirdDatasource.json", "firebirdQuery.json"].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, "firebird", file), "utf8")).join("\n");
+    expect(text, "a 24-hex id").not.toMatch(/\b[0-9a-f]{24}\b/);
+    expect(text, "an epoch of 10 digits or more").not.toMatch(/\b\d{10,}\b/);
+  });
+
+  test("fixtures/firebird/init.sql inserts exactly the rows of FIREBIRD_ITEMS", () => {
+    const rows = [...FIREBIRD_INIT_SQL.matchAll(/INSERT INTO FB_ITEMS \(ID, NAME, PRICE, NOTE\) VALUES \((\d+), '([^']*)', ([\d.]+), (NULL|'[^']*')\);/g)].map((match) => ({
+      id: Number(match[1]),
+      name: match[2],
+      price: Number(match[3]),
+      note: match[4] === "NULL" ? null : (match[4] as string).slice(1, -1),
+    }));
+    expect(rows).toEqual(FIREBIRD_ITEMS);
+    expect(FIREBIRD_INIT_SQL, "the owner-scoped write table the tests insert into").toContain("CREATE TABLE FB_NOTES");
+  });
+
+  test("the run script's Firebird values equal FIREBIRD in the constants", () => {
+    expect(scriptConstant("FIREBIRD_USER"), "user").toBe(FIREBIRD.USERNAME);
+    expect(scriptConstant("FIREBIRD_PASSWORD"), "password").toBe(FIREBIRD.PASSWORD);
+    expect(scriptConstant("FIREBIRD_ALIAS"), "alias").toBe(FIREBIRD_ALIAS);
+    expect(Number(RUN_SCRIPT.match(/^readonly FIREBIRD_PORT=(\d+)$/m)?.[1]), "port").toBe(FIREBIRD.PORT);
+    expect(scriptConstant("FIREBIRD_DATABASE_PATH"), "database path is the image's data directory plus the file").toBe("/var/lib/firebird/data/$FIREBIRD_DATABASE_FILE");
+    expect(`/var/lib/firebird/data/${scriptConstant("FIREBIRD_DATABASE_FILE")}`, "database file").toBe(FIREBIRD.DATABASE);
+    expect(scriptConstant("DEFAULT_FIREBIRD_IMAGE"), "the image is pinned by tag and digest").toMatch(/^firebirdsql\/firebird:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
+  });
+
+  test("the run script starts, waits for and passes the Firebird sidecar only under the flag", () => {
+    const lines = RUN_SCRIPT.split("\n");
+    const guardOpen = (line: string): boolean => line.trim() === "if node_service_sidecars_enabled; then";
+    for (const fn of ["start_firebird", "wait_for_firebird"]) {
+      const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
+      expect(calls, `${fn} is called exactly once`).toHaveLength(1);
+      const call = calls[0] as { index: number };
+      expect(guardOpen(lines[call.index - 1] as string), `${fn} is the first line of an if node_service_sidecars_enabled block`).toBe(true);
+      expect(lines[call.index + 1]?.trim(), `${fn} is the only line of that block`).toBe("fi");
+    }
+    expect(callLinesOf("node_service_sidecars_enabled"), "the guard is a function, never a bare call").toEqual([]);
+    expect(RUN_SCRIPT, "the guard reads the flag, set and not empty").toContain(`[ -n "\${${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}:-}" ]`);
+    expect(RUN_SCRIPT, "the flag goes to the runner").toContain(`-e ${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}="\${${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}:-}"`);
+    // the host variable and the --add-host entries are set only inside start_firebird, so a run without the flag passes neither
+    const startBody = /start_firebird\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    expect(startBody, "start_firebird sets the runner's host variable").toContain(`SIDECAR_RUNNER_ENV=(-e "${FIREBIRD.HOST_ENV}=`);
+    expect(startBody, "start_firebird sets the --add-host entry").toContain("SIDECAR_ADD_HOST=(--add-host");
+    const codeLines = lines.filter((line) => !line.trim().startsWith("#")).join("\n");
+    expect(codeLines.match(new RegExp(FIREBIRD.HOST_ENV, "g")), "the host variable is named once in the script's code, in start_firebird").toHaveLength(1);
+    expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$FIREBIRD_CONTAINER"/);
+    expect(RUN_SCRIPT, "another stack profile with the flag is refused").toContain("E2E_INCLUDE_NODE_SERVICE_SIDECARS needs E2E_STACK_PROFILE=$DEFAULT_PROFILE");
   });
 });
