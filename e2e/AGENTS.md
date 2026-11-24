@@ -28,7 +28,7 @@ Rules say when they apply. "Existing exception" means reviewed code that deviate
 | invitation, sharing | `tests/workspace/` |
 | app list, card menu, trash, publish | `tests/apps/` |
 | editor interaction (drag, resize, rename, property, JS query) | `tests/editor/` |
-| PostgreSQL queries, tables | `tests/datasource/` |
+| PostgreSQL and node-service data source queries, tables | `tests/datasource/` |
 | triggers, temporary state, local storage | `tests/logic/` |
 | modules | `tests/modules/` |
 | visual components, npm components, Extensions panel | `tests/components/` |
@@ -129,7 +129,8 @@ Coordinates, DSL item ids, test ids and labels used by one spec only may be loca
 - `@slow`: the test needs noticeably longer (PostgreSQL, npm, many editor steps).
 - `@npm`: the test needs the app container to reach the npm registry.
 - `@quarantine` and `@insert-all`: see section 7 and the README.
-- Untagged is normal: component scenarios (S2 to S20), unit, helper and foundation tests carry no tag.
+- `@node-service`: the node-service data source tests (`tests/datasource/node-plugins-catalogue.spec.ts`, D3; `TAGS.NODE_SERVICE`). A selection tag (`--grep @node-service`), not an opt-in one: the tests stay in the default run, and `excludedTags` does not list it. The stack-free unit spec `tests/foundation/node-plugins.spec.ts` carries it too: the one exception to the next bullet.
+- Untagged is normal: component scenarios (S2 to S20), unit, helper and foundation tests carry no tag (exception: `foundation/node-plugins.spec.ts`, `@node-service`).
 - Always use `TAGS.*`. A test with a tag string in its title only as test data stays untagged (`foundation/run-selection.spec.ts`).
 
 ## 7. Defects
@@ -177,16 +178,17 @@ MUST NOT:
 
 | Need | Helper | File |
 |---|---|---|
-| user, app, module, permissions, datasource | `registerUser`, `createApp`, `createModule`, `publishApp`, `updateApp`, `getAppDsl`, `setPublicToAll`, `grantAppPermission`, `createPostgresDatasource`, `createN8nDatasource`, `setNpmRegistry`, `createInvitation`, `acceptInvitation` | `src/api/client.ts` |
+| user, app, module, permissions, datasource | `registerUser`, `createApp`, `createModule`, `publishApp`, `updateApp`, `getAppDsl`, `setPublicToAll`, `grantAppPermission`, `createPostgresDatasource`, `createN8nDatasource`, `createNodePluginDatasource`, `nodePluginDatasourceBody`, `supportedDatasourceTypes`, `testDatasourceRaw`, `pluginDynamicConfigRaw`, `setNpmRegistry`, `createInvitation`, `acceptInvitation` | `src/api/client.ts` |
 | component from its recording | `component`, `recordedItem`, `recordedHook`, `recordedHookOf`, `hook` | `src/dsl/builders.ts`, `src/dsl/recorded.ts` |
 | layout and app | `stackItems`, `containerOf`, `appDsl`, `button`, `text`, `input`, `table`, `barChart` | `src/dsl/builders.ts` |
 | events and actions | `eventHandler`, `executeQuery`, `setTempState`, `runScript`, `executeComp`, `triggerModuleEvent` | `src/dsl/builders.ts` |
-| queries, state, logic | `postgresQuery`, `jsQuery`, `n8nWorkflowsQuery` (recordings in `fixtures/dsl/n8n/`, loaded by `recordedN8nQuery` and `recordedN8nDatasource`), `tempState`, `transformer`, `dataResponder` | `src/dsl/builders.ts` |
+| queries, state, logic | `postgresQuery`, `jsQuery`, `n8nWorkflowsQuery` (recordings in `fixtures/dsl/n8n/`, loaded by `recordedN8nQuery` and `recordedN8nDatasource`), `nodePluginQuery` (recordings in `fixtures/dsl/plugins/<id>/`, loaded by `recordedPluginQuery` and `recordedPluginDatasource`, checked by `parsePluginRecording`), `tempState`, `transformer`, `dataResponder` | `src/dsl/builders.ts` |
 | modules | `moduleApp`, `moduleInstance`, `scenarioModuleDsl`, `waitForSavedInstance`, `HandlerRetryBudget` | `src/dsl/builders.ts`, `src/modules/moduleScenario.ts` |
 | bound text, nested override, seeded view | `boundText`, `withValueAt`, `openSeededView` | `src/components/scenario.ts` |
 | containers and slots | `containerWithChildren`, `slotChild`, `slotContainers`, `openSeededApp` | `src/simple-components/seed.ts` |
 | catalogue, saved-DSL polling | `INSERT_TYPES`, `HOOK_TYPES`, `searchTextOf`, `waitForSavedType`, `prepareForPublish` | `src/components/insert-catalog.ts`, `src/components/insert-all.ts` |
 | notes and products queries | `selectProductsQuery`, `selectNotesQuery`, `noteWriteQuery`, `insertUpdateDeleteQueries` | `src/datasource/notes-queries.ts` |
+| node-service plugin ids and catalogue | `NODE_PLUGIN_IDS`, `nodePluginIdsOf`, `NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL` | `src/datasource/node-plugins.ts` |
 | negative and counter reads, local storage | `expectTextStays`, `countAfterEquals`, `parseCounter`, `rawLocalStorage` | `src/logic/helpers.ts` |
 | media | `PNG_RED`, `PNG_BLUE`, `WAV`, `WEBM`, `MP4`, `PDF`, `PDF_RAW_B64` | `src/media.ts` |
 | security actors, quarantine, answers, tokens | `Actor`, `adminOfApiUser`, `joinWorkspace`, `makeDeveloper`, `makeAdmin`, `grantApp`, `seedPrivateApp`, `sceneOf`, `memberOf`, `roleOf`, `permissionIdOf`, `securityTestDetails`, `securityCandidateDetails`, `expectAnswer`, `expectDeniedAs`, `forgeApiKeyToken`, `forgeUnsignedToken`, `withRandomSignature`, `tokenIsSignedWith`, `superAdminCredentials`, `SUPER_ADMIN_ENV`, `enterpriseAdmin` (ENTERPRISE stack: an actor the super admin makes admin of the one workspace), `echoTargetPath`, `echoReadPrefix`, `echoBaseUrl`, `recordsContain` (requests the SERVER makes, read back from the HTTP echo sidecar: the `echo` fixture gives a test its own target `url` and `received()`; a denial must follow a positive control that the echo does receive from that path; compare a secret with `recordsContain(...)` as a boolean, never as a matcher's value) (the `actor`, `superAdmin` and `echo` fixtures are in `src/fixtures.ts`; the raw-answer helper `apiRaw` and the other security API helpers are in `src/api/client.ts`) | `src/security/actors.ts`, `scene.ts`, `quarantine.ts`, `assertions.ts`, `tokens.ts`, `super-admin.ts`, `enterprise.ts`, `echo.ts` |
@@ -194,7 +196,7 @@ MUST NOT:
 
 Accepted exception to the `test` import rule: stack-free unit specs that open no browser page (no `page`, no app) may
 import `test` from `@playwright/test`, because the network guard only guards browser contexts. Existing:
-`foundation/builders.spec.ts`, `recorded.spec.ts`, `run-selection.spec.ts`, `media.spec.ts`, and the security specs
+`foundation/builders.spec.ts`, `recorded.spec.ts`, `node-plugins.spec.ts`, `run-selection.spec.ts`, `media.spec.ts`, and the security specs
 `foundation/security-api-raw.spec.ts`, `security-echo.spec.ts` and `lifecycle-mail-sink.spec.ts` (start `scripts/echo-server.js` on loopback ports), `lifecycle-mail.spec.ts`, `security-quarantine.spec.ts`, `security-constants.spec.ts`, `security-tokens.spec.ts`, `security-assertions.spec.ts`, `security-super-admin.spec.ts`. Anything that opens
 a page or talks to the stack imports from `src/fixtures`.
 
