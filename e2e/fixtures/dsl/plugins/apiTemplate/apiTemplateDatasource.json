@@ -1,0 +1,10 @@
+{
+ "name": "apiTemplate",
+ "type": "apiTemplate",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "ApiKeyAuth.value": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

@@ -1,0 +1,13 @@
+{
+ "compType": "carboneIo",
+ "comp": {
+  "actionName": "get_status",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

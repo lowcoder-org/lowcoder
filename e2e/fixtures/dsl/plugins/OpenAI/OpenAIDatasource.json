@@ -1,0 +1,10 @@
+{
+ "name": "OpenAI",
+ "type": "OpenAI",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "apiKey": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

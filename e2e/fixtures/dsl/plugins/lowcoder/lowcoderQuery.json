@@ -1,0 +1,13 @@
+{
+ "compType": "lowcoder",
+ "comp": {
+  "actionName": "getUserInfo",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

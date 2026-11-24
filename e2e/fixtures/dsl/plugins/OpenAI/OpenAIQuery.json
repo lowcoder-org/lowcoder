@@ -1,0 +1,13 @@
+{
+ "compType": "OpenAI",
+ "comp": {
+  "actionName": "listModels",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

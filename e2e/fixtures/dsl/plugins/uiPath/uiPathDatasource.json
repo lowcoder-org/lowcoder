@@ -1,0 +1,10 @@
+{
+ "name": "uiPath",
+ "type": "uiPath",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "Authorization.value": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

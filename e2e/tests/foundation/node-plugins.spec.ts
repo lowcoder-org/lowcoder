@@ -250,6 +250,49 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     });
   });
 
+  test("the Lowcoder API, OpenAI, APITemplate, Carbone and UiPath recordings are the form's body and a query (the editor's saved query for the first four, a hand-built one for UiPath), with no value of the recording session", () => {
+    // the form of these plugins has no dynamic config, so the body holds the typed fields and the two defaults only (the spec version
+    // of Lowcoder and OpenAI is a select that was left at its default, so it is not in the body)
+    const expectations = [
+      { id: "lowcoder", fields: ["bearerAuth.value"], action: "getUserInfo" },
+      { id: "OpenAI", fields: ["apiKey"], action: "listModels" },
+      { id: "apiTemplate", fields: ["ApiKeyAuth.value"], action: "list_templates" },
+      { id: "carboneIo", fields: ["bearerAuth.value"], action: "get_status" },
+      { id: "uiPath", fields: ["Authorization.value"], action: "Folders_Get" },
+    ];
+    for (const { id, fields, action } of expectations) {
+      const datasource = recordedPluginDatasource(id);
+      const query = recordedPluginQuery(id);
+      const config = datasource.datasourceConfig;
+      expect(datasource.type, `${id}: the data source type`).toBe(id);
+      expect(Object.keys(datasource), `${id}: no workspace id`).toEqual(["name", "type", "datasourceConfig"]);
+      expect(Object.keys(config), `${id}: the form fields`).toEqual(["serverURL", ...fields, "authConfigType", "sslCertVerificationType"]);
+      expect(config.serverURL, `${id}: the placeholder server URL`).toBe(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL);
+      for (const field of fields) expect(config[field], `${id}: ${field} is a placeholder`).toBe("placeholder");
+      expect(query.compType, `${id}: the query type`).toBe(id);
+      expect(query.comp.actionName, `${id}: the recorded operation`).toBe(action);
+      expect(Object.keys(query), `${id}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(query.comp.headers, `${id}: the editor's empty header row`).toEqual([{ key: "", value: "" }]);
+      const text = [`${id}Datasource.json`, `${id}Query.json`].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, id, file), "utf8")).join("\n");
+      expect(text, `${id}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${id}: an echo address`).not.toContain("e2e-echo");
+      expect(text, `${id}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+    expect(recordedPluginQuery("apiTemplate").comp.action, "apiTemplate: the editor's empty defaults of the operation's parameters").toEqual({
+      "query_@_limit": "",
+      "query_@_offset": "",
+      "query_@_format": "",
+      "query_@_template_id": "",
+      "query_@_group_name": "",
+      "query_@_with_layer_info": "",
+    });
+    // the other recordings have no action parameters; UiPath's has none either, but the editor could not save it: its query configuration
+    // fails (the form lists no operation), so the query is the shape the editor saved for the other four plugins, built by hand
+    for (const id of ["lowcoder", "OpenAI", "carboneIo", "uiPath"]) {
+      expect(recordedPluginQuery(id).comp.action, `${id}: no action parameters`).toEqual({});
+    }
+  });
+
   test("parseBasicAuthorization decodes user and password, and reads anything else as not Basic credentials", () => {
     const header = (text: string): string => `Basic ${Buffer.from(text, "utf8").toString("base64")}`;
     expect(parseBasicAuthorization(header("user:secret"))).toEqual({ user: "user", password: "secret" });
