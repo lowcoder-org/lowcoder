@@ -1,7 +1,10 @@
 package org.lowcoder.api.application;
 
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,24 +23,20 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
-import org.lowcoder.domain.solutions.TemplateSolutionService;
-
+import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourcePermission;
+import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 @SpringBootTest
 //@RunWith(SpringRunner.class)
 @ActiveProfiles("ApplicationApiServiceTest")
@@ -201,7 +200,7 @@ public class ApplicationApiServiceTest {
 
         // Publish the application
         Mono<String> publishedAppIdMono = appIdMono
-            .delayUntil(appId -> applicationApiService.publish(appId, new ApplicationPublishRequest("Initial Publish", "1.0.0")))
+            .delayUntil(appId -> applicationApiService.publish(appId, new ApplicationPublishRequest("Initial Publish", "1.0.0", null)))
             .cache();
 
         // Retrieve the published application and verify its properties
@@ -263,7 +262,7 @@ public class ApplicationApiServiceTest {
                 .cache();
 
         // Step 2: Publish the application
-        ApplicationPublishRequest publishRequest = new ApplicationPublishRequest("Initial Publish", "1.0.0");
+        ApplicationPublishRequest publishRequest = new ApplicationPublishRequest("Initial Publish", "1.0.0", null);
         Mono<ApplicationView> publishedAppMono = appIdMono
                 .delayUntil(appId -> applicationApiService.publish(appId, publishRequest))
                 .flatMap(appId -> applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL, false));
@@ -651,7 +650,7 @@ public class ApplicationApiServiceTest {
 
         // publish
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish", "1.0.0"))).cache();
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish", "1.0.0", null))).cache();
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
@@ -679,7 +678,7 @@ public class ApplicationApiServiceTest {
 
         // publish 2
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish 2", "2.0.0"))).cache();
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish 2", "2.0.0", null))).cache();
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
@@ -693,7 +692,7 @@ public class ApplicationApiServiceTest {
 
         // publish 3
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Same tag", "2.0.0"))).cache();
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Same tag", "2.0.0", null))).cache();
 
         // Error
         StepVerifier.create(applicationIdMono)
