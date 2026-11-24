@@ -23,8 +23,9 @@
 ##                       tests); independent of E2E_INCLUDE_QUARANTINE. Nightly: E2E_INCLUDE_INSERT_ALL=1 $0 --grep @insert-all
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
 ##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
-##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources whose protocol is not HTTP
-##                       (today a Firebird server, FIREBIRD_IMAGE below, and a libSQL server, LIBSQL_IMAGE below) and run their @node-service-sidecar tests; independent of the
+##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources: real servers a plugin can be pointed at, for plugins
+##                       whose protocol the echo cannot serve (Firebird: a wire protocol) or whose real behaviour the echo's canned answers say nothing about (libSQL, CouchDB)
+##                       (today a Firebird server, FIREBIRD_IMAGE below, a libSQL server, LIBSQL_IMAGE below, and a CouchDB server, COUCHDB_IMAGE below) and run their @node-service-sidecar tests; independent of the
 ##                       other flags, default stack only (any other profile is an error). Without it the run starts none of them,
 ##                       neither lists nor runs those tests, and pulls no extra image.
 ##                       Run only these: E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 $0 --grep @node-service-sidecar
@@ -43,6 +44,7 @@
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
 ##   FIREBIRD_IMAGE      Firebird sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   LIBSQL_IMAGE        libSQL server (sqld) sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
+##   COUCHDB_IMAGE       CouchDB sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
 ## Set by the script for each run (a value of the caller is overwritten; the password is new every run, never printed,
@@ -85,6 +87,15 @@
 ## (LIBSQL_TOKEN) for its readiness call, one real `select 1` pipeline posted to the sidecar from the echo container over the run network. Both
 ## must equal LIBSQL in e2e/src/constants.ts. The database lives in a tmpfs (the image declares /var/lib/sqld a volume, which `docker rm -f` would
 ## leave behind), and `cleanup` removes the container however the run ends. Without the flag nothing of this runs.
+##
+## Only with E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 it also starts a CouchDB sidecar (COUCHDB_IMAGE) under the alias e2e-couchdb, port 5984: the target of the CouchDB data
+## source of node-service (a real Apache CouchDB server in place of the echo's canned answers). It starts after the libSQL sidecar and is reached exactly like it:
+## `--add-host e2e-couchdb:<IP>` for the app container and the runner, and the alias as E2E_COUCHDB_HOST for the runner. The image makes one server admin from
+## COUCHDB_USER and COUCHDB_PASSWORD (throw-away constants that must equal COUCHDB in e2e/src/constants.ts). A fresh single node has none of the system databases
+## (`_all_dbs` answers an empty list), so the readiness step creates `_users`, `_replicator` and `_global_changes` through the real HTTP API (PUT answers 201, or
+## 412 when it exists already) and is ready when `_all_dbs` lists all three; it runs inside the sidecar container (the image has curl) against 127.0.0.1, and is repeated
+## until it succeeds or STARTUP_TIMEOUT passes. The data lives in a tmpfs (the image declares /opt/couchdb/data a volume, which `docker rm -f` would leave behind),
+## and `cleanup` removes the container however the run ends. Without the flag nothing of this runs.
 ##
 ## Not covered: Firefox and WebKit (only Chromium runs), the multi-container compose setup, databases other than
 ## PostgreSQL.
@@ -130,6 +141,26 @@ readonly LIBSQL_JWT_PUBLIC_KEY="GC25tiEOubxlGdpbkc60UOXqUQeepEUWZmAbEKjt1rQ"
 readonly LIBSQL_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicncifQ.tlvnzqEfO2pnCYHReSfLIQ3dHk393fsOH5hLtLo4ZkJWJV6b9q9Zf56QbS5spbT2G9XuzYQaVsZqO4jUVSsPAw"
 # The image's data directory, mounted as a tmpfs so that no anonymous volume outlives the run
 readonly LIBSQL_DATA_DIR="/var/lib/sqld"
+# CouchDB sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. The image is Apache CouchDB 3.5.1 by tag and digest. It makes
+# one server admin from COUCHDB_USER and COUCHDB_PASSWORD, throw-away values that must equal COUCHDB in e2e/src/constants.ts (the foundation tests check it); the
+# container dies with the run. COUCHDB_PORT is the image's own HTTP port.
+readonly DEFAULT_COUCHDB_IMAGE="couchdb:3.5.1@sha256:ccea1e8035bf7afd68336e24056a1ca9c1c46d7abe42da686322c0ac7218e5c2"
+readonly COUCHDB_IMAGE="${COUCHDB_IMAGE:-$DEFAULT_COUCHDB_IMAGE}"
+readonly COUCHDB_ALIAS="e2e-couchdb"
+readonly COUCHDB_PORT=5984
+readonly COUCHDB_USER="e2eadmin"
+readonly COUCHDB_PASSWORD="e2e-couchdb-password"
+# The system databases a fresh single node lacks; the readiness step creates them (names equal COUCHDB.SYSTEM_DATABASES in e2e/src/constants.ts)
+readonly COUCHDB_SYSTEM_DATABASES=("_users" "_replicator" "_global_changes")
+# The statuses of a PUT of a database that count as "there": 201 created, 412 already exists
+readonly COUCHDB_HTTP_CREATED="201"
+readonly COUCHDB_HTTP_EXISTS="412"
+# Seconds a single readiness request may take to connect and in total (a local server answers in milliseconds); small against POLL_INTERVAL and STARTUP_TIMEOUT
+# so that a stalled request ends the attempt and the wait loop checks its deadline again
+readonly PROBE_CONNECT_TIMEOUT=2
+readonly PROBE_REQUEST_TIMEOUT=5
+# The image's data directory, mounted as a tmpfs so that no anonymous volume outlives the run
+readonly COUCHDB_DATA_DIR="/opt/couchdb/data"
 # The instance super admin of the throw-away stack; the domain equals TEST_EMAIL_DOMAIN in e2e/src/constants.ts; the suite
 # reads the name from E2E_SUPERUSER_USERNAME (SUPER_ADMIN_ENV). The password is generated per run (generate_superuser_password).
 readonly SUPERUSER_USERNAME="e2e-superadmin@example.test"
@@ -164,6 +195,7 @@ readonly RUNNER_CONTAINER="${NAME_PREFIX}-runner"
 readonly ECHO_CONTAINER="${NAME_PREFIX}-echo"
 readonly FIREBIRD_CONTAINER="${NAME_PREFIX}-fb"
 readonly LIBSQL_CONTAINER="${NAME_PREFIX}-libsql"
+readonly COUCHDB_CONTAINER="${NAME_PREFIX}-couchdb"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
@@ -173,7 +205,7 @@ readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
 ECHO_IP=""
-# Set by start_firebird and start_libsql (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
+# Set by start_firebird, start_libsql and start_couchdb (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
 SIDECAR_ADD_HOST=()
 SIDECAR_RUNNER_ENV=()
 
@@ -187,7 +219,7 @@ fail() {
 }
 
 cleanup() {
-    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" > /dev/null 2>&1 || true
+    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" "$COUCHDB_CONTAINER" > /dev/null 2>&1 || true
     docker network rm "$NETWORK" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -336,7 +368,7 @@ start_firebird() {
 
 wait_for_firebird() {
     local waited=0
-    until echo "SELECT COUNT(*) FROM FB_ITEMS;" | docker exec -i "$FIREBIRD_CONTAINER" /opt/firebird/bin/isql -b -user "$FIREBIRD_USER" -password "$FIREBIRD_PASSWORD" "127.0.0.1:${FIREBIRD_DATABASE_PATH}" > /dev/null 2>&1; do
+    until echo "SELECT COUNT(*) FROM FB_ITEMS;" | docker exec -i "$FIREBIRD_CONTAINER" timeout -s KILL "$PROBE_REQUEST_TIMEOUT" /opt/firebird/bin/isql -b -user "$FIREBIRD_USER" -password "$FIREBIRD_PASSWORD" "127.0.0.1:${FIREBIRD_DATABASE_PATH}" > /dev/null 2>&1; do
         if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
             docker logs --tail "$LOG_TAIL_LINES" "$FIREBIRD_CONTAINER" >&2 || true
             fail "the Firebird sidecar did not become ready within ${STARTUP_TIMEOUT}s"
@@ -365,7 +397,7 @@ start_libsql() {
 # curl and no shell tools of use): ready when it answers 200 with the integer 1 for `select 1`.
 wait_for_libsql() {
     local waited=0
-    local probe="fetch(process.env.LIBSQL_PROBE_URL + '/v2/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.LIBSQL_PROBE_TOKEN }, body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: 'select 1' } }, { type: 'close' }] }) }).then((r) => r.text().then((t) => process.exit(r.ok && t.includes('\"value\":\"1\"') ? 0 : 1)), () => process.exit(1))"
+    local probe="fetch(process.env.LIBSQL_PROBE_URL + '/v2/pipeline', { signal: AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000))), method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.LIBSQL_PROBE_TOKEN }, body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: 'select 1' } }, { type: 'close' }] }) }).then((r) => r.text().then((t) => process.exit(r.ok && t.includes('\"value\":\"1\"') ? 0 : 1)), () => process.exit(1))"
     until docker exec -e LIBSQL_PROBE_URL="http://${LIBSQL_ALIAS}:${LIBSQL_PORT}" -e LIBSQL_PROBE_TOKEN="$LIBSQL_TOKEN" "$ECHO_CONTAINER" node -e "$probe" > /dev/null 2>&1; do
         if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
             docker logs --tail "$LOG_TAIL_LINES" "$LIBSQL_CONTAINER" >&2 || true
@@ -375,6 +407,60 @@ wait_for_libsql() {
         waited=$((waited + POLL_INTERVAL))
     done
     log "libSQL sidecar ready after ${waited}s"
+}
+
+# A fresh single-node CouchDB has an admin and no system databases. This probe is idempotent and runs inside the sidecar over 127.0.0.1 (the image has curl):
+# the server must answer `_up`, each system database is created through the real API (it counts only when the server answers 201 created or 412 already
+# exists; any other answer, or none, is "not ready yet"), and `_all_dbs` must list all of them. Every curl carries a connect and a total time limit, so a
+# stalled request ends the probe and the loop of wait_for_couchdb re-checks its deadline instead of blocking past STARTUP_TIMEOUT.
+couchdb_curl() {
+    docker exec "$COUCHDB_CONTAINER" curl --connect-timeout "$PROBE_CONNECT_TIMEOUT" --max-time "$PROBE_REQUEST_TIMEOUT" -u "${COUCHDB_USER}:${COUCHDB_PASSWORD}" "$@"
+}
+
+couchdb_probe() {
+    local base="http://127.0.0.1:${COUCHDB_PORT}" database status listed
+    couchdb_curl -sf "${base}/_up" > /dev/null || return 1
+    for database in "${COUCHDB_SYSTEM_DATABASES[@]}"; do
+        status="$(couchdb_curl -s -o /dev/null -w '%{http_code}' -X PUT "${base}/${database}")" || return 1
+        case "$status" in
+            "$COUCHDB_HTTP_CREATED" | "$COUCHDB_HTTP_EXISTS") ;;
+            *) return 1 ;;
+        esac
+    done
+    listed="$(couchdb_curl -sf "${base}/_all_dbs")" || return 1
+    for database in "${COUCHDB_SYSTEM_DATABASES[@]}"; do
+        case "$listed" in
+            *"\"${database}\""*) ;;
+            *) return 1 ;;
+        esac
+    done
+}
+
+# The sidecar is started after the libSQL one. The tests make their own databases.
+start_couchdb() {
+    log "Starting $COUCHDB_IMAGE as $COUCHDB_CONTAINER (alias $COUCHDB_ALIAS, port $COUCHDB_PORT)"
+    docker run -d --name "$COUCHDB_CONTAINER" --network "$NETWORK" --network-alias "$COUCHDB_ALIAS" \
+        --tmpfs "$COUCHDB_DATA_DIR" -e COUCHDB_USER="$COUCHDB_USER" -e COUCHDB_PASSWORD="$COUCHDB_PASSWORD" \
+        "$COUCHDB_IMAGE" > /dev/null
+    local couchdb_ip
+    couchdb_ip="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$COUCHDB_CONTAINER")"
+    [ -n "$couchdb_ip" ] || fail "no IP address for $COUCHDB_CONTAINER on $NETWORK"
+    SIDECAR_ADD_HOST+=(--add-host "${COUCHDB_ALIAS}:${couchdb_ip}")
+    SIDECAR_RUNNER_ENV+=(-e "E2E_COUCHDB_HOST=${COUCHDB_ALIAS}")
+    log "CouchDB sidecar is $COUCHDB_ALIAS = $couchdb_ip"
+}
+
+wait_for_couchdb() {
+    local waited=0
+    until couchdb_probe > /dev/null 2>&1; do
+        if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
+            docker logs --tail "$LOG_TAIL_LINES" "$COUCHDB_CONTAINER" >&2 || true
+            fail "the CouchDB sidecar did not become ready within ${STARTUP_TIMEOUT}s"
+        fi
+        sleep "$POLL_INTERVAL"
+        waited=$((waited + POLL_INTERVAL))
+    done
+    log "CouchDB sidecar ready after ${waited}s"
 }
 
 wait_for_app() {
@@ -440,6 +526,9 @@ fi
 if node_service_sidecars_enabled; then
     start_libsql
 fi
+if node_service_sidecars_enabled; then
+    start_couchdb
+fi
 start_app
 wait_for_postgres
 wait_for_echo
@@ -448,6 +537,9 @@ if node_service_sidecars_enabled; then
 fi
 if node_service_sidecars_enabled; then
     wait_for_libsql
+fi
+if node_service_sidecars_enabled; then
+    wait_for_couchdb
 fi
 wait_for_app
 run_tests "$@"

@@ -220,9 +220,9 @@ export const TAGS = {
    */
   NODE_SERVICE: "@node-service",
   /**
-   * The node-service data source tests that need a sidecar of their own: the plugin's protocol is not HTTP (the Firebird tests,
-   * `tests/datasource/plugin-firebird.spec.ts`) or the test wants a real server instead of canned answers (the libSQL server tests,
-   * `tests/datasource/plugin-turso-libsql.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
+   * The node-service data source tests that need a real server of their own to be pointed at: the echo cannot serve the plugin's protocol (the Firebird tests, a
+   * wire protocol, `tests/datasource/plugin-firebird.spec.ts`) or its canned answers say nothing about the real server's behaviour (the libSQL server tests,
+   * `tests/datasource/plugin-turso-libsql.spec.ts`, and the CouchDB server tests, `tests/datasource/plugin-couchdb.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
    * the default run (neither listed nor run, and the run script starts no such sidecar), in only with
    * `E2E_INCLUDE_NODE_SERVICE_SIDECARS` (see src/run-selection.ts and scripts/run-in-docker.sh).
    */
@@ -237,7 +237,7 @@ export const RUN_FLAGS = {
   /** Enterprise profile only: run SEC-E05 (`@enterprise-takeover`) and nothing else. */
   INCLUDE_ENTERPRISE_TAKEOVER: "E2E_INCLUDE_ENTERPRISE_TAKEOVER",
   /**
-   * Default stack only: also start the sidecars of the node-service data sources (Firebird, a libSQL server) and run
+   * Default stack only: also start the sidecars of the node-service data sources (Firebird, a libSQL server, a CouchDB server) and run
    * their `@node-service-sidecar` tests. Without it the run starts none of them.
    */
   INCLUDE_NODE_SERVICE_SIDECARS: "E2E_INCLUDE_NODE_SERVICE_SIDECARS",
@@ -326,6 +326,20 @@ export const LIBSQL = {
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicm8ifQ.6pik3ukdCu1vxNNnUPe-ZuVrX4jgTqcJSnPU2SQOIKtVtwVbtZpzFWD8yKG4afdInqfsirG4PfeGizOeno7QDQ",
   FOREIGN_TOKEN:
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicncifQ.QtYpcj3lGU5Rtry83fcTaI-e_WwmcvSDEFrysDlxiHGMfb_GNaJTzOvuSgas_Hivmf4D68Azw-lK7Te4vuIABg",
+} as const;
+
+/**
+ * The CouchDB sidecar that scripts/run-in-docker.sh starts on the run's network ONLY when `E2E_INCLUDE_NODE_SERVICE_SIDECARS` is set. The run script
+ * passes the host name (the sidecar's network alias); the rest is fixed there and must equal the `COUCHDB_*` values of the script. The server has one
+ * admin, made by the image from `USERNAME` and `PASSWORD`: throw-away values (the container is removed when the run ends and holds no other data),
+ * never real secrets. A fresh single node has no system databases, so the run script creates `SYSTEM_DATABASES` while it waits for the server.
+ */
+export const COUCHDB = {
+  HOST_ENV: "E2E_COUCHDB_HOST",
+  PORT: 5984,
+  USERNAME: "e2eadmin",
+  PASSWORD: "e2e-couchdb-password",
+  SYSTEM_DATABASES: ["_users", "_replicator", "_global_changes"],
 } as const;
 
 export const SEEDED_ITEM_NAMES = ["alpha", "beta"] as const;

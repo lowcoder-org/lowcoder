@@ -1,0 +1,21 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "docPut",
+  "action": {
+   "path_@_db": "",
+   "path_@_docid": "",
+   "header_@_If-Match": "",
+   "query_@_rev": "",
+   "query_@_batch": "",
+   "query_@_new_edits": "",
+   "body_@_body": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

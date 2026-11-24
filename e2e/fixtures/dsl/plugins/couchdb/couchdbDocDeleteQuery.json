@@ -1,0 +1,19 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "docDelete",
+  "action": {
+   "path_@_db": "",
+   "path_@_docid": "",
+   "header_@_If-Match": "",
+   "query_@_rev": "",
+   "query_@_batch": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

@@ -5,7 +5,7 @@ import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
-import { API_OK, API_PATHS, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
+import { API_OK, API_PATHS, COUCHDB, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
@@ -16,6 +16,7 @@ import {
   type RecordedPluginDatasource,
   type RecordedPluginQuery,
 } from "../../src/dsl/recorded";
+import { couchdbAdmin, couchdbConnection, couchdbDirect, CouchdbSidecarMissingError } from "../../src/datasource/couchdb";
 import { FIREBIRD_ITEMS, firebirdConnection, FirebirdSidecarMissingError } from "../../src/datasource/firebird";
 import { LIBSQL_PIPELINE_PATH, libsqlConnection, libsqlDirect, LibsqlSidecarMissingError } from "../../src/datasource/libsql";
 import {
@@ -589,6 +590,8 @@ test.describe("node-service data source request helpers", { tag: [TAGS.NODE_SERV
 const FIREBIRD_ALIAS = "e2e-firebird";
 /** The alias the run script gives the libSQL sidecar. */
 const LIBSQL_ALIAS = "e2e-libsql";
+/** The alias the run script gives the CouchDB sidecar. */
+const COUCHDB_ALIAS = "e2e-couchdb";
 
 /** The text of `scripts/run-in-docker.sh` and of `fixtures/firebird/init.sql`. */
 const RUN_SCRIPT = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
@@ -775,6 +778,191 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
         { method: "POST", path: LIBSQL_PIPELINE_PATH, authorization: undefined },
       ]);
       expect(received[0]?.body, "the pipeline the plugin sends").toEqual({ requests: [{ type: "execute", stmt: { sql: "SELECT 1" } }, { type: "close" }] });
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  test("couchdbConnection reads the host from the environment and builds a plain-HTTP URL with the sidecar's admin", () => {
+    expect(couchdbConnection({ [COUCHDB.HOST_ENV]: COUCHDB_ALIAS })).toEqual({
+      serverURL: `http://${COUCHDB_ALIAS}:${COUCHDB.PORT}`,
+      username: COUCHDB.USERNAME,
+      password: COUCHDB.PASSWORD,
+    });
+  });
+
+  test("couchdbConnection throws a named error that names the variable and the flag when the host is unset or empty", () => {
+    for (const env of [{}, { [COUCHDB.HOST_ENV]: "" }]) {
+      expect(() => couchdbConnection(env), `env ${JSON.stringify(env)}`).toThrow(CouchdbSidecarMissingError);
+      expect(() => couchdbConnection(env)).toThrow(COUCHDB.HOST_ENV);
+      expect(() => couchdbConnection(env)).toThrow(`${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}=1`);
+    }
+  });
+
+  test("the run script's CouchDB values equal COUCHDB in the constants", () => {
+    expect(scriptConstant("COUCHDB_ALIAS"), "alias").toBe(COUCHDB_ALIAS);
+    expect(Number(RUN_SCRIPT.match(/^readonly COUCHDB_PORT=(\d+)$/m)?.[1]), "port").toBe(COUCHDB.PORT);
+    expect(scriptConstant("COUCHDB_USER"), "admin user").toBe(COUCHDB.USERNAME);
+    expect(scriptConstant("COUCHDB_PASSWORD"), "admin password").toBe(COUCHDB.PASSWORD);
+    const systemDatabases = /^readonly COUCHDB_SYSTEM_DATABASES=\(([^)]*)\)$/m.exec(RUN_SCRIPT)?.[1] ?? "";
+    expect(systemDatabases.split(" ").map((name) => name.replaceAll('"', "")), "the system databases the readiness step creates").toEqual([...COUCHDB.SYSTEM_DATABASES]);
+    expect(scriptConstant("DEFAULT_COUCHDB_IMAGE"), "the image is pinned by tag and digest").toMatch(/^couchdb:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
+    expect(scriptConstant("COUCHDB_DATA_DIR"), "the data directory the image declares a volume").toBe("/opt/couchdb/data");
+    expect(RUN_SCRIPT, "the data directory is a tmpfs, so no anonymous volume outlives the run").toContain('--tmpfs "$COUCHDB_DATA_DIR"');
+  });
+
+  test("the run script starts, waits for and passes the CouchDB sidecar only under the flag, next to the other two", () => {
+    const lines = RUN_SCRIPT.split("\n");
+    for (const fn of ["start_couchdb", "wait_for_couchdb"]) {
+      const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
+      expect(calls, `${fn} is called exactly once`).toHaveLength(1);
+      const call = calls[0] as { index: number };
+      expect(lines[call.index - 1]?.trim(), `${fn} is the first line of an if node_service_sidecars_enabled block`).toBe("if node_service_sidecars_enabled; then");
+      expect(lines[call.index + 1]?.trim(), `${fn} is the only line of that block`).toBe("fi");
+    }
+    const startBody = /start_couchdb\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    // `+=`, so that the entries set before stay: all three sidecars are passed to the app container and the runner
+    expect(startBody, "start_couchdb appends the runner's host variable").toContain(`SIDECAR_RUNNER_ENV+=(-e "${COUCHDB.HOST_ENV}=`);
+    expect(startBody, "start_couchdb appends the --add-host entry").toContain("SIDECAR_ADD_HOST+=(--add-host");
+    const codeLines = lines.filter((line) => !line.trim().startsWith("#")).join("\n");
+    expect(codeLines.match(new RegExp(COUCHDB.HOST_ENV, "g")), "the host variable is named once in the script's code, in start_couchdb").toHaveLength(1);
+    expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$COUCHDB_CONTAINER"/);
+    expect(RUN_SCRIPT, "the readiness step is bounded by the startup timeout").toMatch(/wait_for_couchdb\(\) \{[\s\S]*?"\$waited" -ge "\$STARTUP_TIMEOUT"[\s\S]*?\n\}/);
+  });
+
+  test("every request of the sidecar readiness steps has a time limit, and the CouchDB system databases count only on 201 or 412", () => {
+    const functionBody = (name: string): string => new RegExp(`${name}\\(\\) \\{[\\s\\S]*?\\n\\}`).exec(RUN_SCRIPT)?.[0] ?? "";
+    const curlBody = functionBody("couchdb_curl");
+    const probeBody = functionBody("couchdb_probe");
+    expect(curlBody, "couchdb_curl exists and runs curl in the sidecar").toContain('docker exec "$COUCHDB_CONTAINER" curl');
+    expect(curlBody, "a connect limit on every CouchDB readiness curl").toContain('--connect-timeout "$PROBE_CONNECT_TIMEOUT"');
+    expect(curlBody, "a total limit on every CouchDB readiness curl").toContain('--max-time "$PROBE_REQUEST_TIMEOUT"');
+    // structurally: the probe reaches curl only through couchdb_curl, which is the one place that carries the limits
+    expect(probeBody.match(/\bcurl\b/g), "the probe names curl nowhere itself").toBeNull();
+    expect(probeBody.match(/\bcouchdb_curl\b/g), "the probe's requests: _up, one PUT per system database (in a loop), the listing").toHaveLength(3);
+    expect(RUN_SCRIPT.match(/curl --connect-timeout/g), "no other curl of the script lacks the limits: the only curl calls are couchdb_curl's and the app's own readiness check").toHaveLength(1);
+    const limits = { connect: Number(RUN_SCRIPT.match(/^readonly PROBE_CONNECT_TIMEOUT=(\d+)$/m)?.[1]), request: Number(RUN_SCRIPT.match(/^readonly PROBE_REQUEST_TIMEOUT=(\d+)$/m)?.[1]) };
+    const pollInterval = Number(RUN_SCRIPT.match(/^readonly POLL_INTERVAL=(\d+)$/m)?.[1]);
+    const startupTimeout = Number(RUN_SCRIPT.match(/^readonly STARTUP_TIMEOUT=(\d+)$/m)?.[1]);
+    expect(limits.connect, "a positive connect limit").toBeGreaterThan(0);
+    expect(limits.request, "the total limit is at least the connect limit").toBeGreaterThanOrEqual(limits.connect);
+    expect(limits.request, "and small against the startup timeout, so the wait loop re-checks its deadline").toBeLessThanOrEqual(startupTimeout / 10);
+    expect(pollInterval, "the poll interval is positive").toBeGreaterThan(0);
+    // the status check of the PUT: exactly 201 and 412 are accepted, anything else is "not ready yet"
+    expect(scriptConstant("COUCHDB_HTTP_CREATED"), "201 created").toBe("201");
+    expect(scriptConstant("COUCHDB_HTTP_EXISTS"), "412 already exists").toBe("412");
+    expect(probeBody, "the PUT's status is read from the answer").toContain("-w '%{http_code}' -X PUT");
+    const accepted = /case "\$status" in\n([\s\S]*?)\n\s*esac/.exec(probeBody)?.[1] ?? "";
+    expect(
+      accepted
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== ""),
+      "the status switch accepts exactly the two statuses and refuses everything else",
+    ).toEqual(['"$COUCHDB_HTTP_CREATED" | "$COUCHDB_HTTP_EXISTS") ;;', "*) return 1 ;;"]);
+    expect(probeBody, "the listing must hold every system database").toContain("/_all_dbs");
+    // the libSQL and Firebird readiness calls are bounded the same way
+    expect(functionBody("wait_for_libsql"), "the libSQL readiness fetch aborts after the request limit").toContain("AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000)))");
+    expect(functionBody("wait_for_firebird"), "the Firebird readiness isql is bounded by the container's own timeout, with SIGKILL because isql ignores SIGTERM while it connects (a Linux coreutils tool, so the host needs none)").toContain(
+      'docker exec -i "$FIREBIRD_CONTAINER" timeout -s KILL "$PROBE_REQUEST_TIMEOUT" /opt/firebird/bin/isql',
+    );
+    const hostCommands = RUN_SCRIPT.split("\n").filter((line) => /^\s*[^#\s].*\|\s*timeout\b|^\s*timeout\b|\$\(timeout\b/.test(line));
+    expect(hostCommands, "no readiness call uses a host `timeout` (macOS has none by default)").toEqual([]);
+  });
+
+  test("the CouchDB recordings are the editor's saved query per operation, with no value of the recording session", () => {
+    const expectations: { variant: string; action: string; keys: string[] }[] = [
+      { variant: "", action: "allDBs", keys: ["query_@_descending", "query_@_endkey", "query_@_end_key", "query_@_limit", "query_@_skip", "query_@_startkey", "query_@_start_key"] },
+      { variant: "Put", action: "put", keys: ["path_@_db", "query_@_q", "query_@_n", "query_@_partitioned"] },
+      { variant: "Get", action: "get", keys: ["path_@_db"] },
+      { variant: "Delete", action: "delete", keys: ["path_@_db"] },
+      { variant: "DocPut", action: "docPut", keys: ["path_@_db", "path_@_docid", "header_@_If-Match", "query_@_rev", "query_@_batch", "query_@_new_edits", "body_@_body"] },
+      {
+        variant: "DocGet",
+        action: "docGet",
+        keys: [
+          "path_@_db",
+          "path_@_docid",
+          "header_@_If-None-Match",
+          "query_@_attachments",
+          "query_@_att_encoding_info",
+          "query_@_atts_since",
+          "query_@_conflicts",
+          "query_@_deleted_conflicts",
+          "query_@_latest",
+          "query_@_local_seq",
+          "query_@_meta",
+          "query_@_open_revs",
+          "query_@_rev",
+          "query_@_revs",
+          "query_@_revs_info",
+        ],
+      },
+      { variant: "DocDelete", action: "docDelete", keys: ["path_@_db", "path_@_docid", "header_@_If-Match", "query_@_rev", "query_@_batch"] },
+      {
+        variant: "DocGetAll",
+        action: "docGetAll",
+        keys: [
+          "path_@_db",
+          ...["conflicts", "descending", "endkey", "end_key", "endkey_docid", "end_key_doc_id", "group", "group_level", "include_docs", "attachments", "att_encoding_info"].map((name) => `query_@_${name}`),
+          ...["inclusive_end", "revs_info", "key", "keys", "limit", "reduce", "skip", "sorted", "stable", "stale", "startkey", "start_key", "startkey_docid", "start_key_doc_id", "update", "update_seq"].map(
+            (name) => `query_@_${name}`,
+          ),
+        ],
+      },
+    ];
+    for (const { variant, action, keys } of expectations) {
+      const query = recordedPluginQuery("couchdb", variant);
+      expect(query.compType, `${variant || "default"}: the query type`).toBe("couchdb");
+      expect(query.comp.actionName, `${variant || "default"}: the recorded operation`).toBe(action);
+      expect(Object.keys(query), `${variant || "default"}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(Object.keys(query.comp.action), `${variant || "default"}: the form's fields, in the operation's order`).toEqual(keys);
+      expect(Object.values(query.comp.action), `${variant || "default"}: every field is the editor's empty default`).toEqual(keys.map(() => ""));
+      expect(query.comp.headers, `${variant || "default"}: the editor's empty header row`).toEqual([{ key: "", value: "" }]);
+      const text = readFileSync(join(RECORDED_PLUGINS_DIR, "couchdb", `couchdb${variant}Query.json`), "utf8");
+      expect(text, `${variant || "default"}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${variant || "default"}: a sidecar address`).not.toContain(COUCHDB_ALIAS);
+      expect(text, `${variant || "default"}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+  });
+
+  test("couchdbDirect sends the method, path, JSON body, extra headers and Basic credentials, none when not given, and parses a JSON or a text body; couchdbAdmin adds the admin", async () => {
+    const received: { method?: string; url?: string; authorization?: string; contentType?: string; ifMatch?: string; body: string }[] = [];
+    const server: Server = createServer((request: IncomingMessage, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk: Buffer) => chunks.push(chunk));
+      request.on("end", () => {
+        received.push({
+          method: request.method,
+          url: request.url,
+          authorization: request.headers.authorization,
+          contentType: request.headers["content-type"],
+          ifMatch: request.headers["if-match"] as string | undefined,
+          body: Buffer.concat(chunks).toString("utf8"),
+        });
+        if (request.url === "/text") {
+          response.writeHead(401, "Unauthorized").end("plain text, not JSON");
+        } else {
+          response.writeHead(201, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: true }));
+        }
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const serverURL = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const basic = (user: string, password: string): string => `Basic ${Buffer.from(`${user}:${password}`).toString("base64")}`;
+    try {
+      const json = await couchdbDirect({ serverURL }, "PUT", "/db/doc?rev=1-a", { json: { a: 1 }, credentials: { username: "u", password: "p" }, headers: { "If-Match": "1-a" } });
+      const text = await couchdbDirect({ serverURL }, "GET", "/text");
+      const asAdmin = await couchdbAdmin({ serverURL, username: "admin", password: "secret" }, "DELETE", "/db", { headers: { "If-Match": "2-b" } });
+
+      expect(json, "a JSON body is parsed").toEqual({ status: 201, statusText: "Created", body: { ok: true } });
+      expect(text, "a body that is not JSON stays text").toEqual({ status: 401, statusText: "Unauthorized", body: "plain text, not JSON" });
+      expect(asAdmin.status, "the admin call is answered").toBe(201);
+      expect(received, "method, path, headers and body of the three calls").toEqual([
+        { method: "PUT", url: "/db/doc?rev=1-a", authorization: basic("u", "p"), contentType: "application/json", ifMatch: "1-a", body: JSON.stringify({ a: 1 }) },
+        { method: "GET", url: "/text", authorization: undefined, contentType: undefined, ifMatch: undefined, body: "" },
+        { method: "DELETE", url: "/db", authorization: basic("admin", "secret"), contentType: undefined, ifMatch: "2-b", body: "" },
+      ]);
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
