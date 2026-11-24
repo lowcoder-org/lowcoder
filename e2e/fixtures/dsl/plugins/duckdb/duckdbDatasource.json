@@ -1,0 +1,10 @@
+{
+ "name": "duckdb",
+ "type": "duckdb",
+ "datasourceConfig": {
+  "databaseFile": ":memory:",
+  "options": "{\"access_mode\": \"READ_WRITE\",\"max_memory\": \"512MB\",\"threads\": \"4\"}",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}
