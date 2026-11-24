@@ -1,0 +1,10 @@
+{
+ "name": "supabase",
+ "type": "supabase",
+ "datasourceConfig": {
+  "projectUrl": "http://placeholder.invalid",
+  "apiKey": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

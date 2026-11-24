@@ -1,0 +1,18 @@
+{
+ "compType": "supabase",
+ "comp": {
+  "actionName": "readFile",
+  "action": {
+   "bucket": "",
+   "fileName": "",
+   "encoding": "base64",
+   "transform": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

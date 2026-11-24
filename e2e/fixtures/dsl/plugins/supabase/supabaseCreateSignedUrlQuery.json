@@ -1,0 +1,16 @@
+{
+ "compType": "supabase",
+ "comp": {
+  "actionName": "createSignedUrl",
+  "action": {
+   "bucket": "",
+   "fileName": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

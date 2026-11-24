@@ -1,0 +1,13 @@
+{
+ "compType": "supabase",
+ "comp": {
+  "actionName": "listBuckets",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
