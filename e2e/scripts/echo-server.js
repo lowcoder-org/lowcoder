@@ -16,6 +16,11 @@
  *   the longest matching prefix answers, at most MAX_RECORDS entries are kept (the oldest are dropped). The control answer is 204; an
  *   invalid entry (prefix not starting with "/", status outside 100-599, a non-string body or content type, body over MAX_BODY_BYTES) is 400.
  *   Every other path keeps the `{}` answer, so the outbound tests are unaffected.
+ *   An entry may also carry `barrier: { prefix, count, timeoutMs }` (prefix starting with "/", integer count 2-MAX_BARRIER_COUNT, integer
+ *   timeoutMs 1-MAX_BARRIER_TIMEOUT_MS; anything else is 400). The answer is then WITHHELD (the request is recorded on arrival) until `count`
+ *   requests answered by entries with that same barrier prefix are waiting at once; then all of them are answered together. If the count is
+ *   not reached within timeoutMs of the first waiting request, every waiting request is answered 504 `barrier timeout` instead. So a
+ *   test that gets the canned answers has proved that `count` requests were waiting at the echo at the same time; a group that never fills fails loudly.
  *
  * It is also the run's mail sink: a minimal SMTP listener on MAIL_PORT (default 2525) accepts every message the SERVER
  * sends (password reset, invitation) and delivers it nowhere.
@@ -43,6 +48,9 @@ const HEALTH_PATH = "/__e2e/health";
 const REQUESTS_PATH = "/__e2e/requests";
 const MAILS_PATH = "/__e2e/mails";
 const ANSWERS_PATH = "/__e2e/answers";
+const MAX_BARRIER_COUNT = 100;
+const MAX_BARRIER_TIMEOUT_MS = 30000;
+const STATUS_GATEWAY_TIMEOUT = 504;
 const STATUS_NO_CONTENT = 204;
 const STATUS_BAD_REQUEST = 400;
 const MIN_HTTP_STATUS = 100;
@@ -61,12 +69,62 @@ const TERMINATOR_HOLD_BACK_BYTES = DATA_TERMINATOR.length - 1;
 const records = [];
 /** @type {{ from: string, to: string[], data: string }[]} */
 const mails = [];
-/** @type {Map<string, { status: number, contentType: string, body: string }>} canned answers by path prefix, oldest first */
+/** @type {Map<string, { status: number, contentType: string, body: string, barrier?: { prefix: string, count: number, timeoutMs: number } }>} canned answers by path prefix, oldest first */
 const answers = new Map();
+/** @type {Map<string, { waiting: { response: import("node:http").ServerResponse, canned: object }[], timer: NodeJS.Timeout }>} requests held at a barrier, by barrier prefix */
+const barrierGroups = new Map();
 
 function send(response, status, contentType, text) {
   response.writeHead(status, { "content-type": contentType });
   response.end(text);
+}
+
+function validBarrier(barrier) {
+  return (
+    barrier !== null &&
+    typeof barrier === "object" &&
+    typeof barrier.prefix === "string" &&
+    barrier.prefix.startsWith("/") &&
+    Number.isInteger(barrier.count) &&
+    barrier.count >= 2 &&
+    barrier.count <= MAX_BARRIER_COUNT &&
+    Number.isInteger(barrier.timeoutMs) &&
+    barrier.timeoutMs >= 1 &&
+    barrier.timeoutMs <= MAX_BARRIER_TIMEOUT_MS
+  );
+}
+
+/** Holds a request whose canned answer has a barrier; answers the whole group when it is full, or 504 when its timeout runs out first. */
+function holdAtBarrier(response, canned) {
+  const { prefix, count, timeoutMs } = canned.barrier;
+  let group = barrierGroups.get(prefix);
+  if (!group) {
+    group = { waiting: [], timer: setTimeout(() => releaseBarrier(prefix, false), timeoutMs) };
+    barrierGroups.set(prefix, group);
+  }
+  group.waiting.push({ response, canned });
+  if (group.waiting.length >= count) {
+    releaseBarrier(prefix, true);
+  }
+}
+
+function releaseBarrier(prefix, full) {
+  const group = barrierGroups.get(prefix);
+  if (!group) {
+    return;
+  }
+  clearTimeout(group.timer);
+  barrierGroups.delete(prefix);
+  for (const { response, canned } of group.waiting) {
+    if (response.writableEnded) {
+      continue;
+    }
+    if (full) {
+      send(response, canned.status, canned.contentType, canned.body);
+    } else {
+      send(response, STATUS_GATEWAY_TIMEOUT, "text/plain", "barrier timeout");
+    }
+  }
 }
 
 /** Validates and stores one canned answer; returns whether it was valid. */
@@ -87,12 +145,13 @@ function storeAnswer(text) {
     entry.status <= MAX_HTTP_STATUS &&
     typeof entry.contentType === "string" &&
     typeof entry.body === "string" &&
-    Buffer.byteLength(entry.body) <= MAX_BODY_BYTES;
+    Buffer.byteLength(entry.body) <= MAX_BODY_BYTES &&
+    (entry.barrier === undefined || validBarrier(entry.barrier));
   if (!valid) {
     return false;
   }
   answers.delete(entry.prefix);
-  answers.set(entry.prefix, { status: entry.status, contentType: entry.contentType, body: entry.body });
+  answers.set(entry.prefix, { status: entry.status, contentType: entry.contentType, body: entry.body, barrier: entry.barrier });
   if (answers.size > MAX_RECORDS) {
     answers.delete(answers.keys().next().value);
   }
@@ -165,6 +224,9 @@ function handleRecorded(request, response) {
       records.splice(0, records.length - MAX_RECORDS);
     }
     const canned = cannedAnswerFor(request.url);
+    if (canned?.barrier) {
+      return holdAtBarrier(response, canned);
+    }
     if (canned) {
       return send(response, canned.status, canned.contentType, canned.body);
     }

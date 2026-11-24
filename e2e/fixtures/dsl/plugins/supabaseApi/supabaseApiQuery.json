@@ -1,0 +1,13 @@
+{
+ "compType": "supabaseApi",
+ "comp": {
+  "actionName": "v1_list_all_projects",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

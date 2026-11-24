@@ -88,4 +88,10 @@ export interface CannedAnswer {
   status: number;
   body: string;
   contentType?: string;
+  /**
+   * Withholds the answer until `count` requests answered with a barrier of the same `subPath` are waiting at once (so the answer
+   * proves they were waiting at the echo together); if that does not happen within `timeoutMs` of the first waiting request, every waiting
+   * request is answered 504 `barrier timeout`. `subPath` is below the target and starts with "/", e.g. "/" for the whole target.
+   */
+  barrier?: { subPath: string; count: number; timeoutMs: number };
 }

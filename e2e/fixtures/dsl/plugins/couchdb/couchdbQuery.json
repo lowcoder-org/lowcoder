@@ -1,0 +1,21 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "allDBs",
+  "action": {
+   "query_@_descending": "",
+   "query_@_endkey": "",
+   "query_@_end_key": "",
+   "query_@_limit": "",
+   "query_@_skip": "",
+   "query_@_startkey": "",
+   "query_@_start_key": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

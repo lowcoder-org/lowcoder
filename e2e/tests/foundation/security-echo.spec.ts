@@ -18,6 +18,11 @@ const STARTUP_POLL_MS = 100;
 /** Larger than MAX_BODY_BYTES (65536) of the sidecar. */
 const OVERSIZED_BODY_BYTES = 70_000;
 const MAX_BODY_BYTES = 65_536;
+/** Barrier timeouts of the barrier tests: long enough that a group is never cut short while its requests are being sent, short enough that a timed-out group is quick. */
+const BARRIER_LONG_TIMEOUT_MS = 5_000;
+const BARRIER_SHORT_TIMEOUT_MS = 300;
+/** How long the barrier tests wait after the second request of a group has been recorded before they check that nothing was answered: a premature answer is sent on arrival, a loopback round trip is far below this. */
+const HOLD_WINDOW_MS = 300;
 
 let child: ChildProcess;
 let baseUrl: string;
@@ -199,6 +204,75 @@ test.describe("echo helpers", () => {
     expect({ status: longest.status, text: await longest.text(), type: longest.headers.get("content-type") }, "the longer prefix").toEqual({ status: 418, text: "teapot", type: "text/plain" });
     expect({ status: other.status, body: await other.json() }, "a path with no canned answer").toEqual({ status: 200, body: {} });
     expect((await recordsOf(path)).map((record) => record.path), "all three requests were recorded").toEqual([`${path}/token?x=1`, `${path}/token/special`, `${path}/other`]);
+  });
+
+  test("a barrier holds every answer until the group is full, then answers them together; the same prefix serves later groups, also after a group that timed out", async () => {
+    const path = echoTargetPath({ workerIndex: 3, repeatEachIndex: 2, retry: 0 });
+    const post = async (entry: unknown): Promise<number> => (await fetch(`${baseUrl}${ECHO_PATHS.ANSWERS}`, { method: "POST", body: JSON.stringify(entry) })).status;
+    /** ONE barrier prefix for every group of this test: a group that is not cleaned up after its release or its timeout would leak into the next. */
+    const barrier = (timeoutMs: number) => ({ prefix: `${path}/`, count: 3, timeoutMs });
+    const setAnswers = async (timeoutMs: number): Promise<void> => {
+      expect(await post({ prefix: `${path}/a`, status: 200, contentType: "text/plain", body: "answer-a", barrier: barrier(timeoutMs) })).toBe(204);
+      expect(await post({ prefix: `${path}/b`, status: 201, contentType: "text/plain", body: "answer-b", barrier: barrier(timeoutMs) })).toBe(204);
+    };
+    const ask = (sub: string) => fetch(`${baseUrl}${path}${sub}`).then(async (response) => ({ status: response.status, text: await response.text() }));
+    const asked = { count: 0 };
+
+    /** Two requests wait (and are recorded), nothing is answered within the window, the third fills the group and all three get their own answer. */
+    const completeGroup = async (label: string): Promise<void> => {
+      const settled: string[] = [];
+      const track = (promise: ReturnType<typeof ask>) => promise.then((answer) => {
+        settled.push(answer.text);
+        return answer;
+      });
+      const first = track(ask("/a"));
+      const second = track(ask("/b"));
+      asked.count += 2;
+      // positive control that the requests arrived: both are recorded while neither is answered
+      await expect.poll(async () => (await recordsOf(path)).length, { message: `${label}: both requests reached the echo` }).toBe(asked.count);
+      await new Promise((resolve) => setTimeout(resolve, HOLD_WINDOW_MS));
+      expect(settled, `${label}: with 2 of 3 waiting nothing is answered`).toEqual([]);
+      const third = track(ask("/a"));
+      asked.count += 1;
+      expect(await Promise.all([first, second, third]), `${label}: the third request fills the group: all three are answered with their own canned answer`).toEqual([
+        { status: 200, text: "answer-a" },
+        { status: 201, text: "answer-b" },
+        { status: 200, text: "answer-a" },
+      ]);
+    };
+
+    await setAnswers(BARRIER_LONG_TIMEOUT_MS);
+    await completeGroup("first group");
+    await completeGroup("second group, same prefix after a release");
+
+    // a group that does not fill within its (short) timeout is answered 504 ...
+    await setAnswers(BARRIER_SHORT_TIMEOUT_MS);
+    const timedOut = await ask("/a");
+    asked.count += 1;
+    expect(timedOut, "a group of one that never fills").toEqual({ status: 504, text: "barrier timeout" });
+    // ... and the same prefix then serves a complete group again
+    await setAnswers(BARRIER_LONG_TIMEOUT_MS);
+    await completeGroup("group after a timed-out group, same prefix");
+  });
+
+  test("a canned answer with an invalid barrier is refused with 400", async () => {
+    const path = echoTargetPath({ workerIndex: 3, repeatEachIndex: 3, retry: 0 });
+    const base = { prefix: `${path}/x`, status: 200, contentType: "text/plain", body: "b" };
+    const invalid = [
+      { prefix: "no-slash", count: 2, timeoutMs: 100 },
+      { prefix: "/p", count: 1, timeoutMs: 100 },
+      { prefix: "/p", count: 2.5, timeoutMs: 100 },
+      { prefix: "/p", count: 2, timeoutMs: 0 },
+      { prefix: "/p", count: 2, timeoutMs: 60000 },
+      "text",
+      null,
+    ];
+    for (const barrier of invalid) {
+      const status = (await fetch(`${baseUrl}${ECHO_PATHS.ANSWERS}`, { method: "POST", body: JSON.stringify({ ...base, barrier }) })).status;
+      expect(status, `barrier ${JSON.stringify(barrier)}`).toBe(400);
+    }
+    const plain = await fetch(`${baseUrl}${path}/x`);
+    expect(await plain.json(), "nothing was stored").toEqual({});
   });
 
   test("the latest canned answer of a prefix replaces the earlier one, and an invalid one is refused with 400 and changes nothing", async () => {

@@ -1,0 +1,11 @@
+{
+ "name": "datadog",
+ "type": "datadog",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "apiKeyAuth.value": "placeholder",
+  "appKeyAuth.value": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

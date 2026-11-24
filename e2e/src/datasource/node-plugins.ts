@@ -117,3 +117,30 @@ export const OPEN_API_FIXTURE_SPEC = {
     },
   },
 } as const;
+
+/** The scheme word of an HTTP Basic `Authorization` header value (RFC 7617). */
+export const BASIC_AUTH_SCHEME = "Basic";
+
+/** The user name and password of an HTTP Basic `Authorization` header value. */
+export interface BasicCredentials {
+  user: string;
+  password: string;
+}
+
+/**
+ * Decodes an `Authorization` header value of the form `Basic <base64(user:password)>` (RFC 7617: the user name ends at the first
+ * colon, the password may hold colons). Returns `undefined` for anything else: no header, a repeated header (an array), another
+ * scheme, text that is not canonical base64, or a decoded text without a colon. The tests compare what a plugin sent with the
+ * credentials they configured, so a failing decode must read as "not Basic credentials", never as an empty user.
+ */
+export function parseBasicAuthorization(header: string | string[] | undefined): BasicCredentials | undefined {
+  if (typeof header !== "string") return undefined;
+  const prefix = `${BASIC_AUTH_SCHEME} `;
+  if (!header.startsWith(prefix)) return undefined;
+  const encoded = header.slice(prefix.length);
+  const decoded = Buffer.from(encoded, "base64").toString("utf8");
+  if (Buffer.from(decoded, "utf8").toString("base64") !== encoded) return undefined;
+  const colon = decoded.indexOf(":");
+  if (colon < 0) return undefined;
+  return { user: decoded.slice(0, colon), password: decoded.slice(colon + 1) };
+}

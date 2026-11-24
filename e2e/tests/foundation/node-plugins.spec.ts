@@ -23,6 +23,7 @@ import {
   OPEN_API_FIXTURE_OPERATION,
   OPEN_API_FIXTURE_SCHEME,
   OPEN_API_FIXTURE_SPEC,
+  parseBasicAuthorization,
 } from "../../src/datasource/node-plugins";
 
 /**
@@ -211,6 +212,56 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     expect(text, "a 24-hex id").not.toMatch(/\b[0-9a-f]{24}\b/);
     expect(text, "an echo address").not.toContain("e2e-echo");
     expect(text, "an epoch of 10 digits or more").not.toMatch(/\b\d{10,}\b/);
+  });
+
+  test("the OpenAPI wrapper recordings are the form's body and the editor's saved query, with no value of the recording session", () => {
+    // the form of these plugins has no dynamic config, so the body holds the typed fields and the two defaults only
+    const expectations = [
+      { id: "couchdb", server: "serverURL", fields: ["BasicAuth.username", "BasicAuth.password", "JwtAuth.value"], action: "allDBs" },
+      { id: "jira", server: "serverUrl", fields: ["basicAuth.username", "basicAuth.password"], action: "getCurrentUser" },
+      { id: "datadog", server: "serverURL", fields: ["apiKeyAuth.value", "appKeyAuth.value"], action: "get_api_v1_validate" },
+      { id: "woocommerce", server: "serverURL", fields: ["basicAuth.username", "basicAuth.password"], action: "get_products" },
+      { id: "supabaseApi", server: "serverURL", fields: ["bearerAuth.value"], action: "v1_list_all_projects" },
+    ];
+    for (const { id, server, fields, action } of expectations) {
+      const datasource = recordedPluginDatasource(id);
+      const query = recordedPluginQuery(id);
+      const config = datasource.datasourceConfig;
+      expect(datasource.type, `${id}: the data source type`).toBe(id);
+      expect(Object.keys(datasource), `${id}: no workspace id`).toEqual(["name", "type", "datasourceConfig"]);
+      expect(Object.keys(config), `${id}: the form fields`).toEqual([server, ...fields, "authConfigType", "sslCertVerificationType"]);
+      expect(config[server], `${id}: the placeholder server URL`).toBe(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL);
+      for (const field of fields) expect(config[field], `${id}: ${field} is a placeholder`).toBe("placeholder");
+      expect(query.compType, `${id}: the query type`).toBe(id);
+      expect(query.comp.actionName, `${id}: the recorded operation`).toBe(action);
+      expect(Object.keys(query), `${id}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      const text = [`${id}Datasource.json`, `${id}Query.json`].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, id, file), "utf8")).join("\n");
+      expect(text, `${id}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${id}: an echo address`).not.toContain("e2e-echo");
+      expect(text, `${id}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+    expect(recordedPluginQuery("woocommerce").comp.action, "woocommerce: the editor's defaults of the enumerated parameters").toMatchObject({
+      "query_@_context": "view",
+      "query_@_order": "asc",
+      "query_@_orderby": "date",
+      "query_@_status": "any",
+      "query_@_type": "simple",
+      "query_@_stock_status": "instock",
+    });
+  });
+
+  test("parseBasicAuthorization decodes user and password, and reads anything else as not Basic credentials", () => {
+    const header = (text: string): string => `Basic ${Buffer.from(text, "utf8").toString("base64")}`;
+    expect(parseBasicAuthorization(header("user:secret"))).toEqual({ user: "user", password: "secret" });
+    expect(parseBasicAuthorization(header("user:pa:ss")), "the password may hold colons").toEqual({ user: "user", password: "pa:ss" });
+    expect(parseBasicAuthorization(header(":")), "empty credentials are credentials").toEqual({ user: "", password: "" });
+    expect(parseBasicAuthorization(header("ünï:pässword")), "UTF-8").toEqual({ user: "ünï", password: "pässword" });
+    expect(parseBasicAuthorization(undefined), "no header").toBeUndefined();
+    expect(parseBasicAuthorization([header("a:b")]), "a repeated header").toBeUndefined();
+    expect(parseBasicAuthorization("Bearer abc"), "another scheme").toBeUndefined();
+    expect(parseBasicAuthorization("Basic"), "no credentials").toBeUndefined();
+    expect(parseBasicAuthorization(header("nocolon")), "no colon").toBeUndefined();
+    expect(parseBasicAuthorization("Basic ***"), "not base64").toBeUndefined();
   });
 
   test("the recorded placeholder host is under the reserved .invalid TLD", () => {

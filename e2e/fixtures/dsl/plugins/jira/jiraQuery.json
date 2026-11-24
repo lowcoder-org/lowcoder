@@ -1,0 +1,15 @@
+{
+ "compType": "jira",
+ "comp": {
+  "actionName": "getCurrentUser",
+  "action": {
+   "query_@_expand": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

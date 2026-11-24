@@ -1,0 +1,10 @@
+{
+ "name": "supabaseApi",
+ "type": "supabaseApi",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "bearerAuth.value": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}
