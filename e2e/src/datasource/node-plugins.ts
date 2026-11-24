@@ -70,7 +70,7 @@ export const NODE_PLUGIN_IDS: readonly string[] = [
   "uiPath",
 ];
 
-/** The value of a placeholder host in recorded data source bodies: the `.invalid` TLD (RFC 2606) never resolves, so a recording that was not given a real target fails instead of reaching a host. */
+/** The value of a placeholder host in recorded data source bodies: the `.invalid` TLD (RFC 2606). A placeholder host is never relied on to fail: it may resolve in an environment with a DNS search domain (measured), so every request a test makes is pointed at the echo target (or another deterministic target) and a recording holds placeholder values only. */
 export const NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL = "http://placeholder.invalid";
 
 /**
@@ -80,3 +80,40 @@ export const NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL = "http://placeholder.invalid";
 export function nodePluginIdsOf(types: readonly DatasourceTypeEntry[]): string[] {
   return types.filter((entry) => entry.definition !== null && entry.definition !== undefined).map((entry) => entry.id);
 }
+
+/** The name of the API key security scheme of `OPEN_API_FIXTURE_SPEC`; the data source form stores the key under `<name>.value`. */
+export const OPEN_API_FIXTURE_SCHEME = "E2EKeyAuth";
+
+/** The header the API key of `OPEN_API_FIXTURE_SPEC` travels in; the form labels the key field with it. */
+export const OPEN_API_FIXTURE_KEY_HEADER = "X-E2E-Key";
+
+/** The operation of `OPEN_API_FIXTURE_SPEC`. */
+export const OPEN_API_FIXTURE_OPERATION = "listItems";
+
+/**
+ * A minimal OpenAPI 3.0 document for the generic `openApi` plugin: `GET /items` (operation `listItems`, query parameter `q`)
+ * secured by an API key in the header `X-E2E-Key`. Its one server is the placeholder host, which no test relies on to fail:
+ * every request is pointed at the echo through the data source's `serverURL`. The tests serve it from the echo as a canned
+ * answer; the plugin's form fetches it for real while it builds its dynamic config.
+ */
+export const OPEN_API_FIXTURE_SPEC = {
+  openapi: "3.0.0",
+  info: { title: "e2e items", version: "1.0.0" },
+  servers: [{ url: NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL }],
+  security: [{ [OPEN_API_FIXTURE_SCHEME]: [] }],
+  paths: {
+    "/items": {
+      get: {
+        operationId: OPEN_API_FIXTURE_OPERATION,
+        summary: "List the items",
+        parameters: [{ name: "q", in: "query", required: false, schema: { type: "string" } }],
+        responses: { "200": { description: "the items" } },
+      },
+    },
+  },
+  components: {
+    securitySchemes: {
+      [OPEN_API_FIXTURE_SCHEME]: { type: "apiKey", in: "header", name: OPEN_API_FIXTURE_KEY_HEADER },
+    },
+  },
+} as const;
