@@ -338,6 +338,46 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     });
   });
 
+  test("the supabase recordings are the form's body and the editor's saved queries (one per action), with no value of the recording session", () => {
+    const datasource = recordedPluginDatasource("supabase");
+    expect(datasource.type, "the data source type").toBe("supabase");
+    expect(Object.keys(datasource), "no workspace id").toEqual(["name", "type", "datasourceConfig"]);
+    expect(datasource.datasourceConfig, "the form's fields, with placeholders").toEqual({
+      projectUrl: NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
+      apiKey: "placeholder",
+      authConfigType: "NO_AUTH",
+      sslCertVerificationType: "VERIFY_CA_CERT",
+    });
+    const variants = { "": "listBuckets", ListObjects: "listObjects", ReadFile: "readFile", UploadData: "uploadData", DeleteFile: "deleteFile", CreateSignedUrl: "createSignedUrl" };
+    const files = ["supabaseDatasource.json"];
+    for (const [variant, actionName] of Object.entries(variants)) {
+      const query = recordedPluginQuery("supabase", variant);
+      expect(query.compType, `supabase${variant}: the query type`).toBe("supabase");
+      expect(query.comp.actionName, `supabase${variant}: the recorded action`).toBe(actionName);
+      expect(Object.keys(query), `supabase${variant}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(query.comp.headers, `supabase${variant}: the editor's empty header row`).toEqual([{ key: "", value: "" }]);
+      files.push(`supabase${variant}Query.json`);
+    }
+    const text = files.map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, "supabase", file), "utf8")).join("\n");
+    expect(text, "a 24-hex id").not.toMatch(/\b[0-9a-f]{24}\b/);
+    expect(text, "an echo address").not.toContain("e2e-echo");
+    expect(text, "an epoch of 10 digits or more").not.toMatch(/\b\d{10,}\b/);
+    expect(recordedPluginQuery("supabase", "").comp.action, "listBuckets has no parameters").toEqual({});
+    expect(recordedPluginQuery("supabase", "ListObjects").comp.action, "listObjects: the editor's defaults (the limit is saved as text, the sort order as JSON text)").toEqual({
+      bucket: "",
+      path: "",
+      search: "",
+      limit: "10",
+      offset: "",
+      sortBy: JSON.stringify({ column: "name", order: "asc" }, null, 4),
+      returnSignedUrl: false,
+    });
+    expect(recordedPluginQuery("supabase", "ReadFile").comp.action, "readFile: base64 is the editor's default encoding").toEqual({ bucket: "", fileName: "", encoding: "base64", transform: "" });
+    expect(recordedPluginQuery("supabase", "UploadData").comp.action, "uploadData").toEqual({ bucket: "", fileName: "", encoding: "base64", data: "", contentType: "", returnSignedUrl: false });
+    expect(recordedPluginQuery("supabase", "DeleteFile").comp.action, "deleteFile").toEqual({ bucket: "", fileName: "" });
+    expect(recordedPluginQuery("supabase", "CreateSignedUrl").comp.action, "createSignedUrl").toEqual({ bucket: "", fileName: "" });
+  });
+
   test("recordedPluginQuery with a variant reads <id><variant>Query.json, refuses a variant that is not a file name part and names the missing file", () => {
     expect(recordedPluginQuery("s3", "DeleteFile").comp.actionName).toBe("deleteFile");
     expect(recordedPluginQuery("s3", ""), "an empty variant is the plain recording").toEqual(recordedPluginQuery("s3"));

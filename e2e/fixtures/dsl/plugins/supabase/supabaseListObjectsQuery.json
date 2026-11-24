@@ -1,0 +1,21 @@
+{
+ "compType": "supabase",
+ "comp": {
+  "actionName": "listObjects",
+  "action": {
+   "bucket": "",
+   "path": "",
+   "search": "",
+   "limit": "10",
+   "offset": "",
+   "sortBy": "{\n    \"column\": \"name\",\n    \"order\": \"asc\"\n}",
+   "returnSignedUrl": false
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
