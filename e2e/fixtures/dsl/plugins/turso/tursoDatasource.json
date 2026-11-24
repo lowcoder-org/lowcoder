@@ -1,0 +1,10 @@
+{
+ "name": "turso",
+ "type": "turso",
+ "datasourceConfig": {
+  "url": "http://placeholder.invalid",
+  "token": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}
