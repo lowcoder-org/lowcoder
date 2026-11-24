@@ -219,6 +219,13 @@ export const TAGS = {
    * (`--grep @node-service`), not an opt-in one: these tests stay in the default run.
    */
   NODE_SERVICE: "@node-service",
+  /**
+   * The node-service data source tests that need a sidecar of their own because the plugin's protocol is not HTTP (today the
+   * Firebird tests, `tests/datasource/plugin-firebird.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
+   * the default run (neither listed nor run, and the run script starts no such sidecar), in only with
+   * `E2E_INCLUDE_NODE_SERVICE_SIDECARS` (see src/run-selection.ts and scripts/run-in-docker.sh).
+   */
+  NODE_SERVICE_SIDECAR: "@node-service-sidecar",
 } as const;
 
 /** Environment variables that widen the run beyond the default selection (read by playwright.config.ts). */
@@ -228,6 +235,11 @@ export const RUN_FLAGS = {
   INCLUDE_SUPERADMIN: "E2E_INCLUDE_SUPERADMIN",
   /** Enterprise profile only: run SEC-E05 (`@enterprise-takeover`) and nothing else. */
   INCLUDE_ENTERPRISE_TAKEOVER: "E2E_INCLUDE_ENTERPRISE_TAKEOVER",
+  /**
+   * Default stack only: also start the sidecars of the node-service data sources whose protocol is not HTTP (Firebird) and run
+   * their `@node-service-sidecar` tests. Without it the run starts none of them.
+   */
+  INCLUDE_NODE_SERVICE_SIDECARS: "E2E_INCLUDE_NODE_SERVICE_SIDECARS",
 } as const;
 
 /** Environment variable that picks the stack a run is made for; `run-in-docker.sh` sets it for the runner (read by playwright.config.ts). */
@@ -278,6 +290,21 @@ export const POSTGRES = {
   DATABASE: "shop",
   USERNAME: "postgres",
   PASSWORD: "e2e-postgres-password",
+} as const;
+
+/**
+ * The Firebird sidecar that scripts/run-in-docker.sh starts on the run's network ONLY when `E2E_INCLUDE_NODE_SERVICE_SIDECARS` is set
+ * (see fixtures/firebird/init.sql). The run script passes the host name (the sidecar's network alias); the rest is fixed there and must
+ * equal the `FIREBIRD_*` values of the script. The user and the password are the throw-away ones of the sidecar (the container is removed
+ * when the run ends and nothing else uses them): never real secrets.
+ */
+export const FIREBIRD = {
+  HOST_ENV: "E2E_FIREBIRD_HOST",
+  PORT: 3050,
+  /** The database file inside the sidecar: the image's data directory plus `FIREBIRD_DATABASE` of the script. */
+  DATABASE: "/var/lib/firebird/data/e2e.fdb",
+  USERNAME: "e2euser",
+  PASSWORD: "e2e-firebird-password",
 } as const;
 
 export const SEEDED_ITEM_NAMES = ["alpha", "beta"] as const;

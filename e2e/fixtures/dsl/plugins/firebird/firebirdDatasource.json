@@ -1,0 +1,15 @@
+{
+ "name": "firebird",
+ "type": "firebird",
+ "datasourceConfig": {
+  "host": "e2e-firebird",
+  "database": "/var/lib/firebird/data/e2e.fdb",
+  "port": 3050,
+  "username": "e2euser",
+  "password": "e2e-firebird-password",
+  "lowercaseKeys": true,
+  "blobAsText": true,
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

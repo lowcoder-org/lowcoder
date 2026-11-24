@@ -26,6 +26,8 @@ const TITLE_ENTERPRISE = `an enterprise test ${TAGS.SECURITY} ${TAGS.ENTERPRISE}
 const TITLE_ENTERPRISE_SUPERADMIN = `an enterprise test that uses the super admin ${TAGS.SECURITY} ${TAGS.SUPERADMIN} ${TAGS.ENTERPRISE}`;
 const TITLE_SIGNUP_DISABLED = `a sign-up test ${TAGS.LIFECYCLE} ${TAGS.SIGNUP_DISABLED}`;
 const TITLE_SIGNUP_DISABLED_QUARANTINE = `a sign-up test that is also quarantined ${TAGS.LIFECYCLE} ${TAGS.QUARANTINE} ${TAGS.SIGNUP_DISABLED}`;
+/** A node-service data source test that needs its sidecar (`@node-service` next to `@node-service-sidecar`). */
+const TITLE_SIDECAR = `a sidecar test ${TAGS.NODE_SERVICE} ${TAGS.NODE_SERVICE_SIDECAR}`;
 /** SEC-E05: quarantined, enterprise and takeover (the real test carries @superadmin too, which no combination reads on the enterprise profile). */
 const TITLE_TAKEOVER = `the takeover test ${TAGS.SECURITY} ${TAGS.QUARANTINE} ${TAGS.ENTERPRISE} ${TAGS.ENTERPRISE_TAKEOVER} ${TAGS.SUPERADMIN}`;
 const ALL_TITLES = [
@@ -41,6 +43,7 @@ const ALL_TITLES = [
   TITLE_TAKEOVER,
   TITLE_SIGNUP_DISABLED,
   TITLE_SIGNUP_DISABLED_QUARANTINE,
+  TITLE_SIDECAR,
 ];
 const DEFAULT_ONLY_TITLES = [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE, TITLE_INSERT_ALL, TITLE_BOTH, TITLE_SUPERADMIN, TITLE_SUPERADMIN_QUARANTINE];
 
@@ -54,6 +57,7 @@ function flagsOf(overrides: Partial<RunFlags> = {}): RunFlags {
     includeQuarantine: false,
     includeInsertAll: false,
     includeSuperAdmin: false,
+    includeNodeServiceSidecars: false,
     includeEnterpriseTakeover: false,
     stackProfile: DEFAULT_STACK,
     ...overrides,
@@ -75,42 +79,42 @@ const COMBINATIONS: Combination[] = [
   {
     description: "neither flag (the default run)",
     flags: flagsOf(),
-    expectedSource: "@quarantine|@insert-all|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@quarantine|@insert-all|@superadmin|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM],
   },
   {
     description: "only E2E_INCLUDE_QUARANTINE (the quarantined tests without the 112 S1 tests)",
     flags: flagsOf({ includeQuarantine: true }),
-    expectedSource: "@insert-all|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@insert-all|@superadmin|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE],
   },
   {
     description: "only E2E_INCLUDE_INSERT_ALL (S1 without the quarantined tests)",
     flags: flagsOf({ includeInsertAll: true }),
-    expectedSource: "@quarantine|@superadmin|@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@quarantine|@superadmin|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_INSERT_ALL],
   },
   {
     description: "only E2E_INCLUDE_SUPERADMIN (the super admin tests that are not quarantined)",
     flags: flagsOf({ includeSuperAdmin: true }),
-    expectedSource: "@quarantine|@insert-all|@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@quarantine|@insert-all|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_SUPERADMIN],
   },
   {
     description: "E2E_INCLUDE_SUPERADMIN and E2E_INCLUDE_QUARANTINE (all four SEC-R16 tests)",
     flags: flagsOf({ includeQuarantine: true, includeSuperAdmin: true }),
-    expectedSource: "@insert-all|@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@insert-all|@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: [TITLE_PLAIN, TITLE_NPM, TITLE_QUARANTINE, TITLE_SUPERADMIN, TITLE_SUPERADMIN_QUARANTINE],
   },
   {
     description: "all flags on the default stack, the takeover flag included (everything except the enterprise tests)",
     flags: flagsOf({ includeQuarantine: true, includeInsertAll: true, includeSuperAdmin: true, includeEnterpriseTakeover: true }),
-    expectedSource: "@enterprise|@enterprise-takeover|@signup-disabled",
+    expectedSource: "@node-service-sidecar|@enterprise|@enterprise-takeover|@signup-disabled",
     expectedGrepSource: undefined,
     kept: DEFAULT_ONLY_TITLES,
   },
@@ -164,7 +168,7 @@ function everyFlagCombination(stackProfile: RunFlags["stackProfile"]): RunFlags[
   return bools.flatMap((includeQuarantine) =>
     bools.flatMap((includeInsertAll) =>
       bools.flatMap((includeSuperAdmin) =>
-        bools.map((includeEnterpriseTakeover) => ({ includeQuarantine, includeInsertAll, includeSuperAdmin, includeEnterpriseTakeover, stackProfile })),
+        bools.map((includeEnterpriseTakeover) => ({ includeQuarantine, includeInsertAll, includeSuperAdmin, includeNodeServiceSidecars: false, includeEnterpriseTakeover, stackProfile })),
       ),
     ),
   );
@@ -229,11 +233,12 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
   });
 
   test("excludedTags lists each opt-in tag unless its own flag is set, and the enterprise tags on the default stack", () => {
-    expect(excludedTags(flagsOf())).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
-    expect(excludedTags(flagsOf({ includeQuarantine: true }))).toEqual([TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
-    expect(excludedTags(flagsOf({ includeInsertAll: true }))).toEqual([TAGS.QUARANTINE, TAGS.SUPERADMIN, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
-    expect(excludedTags(flagsOf({ includeSuperAdmin: true }))).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf())).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.NODE_SERVICE_SIDECAR, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeQuarantine: true }))).toEqual([TAGS.INSERT_ALL, TAGS.SUPERADMIN, TAGS.NODE_SERVICE_SIDECAR, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeInsertAll: true }))).toEqual([TAGS.QUARANTINE, TAGS.SUPERADMIN, TAGS.NODE_SERVICE_SIDECAR, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
+    expect(excludedTags(flagsOf({ includeSuperAdmin: true }))).toEqual([TAGS.QUARANTINE, TAGS.INSERT_ALL, TAGS.NODE_SERVICE_SIDECAR, TAGS.ENTERPRISE, TAGS.ENTERPRISE_TAKEOVER, TAGS.SIGNUP_DISABLED]);
     expect(excludedTags(flagsOf({ includeQuarantine: true, includeInsertAll: true, includeSuperAdmin: true, includeEnterpriseTakeover: true }))).toEqual([
+      TAGS.NODE_SERVICE_SIDECAR,
       TAGS.ENTERPRISE,
       TAGS.ENTERPRISE_TAKEOVER,
       TAGS.SIGNUP_DISABLED,
@@ -275,6 +280,7 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
         [RUN_FLAGS.INCLUDE_INSERT_ALL]: "",
         [RUN_FLAGS.INCLUDE_SUPERADMIN]: "",
         [RUN_FLAGS.INCLUDE_ENTERPRISE_TAKEOVER]: "",
+        [RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS]: "",
         [STACK_PROFILE_ENV]: "",
       }),
       "the empty strings run-in-docker.sh passes when the variables are unset",
@@ -283,6 +289,7 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
     expect(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_INSERT_ALL]: "1" }), "insert-all only").toEqual({ ...off, includeInsertAll: true });
     expect(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_SUPERADMIN]: "1" }), "super admin only").toEqual({ ...off, includeSuperAdmin: true });
     expect(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_ENTERPRISE_TAKEOVER]: "1" }), "takeover only").toEqual({ ...off, includeEnterpriseTakeover: true });
+    expect(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS]: "1" }), "node-service sidecars only").toEqual({ ...off, includeNodeServiceSidecars: true });
     expect(runFlagsFromEnv({ [STACK_PROFILE_ENV]: "enterprise" }), "enterprise profile").toEqual({ ...off, stackProfile: ENTERPRISE_STACK });
     expect(runFlagsFromEnv({ [STACK_PROFILE_ENV]: "default" }), "default profile named").toEqual(off);
   });
@@ -519,5 +526,125 @@ test.describe("run selection: the super admin tests are opt-in", () => {
     expect(untaggedSuperAdminTests(`test("a", async ({ page, actor }) => { const superAdmin = 1; });`), "a local named superAdmin is no fixture").toEqual([]);
     expect(untaggedSuperAdminTests(`test("a", async ({ page }) => { test.skip(true, "TAGS.SUPERADMIN"); });`), "test.skip(condition) inside a body").toEqual([]);
     expect(untaggedSuperAdminTests(`test("a", async ({ page }) => {});\ntest(SYNTHETIC, async ({ superAdmin }) => {});`).map((entry) => entry.slice(0, 7)), "the report names the line of the untagged one").toEqual(["line 2:"]);
+  });
+});
+
+/** Every combination of the five flags of the default stack. */
+function everyFlagCombinationWithSidecars(): RunFlags[] {
+  return everyFlagCombination(DEFAULT_STACK).flatMap((flags) => [false, true].map((includeNodeServiceSidecars) => ({ ...flags, includeNodeServiceSidecars })));
+}
+
+test.describe("run selection: the node-service sidecar tests are opt-in", () => {
+  test("the default selection leaves out the sidecar tag and keeps the plain node-service tests", () => {
+    expect(excludedTags(flagsOf()), "excluded by default").toContain(TAGS.NODE_SERVICE_SIDECAR);
+    expect(excludedTags(flagsOf()), "@node-service itself is a selection tag, never excluded").not.toContain(TAGS.NODE_SERVICE);
+    expect(keptTitles(flagsOf()), "the default run keeps no sidecar test").not.toContain(TITLE_SIDECAR);
+    const plainNodeServiceTitle = `a plain node-service test ${TAGS.NODE_SERVICE}`;
+    expect(grepInvertFor(flagsOf())?.test(plainNodeServiceTitle), "a test with only @node-service is not excluded").toBe(false);
+    expect(grepInvertFor(flagsOf())?.test(TITLE_SIDECAR), "the sidecar title is excluded by the inversion").toBe(true);
+  });
+
+  test("the flag includes the sidecar tests, and only the flag does", () => {
+    expect(excludedTags(flagsOf({ includeNodeServiceSidecars: true })), "excluded with the flag").not.toContain(TAGS.NODE_SERVICE_SIDECAR);
+    expect(keptTitles(flagsOf({ includeNodeServiceSidecars: true })), "the flag keeps the sidecar test").toContain(TITLE_SIDECAR);
+    for (const flags of everyFlagCombinationWithSidecars()) {
+      expect(keptTitles(flags).includes(TITLE_SIDECAR), `the sidecar test under ${JSON.stringify(flags)}`).toBe(flags.includeNodeServiceSidecars);
+    }
+  });
+
+  test("the flag changes nothing else on the default stack, and the other stacks never run a sidecar test", () => {
+    for (const flags of everyFlagCombination(DEFAULT_STACK)) {
+      const without = keptTitles({ ...flags, includeNodeServiceSidecars: false });
+      const withFlag = keptTitles({ ...flags, includeNodeServiceSidecars: true });
+      expect(withFlag, `titles kept with the flag, under ${JSON.stringify(flags)}`).toEqual([...without, TITLE_SIDECAR].sort((a, b) => ALL_TITLES.indexOf(a) - ALL_TITLES.indexOf(b)));
+    }
+    for (const stack of [ENTERPRISE_STACK, SIGNUP_DISABLED_STACK]) {
+      for (const flags of everyFlagCombination(stack)) {
+        expect(keptTitles({ ...flags, includeNodeServiceSidecars: true }), `the sidecar test on ${stack} under ${JSON.stringify(flags)}`).not.toContain(TITLE_SIDECAR);
+      }
+    }
+  });
+});
+
+/** The name of the helper whose use makes a spec need the Firebird sidecar, and the tag every test of such a spec must wear. */
+const SIDECAR_HELPER = "firebirdConnection";
+const SIDECAR_TAG_KEY = "NODE_SERVICE_SIDECAR";
+
+/** True when the expression, or any expression inside it, is `TAGS.NODE_SERVICE_SIDECAR` or the string `"@node-service-sidecar"`. Comments are no nodes. */
+function mentionsSidecarTag(node: ts.Node): boolean {
+  if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === TAGS_OBJECT_NAME && node.name.text === SIDECAR_TAG_KEY) return true;
+  if ((ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) && node.text === TAGS.NODE_SERVICE_SIDECAR) return true;
+  return ts.forEachChild(node, mentionsSidecarTag) ?? false;
+}
+
+/** Whether a details argument tags the test: an object literal with a `tag` property that mentions the tag (a variable is not followed: it counts as untagged). */
+function detailsTagWithSidecar(details: ts.Expression): boolean {
+  return (
+    ts.isObjectLiteralExpression(details) &&
+    details.properties.some(
+      (property) => ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) && property.name.text === "tag" && mentionsSidecarTag(property.initializer),
+    )
+  );
+}
+
+/**
+ * The tests of a spec source that does not wear `TAGS.NODE_SERVICE_SIDECAR`, when the source uses `firebirdConnection` (a spec that needs the
+ * sidecar: untagged, its tests would run in the default run, where the sidecar is not started). A source that does not use the helper
+ * reports nothing. A tag on an enclosing `test.describe*(title, details, body)` counts for every test inside. Each result is `line <n>`.
+ * Limits: the same as `untaggedSuperAdminTests` (a `test` passed through a parameter is not recognised, a tag through a variable is not followed).
+ */
+function untaggedSidecarTests(source: string, fileName = "synthetic.spec.ts"): string[] {
+  const file = ts.createSourceFile(fileName, source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS);
+  if (!source.includes(`${SIDECAR_HELPER}(`)) return [];
+  const untagged: string[] = [];
+  const testNames = localTestNames(file);
+  const visit = (node: ts.Node, tagged: boolean): void => {
+    let childrenTagged = tagged;
+    if (ts.isCallExpression(node)) {
+      const chain = callChain(node.expression);
+      if (chain !== undefined && testNames.has(chain[0] as string)) {
+        const form = chain[1];
+        const args = [...node.arguments];
+        const fn = args.filter((arg): arg is ts.ArrowFunction | ts.FunctionExpression => ts.isArrowFunction(arg) || ts.isFunctionExpression(arg)).at(-1);
+        const isDescribe = form === "describe" && chain[chain.length - 1] !== "configure";
+        const isTest = chain.length === 1 || (chain.length === 2 && form !== undefined && TEST_FORMS.has(form));
+        const ownTag = args.slice(1).filter((arg) => arg !== fn).some(detailsTagWithSidecar);
+        if (isDescribe) {
+          childrenTagged = tagged || ownTag;
+        } else if (isTest && fn && !(tagged || ownTag)) {
+          untagged.push(`line ${file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1}`);
+        }
+      }
+    }
+    ts.forEachChild(node, (child) => visit(child, childrenTagged));
+  };
+  visit(file, false);
+  return untagged;
+}
+
+test.describe("run selection: every test that needs the Firebird sidecar carries the opt-in tag", () => {
+  test("every spec that uses firebirdConnection tags all its tests with TAGS.NODE_SERVICE_SIDECAR, and the Firebird spec does use it", () => {
+    const untagged: string[] = [];
+    const users: string[] = [];
+    for (const file of specFilesUnder(join(__dirname, ".."))) {
+      const source = readFileSync(file, "utf8");
+      if (file.includes(`${join("tests", "foundation")}`)) continue;
+      if (source.includes(`${SIDECAR_HELPER}(`)) users.push(file);
+      untagged.push(...untaggedSidecarTests(source, file).map((entry) => `${file}: ${entry}`));
+    }
+
+    expect(users.map((file) => file.split("tests/")[1]), "the specs that use the helper (a positive control that the guard looks at the Firebird spec)").toEqual(["datasource/plugin-firebird.spec.ts"]);
+    expect(untagged, "tests of a Firebird spec without TAGS.NODE_SERVICE_SIDECAR (they would run, and fail, in the default run)").toEqual([]);
+  });
+
+  test("the guard accepts a describe tag and a test tag, and reports an untagged test, a tag in a comment or a title, and a tag through a variable", () => {
+    const use = `const c = ${SIDECAR_HELPER}();\n`;
+    expect(untaggedSidecarTests(`${use}test.describe("g", { tag: [TAGS.NODE_SERVICE, TAGS.NODE_SERVICE_SIDECAR] }, () => { test("a", async () => {}); });`), "describe tag").toEqual([]);
+    expect(untaggedSidecarTests(`${use}test("a", { tag: TAGS.NODE_SERVICE_SIDECAR }, async () => {});`), "test tag").toEqual([]);
+    expect(untaggedSidecarTests(`${use}test("a", async () => {});`), "untagged").toEqual(["line 2"]);
+    expect(untaggedSidecarTests(`${use}test.describe("g", { tag: [TAGS.NODE_SERVICE] }, () => { test("a", async () => {}); });`), "only the selection tag").toEqual(["line 2"]);
+    expect(untaggedSidecarTests(`${use}// TAGS.NODE_SERVICE_SIDECAR\ntest("uses @node-service-sidecar in its title", async () => {});`), "comment and title").toEqual(["line 3"]);
+    expect(untaggedSidecarTests(`${use}const D = { tag: [TAGS.NODE_SERVICE_SIDECAR] };\ntest("a", D, async () => {});`), "a variable is not followed").toEqual(["line 3"]);
+    expect(untaggedSidecarTests(`test("a", async () => {});`), "a spec that does not use the helper is not asked").toEqual([]);
   });
 });
