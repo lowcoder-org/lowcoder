@@ -1,0 +1,15 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "ListTables",
+  "action": {
+   "params": "{\n    \"Limit\": 10\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

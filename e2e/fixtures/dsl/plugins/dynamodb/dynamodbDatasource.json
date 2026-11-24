@@ -1,0 +1,12 @@
+{
+ "name": "dynamodb",
+ "type": "dynamodb",
+ "datasourceConfig": {
+  "accessKey": "placeholder",
+  "secretKey": "placeholder",
+  "endpointUrl": "http://placeholder.invalid",
+  "region": "us-west-1",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

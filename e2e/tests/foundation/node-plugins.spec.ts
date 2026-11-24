@@ -24,6 +24,7 @@ import {
   OPEN_API_FIXTURE_SCHEME,
   OPEN_API_FIXTURE_SPEC,
   parseBasicAuthorization,
+  parseSigV4Authorization,
 } from "../../src/datasource/node-plugins";
 
 /**
@@ -293,6 +294,57 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     }
   });
 
+  test("the dynamodb and s3 recordings are the form's body and the editor's saved queries (one per action), with no value of the recording session", () => {
+    const expectations = [
+      { id: "dynamodb", variants: { "": "Query", ListTables: "ListTables", GetItem: "GetItem", PutItem: "PutItem" } },
+      { id: "s3", variants: { "": "listBuckets", ListObjects: "listObjects", ReadFile: "readFile", UploadData: "uploadData", DeleteFile: "deleteFile" } },
+    ];
+    for (const { id, variants } of expectations) {
+      const datasource = recordedPluginDatasource(id);
+      expect(datasource.type, `${id}: the data source type`).toBe(id);
+      expect(Object.keys(datasource), `${id}: no workspace id`).toEqual(["name", "type", "datasourceConfig"]);
+      expect(datasource.datasourceConfig, `${id}: the form's fields, with placeholders and the form's default region`).toEqual({
+        accessKey: "placeholder",
+        secretKey: "placeholder",
+        endpointUrl: NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
+        region: "us-west-1",
+        authConfigType: "NO_AUTH",
+        sslCertVerificationType: "VERIFY_CA_CERT",
+      });
+      const files = [`${id}Datasource.json`];
+      for (const [variant, actionName] of Object.entries(variants)) {
+        const query = recordedPluginQuery(id, variant);
+        expect(query.compType, `${id}${variant}: the query type`).toBe(id);
+        expect(query.comp.actionName, `${id}${variant}: the recorded action`).toBe(actionName);
+        expect(Object.keys(query), `${id}${variant}: only what the builder keeps`).toEqual(["compType", "comp"]);
+        expect(query.comp.headers, `${id}${variant}: the editor's empty header row`).toEqual([{ key: "", value: "" }]);
+        files.push(`${id}${variant}Query.json`);
+      }
+      const text = files.map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, id, file), "utf8")).join("\n");
+      expect(text, `${id}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${id}: an echo address`).not.toContain("e2e-echo");
+      expect(text, `${id}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+    expect(recordedPluginQuery("dynamodb", "GetItem").comp.action, "dynamodb GetItem: the table and the parameters JSON text, as the editor saved them").toEqual({
+      tableName: "",
+      params: JSON.stringify({ Key: { id: 1 } }, null, 4),
+    });
+    expect(recordedPluginQuery("s3", "ListObjects").comp.action, "s3 listObjects: the editor's defaults (the limit is saved as text)").toEqual({
+      bucket: "",
+      prefix: "",
+      delimiter: "",
+      limit: "10",
+      returnSignedUrl: false,
+    });
+  });
+
+  test("recordedPluginQuery with a variant reads <id><variant>Query.json, refuses a variant that is not a file name part and names the missing file", () => {
+    expect(recordedPluginQuery("s3", "DeleteFile").comp.actionName).toBe("deleteFile");
+    expect(recordedPluginQuery("s3", ""), "an empty variant is the plain recording").toEqual(recordedPluginQuery("s3"));
+    expect(() => recordedPluginQuery("s3", "../turso/turso")).toThrow(RecordedFixtureError);
+    expect(() => recordedPluginQuery("s3", "NoSuchAction")).toThrow("s3NoSuchActionQuery");
+  });
+
   test("parseBasicAuthorization decodes user and password, and reads anything else as not Basic credentials", () => {
     const header = (text: string): string => `Basic ${Buffer.from(text, "utf8").toString("base64")}`;
     expect(parseBasicAuthorization(header("user:secret"))).toEqual({ user: "user", password: "secret" });
@@ -305,6 +357,21 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     expect(parseBasicAuthorization("Basic"), "no credentials").toBeUndefined();
     expect(parseBasicAuthorization(header("nocolon")), "no colon").toBeUndefined();
     expect(parseBasicAuthorization("Basic ***"), "not base64").toBeUndefined();
+  });
+
+  test("parseSigV4Authorization reads key, scope, signed headers and signature, and reads anything else as not a SigV4 header", () => {
+    const signature = "a".repeat(64);
+    const header = `AWS4-HMAC-SHA256 Credential=E2EKEY1/20261124/us-west-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=${signature}`;
+    expect(parseSigV4Authorization(header)).toEqual({ accessKey: "E2EKEY1", date: "20261124", region: "us-west-1", service: "s3", signedHeaders: ["host", "x-amz-date"], signature });
+    expect(parseSigV4Authorization(undefined), "no header").toBeUndefined();
+    expect(parseSigV4Authorization([header]), "a repeated header").toBeUndefined();
+    expect(parseSigV4Authorization(header.replace("AWS4-HMAC-SHA256", "AWS4-HMAC-SHA512")), "another algorithm").toBeUndefined();
+    expect(parseSigV4Authorization(header.replace("aws4_request", "aws5_request")), "another terminator").toBeUndefined();
+    expect(parseSigV4Authorization(header.replace("/s3/", "/")), "a scope without a service").toBeUndefined();
+    expect(parseSigV4Authorization(header.replace(signature, "a".repeat(63))), "a short signature").toBeUndefined();
+    expect(parseSigV4Authorization(header.replace(signature, "A".repeat(64))), "an upper-case signature").toBeUndefined();
+    expect(parseSigV4Authorization(`${header} `), "trailing text").toBeUndefined();
+    expect(parseSigV4Authorization("Basic dXNlcjpwdw=="), "another scheme").toBeUndefined();
   });
 
   test("the recorded placeholder host is under the reserved .invalid TLD", () => {

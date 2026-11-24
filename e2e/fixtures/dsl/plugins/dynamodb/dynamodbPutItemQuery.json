@@ -1,0 +1,16 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "PutItem",
+  "action": {
+   "tableName": "",
+   "params": "{\n    \"Item\": {\n        \"id\": 1,\n        \"name\": \"Alice\"\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

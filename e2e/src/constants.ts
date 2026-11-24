@@ -81,6 +81,13 @@ export const NPM_REGISTRIES_SETTING_KEY = "npmRegistries";
  */
 export const ECHO_ENV = "E2E_ECHO_URL";
 
+/**
+ * The variable the run script sets to the echo sidecar's IP address on the run network. A test whose plugin derives a host name
+ * from the endpoint (an S3 virtual-host address `<bucket>.<host>`) points the endpoint at this address instead of the
+ * `e2e-echo` alias, because a derived name is not covered by the alias mapping and may resolve outside the run network.
+ */
+export const ECHO_IP_ENV = "E2E_ECHO_IP";
+
 /** The control routes of the echo sidecar; every other path is recorded and answered `{}`. */
 export const ECHO_PATHS = { HEALTH: "/__e2e/health", REQUESTS: "/__e2e/requests", MAILS: "/__e2e/mails", ANSWERS: "/__e2e/answers" } as const;
 

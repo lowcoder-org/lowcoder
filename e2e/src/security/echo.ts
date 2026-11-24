@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { ECHO_ENV, ECHO_TARGET_PREFIX } from "../constants";
+import { ECHO_ENV, ECHO_IP_ENV, ECHO_TARGET_PREFIX } from "../constants";
 
 /** One request the echo sidecar received (scripts/echo-server.js): `path` includes the query string, `body` is UTF-8 text. */
 export interface EchoRecord {
@@ -38,6 +38,10 @@ export function echoReadPrefix(targetPath: string): string {
   return `${targetPath}/`;
 }
 
+/** Four dot-separated decimal octets, each 0 to 255 without a leading zero (the form `docker inspect` reports; a leading zero reads as octal in some parsers). */
+const IPV4_OCTET = "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)";
+const IPV4_PATTERN = new RegExp(`^${IPV4_OCTET}(\\.${IPV4_OCTET}){3}$`);
+
 /** The base URL of the echo sidecar from the environment, without a trailing slash; throws when the run script did not set it. */
 export function echoBaseUrl(env: NodeJS.ProcessEnv): string {
   const value = env[ECHO_ENV];
@@ -45,6 +49,28 @@ export function echoBaseUrl(env: NodeJS.ProcessEnv): string {
     throw new Error(`${ECHO_ENV} is not set. Run the suite through e2e/scripts/run-in-docker.sh (it starts the echo sidecar).`);
   }
   return value.replace(/\/+$/, "");
+}
+
+/**
+ * `targetUrl` (an echo target URL, `echo.url`) with its host replaced by the echo sidecar's IP address from the environment; scheme,
+ * port, path and query are kept. Throws, naming the variable, when the run script did not set it, when it is not a valid IPv4 address
+ * (four octets of 0 to 255, no leading zeros; a name would defeat the purpose) or when the URL's host is not the IP after the swap. Pure: reads only `env`.
+ */
+export function echoUrlByIp(targetUrl: string, env: NodeJS.ProcessEnv): string {
+  const ip = env[ECHO_IP_ENV];
+  if (!ip) {
+    throw new Error(`${ECHO_IP_ENV} is not set. Run the suite through e2e/scripts/run-in-docker.sh (it passes the echo sidecar's IP address).`);
+  }
+  if (!IPV4_PATTERN.test(ip)) {
+    throw new Error(`${ECHO_IP_ENV} is not an IPv4 address: ${JSON.stringify(ip)}`);
+  }
+  const url = new URL(targetUrl);
+  url.hostname = ip;
+  // a hostname the URL parser refuses is left unchanged by the assignment: prove the swap happened
+  if (url.hostname !== ip) {
+    throw new Error(`${ECHO_IP_ENV} could not replace the host of ${targetUrl}: the host is ${url.hostname}, not ${ip}`);
+  }
+  return url.toString().replace(/\/+$/, "");
 }
 
 function percentDecoded(text: string): string {

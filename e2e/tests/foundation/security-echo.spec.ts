@@ -1,10 +1,11 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
-import { ECHO_ENV, ECHO_PATHS, ECHO_TARGET_PREFIX, npmRegistryPath } from "../../src/constants";
+import { ECHO_ENV, ECHO_IP_ENV, ECHO_PATHS, ECHO_TARGET_PREFIX, npmRegistryPath } from "../../src/constants";
 import { n8nDatasourceBody } from "../../src/api/client";
-import { echoBaseUrl, echoReadPrefix, echoTargetPath, recordsContain, type EchoRecord } from "../../src/security/echo";
+import { echoBaseUrl, echoReadPrefix, echoUrlByIp, echoTargetPath, recordsContain, type EchoRecord } from "../../src/security/echo";
 
 /**
  * Stack-free unit tests of the echo sidecar (scripts/echo-server.js, started here as a child process on a loopback port, no
@@ -150,6 +151,33 @@ test.describe("echo helpers", () => {
     expect(echoBaseUrl({ [ECHO_ENV]: "http://e2e-echo:8080/" })).toBe("http://e2e-echo:8080");
     expect(() => echoBaseUrl({})).toThrow(ECHO_ENV);
     expect(() => echoBaseUrl({ [ECHO_ENV]: "" })).toThrow(ECHO_ENV);
+  });
+
+  test("echoUrlByIp swaps the host for the IP, keeps scheme, port, path and query, and throws, naming the variable, when it is missing or not an IPv4 address", () => {
+    const env = { [ECHO_IP_ENV]: "172.30.0.5" };
+    expect(echoUrlByIp("http://e2e-echo:8080/t/1-0-0-ab", env)).toBe("http://172.30.0.5:8080/t/1-0-0-ab");
+    expect(echoUrlByIp("http://e2e-echo:8080/t/x/s3?a=1", env)).toBe("http://172.30.0.5:8080/t/x/s3?a=1");
+    expect(echoUrlByIp("http://e2e-echo:8080", env), "no trailing slash is added").toBe("http://172.30.0.5:8080");
+    expect(echoUrlByIp("https://e2e-echo/t/x", env), "a default port stays implicit").toBe("https://172.30.0.5/t/x");
+    expect(() => echoUrlByIp("http://e2e-echo:8080/t/x", {})).toThrow(ECHO_IP_ENV);
+    expect(() => echoUrlByIp("http://e2e-echo:8080/t/x", { [ECHO_IP_ENV]: "" })).toThrow(ECHO_IP_ENV);
+    expect(() => echoUrlByIp("http://e2e-echo:8080/t/x", { [ECHO_IP_ENV]: "e2e-echo" })).toThrow(`${ECHO_IP_ENV} is not an IPv4 address`);
+    expect(() => echoUrlByIp("not a url", env)).toThrow();
+    for (const invalid of ["999.999.999.999", "256.1.1.1", "1.2.3.256", "01.2.3.4", "1.2.3.04", "1.2.3", "1.2.3.4.5", "1.2.3.", "e2e-echo", " 1.2.3.4", "1.2.3.4 "]) {
+      expect(() => echoUrlByIp("http://e2e-echo:8080/t/x", { [ECHO_IP_ENV]: invalid }), `${JSON.stringify(invalid)} is refused`).toThrow(`${ECHO_IP_ENV} is not an IPv4 address`);
+    }
+    // a URL that has no host to replace (an opaque path) leaves the assignment without effect: that is detected, not returned as if it were swapped
+    expect(() => echoUrlByIp("mailto:someone@example.test", env)).toThrow(`${ECHO_IP_ENV} could not replace the host`);
+    for (const valid of ["0.0.0.0", "10.0.0.1", "192.168.64.3", "255.255.255.255"]) {
+      expect(echoUrlByIp("http://e2e-echo:8080/t/x", { [ECHO_IP_ENV]: valid }), `${valid} is accepted`).toBe(`http://${valid}:8080/t/x`);
+    }
+  });
+
+  test("the run script passes the echo IP to the runner next to the echo URL, from the address start_echo measured", () => {
+    const script = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
+    expect(script).toContain(`-e ${ECHO_IP_ENV}="$ECHO_IP"`);
+    expect(script).toContain(`-e ${ECHO_ENV}="http://\${ECHO_ALIAS}:\${ECHO_PORT}"`);
+    expect(script, "ECHO_IP is set from docker inspect in start_echo").toContain('ECHO_IP="$(docker inspect');
   });
 
   test("recordsContain finds a needle in the path, a header (also a repeated one) or the body, and returns a boolean", () => {

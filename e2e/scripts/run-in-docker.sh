@@ -59,7 +59,8 @@
 ## Also starts an HTTP echo sidecar (scripts/echo-server.js, on the already pinned runner image, no extra download) under the
 ## alias e2e-echo: the target of the requests the SERVER makes inside the app container (npm registry proxy, n8n plugin).
 ## It records every request in memory and serves them back per path prefix; it dies with the run. The runner gets its
-## address as E2E_ECHO_URL. Nothing is sent to the internet by it. The app and runner containers resolve the alias through
+## address as E2E_ECHO_URL and its IP address on the run network as E2E_ECHO_IP (for the few tests that must not derive a host
+## name, e.g. an S3 virtual-host address `<bucket>.<host>`). Nothing is sent to the internet by it. The app and runner containers resolve the alias through
 ## `--add-host e2e-echo:<sidecar IP on the run network>`, not through DNS: should the sidecar die, the name still points at that
 ## private address and the request fails locally (refused or unreachable) instead of the name resolving on an external resolver.
 ##
@@ -281,6 +282,7 @@ run_tests() {
         -e LOWCODER_BASE_URL="http://${E2E_APP_HOST}:${APP_PORT}" \
         -e E2E_POSTGRES_HOST="$POSTGRES_CONTAINER" \
         -e E2E_ECHO_URL="http://${ECHO_ALIAS}:${ECHO_PORT}" \
+        -e E2E_ECHO_IP="$ECHO_IP" \
         -e E2E_INCLUDE_QUARANTINE="${E2E_INCLUDE_QUARANTINE:-}" \
         -e E2E_INCLUDE_INSERT_ALL="${E2E_INCLUDE_INSERT_ALL:-}" \
         -e E2E_INCLUDE_SUPERADMIN="${E2E_INCLUDE_SUPERADMIN:-}" \
