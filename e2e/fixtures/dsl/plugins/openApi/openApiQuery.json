@@ -1,0 +1,15 @@
+{
+ "compType": "openApi",
+ "comp": {
+  "actionName": "listItems",
+  "action": {
+   "query_@_q": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

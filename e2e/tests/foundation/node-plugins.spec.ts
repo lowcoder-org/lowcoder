@@ -15,7 +15,15 @@ import {
   type RecordedPluginDatasource,
   type RecordedPluginQuery,
 } from "../../src/dsl/recorded";
-import { NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL, NODE_PLUGIN_IDS, nodePluginIdsOf } from "../../src/datasource/node-plugins";
+import {
+  NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
+  NODE_PLUGIN_IDS,
+  nodePluginIdsOf,
+  OPEN_API_FIXTURE_KEY_HEADER,
+  OPEN_API_FIXTURE_OPERATION,
+  OPEN_API_FIXTURE_SCHEME,
+  OPEN_API_FIXTURE_SPEC,
+} from "../../src/datasource/node-plugins";
 
 /**
  * Stack-free unit spec of the node-service data source helpers (parser, loaders, builder, body helper, catalogue filter).
@@ -180,7 +188,32 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     }
   });
 
-  test("the recorded placeholder host is one that never resolves", () => {
+  test("the openApi recordings are the form's body, with the spec it stored, and the editor's saved query, with no value of the recording session", () => {
+    const datasource = recordedPluginDatasource("openApi");
+    const query = recordedPluginQuery("openApi");
+    const config = datasource.datasourceConfig;
+    expect(datasource.type, "the data source type").toBe("openApi");
+    expect(Object.keys(datasource), "no workspace id").toEqual(["name", "type", "datasourceConfig"]);
+    expect(config.url, "the placeholder spec URL").toBe(`${NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL}/spec.json`);
+    expect(config.serverURL, "the placeholder server URL").toBe(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL);
+    expect(Object.keys(config.extra as Record<string, unknown>), "the dynamic config's data is the spec").toEqual(["spec"]);
+    expect(JSON.parse((config.extra as { spec: string }).spec), "the stored spec is the fixture spec").toEqual(OPEN_API_FIXTURE_SPEC);
+    expect(config.dynamicParamsDef, "the key field the form built from the security scheme").toEqual([
+      { type: "groupTitle", key: OPEN_API_FIXTURE_SCHEME, label: "Api Key Auth" },
+      { type: "password", key: `${OPEN_API_FIXTURE_SCHEME}.value`, label: OPEN_API_FIXTURE_KEY_HEADER },
+    ]);
+    expect(Object.keys(config.dynamicParamsConfig as Record<string, unknown>), "the key is stored under <scheme>.value").toEqual([`${OPEN_API_FIXTURE_SCHEME}.value`]);
+    expect(query.compType, "the query type").toBe("openApi");
+    expect(query.comp.actionName, "the operation").toBe(OPEN_API_FIXTURE_OPERATION);
+    expect(query.comp.action, "the operation's parameter, empty").toEqual({ "query_@_q": "" });
+    expect(Object.keys(query), "only what the builder keeps").toEqual(["compType", "comp"]);
+    const text = ["openApiDatasource.json", "openApiQuery.json"].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, "openApi", file), "utf8")).join("\n");
+    expect(text, "a 24-hex id").not.toMatch(/\b[0-9a-f]{24}\b/);
+    expect(text, "an echo address").not.toContain("e2e-echo");
+    expect(text, "an epoch of 10 digits or more").not.toMatch(/\b\d{10,}\b/);
+  });
+
+  test("the recorded placeholder host is under the reserved .invalid TLD", () => {
     expect(new URL(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL).hostname.endsWith(".invalid")).toBe(true);
   });
 

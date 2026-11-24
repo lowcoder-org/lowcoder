@@ -1,0 +1,28 @@
+{
+ "name": "openApi",
+ "type": "openApi",
+ "datasourceConfig": {
+  "extra": {
+   "spec": "{\"openapi\":\"3.0.0\",\"info\":{\"title\":\"e2e items\",\"version\":\"1.0.0\"},\"servers\":[{\"url\":\"http://placeholder.invalid\"}],\"security\":[{\"E2EKeyAuth\":[]}],\"paths\":{\"/items\":{\"get\":{\"operationId\":\"listItems\",\"summary\":\"List the items\",\"parameters\":[{\"name\":\"q\",\"in\":\"query\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"description\":\"the items\"}}}}},\"components\":{\"securitySchemes\":{\"E2EKeyAuth\":{\"type\":\"apiKey\",\"in\":\"header\",\"name\":\"X-E2E-Key\"}}}}"
+  },
+  "dynamicParamsDef": [
+   {
+    "type": "groupTitle",
+    "key": "E2EKeyAuth",
+    "label": "Api Key Auth"
+   },
+   {
+    "type": "password",
+    "key": "E2EKeyAuth.value",
+    "label": "X-E2E-Key"
+   }
+  ],
+  "url": "http://placeholder.invalid/spec.json",
+  "serverURL": "http://placeholder.invalid",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT",
+  "dynamicParamsConfig": {
+   "E2EKeyAuth.value": "placeholder"
+  }
+ }
+}
