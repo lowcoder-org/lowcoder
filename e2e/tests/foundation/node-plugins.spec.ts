@@ -1,11 +1,14 @@
+import { readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
 import { API_OK, API_PATHS, orgDatasourceTypesPath, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
+  RECORDED_PLUGINS_DIR,
   RecordedFixtureError,
   recordedPluginDatasource,
   recordedPluginQuery,
@@ -109,6 +112,23 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     expect(body.datasourceConfig, "the config over the recorded settings").toEqual({ url: "http://e2e-echo:1/t", token: "secret", mode: "recorded" });
     expect(recorded, "the recording").toEqual(before);
     expect(nodePluginDatasourceBody(recorded, { orgId: "org-1", name: "renamed", config: {} })).toMatchObject({ name: "renamed" });
+  });
+
+  test("the duckdb recordings are the form's body and the editor's saved query, with no value of the recording session", () => {
+    const datasource = recordedPluginDatasource("duckdb");
+    const query = recordedPluginQuery("duckdb");
+    expect(datasource.type, "the data source type").toBe("duckdb");
+    expect(datasource.datasourceConfig, "the form's defaults: an in-memory database and the options JSON").toMatchObject({ databaseFile: ":memory:" });
+    expect(() => JSON.parse(String(datasource.datasourceConfig.options)), "the options are JSON text").not.toThrow();
+    expect(query.compType, "the query type").toBe("duckdb");
+    expect(query.comp.actionName, "the only action of the plugin").toBe("Query");
+    expect(Object.keys(query.comp.action as Record<string, unknown>), "the SQL parameter").toEqual(["queryString"]);
+    expect(Object.keys(query), "only what the builder keeps").toEqual(["compType", "comp"]);
+    expect(Object.keys(datasource), "no workspace id").toEqual(["name", "type", "datasourceConfig"]);
+    const text = ["duckdbDatasource.json", "duckdbQuery.json"].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, "duckdb", file), "utf8")).join("\n");
+    expect(text, "a 24-hex id (workspace, data source, query)").not.toMatch(/\b[0-9a-f]{24}\b/);
+    expect(text, "an ISO timestamp").not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+    expect(text, "an epoch of 10 digits or more (the saved query's order)").not.toMatch(/\b\d{10,}\b/);
   });
 
   test("the recorded placeholder host is one that never resolves", () => {

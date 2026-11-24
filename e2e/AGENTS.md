@@ -129,7 +129,7 @@ Coordinates, DSL item ids, test ids and labels used by one spec only may be loca
 - `@slow`: the test needs noticeably longer (PostgreSQL, npm, many editor steps).
 - `@npm`: the test needs the app container to reach the npm registry.
 - `@quarantine` and `@insert-all`: see section 7 and the README.
-- `@node-service`: the node-service data source tests (`tests/datasource/node-plugins-catalogue.spec.ts`, D3; `TAGS.NODE_SERVICE`). A selection tag (`--grep @node-service`), not an opt-in one: the tests stay in the default run, and `excludedTags` does not list it. The stack-free unit spec `tests/foundation/node-plugins.spec.ts` carries it too: the one exception to the next bullet.
+- `@node-service`: the node-service data source tests (`tests/datasource/node-plugins-catalogue.spec.ts`, D3; `tests/datasource/plugin-duckdb.spec.ts`, D4; `TAGS.NODE_SERVICE`). A selection tag (`--grep @node-service`), not an opt-in one: the tests stay in the default run, and `excludedTags` does not list it. The stack-free unit spec `tests/foundation/node-plugins.spec.ts` carries it too: the one exception to the next bullet.
 - Untagged is normal: component scenarios (S2 to S20), unit, helper and foundation tests carry no tag (exception: `foundation/node-plugins.spec.ts`, `@node-service`).
 - Always use `TAGS.*`. A test with a tag string in its title only as test data stays untagged (`foundation/run-selection.spec.ts`).
 

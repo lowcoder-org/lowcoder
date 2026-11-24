@@ -1,0 +1,15 @@
+{
+ "compType": "duckdb",
+ "comp": {
+  "actionName": "Query",
+  "action": {
+   "queryString": "SELECT 1"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
