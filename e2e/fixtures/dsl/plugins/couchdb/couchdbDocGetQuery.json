@@ -1,0 +1,29 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "docGet",
+  "action": {
+   "path_@_db": "",
+   "path_@_docid": "",
+   "header_@_If-None-Match": "",
+   "query_@_attachments": "",
+   "query_@_att_encoding_info": "",
+   "query_@_atts_since": "",
+   "query_@_conflicts": "",
+   "query_@_deleted_conflicts": "",
+   "query_@_latest": "",
+   "query_@_local_seq": "",
+   "query_@_meta": "",
+   "query_@_open_revs": "",
+   "query_@_rev": "",
+   "query_@_revs": "",
+   "query_@_revs_info": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

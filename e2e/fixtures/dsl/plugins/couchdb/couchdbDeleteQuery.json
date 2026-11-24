@@ -1,0 +1,15 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "delete",
+  "action": {
+   "path_@_db": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

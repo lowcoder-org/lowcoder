@@ -1,0 +1,18 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "put",
+  "action": {
+   "path_@_db": "",
+   "query_@_q": "",
+   "query_@_n": "",
+   "query_@_partitioned": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

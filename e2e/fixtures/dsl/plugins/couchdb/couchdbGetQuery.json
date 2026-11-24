@@ -1,0 +1,15 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "get",
+  "action": {
+   "path_@_db": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

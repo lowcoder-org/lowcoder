@@ -1,0 +1,42 @@
+{
+ "compType": "couchdb",
+ "comp": {
+  "actionName": "docGetAll",
+  "action": {
+   "path_@_db": "",
+   "query_@_conflicts": "",
+   "query_@_descending": "",
+   "query_@_endkey": "",
+   "query_@_end_key": "",
+   "query_@_endkey_docid": "",
+   "query_@_end_key_doc_id": "",
+   "query_@_group": "",
+   "query_@_group_level": "",
+   "query_@_include_docs": "",
+   "query_@_attachments": "",
+   "query_@_att_encoding_info": "",
+   "query_@_inclusive_end": "",
+   "query_@_revs_info": "",
+   "query_@_key": "",
+   "query_@_keys": "",
+   "query_@_limit": "",
+   "query_@_reduce": "",
+   "query_@_skip": "",
+   "query_@_sorted": "",
+   "query_@_stable": "",
+   "query_@_stale": "",
+   "query_@_startkey": "",
+   "query_@_start_key": "",
+   "query_@_startkey_docid": "",
+   "query_@_start_key_doc_id": "",
+   "query_@_update": "",
+   "query_@_update_seq": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
