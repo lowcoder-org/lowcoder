@@ -57,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailNormalizationTest {
 
     private static final String SOURCE = AuthSourceConstants.EMAIL;
-    private static final String PASSWORD = "lowcoder";
+    private static final String PASSWORD = "lowcoder1";
 
     @Autowired
     private AuthenticationController authenticationController;

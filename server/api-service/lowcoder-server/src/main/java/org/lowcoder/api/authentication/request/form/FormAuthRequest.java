@@ -12,6 +12,7 @@ import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.EmailUtils;
+import org.lowcoder.sdk.util.PasswordRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -42,6 +43,11 @@ public class FormAuthRequest implements AuthRequest {
                             // stored as an address and then resolve on a subsequent login with loginId="".
                             if (!EmailUtils.looksLikeEmail(EmailUtils.normalize(context.getLoginId()))) {
                                 return ofError(BizError.INVALID_EMAIL_FORMAT, "INVALID_EMAIL_FORMAT");
+                            }
+                            // D-48: the client's password rule, before the duplicate lookup and before anything is stored.
+                            // Sign-in (below) never applies it: existing weak passwords keep working.
+                            if (!PasswordRule.isAcceptable(context.getPassword())) {
+                                return ofError(BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK");
                             }
                             // Passed AS SUPPLIED on purpose: findBySourceAndId probes the value given and
                             // then its normalized form, so this now rejects JoHn@DoE.com when

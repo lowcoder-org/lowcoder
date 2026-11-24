@@ -169,9 +169,9 @@ public class EmailBackfillEndToEndTest {
 
         runBackfill();
 
-        Boolean reset = userService.resetLostPassword("RECOVER.LEGACY@EXAMPLE.COM", token, "new-password")
+        String reset = userService.resetLostPassword("RECOVER.LEGACY@EXAMPLE.COM", token, "new-password")
                 .block();
-        assertEquals(Boolean.TRUE, reset, "recovery must resolve the account regardless of typed case");
+        assertEquals(seeded.getId(), reset, "recovery must resolve the account regardless of typed case");
 
         User after = userRepository.findById(seeded.getId()).block();
         assertNotNull(after);
@@ -214,7 +214,7 @@ public class EmailBackfillEndToEndTest {
 
         runBackfill();
 
-        Boolean reset = userService.resetLostPassword(address, token, "new-password").block();
+        String reset = userService.resetLostPassword(address, token, "new-password").block();
         log.info("reset against a soft-deleted account returned {}", reset);
         assertNull(reset, "a deleted account must not be a password-reset target");
     }
@@ -249,7 +249,7 @@ public class EmailBackfillEndToEndTest {
         reloaded.setPasswordResetTokenExpiry(Instant.now().plus(1, ChronoUnit.HOURS));
         userRepository.save(reloaded).block();
 
-        assertEquals(Boolean.TRUE, userService.resetLostPassword(typed, token, "new-password").block(),
+        assertEquals(seeded.getId(), userService.resetLostPassword(typed, token, "new-password").block(),
                 "resetting must work for an account that belongs to no workspace");
     }
 

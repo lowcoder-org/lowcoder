@@ -18,6 +18,8 @@ import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -27,7 +29,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class ApplicationHistorySnapshotEndpointsTest {
@@ -39,12 +46,19 @@ class ApplicationHistorySnapshotEndpointsTest {
     private ApplicationService applicationService;
     private ApplicationRecordService applicationRecordService;
     private ApplicationHistorySnapshotController controller;
+    private Application pathApplication;
 
     private static final String TEST_APPLICATION_ID = "test-app-id";
+    private static final String OTHER_APPLICATION_ID = "other-app-id";
+    private static final String TEST_APPLICATION_GID = "test-app-gid";
+    private static final String TEST_APPLICATION_SLUG = "test-app-slug";
     private static final String TEST_SNAPSHOT_ID = "test-snapshot-id";
     private static final String TEST_USER_ID = "test-user-id";
     private static final String TEST_USER_NAME = "Test User";
     private static final String TEST_USER_AVATAR = "https://example.com/avatar.jpg";
+    private static final Instant SNAPSHOT_CREATED_AT = Instant.parse("2026-01-02T00:00:00Z");
+    private static final Instant BEFORE_SNAPSHOT = SNAPSHOT_CREATED_AT.minusSeconds(60);
+    private static final Instant AFTER_SNAPSHOT = SNAPSHOT_CREATED_AT.plusSeconds(60);
 
     @BeforeEach
     void setUp() {
@@ -60,6 +74,8 @@ class ApplicationHistorySnapshotEndpointsTest {
         when(sessionUserService.getVisitorId()).thenReturn(Mono.just(TEST_USER_ID));
         when(resourcePermissionService.checkResourcePermissionWithError(anyString(), anyString(), any(ResourceAction.class)))
                 .thenReturn(Mono.empty());
+        pathApplication = createMockApplication(TEST_APPLICATION_ID);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_ID)).thenReturn(Mono.just(pathApplication));
 
         // Create controller with all required dependencies
         controller = new ApplicationHistorySnapshotController(
@@ -168,7 +184,7 @@ class ApplicationHistorySnapshotEndpointsTest {
 
         // Verify the error is propagated
         StepVerifier.create(result)
-                .expectError(RuntimeException.class)
+                .expectErrorMessage("Service error")
                 .verify();
     }
 
@@ -400,6 +416,9 @@ class ApplicationHistorySnapshotEndpointsTest {
                     return true;
                 })
                 .verifyComplete();
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService).findByIdWithoutDsl(TEST_APPLICATION_ID);
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
     }
 
     @Test
@@ -450,9 +469,9 @@ class ApplicationHistorySnapshotEndpointsTest {
                 TEST_SNAPSHOT_ID
         );
 
-        // Verify the error is propagated
+        // Verify the error is propagated (expectErrorMessage, not expectError: a wrong-typed refusal, e.g. BizException, must fail this test too)
         StepVerifier.create(result)
-                .expectError(RuntimeException.class)
+                .expectErrorMessage("Service error")
                 .verify();
     }
 
@@ -488,6 +507,9 @@ class ApplicationHistorySnapshotEndpointsTest {
                     return true;
                 })
                 .verifyComplete();
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService).findByIdWithoutDsl(TEST_APPLICATION_ID);
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
     }
 
     @Test
@@ -501,9 +523,9 @@ class ApplicationHistorySnapshotEndpointsTest {
                 TEST_SNAPSHOT_ID
         );
 
-        // Verify the error is propagated
+        // Verify the error is propagated (expectErrorMessage, not expectError: a wrong-typed refusal, e.g. BizException, must fail this test too)
         StepVerifier.create(result)
-                .expectError(RuntimeException.class)
+                .expectErrorMessage("Service error")
                 .verify();
     }
 
@@ -531,11 +553,319 @@ class ApplicationHistorySnapshotEndpointsTest {
                 .verify();
     }
 
+    // ---------------------------------------------------------------- D-31: served only through the app it was saved for
+
+    @Test
+    void testGetHistorySnapshotDsl_snapshotOfAnotherApplication_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(OTHER_APPLICATION_ID);
+
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] snapshotOfAnotherApplication: path=" + TEST_APPLICATION_ID
+                + " stored=" + OTHER_APPLICATION_ID);
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService, never()).findByIdWithoutDsl(OTHER_APPLICATION_ID);
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+        verifyNoInteractions(applicationRecordService);
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_snapshotStoredUnderGid_isRefused() {
+        when(pathApplication.getGid()).thenReturn(TEST_APPLICATION_GID);
+        when(pathApplication.getCreatedAt()).thenReturn(BEFORE_SNAPSHOT);
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_GID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_GID)).thenReturn(Mono.just(pathApplication));
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] snapshotStoredUnderGid: path=" + TEST_APPLICATION_ID
+                + " stored=" + TEST_APPLICATION_GID + " marker=null createdAt(app)=" + BEFORE_SNAPSHOT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(applicationService, never()).findByIdWithoutDsl(TEST_APPLICATION_GID);
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_snapshotStoredUnderSlug_isRefused() {
+        when(pathApplication.getSlug()).thenReturn(TEST_APPLICATION_SLUG);
+        when(pathApplication.getCreatedAt()).thenReturn(BEFORE_SNAPSHOT);
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_SLUG);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_SLUG)).thenReturn(Mono.just(pathApplication));
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] snapshotStoredUnderSlug: path=" + TEST_APPLICATION_ID
+                + " stored=" + TEST_APPLICATION_SLUG + " marker=null createdAt(app)=" + BEFORE_SNAPSHOT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(applicationService, never()).findByIdWithoutDsl(TEST_APPLICATION_SLUG);
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_snapshotWithoutApplication_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(null);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] snapshotWithoutApplication: path=" + TEST_APPLICATION_ID + " stored=null");
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService, never()).findByIdWithoutDsl(isNull());
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_pathGivenAsSlug_isServed() {
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_SLUG)).thenReturn(Mono.just(pathApplication));
+        stubSnapshot(TEST_APPLICATION_ID);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] pathGivenAsSlug: path=" + TEST_APPLICATION_SLUG
+                + " resolvedTo=" + TEST_APPLICATION_ID + " stored=" + TEST_APPLICATION_ID);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_SLUG, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.isSuccess() && response.getData().getApplicationsDsl() != null
+                        && response.getData().getModuleDSL() != null)
+                .verifyComplete();
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), eq(TEST_APPLICATION_SLUG), any());
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService, never()).findById(anyString());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_pathApplicationNotFound_skipsCheckAndSnapshotRead() {
+        BizException notFound = new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", TEST_APPLICATION_ID);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_ID)).thenReturn(Mono.error(notFound));
+        stubSnapshot(TEST_APPLICATION_ID);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] pathApplicationNotFound: path=" + TEST_APPLICATION_ID);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound)).verify();
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any());
+        verify(applicationHistorySnapshotService, never()).getHistorySnapshotDetail(anyString());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_editDenied_skipsSnapshotRead() {
+        BizException denied = new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+        when(resourcePermissionService.checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.error(denied));
+        stubSnapshot(TEST_APPLICATION_ID);
+
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(denied)).verify();
+        verify(applicationHistorySnapshotService, never()).getHistorySnapshotDetail(anyString());
+    }
+
+    @Test
+    void testGetHistorySnapshotDslArchived_snapshotOfAnotherApplication_isRefused() {
+        ApplicationHistorySnapshotTS snapshot = stubArchivedSnapshot(OTHER_APPLICATION_ID);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] archived snapshotOfAnotherApplication: path=" + TEST_APPLICATION_ID
+                + " stored=" + OTHER_APPLICATION_ID);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDslArchived(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService, never()).findByIdWithoutDsl(OTHER_APPLICATION_ID);
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+        verifyNoInteractions(applicationRecordService);
+    }
+
+    @Test
+    void testGetHistorySnapshotDslArchived_pathGivenAsSlug_isServed() {
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_SLUG)).thenReturn(Mono.just(pathApplication));
+        stubArchivedSnapshot(TEST_APPLICATION_ID);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] archived pathGivenAsSlug: path=" + TEST_APPLICATION_SLUG
+                + " resolvedTo=" + TEST_APPLICATION_ID + " stored=" + TEST_APPLICATION_ID);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDslArchived(TEST_APPLICATION_SLUG, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.isSuccess() && response.getData().getApplicationsDsl() != null
+                        && response.getData().getModuleDSL() != null)
+                .verifyComplete();
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), eq(TEST_APPLICATION_SLUG), any());
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+        verify(applicationService, never()).findById(anyString());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_legacySnapshotOfOlderApplication_isServed() {
+        stubSnapshot(TEST_APPLICATION_ID);
+        when(pathApplication.getCreatedAt()).thenReturn(BEFORE_SNAPSHOT);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] legacySnapshotOfOlderApplication: createdAt(app)="
+                + BEFORE_SNAPSHOT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.isSuccess() && response.getData().getApplicationsDsl() != null
+                        && response.getData().getModuleDSL() != null)
+                .verifyComplete();
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_legacySnapshotOfNewerApplication_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(pathApplication.getCreatedAt()).thenReturn(AFTER_SNAPSHOT);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] legacySnapshotOfNewerApplication: createdAt(app)="
+                + AFTER_SNAPSHOT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_legacySnapshotOfEquallyTimedApplication_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(pathApplication.getCreatedAt()).thenReturn(SNAPSHOT_CREATED_AT);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] legacySnapshotOfEquallyTimedApplication: createdAt(app)="
+                + SNAPSHOT_CREATED_AT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(snapshot, never()).getDsl();
+        verify(applicationService, never()).getAllDependentModulesFromDsl(any());
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_legacySnapshot_applicationWithoutCreationTime_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        // pathApplication.getCreatedAt() left unstubbed: null.
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] legacySnapshot_applicationWithoutCreationTime: createdAt(app)=null"
+                + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(snapshot, never()).getDsl();
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_legacySnapshotWithoutCreationTime_isRefused() {
+        ApplicationHistorySnapshot snapshot = stubSnapshot(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(snapshot.getCreatedAt()).thenReturn(null);
+        when(pathApplication.getCreatedAt()).thenReturn(BEFORE_SNAPSHOT);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] legacySnapshotWithoutCreationTime: createdAt(app)="
+                + BEFORE_SNAPSHOT + " createdAt(snapshot)=null");
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(snapshot, never()).getDsl();
+    }
+
+    @Test
+    void testGetHistorySnapshotDsl_resolvedSnapshot_applicationWithoutCreationTime_isServed() {
+        stubSnapshot(TEST_APPLICATION_ID);
+        // marker stays TRUE (stubSnapshot/createMockApplicationHistorySnapshot default); pathApplication.getCreatedAt() left unstubbed: null.
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] resolvedSnapshot_applicationWithoutCreationTime: marker=TRUE createdAt(app)=null");
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDsl(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.isSuccess() && response.getData().getApplicationsDsl() != null
+                        && response.getData().getModuleDSL() != null)
+                .verifyComplete();
+    }
+
+    @Test
+    void testGetHistorySnapshotDslArchived_legacySnapshotOfNewerApplication_isRefused() {
+        ApplicationHistorySnapshotTS snapshot = stubArchivedSnapshot(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(null);
+        when(pathApplication.getCreatedAt()).thenReturn(AFTER_SNAPSHOT);
+
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] archived legacySnapshotOfNewerApplication: createdAt(app)="
+                + AFTER_SNAPSHOT + " createdAt(snapshot)=" + SNAPSHOT_CREATED_AT);
+        Mono<ResponseView<HistorySnapshotDslView>> result = controller.getHistorySnapshotDslArchived(TEST_APPLICATION_ID, TEST_SNAPSHOT_ID);
+
+        StepVerifier.create(result).expectErrorSatisfies(this::assertInvalidHistorySnapshot).verify();
+        verify(snapshot, never()).getDsl();
+    }
+
+    @Test
+    void testCreate_requestGivenAsSlug_storesObjectId() {
+        Map<String, Object> dsl = new HashMap<>();
+        dsl.put("components", new HashMap<>());
+        dsl.put("layout", new HashMap<>());
+        Map<String, Object> context = new HashMap<>();
+        context.put("action", "save");
+        context.put("timestamp", Instant.now().toEpochMilli());
+        ApplicationHistorySnapshotRequest request = new ApplicationHistorySnapshotRequest(TEST_APPLICATION_SLUG, dsl, context);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_SLUG)).thenReturn(Mono.just(pathApplication));
+        stubCreateSucceeds();
+
+        Mono<ResponseView<Boolean>> result = controller.create(request);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.isSuccess() && Boolean.TRUE.equals(response.getData()))
+                .verifyComplete();
+        verify(applicationHistorySnapshotService).createHistorySnapshot(eq(TEST_APPLICATION_ID), eq(dsl), eq(context), eq(TEST_USER_ID));
+        verify(applicationHistorySnapshotService, never()).createHistorySnapshot(eq(TEST_APPLICATION_SLUG), any(), any(), any());
+        verify(resourcePermissionService).checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), eq(TEST_APPLICATION_SLUG), any());
+        verify(applicationService).updateLastEditedAt(eq(TEST_APPLICATION_ID), any(Instant.class), eq(TEST_USER_ID));
+        verify(applicationService, times(1)).findByIdWithoutDsl(anyString());
+    }
+
+    @Test
+    void testCreate_applicationNotFound_storesNothing() {
+        BizException notFound = new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", TEST_APPLICATION_ID);
+        when(applicationService.findByIdWithoutDsl(TEST_APPLICATION_ID)).thenReturn(Mono.error(notFound));
+        stubCreateSucceeds();
+        ApplicationHistorySnapshotRequest request = new ApplicationHistorySnapshotRequest(TEST_APPLICATION_ID, new HashMap<>(), new HashMap<>());
+
+        Mono<ResponseView<Boolean>> result = controller.create(request);
+
+        StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound)).verify();
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any());
+        verify(applicationHistorySnapshotService, never()).createHistorySnapshot(anyString(), any(), any(), any());
+        verify(applicationService, never()).updateLastEditedAt(anyString(), any(), anyString());
+    }
+
+    @Test
+    void testCreate_editDenied_storesNothing() {
+        BizException denied = new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
+        when(resourcePermissionService.checkResourcePermissionWithError(TEST_USER_ID, TEST_APPLICATION_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.error(denied));
+        stubCreateSucceeds();
+        ApplicationHistorySnapshotRequest request = new ApplicationHistorySnapshotRequest(TEST_APPLICATION_ID, new HashMap<>(), new HashMap<>());
+
+        Mono<ResponseView<Boolean>> result = controller.create(request);
+
+        StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isSameAs(denied)).verify();
+        verify(applicationHistorySnapshotService, never()).createHistorySnapshot(anyString(), any(), any(), any());
+    }
+
     // Helper methods to create mock objects
     private ApplicationHistorySnapshot createMockApplicationHistorySnapshot(String snapshotId, String userId) {
         ApplicationHistorySnapshot snapshot = Mockito.mock(ApplicationHistorySnapshot.class);
         when(snapshot.getId()).thenReturn(snapshotId);
         when(snapshot.getApplicationId()).thenReturn(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(Boolean.TRUE);
         when(snapshot.getCreatedBy()).thenReturn(userId);
         when(snapshot.getCreatedAt()).thenReturn(Instant.now());
         when(snapshot.getDsl()).thenReturn(new HashMap<>());
@@ -547,11 +877,49 @@ class ApplicationHistorySnapshotEndpointsTest {
         ApplicationHistorySnapshotTS snapshot = Mockito.mock(ApplicationHistorySnapshotTS.class);
         when(snapshot.getId()).thenReturn(snapshotId);
         when(snapshot.getApplicationId()).thenReturn(TEST_APPLICATION_ID);
+        when(snapshot.getApplicationIdResolved()).thenReturn(Boolean.TRUE);
         when(snapshot.getCreatedBy()).thenReturn(userId);
         when(snapshot.getCreatedAt()).thenReturn(Instant.now());
         when(snapshot.getDsl()).thenReturn(new HashMap<>());
         when(snapshot.getContext()).thenReturn(new HashMap<>());
         return snapshot;
+    }
+
+    /** Refused by {@code savedFor} (the create route's style of INVALID_HISTORY_SNAPSHOT, D-31): verbose and exact. */
+    private void assertInvalidHistorySnapshot(Throwable error) {
+        System.out.println("[ApplicationHistorySnapshotEndpointsTest] refused: " + error);
+        assertThat(error).isInstanceOf(BizException.class);
+        BizException bizException = (BizException) error;
+        assertThat(bizException.getError()).isEqualTo(BizError.INVALID_HISTORY_SNAPSHOT);
+        assertThat(bizException.getMessageKey()).isEqualTo("INVALID_HISTORY_SNAPSHOT");
+        assertThat(bizException.getArgs()).containsExactly(TEST_SNAPSHOT_ID);
+    }
+
+    /** Stubs the whole read side of an active-snapshot DSL test, so no row leaves a {@code null}; marker stays TRUE. */
+    private ApplicationHistorySnapshot stubSnapshot(String storedApplicationKey) {
+        ApplicationHistorySnapshot snapshot = createMockApplicationHistorySnapshot(TEST_SNAPSHOT_ID, TEST_USER_ID);
+        when(snapshot.getApplicationId()).thenReturn(storedApplicationKey);
+        when(snapshot.getCreatedAt()).thenReturn(SNAPSHOT_CREATED_AT);
+        when(applicationHistorySnapshotService.getHistorySnapshotDetail(TEST_SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
+        when(applicationService.getAllDependentModulesFromDsl(any(Map.class))).thenReturn(Mono.just(List.of()));
+        return snapshot;
+    }
+
+    /** As {@link #stubSnapshot}, for the archive route. */
+    private ApplicationHistorySnapshotTS stubArchivedSnapshot(String storedApplicationKey) {
+        ApplicationHistorySnapshotTS snapshot = createMockApplicationHistorySnapshotTS(TEST_SNAPSHOT_ID, TEST_USER_ID);
+        when(snapshot.getApplicationId()).thenReturn(storedApplicationKey);
+        when(snapshot.getCreatedAt()).thenReturn(SNAPSHOT_CREATED_AT);
+        when(applicationHistorySnapshotService.getHistorySnapshotDetailArchived(TEST_SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
+        when(applicationService.getAllDependentModulesFromDsl(any(Map.class))).thenReturn(Mono.just(List.of()));
+        return snapshot;
+    }
+
+    /** Stubs the two writes of the create route for any key, so an unfixed controller is answered too. */
+    private void stubCreateSucceeds() {
+        when(applicationHistorySnapshotService.createHistorySnapshot(anyString(), any(Map.class), any(Map.class), anyString()))
+                .thenReturn(Mono.just(true));
+        when(applicationService.updateLastEditedAt(anyString(), any(Instant.class), anyString())).thenReturn(Mono.just(true));
     }
 
     private User createMockUser(String userId, String userName, String avatarUrl) {

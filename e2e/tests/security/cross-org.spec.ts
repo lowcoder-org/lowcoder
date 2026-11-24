@@ -127,6 +127,8 @@ const PLAIN_TEXT = { "content-type": "text/plain" };
 const FOLDER_DENIALS = [API_ERRORS.FOLDER_OPERATE_NO_PERMISSION, API_ERRORS.NOT_AUTHORIZED];
 /** The answer of an allowed call. */
 const OK = { status: 200, code: API_OK } as const;
+/** HTTP status of an allowed call, for an assertion that checks only the status, not the envelope code. */
+const HTTP_OK = 200;
 /** The profile photo A has before the outsider's delete: the 8x8 PNG of src/media.ts, as bytes. */
 const PHOTO = { name: "photo.png", mimeType: "image/png", buffer: Buffer.from(PNG_RED.split(",")[1] ?? "", "base64") };
 
@@ -544,7 +546,35 @@ test.describe("security: another workspace's resources (further rows)", () => {
     const answer = await apiRaw(b.request, "PUT", appSlugPath(seeded.appId), { data: OUTSIDER_SLUG, headers: PLAIN_TEXT });
 
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "the outsider's app slug change");
+    // Limit: no app view carries the slug and the slug write is not reached today (D-37), so this read cannot show a stored slug; the denial above is the proof.
     expect((await apiRaw(a.request, "GET", applicationPath(seeded.appId))).body, "after: the slug was not stored").not.toContain(OUTSIDER_SLUG);
+  });
+
+  /** A well-formed object id that names no application; no hyphen, so the lookup tries it as an object id, then as a slug. */
+  const UNKNOWN_APP_ID = "000000000000000000000000";
+  /** The slug an editor is allowed to set, as the positive control of SEC-C16f. */
+  const EDITOR_SLUG = "e2e-sec-slug-by-editor";
+
+  test("SEC-C16g+ the app's editor is not refused by the slug route", securityTestDetails("SEC-C16g+"), async ({ page, apiUser, actor }) => {
+    const { a, b, seeded } = await sceneOf(page, apiUser, actor);
+    await joinWorkspace(a, b);
+    await grantApp(a, seeded.appId, b, APP_ROLES.EDITOR);
+    expectAnswer(await apiRaw(b.request, "GET", applicationPath(seeded.appId)), OK, "precondition: B edits the app");
+
+    const answer = await apiRaw(b.request, "PUT", appSlugPath(seeded.appId), { data: EDITOR_SLUG, headers: PLAIN_TEXT });
+
+    // The body is not asserted: it is empty today because the write is not reached (D-37, the slug-exists query
+    // completes empty for a fresh slug) and would carry the app once that query is repaired.
+    expect(answer.status, "the editor's slug change is not refused").toBe(HTTP_OK);
+    expect(answer.code, "not the denial").not.toBe(API_ERRORS.NOT_AUTHORIZED.code);
+  });
+
+  test("SEC-C16h the app slug route answers NO_RESOURCE_FOUND for an id that names no app", securityTestDetails("SEC-C16h"), async ({ page, apiUser, actor }) => {
+    const { b } = await sceneOf(page, apiUser, actor);
+
+    const answer = await apiRaw(b.request, "PUT", appSlugPath(UNKNOWN_APP_ID), { data: OUTSIDER_SLUG, headers: PLAIN_TEXT });
+
+    expectAnswer(answer, API_ERRORS.NO_RESOURCE_FOUND, "the slug change of an unknown app");
   });
 
   test("SEC-C17a an outsider cannot create an invitation to another workspace", securityTestDetails("SEC-C17a"), async ({ page, apiUser, actor }) => {
@@ -683,13 +713,15 @@ test.describe("security: another workspace's resources (further rows)", () => {
     await createSnapshot(a.request, seeded.appId, (await getApp(a.request, seeded.appId)).dsl as object);
     const snapshotId = (await listSnapshots(a.request, seeded.appId))[0]?.snapshotId;
     expect(snapshotId, "setup: A has a snapshot").toBeTruthy();
+    const ownRead = await apiRaw(a.request, "GET", snapshotPath(seeded.appId, snapshotId ?? ""));
+    expectAnswer(ownRead, OK, "before: the owner reads the snapshot through its own app");
+    expect(ownRead.body, "before: the owner's answer carries A's DSL").toContain(SEEDED_BUTTON_TEST_ID);
     const appOfB = await appOfOutsider(b);
 
     const answer = await apiRaw(b.request, "GET", snapshotPath(appOfB, snapshotId ?? ""));
 
-    // Not narrowable on any available image: the 3.0.0 server lets the call through, so the desired code was never observed.
-    // The first run against an updated server should replace this list with the one answer it gives.
-    expectDeniedAs(answer, [API_ERRORS.INVALID_HISTORY_SNAPSHOT, API_ERRORS.NOT_AUTHORIZED], "the outsider reads A's snapshot through B's app");
+    // D-31: the snapshot of another app gets the answer of an unknown snapshot id (same status, code and message).
+    expectAnswer(answer, API_ERRORS.INVALID_HISTORY_SNAPSHOT, "the outsider reads A's snapshot through B's app");
     expect(answer.body, "A's DSL is not in the answer").not.toContain(SEEDED_BUTTON_TEST_ID);
   });
 

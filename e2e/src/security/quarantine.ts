@@ -22,92 +22,83 @@ export const DEFECT_ID_PATTERN = /^D-\d+$/;
 export const DEFECT_ANNOTATION_TYPE = "defect";
 
 /**
- * Scenarios that fail on the 3.0.0 image but are fixed on this branch's server (fixed-on-branch defects),
- * scenario id to defect id. They leave quarantine, without a rewrite of any spec, by deleting their id from this map
- * once a run against an updated server passes them (`E2E_INCLUDE_QUARANTINE=1 ... --grep @quarantine`).
+ * Scenarios whose defect is fixed in the code of this branch but whose test is not (yet) in the default run, scenario id to
+ * defect id. Since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` every other entry that used to be
+ * here has left the map (its test passed on 3.0.1 and runs by default); what is left needs a decision before it can leave:
+ * - LC-AK04 (D-45): the API defect is fixed (SEC-A02a passes), but the UI test that deletes the last API key is intermittent
+ *   on 3.0.1 (passed 2 of 3 runs, failed 1 of 3; the cause, product or test, is not investigated). It stays quarantined until
+ *   it passes repeatedly (`E2E_INCLUDE_QUARANTINE=1 ... --grep @quarantine`), then its id is deleted and this map is empty.
  *
- * Limit: the map is the single source of the quarantine; a scenario missing here that fails on the image is NOT
+ * Limit: the maps are the single source of the quarantine; a scenario missing from both that fails on the image is NOT
  * quarantined and fails the default run, and a stale entry hides a test that passes.
  */
 export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
-  "SEC-C13": "D-29",
-  "SEC-C15": "D-17",
-  "SEC-C16b": "D-28",
-  "SEC-C16c": "D-28",
-  "SEC-C17a": "D-18",
-  "SEC-C17b": "D-18",
-  "SEC-C18b": "D-22",
-  "SEC-C20": "D-21",
-  "SEC-C23a": "D-43",
-  "SEC-C23c": "D-44",
-  "SEC-R08c": "D-16",
-  "SEC-R08d": "D-24",
-  "SEC-R09c": "D-20",
-  "SEC-R11b": "D-26",
-  "SEC-R16c": "D-23",
-  "SEC-R16d": "D-24",
-  "SEC-A02a": "D-45",
   "LC-AK04": "D-45",
-  "LC-AK08": "D-51",
-  "LC-PW09": "D-56",
-  "LC-PW10": "D-57",
-  "LC-PW14": "D-18",
-  "SEC-A06b": "D-23",
-  "SEC-A07a": "D-19",
-  "SEC-A09a": "D-25",
-  "SEC-X02b": "D-27",
 };
 
 /**
- * Scenarios that fail on this branch's server too (open defects, listed in the table "Security findings" of
- * `e2e/README.md`), scenario id to defect id. SEC-E05 (ENTERPRISE stack, `tests/security/enterprise-takeover.spec.ts`)
- * and SEC-X01b, SEC-X01c (npm registry proxy, `tests/security/outbound.spec.ts`) are built. LC-AU07, LC-AU15 (`tests/auth/signup-edge.spec.ts`), LC-PR06 (`tests/account/profile.spec.ts`), LC-PR13 and LC-PR14 (`tests/account/password.spec.ts`), LC-PW08, LC-PW11, LC-PW12 and LC-PW15 (`tests/auth/password-recovery.spec.ts`), LC-DL03 and LC-DL04 (`tests/workspace/leave-removal.spec.ts`), LC-IP07 (`tests/auth/providers-config.spec.ts`), LC-IP14 (`tests/auth/providers-login.spec.ts`) and LC-OT02 (`tests/account/other.spec.ts`) are lifecycle ids.
+ * Scenarios that still fail on this branch's server (open defects, listed in the table "Security findings" of
+ * `e2e/README.md`; each still failed on 3.0.1-e2e on 2026-11-22), scenario id to defect id.
+ * D-6, D-7, D-35, D-36, D-40 and D-58, D-62 left this map: the server fixes close them (SEC-C09, SEC-C11, SEC-C19a,
+ * SEC-C19b, SEC-C22e, SEC-R15c, SEC-A11, SEC-E05 and the lifecycle ids LC-PW11, LC-IP14 all now pass; SEC-E05 needs
+ * `E2E_STACK_PROFILE=enterprise`, confirmed separately). D-33's CORS-credentials half also left: `SecurityConfig` now
+ * grants credentials only to an origin listed in a non-wildcard `LOWCODER_CORS_DOMAINS` entry, so SEC-A12 passes on the
+ * default stack (`*`); D-33's CSRF and `SameSite` half stays open (the row names the residual). D-12 and D-39 left this
+ * map: `SecurityConfig` no longer lets anonymous callers reach `POST /api/meta/` or the actuator metrics and Prometheus
+ * routes (health stays open); SEC-A10a and SEC-A10c are therefore no longer quarantined (Docker/e2e confirmation
+ * pending the combined final run). SEC-X01b, SEC-X01c (D-35) left the same way: the npm registry proxy now needs
+ * READ on the path's app id before resolving the workspace or forwarding anything. D-10 left this map the same way:
+ * `POST /api/query/execute` in edit mode needs EDIT on the app (for a module run in another app's editor: EDIT on
+ * that app and READ on the module, whose published queries run), so SEC-A09c is no longer quarantined. D-49 left the
+ * map the same way: `POST /api/users/password` now needs a single conditional MongoDB update that refuses an account
+ * which already has a password, so LC-PR13 is no longer quarantined. D-34 left the map the same way: a password
+ * change, a lost-password reset and an ENTERPRISE admin reset now end the other sessions of the account (the
+ * caller's own survives a change or a self-reset), so SEC-A04 and LC-PW08 are no longer quarantined. D-48 left the map
+ * the same way: the server now enforces the client's password rule (sign-up, an admin's create-user route, a password
+ * change, a lost-password reset, a provider-only account's first password), so LC-AU07 and LC-PR14 are no longer
+ * quarantined. D-14 left this map: an organization's JSON no longer carries its auth configs, so neither the
+ * workspace answer nor the profile holds a sign-in client secret, so SEC-R07d is no longer quarantined (SEC-R07e is
+ * new and was never quarantined). D-32 left this map: the app record route (live or a named version's DSL) now needs
+ * EDIT_APPLICATIONS on the record's own application, so SEC-R01d is no longer quarantined (SEC-R01e, SEC-R01f+ and
+ * SEC-R01g+ pin the viewer, editor and workspace-admin answers; Docker/e2e confirmation deferred to the combined
+ * final run, NOT VERIFIED yet). D-31 left this map: a history snapshot is now served only through the app it was
+ * saved for, so SEC-C21 is no longer quarantined (Docker/e2e confirmation deferred to the combined final run, NOT
+ * VERIFIED yet). D-42 left this map only partly: a bundle's element list now carries an app's editing DSL only to a
+ * reader who may edit that app, and an app added to or moved into a bundle is stored without its editing DSL, so
+ * SEC-R17c is no longer quarantined (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet);
+ * copies stored in bundle DSLs before the fix remain unfiltered (the README row names the residual). D-38 left this
+ * map: each id of a batched permission lookup is now decided in its own workspace instead of the first id's, so
+ * SEC-R09d is no longer quarantined and no longer intermittent (Docker/e2e confirmation deferred to the combined
+ * final run, NOT VERIFIED yet). D-8 left this map: a folder's permission list now requires the caller to be a member
+ * of the folder's workspace, so SEC-C10 is no longer quarantined (Docker/e2e confirmation deferred to the combined
+ * final run, NOT VERIFIED yet). D-9 and D-37 left this map: a status change through the update route now needs
+ * MANAGE_APPLICATIONS, and the app slug route now needs EDIT_APPLICATIONS, so SEC-R03b and SEC-C16f are no longer
+ * quarantined (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-11 and D-41 left
+ * this map: app, bundle and data source creation now check the developer role in the TARGET workspace, not the
+ * visitor's current one, so SEC-R06c and SEC-R17b are no longer quarantined (SEC-R06e is new and was never
+ * quarantined; Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-59 and D-60 left this
+ * map: the member-leave clean-up now deletes the data source row by the right resource type and gained a folder and a
+ * bundle step, so LC-DL03 and LC-DL04 are no longer quarantined (LC-DL12 is new and was never quarantined; Docker/e2e
+ * confirmation deferred to the combined final run, NOT VERIFIED yet); rows left by removals before the fix stay
+ * stored, and a creator's `createdBy` access is a separate, unrevoked mechanism (README D-26 and D-60 residuals,
+ * LC-DL13 to LC-DL15 candidates). D-52 left this map: `GroupApiServiceImpl.update` now refuses a non-null `groupName`
+ * on a system group (any of its three encodings) with UNSUPPORTED_OPERATION and writes nothing, so LC-GR09 is no
+ * longer quarantined (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet); groups renamed
+ * before the fix keep their stored name, never shown (`Group.getName`). D-54 left this map: the password-reset and
+ * invitation mail links now carry the configured public URL without its trailing slashes, so LC-PW12 is no longer
+ * quarantined (LC-PW02 and LC-PW13 now open those links as mailed instead of working around the double slash;
+ * Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-55 left this map: the invite
+ * dialog's success notice now uses the key readers of every other notice in the file use (`memberSettings.*`, not
+ * `membersSettings.*`), so LC-PW15 is no longer quarantined (Docker/e2e confirmation deferred to the combined final
+ * run, NOT VERIFIED yet). D-63 also left this map: the profile now fetches the app list it counts, so LC-OT02 passes
+ * (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). LC-AU15
+ * (`tests/auth/signup-edge.spec.ts`) is a lifecycle id.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
-  "SEC-C09": "D-7",
-  "SEC-C10": "D-8",
-  "SEC-C11": "D-7",
-  "SEC-C16f": "D-37",
   "SEC-C17c": "D-30",
-  "SEC-C19a": "D-6",
-  "SEC-C19b": "D-6",
-  "SEC-C21": "D-31",
-  "SEC-C22e": "D-7",
-  "SEC-R01d": "D-32",
-  "SEC-R03b": "D-9",
-  "SEC-R06c": "D-11",
-  "SEC-R07d": "D-14",
-  "SEC-R09d": "D-38",
-  "SEC-R15c": "D-7",
-  "SEC-R17b": "D-41",
-  "SEC-R17c": "D-42",
   "SEC-R17f": "D-46",
-  "SEC-A04": "D-34",
-  "SEC-A09c": "D-10",
-  "SEC-A10a": "D-12",
   "SEC-A10b": "D-13",
-  "SEC-A10c": "D-39",
-  "SEC-A11": "D-36",
-  "SEC-A12": "D-33",
-  "SEC-E05": "D-40",
-  "SEC-X01b": "D-35",
-  "SEC-X01c": "D-35",
-  "LC-AU07": "D-48",
   "LC-AU15": "D-30",
-  "LC-GR03": "D-53",
-  "LC-DL03": "D-59",
-  "LC-DL04": "D-60",
-  "LC-GR09": "D-52",
-  "LC-IP07": "D-61",
-  "LC-IP14": "D-62",
-  "LC-OT02": "D-63",
-  "LC-PR06": "D-50",
-  "LC-PR13": "D-49",
-  "LC-PR14": "D-48",
-  "LC-PW08": "D-34",
-  "LC-PW11": "D-58",
-  "LC-PW12": "D-54",
-  "LC-PW15": "D-55",
 };
 
 /** What a security test passes to `test(title, details, body)`: the `tag` and, for a quarantined test, the annotation. */
@@ -144,7 +135,7 @@ export function securityTestDetails(id: string, extraTags: readonly string[] = [
 }
 
 /**
- * The details of a security test that failed on the 3.0.0 image for a real server behaviour nobody expected and that
+ * The details of a security test that failed on the image under test for a real server behaviour nobody expected and that
  * no defect-list entry names yet (`e2e/AGENTS.md` section 7: "<id> candidate"). Quarantined like a listed id, the annotation
  * description names the scenario and what was measured. A candidate leaves this form by getting a D id in
  * `FIXED_ON_BRANCH` or `OPEN_DEFECTS` and `securityTestDetails`. Throws on an id that is not a scenario id or that is already

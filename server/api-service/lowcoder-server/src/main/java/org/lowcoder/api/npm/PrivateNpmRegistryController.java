@@ -8,6 +8,8 @@ import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberServiceImpl;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.permission.model.ResourceAction;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.js.NodeServerHelper;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
@@ -35,6 +37,7 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
     private static final String NPM_REGISTRY_ASSET = "npm/package";
     private final OrgMemberServiceImpl orgMemberServiceImpl;
     private final ApplicationServiceImpl applicationServiceImpl;
+    private final ResourcePermissionService resourcePermissionService;
 
     @Override
     public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String path) {
@@ -46,6 +49,16 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
         return forwardToNodeService(applicationId, path, NPM_REGISTRY_ASSET);
     }
 
+    /**
+     * Forwards an npm registry/package request to node-service with the workspace's {@code npmRegistries} setting
+     * (registry URL and credential). For an {@code applicationId} other than {@code "none"}, the visitor must have
+     * READ on that app id (D-35): the check runs, and resolves the app's workspace as part of resolving the
+     * permission, before {@code applicationServiceImpl.findById}, {@code organizationService.getById} or
+     * {@code getOrgCommonSettings} are called, and before anything is forwarded to node-service. Clients send the
+     * OUTERMOST, actually READ-checked host app id for a component embedded in a module (never the module's own
+     * id): see {@code ExternalEditorContext.readCheckedApplicationId}. The {@code "none"} branch is unchanged: it
+     * uses the visitor's own current workspace and performs no permission check.
+     */
     @NotNull
     private Mono<ResponseEntity<Resource>> forwardToNodeService(String applicationId, String path, String prefix) {
 
@@ -85,7 +98,9 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
                             }));
 
         } else{
-            return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
+            return sessionUserService.getVisitorId()
+                    .flatMap(visitorId -> resourcePermissionService.checkResourcePermissionWithError(visitorId, applicationId, ResourceAction.READ_APPLICATIONS))
+                    .then(Mono.defer(() -> applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
                 Map<String, Object> config = Map.of("npmRegistries", Objects.requireNonNullElse(organizationCommonSettings.get("npmRegistries"), new ArrayList<>(0)), "workspaceId", orgMember.getId());
                 return WebClientBuildHelper.builder()
                         .systemProxy()
@@ -101,7 +116,7 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
                                     .headers(response.getHeaders())
                                     .body(response.getBody());
                         });
-            }));
+            })))); // closes: Mono.defer(..), the getOrgCommonSettings flatMap, the getById flatMap, the findById flatMap
         }
     }
 }

@@ -82,7 +82,7 @@ public final class UserManagementSamples {
 
     public static ResetLostPasswordRequest resetLostPasswordRequest() {
         return new ResetLostPasswordRequest("ResetLostPasswordRequest.token", "ResetLostPasswordRequest.userEmail",
-                "ResetLostPasswordRequest.newPassword");
+                "ResetLostPasswordRequest.newPassword1");
     }
 
     public static ResetPasswordRequest resetPasswordRequest() {
@@ -90,7 +90,7 @@ public final class UserManagementSamples {
     }
 
     public static UpdatePasswordRequest updatePasswordRequest() {
-        return new UpdatePasswordRequest("UpdatePasswordRequest.oldPassword", "UpdatePasswordRequest.newPassword");
+        return new UpdatePasswordRequest("UpdatePasswordRequest.oldPassword", "UpdatePasswordRequest.newPassword1");
     }
 
     public static UpdateUserRequest updateUserRequest() {

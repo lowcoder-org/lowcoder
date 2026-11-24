@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
 import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
 import static org.lowcoder.sdk.exception.BizError.DATASOURCE_AND_APP_ORG_NOT_MATCH;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
@@ -79,9 +80,11 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
         }
         boolean viewMode = queryExecutionRequest.isViewMode();
         String queryId = queryExecutionRequest.getQueryId();
+        // a module run in another application's editor uses its published queries, which that editor shows (D-10)
+        boolean useLiveQueries = viewMode || hostAppIdOf(queryExecutionRequest.getPath(), appId) != null;
         Mono<Application> appMono = applicationService.findById(appId).cache();
         Mono<ApplicationQuery> appQueryMono = appMono
-                .flatMap(app -> app.getQueryByViewModeAndQueryId(viewMode, queryId, applicationRecordService))
+                .flatMap(app -> app.getQueryByViewModeAndQueryId(useLiveQueries, queryId, applicationRecordService))
                 .cache();
 
         Mono<BaseQuery> baseQueryMono = appQueryMono.flatMap(this::getBaseQuery).cache();
@@ -143,13 +146,36 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
         return !datasource.isSystemStatic() && !datasource.isLegacyQuickRestApi() && !datasource.isLegacyLowcoderApi();
     }
 
+    /**
+     * Permission required before a query runs (D-10):
+     * <ul>
+     *   <li>{@code viewMode: true} (any path): unchanged. Membership of {@code appId} in the root's live module set
+     *       when a root is given (INVALID_PARAMETER otherwise, including a root equal to {@code appId}), then READ
+     *       on the root.</li>
+     *   <li>{@code viewMode: false}, own app (no host): EDIT_APPLICATIONS on {@code appId}.</li>
+     *   <li>{@code viewMode: false}, module of a host H: (1) EDIT_APPLICATIONS on H; (2) {@code appId} is in H's
+     *       module set built with {@code viewMode: false} (H's editing DSL for the first level, each module's live
+     *       modules below), else INVALID_PARAMETER; (3) READ_APPLICATIONS on {@code appId} itself (the module) --
+     *       kept unchanged from today's edit-mode check, since a host editor can write any module id into the host's
+     *       DSL with no check (the save does not validate modules), so step 2 alone is only a membership test.</li>
+     * </ul>
+     * Limits (unchanged by this method): a never-published app or module has its draft as its live version, so READ
+     * on it already runs that draft in view mode; view mode checks no right on the module itself, only membership
+     * and READ on the root; intermediate modules of a nested path are not checked.
+     */
     protected Mono<Void> checkExecutePermission(String userId, String[] path, String appId, boolean viewMode) {
         if (viewMode) {
             return checkAppPathAndReturnRootAppId(path, appId, true)
                     .flatMap(rootAppId -> resourcePermissionService.checkResourcePermissionWithError(userId, rootAppId,
                             READ_APPLICATIONS));
         }
-        return resourcePermissionService.checkResourcePermissionWithError(userId, appId, READ_APPLICATIONS);
+        String hostAppId = hostAppIdOf(path, appId);
+        if (hostAppId == null) {
+            return resourcePermissionService.checkResourcePermissionWithError(userId, appId, EDIT_APPLICATIONS);
+        }
+        return resourcePermissionService.checkResourcePermissionWithError(userId, hostAppId, EDIT_APPLICATIONS)
+                .then(Mono.defer(() -> checkAppPathAndReturnRootAppId(path, appId, false)))
+                .then(Mono.defer(() -> resourcePermissionService.checkResourcePermissionWithError(userId, appId, READ_APPLICATIONS)));
     }
 
     private Mono<String> checkAppPathAndReturnRootAppId(String[] path, String appId, boolean viewMode) {
@@ -165,15 +191,31 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
                         return ofError(INVALID_PARAMETER, "INVALID_PARAMETER");
                     }
                     return Mono.just(rootAppId);
-                });
+                })
+                // defensive: getAllDependentModulesFromApplicationId's collectList never completes empty today, so
+                // this guard is not observable, but a module lookup that did complete empty must not let a request
+                // pass the membership test by default.
+                .switchIfEmpty(deferredError(INVALID_PARAMETER, "INVALID_PARAMETER"));
     }
 
     @Nullable
-    private String getRootAppIdFromPath(String[] path) {
+    static String getRootAppIdFromPath(String[] path) {
         if (ArrayUtils.isEmpty(path)) {
             return null;
         }
         return path[0];
+    }
+
+    /**
+     * The host of a module query run inside another application (D-10): the first path entry when it is not blank and is
+     * not {@code appId}; {@code null} for the application's own query (no path, a blank first entry, or the application
+     * itself as first entry). The edit-mode permission check and the query selection both use it, so they always
+     * classify a request the same way.
+     */
+    @Nullable
+    static String hostAppIdOf(@Nullable String[] path, String appId) {
+        String root = getRootAppIdFromPath(path);
+        return StringUtils.isBlank(root) || root.equals(appId) ? null : root;
     }
 
     private Mono<BaseQuery> getBaseQuery(ApplicationQuery applicationQuery) {

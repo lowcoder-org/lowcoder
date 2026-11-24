@@ -221,7 +221,7 @@ class DatasourceApiServiceImplTest {
         stubVisitor();
         when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID))
                 .thenReturn(Mono.just(new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "CURRENT", 0L)));
-        when(orgDevChecker.checkCurrentOrgDev()).thenReturn(loggedVoid("dev"));
+        when(orgDevChecker.checkOrgDev(any())).thenReturn(loggedVoid("dev"));
         when(datasourceService.create(datasource, VISITOR_ID)).thenReturn(logged("create", datasource));
         when(jsDatasourceHelper.processDynamicQueryConfig(datasource)).thenReturn(loggedVoid("process"));
 
@@ -245,7 +245,7 @@ class DatasourceApiServiceImplTest {
         Datasource datasource = datasource(null, "ds", SQL_TYPE, DatasourceStatus.NORMAL);
         stubVisitor();
         when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.empty());
-        lenient().when(orgDevChecker.checkCurrentOrgDev()).thenReturn(loggedVoid("dev"));
+        lenient().when(orgDevChecker.checkOrgDev(any())).thenReturn(loggedVoid("dev"));
         lenient().when(datasourceService.create(any(), any())).thenReturn(logged("create", datasource));
 
         StepVerifier.create(service.create(datasource))
@@ -256,7 +256,7 @@ class DatasourceApiServiceImplTest {
     }
 
     /**
-     * Catches a datasource created by a non-developer: a failing {@code checkCurrentOrgDev} stops the creation.
+     * Catches a datasource created by a non-developer: a failing {@code checkOrgDev} stops the creation.
      */
     @Test
     void create_developerCheckFails_createsNothing() {
@@ -264,7 +264,7 @@ class DatasourceApiServiceImplTest {
         stubVisitor();
         when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID))
                 .thenReturn(Mono.just(new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "CURRENT", 0L)));
-        when(orgDevChecker.checkCurrentOrgDev()).thenReturn(Mono.error(denied()));
+        when(orgDevChecker.checkOrgDev(any())).thenReturn(Mono.error(denied()));
         lenient().when(datasourceService.create(any(), any())).thenReturn(logged("create", datasource));
 
         StepVerifier.create(service.create(datasource))
@@ -272,6 +272,33 @@ class DatasourceApiServiceImplTest {
                 .verify();
         assertThat(events).isEmpty();
         say("create: developer check failed -> nothing created");
+    }
+
+    /**
+     * D-11/D-41: the developer check runs on the TARGET workspace (the request's {@code organizationId}), not the
+     * visitor's current one. An admin of a different, current workspace who is a plain member of the target still
+     * needs the real {@link org.lowcoder.api.usermanagement.OrgDevChecker#checkOrgDev} to refuse, so the call must
+     * carry the exact target membership; the current-workspace cache is never read in {@code create}.
+     */
+    @Test
+    void create_developerOfTheCurrentWorkspace_butNotOfTheTargetWorkspace_isRefused() {
+        Datasource datasource = datasource(null, "ds", SQL_TYPE, DatasourceStatus.NORMAL);
+        stubVisitor();
+        OrgMember targetMember = new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "CURRENT", 0L);
+        when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(targetMember));
+        when(orgDevChecker.checkOrgDev(targetMember)).thenReturn(Mono.error(denied()));
+        lenient().when(sessionUserService.getVisitorOrgMemberCache())
+                .thenReturn(Mono.just(new OrgMember("other-org", VISITOR_ID, MemberRole.ADMIN, "normal", 0L)));
+        lenient().when(datasourceService.create(any(), any())).thenReturn(logged("create", datasource));
+
+        StepVerifier.create(service.create(datasource))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        verify(orgDevChecker).checkOrgDev(targetMember);
+        verify(sessionUserService, never()).getVisitorOrgMemberCache();
+        assertThat(events).isEmpty();
+        say("create: admin of the current workspace, plain member of the target -> refused, target checked");
     }
 
     // ------------------------------------------------------------------ listJsDatasourcePlugins

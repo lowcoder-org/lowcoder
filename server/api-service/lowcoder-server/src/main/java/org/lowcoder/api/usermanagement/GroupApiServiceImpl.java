@@ -360,6 +360,14 @@ public class GroupApiServiceImpl implements GroupApiService {
         return getGroupAndOrgMemberInfo(groupId)
                 .filter(this::hasManagePermission)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
+                // D-52: the name of a system group is fixed; the dynamic rule is not. The guard checks the field's
+                // presence, not its value, so a rename to the same name is refused too (the stored name of a system
+                // group is never shown, GroupView.java, so "same as before" cannot be compared against what the
+                // caller saw).
+                .filterWhen(ignored -> updateGroupRequest.getGroupName() == null
+                        ? Mono.just(true)
+                        : groupService.getById(groupId).map(Group::isNotSystemGroup))
+                .switchIfEmpty(deferredError(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
                 .flatMap(it -> {
                     Group updateGroup = new Group();
                     updateGroup.setId(groupId);

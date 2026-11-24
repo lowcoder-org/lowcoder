@@ -78,9 +78,10 @@ public class InvitationController implements InvitationEndpoints
         if (ArrayUtils.isEmpty(req.emails()) || StringUtils.isAnyBlank(req.emails())) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", EMAILS_PARAMETER);
         }
-        return invitationApiService.create(req.orgId()).map(invitation -> 
-                emailCommunicationService.sendInvitationEmails(req.emails(), 
-                config.getLowcoderPublicUrl() + "/invite/" + invitation.getInviteCode(), 
+        return invitationApiService.create(req.orgId()).map(invitation ->
+                emailCommunicationService.sendInvitationEmails(req.emails(),
+                // D-54
+                CommonConfig.withoutTrailingSlashes(config.getLowcoderPublicUrl()) + "/invite/" + invitation.getInviteCode(),
                     "You have been invited to join our platform. Click here to accept the invitation: %s"))
             .map(ResponseView::success);
     }

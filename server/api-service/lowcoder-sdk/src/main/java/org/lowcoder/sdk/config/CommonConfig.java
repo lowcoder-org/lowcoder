@@ -69,6 +69,15 @@ public class CommonConfig {
     	return normalized;
     }
     
+    /**
+     * D-54: the public URL without its trailing run of slashes, so that {@code url + "/path"} has exactly one slash before
+     * the path whether the configured URL ends in none, one or several. Only the trailing run is removed; a doubled slash
+     * elsewhere is kept. {@code null} stays {@code null}.
+     */
+    public static String withoutTrailingSlashes(String url) {
+        return StringUtils.stripEnd(url, "/");
+    }
+
     public void setMaxUploadSize(String size)
     {
     	this.maxUploadSize = normalizeDataUnits(size);

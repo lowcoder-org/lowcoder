@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.MailSendException;
@@ -129,6 +130,23 @@ class EmailCommunicationServiceImplTest {
         String query = link.substring(LINK_PREFIX.length());
         assertThat(query).doesNotContain("&", "#", "%d", " ");
         assertThat(URLDecoder.decode(query, StandardCharsets.UTF_8)).isEqualTo(token);
+    }
+
+    /**
+     * D-54: the reset link has exactly one slash before the path whether the configured public URL ends in none, one
+     * or several slashes. The double-slash case is the one {@code StringUtils.removeEnd} would fail (it removes one
+     * slash only).
+     */
+    @ParameterizedTest(name = "public URL \"{0}\"")
+    @ValueSource(strings = {PUBLIC_URL, PUBLIC_URL + "/", PUBLIC_URL + "//"})
+    void resetLinkHasExactlyOneSlashWhateverTrailingSlashesThePublicUrlHasD54(String publicUrl) throws Exception {
+        config.setLowcoderPublicUrl(publicUrl);
+
+        assertThat(service.sendPasswordResetEmail(RECIPIENT, "tok", "%s %s")).isTrue();
+
+        String link = body(sentOnce()).substring((RECIPIENT + " ").length());
+        System.out.println("[EmailCommunicationServiceImplTest] public URL '" + publicUrl + "' -> link '" + link + "'");
+        assertThat(link).startsWith(LINK_PREFIX).isEqualTo(LINK_PREFIX + "tok");
     }
 
     /** Catches: a failed send or a broken message being reported as success, or an exception escaping. */

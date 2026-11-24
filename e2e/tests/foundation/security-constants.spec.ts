@@ -23,6 +23,7 @@ import {
   bundleReorderPath,
   bundleViewPath,
   configPath,
+  createUserInOrgPath,
   datasourcePath,
   datasourcePermissionPath,
   datasourcePermissionsPath,
@@ -126,6 +127,7 @@ test.describe("security constants", () => {
       apiKeyPath: apiKeyPath(ID),
       libraryQueryPath: libraryQueryPath(ID),
       configPath: configPath("k"),
+      createUserInOrgPath: createUserInOrgPath(ID),
     };
 
     expect(built).toEqual({
@@ -169,6 +171,7 @@ test.describe("security constants", () => {
       apiKeyPath: "/api/auth/api-key/i1",
       libraryQueryPath: "/api/library-queries/i1",
       configPath: "/api/configs/k",
+      createUserInOrgPath: "/api/users/new/i1",
     });
   });
 

@@ -26,8 +26,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * endpoint of the allow-list configuration ({@code /**}) under both {@code /api} and {@code /api/v1}; another origin is
  * refused with 403 and no allow header. Before the fix the second origin was refused.
  *
- * <p>Limits: preflights only (an actual cross-origin request gets the same origin check from the same configuration); the
- * endpoints that allow every origin ({@code SecurityConfig.buildCorsConfigurationSource}) are not exercised.
+ * <p>Limit: preflights only (an actual cross-origin request gets the same origin check from the same configuration).
+ * The paths that used to grant "any origin, with credentials" unconditionally are exercised by
+ * {@link CorsCredentialsListedOriginTest}, {@link CorsCredentialsWildcardOnlyTest},
+ * {@link CorsCredentialsWildcardSubPatternTest} and {@link CorsCredentialsMixedConfigTest}.
  * Isolation: its own profile ({@code corsAllowedDomains}), so its own context and database.
  */
 @SpringBootTest(properties = CorsAllowedDomainsPreflightTest.CORS_DOMAINS_PROPERTY + "=" + CorsAllowedDomainsPreflightTest.CORS_DOMAINS)

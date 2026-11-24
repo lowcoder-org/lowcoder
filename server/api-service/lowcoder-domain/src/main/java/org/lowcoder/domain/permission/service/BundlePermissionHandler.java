@@ -113,4 +113,10 @@ class BundlePermissionHandler extends ResourcePermissionHandler {
         return bundleService.findById(resourceId)
                 .map(Bundle::getOrganizationId);
     }
+
+    @Override
+    protected Mono<Map<String, String>> getOrgIds(Set<String> resourceIds) {
+        return orgIdsByKey(bundleService.findByIdIn(resourceIds), resourceIds, Bundle::getId, Bundle::getGid,
+                Bundle::getOrganizationId);
+    }
 }

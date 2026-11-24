@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.data.mongodb.repository.Query;
 
 @Repository
-public interface UserRepository extends ReactiveMongoRepository<User, String> {
+public interface UserRepository extends ReactiveMongoRepository<User, String>, CustomUserRepository {
 
     Flux<User> findByIdIn(Collection<String> ids);
     Mono<User> findBySuperAdminIsTrue();

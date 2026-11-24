@@ -3,6 +3,7 @@ import {
   API_ERRORS,
   API_OK,
   API_PATHS,
+  PASSWORD_TOO_WEAK_MESSAGE,
   SESSION_COOKIE_NAME,
   SET_COOKIE_HEADER,
   TEST_PASSWORD,
@@ -27,7 +28,7 @@ import { expectAnswer } from "../../src/security/assertions";
 import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 /**
- * Sign-in through a provider (LC-IP10 to LC-IP15) against a mock Generic OAuth provider on the test's own target of the echo
+ * Sign-in through a provider (LC-IP10 to LC-IP17) against a mock Generic OAuth provider on the test's own target of the echo
  * sidecar. The server calls the token and user-info endpoints itself; the browser never visits the provider, so a test makes
  * the call the client makes after the redirect (`POST /api/auth/tp/login`) with a made-up code. Every test configures its own
  * workspace's provider and user, so parallel tests share nothing. The tokens and the secret are fakes of the mock.
@@ -35,6 +36,7 @@ import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 const OK = { status: 200, code: API_OK } as const;
 const PROVIDER_USER_NAME = "Mock User";
+const WEAK_PASSWORD = "a";
 
 function setsSessionCookie(headers: Record<string, string>): boolean {
   return (headers[SET_COOKIE_HEADER] ?? "").includes(SESSION_COOKIE_NAME);
@@ -168,5 +170,21 @@ test.describe("lifecycle: sign-in through a provider (mock)", () => {
     const emailSession = await newUserSession();
     expectAnswer(await signInRaw(emailSession.page.request, bound, TEST_PASSWORD), OK, "the bound address signs in");
     expect(await currentUserId(emailSession.page.request), "as the same account").toBe(userId);
+  });
+
+  test("LC-IP17 a provider-only user cannot set a first password the client rule refuses", lifecycleTestDetails("LC-IP17"), async ({ actor, newUserSession, echo, baseURL }, testInfo) => {
+    const admin = await actor("idpadmin");
+    const address = uniqueEmail("idpweak", testInfo.workerIndex);
+    await answerToken(echo);
+    await answerUser(echo, { sub: `sub-${address}`, email: address, name: "Mock Weak" });
+    const provider = await saveMockProvider(admin.request, echo, { enableRegister: true });
+    const session = await newUserSession();
+    expectAnswer(await providerLogin(session.page.request, { provider, orgId: admin.orgId, baseURL: baseURL! }), OK, "setup: the provider sign-in creates a user without a password");
+
+    const weak = await apiRaw(session.page.request, "POST", API_PATHS.USER_PASSWORD, { params: { [USER_SET_PASSWORD_PARAM]: WEAK_PASSWORD } });
+
+    expectAnswer(weak, API_ERRORS.INVALID_PASSWORD, "a one-character first password is refused");
+    expect(weak.body, "the refusal names the rule").toContain(PASSWORD_TOO_WEAK_MESSAGE);
+    expectAnswer(await apiRaw(session.page.request, "POST", API_PATHS.USER_PASSWORD, { params: { [USER_SET_PASSWORD_PARAM]: TEST_PASSWORD } }), OK, "TEST_PASSWORD is then set: the refused password stored nothing (an account with a password is refused, D-49)");
   });
 });

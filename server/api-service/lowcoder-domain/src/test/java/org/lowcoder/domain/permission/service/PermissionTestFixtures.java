@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 final class PermissionTestFixtures {
 
     static final String ORG_ID = "org-1";
+    static final String OTHER_ORG_ID = "org-2";
     static final String USER_ID = "user-1";
     static final String OTHER_USER_ID = "user-other";
     static final String GROUP_ID = "group-1";
@@ -40,6 +41,10 @@ final class PermissionTestFixtures {
 
     static OrgMember orgMember(MemberRole role) {
         return OrgMember.builder().orgId(ORG_ID).userId(USER_ID).role(role).build();
+    }
+
+    static OrgMember orgMember(String orgId, MemberRole role) {
+        return OrgMember.builder().orgId(orgId).userId(USER_ID).role(role).build();
     }
 
     static void inject(ResourcePermissionHandler handler, OrgMemberService orgMemberService,

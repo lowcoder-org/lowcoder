@@ -35,4 +35,6 @@ public interface BundleRepository extends ReactiveMongoRepository<Bundle, String
     Flux<Bundle> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
 
     Flux<Bundle> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+
+    Flux<Bundle> findByOrganizationId(String organizationId);
 }

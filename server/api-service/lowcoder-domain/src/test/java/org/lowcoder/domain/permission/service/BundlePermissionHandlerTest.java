@@ -3,6 +3,7 @@ package org.lowcoder.domain.permission.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.GROUP_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.ORG_ID;
+import static org.lowcoder.domain.permission.service.PermissionTestFixtures.OTHER_ORG_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.RESOURCE_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.USER_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.orgMember;
@@ -14,10 +15,12 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +46,11 @@ import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
 import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
+import org.mockito.ArgumentCaptor;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -129,6 +136,89 @@ class BundlePermissionHandlerTest {
                 })
                 .verifyComplete();
         System.out.println("[BundlePermissionHandlerTest] member group row + public row both kept");
+    }
+
+    static Stream<List<String>> ordersOfB1B2() {
+        return Stream.of(List.of("b1", "b2"), List.of("b2", "b1"));
+    }
+
+    /** Catches D-38 on bundles: a batch of two bundles of different workspaces, one batch lookup, each decided by its
+     * own workspace. */
+    @ParameterizedTest
+    @MethodSource("ordersOfB1B2")
+    void getAll_bundlesOfTwoWorkspaces_oneBatchLookup_eachDecidedByItsOwnWorkspace(List<String> ids) {
+        when(bundleService.findByIdIn(any())).thenReturn(Flux.just(
+                Bundle.builder().id("b1").organizationId(ORG_ID).build(),
+                Bundle.builder().id("b2").organizationId(OTHER_ORG_ID).build()));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        when(orgMemberService.getOrgMember(OTHER_ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(OTHER_ORG_ID, MemberRole.ADMIN)));
+        when(groupMemberService.getUserGroupIdsInOrg(ORG_ID, USER_ID)).thenReturn(Mono.just(List.of()));
+        ResourcePermission editorRow = row("b1", ResourceHolder.USER, USER_ID, ResourceRole.EDITOR);
+        when(resourcePermissionService.getByResourceTypeAndResourceIds(eq(ResourceType.BUNDLE), any()))
+                .thenReturn(Mono.just(Map.of("b1", List.of(editorRow))));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, ids, ResourceAction.READ_BUNDLES))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("b1", "b2");
+                    assertThat(map.get("b1")).containsExactly(editorRow);
+                    ResourcePermission b2Row = map.get("b2").get(0);
+                    assertThat(b2Row.getResourceRole()).isEqualTo(ResourceRole.OWNER);
+                    assertThat(b2Row.getResourceHolderId()).isEqualTo(USER_ID);
+                })
+                .verifyComplete();
+        verify(bundleService, times(1)).findByIdIn(any());
+        verify(bundleService, never()).findById(any());
+        System.out.println("[BundlePermissionHandlerTest] D-38 orders " + ids + ": b1 (ORG_ID member) EDITOR, b2 (OTHER_ORG_ID admin) OWNER");
+    }
+
+    /** Catches a bundle the user created in a workspace it is no longer a member of borrowing the first id's answer. */
+    @Test
+    void getAll_bundleOfAWorkspaceTheUserIsNotIn_getsOnlyItsPublicRow() {
+        when(bundleService.findByIdIn(any())).thenReturn(Flux.just(
+                Bundle.builder().id("b1").organizationId(ORG_ID).build(),
+                Bundle.builder().id("b3").organizationId(OTHER_ORG_ID).build()));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        when(orgMemberService.getOrgMember(OTHER_ORG_ID, USER_ID)).thenReturn(Mono.empty());
+        ResourcePermission ownRow = row("b1", ResourceHolder.USER, USER_ID, ResourceRole.OWNER);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        when(resourcePermissionService.getByResourceTypeAndResourceIds(eq(ResourceType.BUNDLE), captor.capture()))
+                .thenReturn(Mono.just(Map.of(
+                        "b1", List.of(ownRow),
+                        "b3", List.of(row("b3", ResourceHolder.USER, USER_ID, ResourceRole.OWNER)))));
+        when(bundleService.getPublicBundleIds(any())).thenReturn(Mono.just(Set.of("b3")));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("b1", "b3"), ResourceAction.READ_BUNDLES))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("b1", "b3");
+                    assertThat(map.get("b1")).containsExactly(ownRow);
+                    assertThat(map.get("b3")).as("only the anonymous VIEWER row, not the creator's stored OWNER row").hasSize(1);
+                    assertAnonymousViewerRow(map.get("b3").get(0), "b3");
+                })
+                .verifyComplete();
+        assertThat(captor.getValue()).containsExactly("b1");
+        System.out.println("[BundlePermissionHandlerTest] left b3's workspace: only its public row, not the creator's stored OWNER row");
+    }
+
+    /** Catches an unknown bundle in a batch failing the whole call, and pins the one-id contract is unchanged. */
+    @Test
+    void getAll_unknownBundleInABatch_getsNoEntry_singleUnknownBundleStillFails() {
+        when(bundleService.findByIdIn(any())).thenReturn(Flux.just(Bundle.builder().id("b1").organizationId(ORG_ID).build()));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("b1", "gone"), ResourceAction.READ_BUNDLES))
+                .assertNext(map -> assertThat(map).containsOnlyKeys("b1"))
+                .verifyComplete();
+
+        when(bundleService.findById("gone"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", "gone")));
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("gone"), ResourceAction.READ_BUNDLES))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+                })
+                .verify();
+        System.out.println("[BundlePermissionHandlerTest] unknown bundle in a batch left out; a single unknown bundle still fails");
     }
 
     static Stream<Arguments> priorityMatrix() {

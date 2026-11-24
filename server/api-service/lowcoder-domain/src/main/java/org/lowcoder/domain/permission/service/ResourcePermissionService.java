@@ -75,7 +75,11 @@ public interface ResourcePermissionService {
 
     Mono<Boolean> removeUserApplicationPermission(String appId, String userId);
 
-    Mono<Boolean> removeUserDatasourcePermission(String appId, String userId);
+    Mono<Boolean> removeUserDatasourcePermission(String datasourceId, String userId);
+
+    Mono<Boolean> removeUserFolderPermission(String folderId, String userId);
+
+    Mono<Boolean> removeUserBundlePermission(String bundleId, String userId);
 
     Mono<ResourcePermission> getUserAssignedPermissionForApplication(String applicationId, String userId);
 }

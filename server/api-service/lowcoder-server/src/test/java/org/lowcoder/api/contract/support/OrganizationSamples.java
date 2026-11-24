@@ -29,9 +29,9 @@ public final class OrganizationSamples {
 
     /**
      * An organization whose domain holds one config of each of the five {@code AbstractAuthConfig} classes, so that
-     * the computed {@code authConfigs} (from the write-only {@code organizationDomain}) carries all of them. The
-     * {@code @JsonIgnore}d {@code logoAssetId} and {@code createdAt} are set for the computed {@code logoUrl} and
-     * {@code createTime}.
+     * the MongoDB hooks of the domain convert all of them ({@code UserManagementPayloadGettersTest}); the
+     * organization's JSON has no {@code authConfigs} (D-14). The {@code @JsonIgnore}d {@code logoAssetId} and
+     * {@code createdAt} are set for the computed {@code logoUrl} and {@code createTime}.
      */
     public static Organization organization() {
         OrganizationDomain domain = new OrganizationDomain();

@@ -130,7 +130,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> orgMemberService.getOrgMember(application.getOrganizationId(), userId))
                 .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
+                // developer of the target workspace, not of the current one (D-11, D-41)
+                .delayUntil(orgDevChecker::checkOrgDev)
                 .delayUntil(bizThresholdChecker::checkMaxOrgApplicationCount)
                 .delayUntil(orgMember -> {
                     String folderId = createApplicationRequest.folderId();
@@ -389,10 +390,12 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus) {
+        // a status change needs the owner right, like recycle, restore and delete (D-9)
+        ResourceAction required = Boolean.TRUE.equals(updateStatus) ? MANAGE_APPLICATIONS : EDIT_APPLICATIONS;
         return (Boolean.TRUE.equals(updateStatus) ? Mono.empty() : checkApplicationStatus(applicationId, NORMAL))
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
-                        applicationId, EDIT_APPLICATIONS))
+                        applicationId, required))
                 // the organization of the stored application, not of the request body, which the client may leave out
                 .delayUntil(__ -> applicationService.findById(applicationId)
                         .flatMap(stored -> checkDatasourcePermissions(application, stored.getOrganizationId())))
@@ -683,7 +686,9 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Mono<Application> updateSlug(String applicationId, String slug) {
-        return applicationService.updateSlug(applicationId, slug);
+        // D-37: EDIT on the app; deferred so the domain call is not even built on a denial
+        return checkCurrentUserApplicationPermission(applicationId, EDIT_APPLICATIONS)
+                .then(Mono.defer(() -> applicationService.updateSlug(applicationId, slug)));
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {

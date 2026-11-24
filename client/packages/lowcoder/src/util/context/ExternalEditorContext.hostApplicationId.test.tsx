@@ -3,6 +3,7 @@ import { useContext, useMemo } from "react";
 import {
   ExternalEditorContext,
   ExternalEditorContextState,
+  readCheckedApplicationId,
 } from "./ExternalEditorContext";
 import { AppTypeEnum } from "constants/applicationConstants";
 
@@ -155,5 +156,25 @@ describe("ExternalEditorContext hostApplicationId threading", () => {
       </ExternalEditorContext.Provider>
     );
     expect(screen.getByTestId("host-id").textContent).toBe(NEW_HOST);
+  });
+});
+
+const MODULE_ID = "module-app-id";
+const HOST_ID = "host-app-id";
+const APP_ID = "app-id";
+
+describe("readCheckedApplicationId (D-35: the npm component loader's app id)", () => {
+  it("a module embedded in a host resolves to the host id", () => {
+    expect(
+      readCheckedApplicationId({ applicationId: MODULE_ID, hostApplicationId: HOST_ID, appType: AppTypeEnum.Module })
+    ).toBe(HOST_ID);
+  });
+
+  it("a top-level app (no hostApplicationId) resolves to its own applicationId", () => {
+    expect(readCheckedApplicationId({ applicationId: APP_ID, appType: AppTypeEnum.Application })).toBe(APP_ID);
+  });
+
+  it("no app (the loader then uses 'none') resolves to an empty string", () => {
+    expect(readCheckedApplicationId({ applicationId: "", appType: AppTypeEnum.Application })).toBe("");
   });
 });

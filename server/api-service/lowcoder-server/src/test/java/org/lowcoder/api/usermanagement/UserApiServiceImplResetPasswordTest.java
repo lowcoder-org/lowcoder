@@ -1,10 +1,16 @@
 package org.lowcoder.api.usermanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +46,7 @@ class UserApiServiceImplResetPasswordTest {
     private static final String VISITOR_ID = "visitor-1";
     private static final String TARGET_ID = "target-1";
     private static final String NEW_PASSWORD = "UserApiServiceImplResetPasswordTest.newPassword";
+    private static final String VISITOR_TOKEN = "UserApiServiceImplResetPasswordTest.visitorToken";
 
     private SessionUserService sessionUserService;
     private OrgMemberService orgMemberService;
@@ -52,6 +59,8 @@ class UserApiServiceImplResetPasswordTest {
         orgMemberService = mock(OrgMemberService.class);
         userService = mock(UserService.class);
         service = new UserApiServiceImpl(sessionUserService, orgMemberService, userService, mock(UserRepository.class));
+        when(sessionUserService.getVisitorToken()).thenReturn(Mono.just(VISITOR_TOKEN));
+        when(sessionUserService.endSessionsOfUser(anyString(), any())).thenReturn(Mono.empty());
     }
 
     private void visitorIs(String visitorId, MemberRole visitorRole) {
@@ -95,6 +104,7 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).as("userService.resetPassword must never be subscribed").isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
     }
 
     /** Target ADMIN role but the account-wide superAdmin flag is set, ADMIN-role visitor -> refused, nothing reset. */
@@ -108,6 +118,7 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).as("userService.resetPassword must never be subscribed").isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
     }
 
     /**
@@ -125,6 +136,7 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
     }
 
     @Test
@@ -137,6 +149,7 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
     }
 
     /** A plain MEMBER target, superAdmin flag false -> reset (unaffected, the baseline allowed case). */
@@ -192,6 +205,7 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
     }
 
     /** Target not a member of the visitor's current org -> unchanged answer (the existing, unaffected check runs first). */
@@ -205,5 +219,74 @@ class UserApiServiceImplResetPasswordTest {
         assertUnsupportedOperation(service.resetPassword(TARGET_ID));
 
         assertThat(reset).isFalse();
+        verify(sessionUserService, never()).endSessionsOfUser(any(), any());
+    }
+
+    /** D-34: an admin resetting ANOTHER user's password ends every session of the target, keeping none. */
+    @Test
+    void resetOfAnotherUser_endsEverySessionOfTheTargetD34() {
+        visitorIs(VISITOR_ID, MemberRole.ADMIN);
+        targetIs(MemberRole.MEMBER, false);
+        when(userService.resetPassword(TARGET_ID)).thenReturn(Mono.just(NEW_PASSWORD));
+
+        StepVerifier.create(service.resetPassword(TARGET_ID)).expectNext(NEW_PASSWORD).verifyComplete();
+
+        verify(sessionUserService).endSessionsOfUser(TARGET_ID, null);
+        verify(sessionUserService, never()).endSessionsOfUser(any(), eq(VISITOR_TOKEN));
+    }
+
+    /** D-34: an admin resetting its OWN password keeps the session that asked for the reset. */
+    @Test
+    void selfReset_keepsTheCallersSessionD34() {
+        visitorIs(VISITOR_ID, MemberRole.ADMIN);
+        when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID))
+                .thenReturn(Mono.just(new OrgMember(ORG_ID, VISITOR_ID, MemberRole.ADMIN, "visitor-state", 0L)));
+        when(userService.resetPassword(VISITOR_ID)).thenReturn(Mono.just(NEW_PASSWORD));
+
+        StepVerifier.create(service.resetPassword(VISITOR_ID)).expectNext(NEW_PASSWORD).verifyComplete();
+
+        verify(sessionUserService).endSessionsOfUser(VISITOR_ID, VISITOR_TOKEN);
+        verify(sessionUserService, never()).endSessionsOfUser(VISITOR_ID, null);
+    }
+
+    /** D-34: the sweep runs only AFTER the domain reset, never before or interleaved with it. */
+    @Test
+    void reset_endsSessionsOnlyAfterTheResetD34() {
+        visitorIs(VISITOR_ID, MemberRole.ADMIN);
+        targetIs(MemberRole.MEMBER, false);
+        List<String> order = new ArrayList<>();
+        when(userService.resetPassword(TARGET_ID)).thenReturn(Mono.defer(() -> {
+            order.add("reset");
+            return Mono.just(NEW_PASSWORD);
+        }));
+        when(sessionUserService.endSessionsOfUser(TARGET_ID, null)).thenReturn(Mono.defer(() -> {
+            order.add("endSessions");
+            return Mono.empty();
+        }));
+
+        StepVerifier.create(service.resetPassword(TARGET_ID)).expectNext(NEW_PASSWORD).verifyComplete();
+
+        assertThat(order).containsExactly("reset", "endSessions");
+    }
+
+    /** D-34: when a session cannot be ended, the request fails even though the password already changed. */
+    @Test
+    void reset_sessionsNotEnded_answersTheErrorD34() {
+        visitorIs(VISITOR_ID, MemberRole.ADMIN);
+        targetIs(MemberRole.MEMBER, false);
+        AtomicBoolean reset = new AtomicBoolean();
+        when(userService.resetPassword(TARGET_ID)).thenReturn(flagged(reset, NEW_PASSWORD));
+        when(sessionUserService.endSessionsOfUser(TARGET_ID, null)).thenReturn(
+                Mono.error(new BizException(BizError.PASSWORD_CHANGED_SESSIONS_NOT_ENDED, "PASSWORD_CHANGED_SESSIONS_NOT_ENDED", 1)));
+
+        StepVerifier.create(service.resetPassword(TARGET_ID))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.PASSWORD_CHANGED_SESSIONS_NOT_ENDED);
+                    assertThat(((BizException) error).getMessageKey()).isEqualTo("PASSWORD_CHANGED_SESSIONS_NOT_ENDED");
+                })
+                .verify();
+
+        assertThat(reset).as("the password was changed before the sweep failed").isTrue();
     }
 }

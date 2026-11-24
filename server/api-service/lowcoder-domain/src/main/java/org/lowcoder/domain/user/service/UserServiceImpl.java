@@ -514,7 +514,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
+    public Mono<String> resetLostPassword(String userEmail, String token, String newPassword) {
         return findByEmailDeep(userEmail)
                 .switchIfEmpty(Mono.defer(() -> findByName(userEmail)))
                 .filter(UserServiceImpl::canRecoverPassword)
@@ -535,7 +535,7 @@ public class UserServiceImpl implements UserService {
                     user.setPasswordResetToken(StringUtils.EMPTY);
                     user.setPasswordResetTokenExpiry(Instant.now());
                     return repository.save(user)
-                            .thenReturn(true);
+                            .thenReturn(user.getId());
                 });
     }
 
@@ -557,6 +557,15 @@ public class UserServiceImpl implements UserService {
                 })
                 .flatMap(repository::save)
                 .thenReturn(true);
+    }
+
+    @Override
+    public Mono<Boolean> setPasswordIfAbsent(String userId, String password) {
+        return Mono.fromSupplier(() -> encryptionService.encryptPassword(password))
+                .flatMap(hash -> repository.setPasswordIfAbsent(userId, hash))
+                .flatMap(result -> result.getMatchedCount() > 0
+                        ? Mono.just(true)
+                        : findExistingById(userId).then(ofError(BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET")));
     }
 
     @Override

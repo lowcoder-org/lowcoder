@@ -8,7 +8,9 @@ import {
   createBundle,
   currentUser,
   grantBundlePermission,
+  publishBundle,
   recycleBundle,
+  setBundlePublicToAll,
   switchOrganization,
 } from "../../src/api/client";
 import {
@@ -211,7 +213,7 @@ test.describe("security: bundles inside one workspace", () => {
 
     const answer = await apiRaw(m.request, "POST", API_PATHS.BUNDLES, { data: { orgId: a.orgId, name: BUNDLE_OF_MEMBER } });
 
-    // Desired: the refusal of a plain member (R06a). The dev check reads the CURRENT workspace, where M is admin (SF-36, open on HEAD).
+    // The refusal of a plain member (R06a); the dev check now reads the TARGET workspace, where M is only a plain member (D-11, D-41).
     expectAnswer(answer, API_ERRORS.NEED_DEV_TO_CREATE_RESOURCE, "the member's bundle create with its own workspace current");
     expect((await apiRaw(a.request, "GET", API_PATHS.BUNDLE_LIST)).body, "after: no bundle of M in OA").not.toContain(BUNDLE_OF_MEMBER);
   });
@@ -234,6 +236,44 @@ test.describe("security: bundles inside one workspace", () => {
     expectAnswer(answer, OK, "M's elements answer");
     expect(answer.body, "M's elements answer carries no DSL of the app").not.toContain(SEEDED_BUTTON_TEXT);
     expect(answer.body, "and no test id of its button").not.toContain(SEEDED_BUTTON_TEST_ID);
+  });
+
+  test("SEC-R17g a public bundle's published view carries no editing DSL of the apps added to it", securityTestDetails("SEC-R17g"), async ({
+    page,
+    apiUser,
+    actor,
+    newUserSession,
+  }) => {
+    const { a, seeded } = await sceneOf(page, apiUser);
+    const o = await actor("outsider");
+    const anonymous = (await newUserSession()).page.request;
+    const bundleId = await createBundle(a.request, { orgId: a.orgId, name: BUNDLE_NAME });
+    await addAppToBundle(a.request, seeded.appId, bundleId);
+
+    const own = await bundleElementsRaw(a.request, bundleId);
+    expect(own.body, "before: A's elements carry the app's draft").toContain(SEEDED_BUTTON_TEXT);
+    expect(own.body, "before: and its button test id").toContain(SEEDED_BUTTON_TEST_ID);
+    expect(own.body, "before: and its data source id").toContain(seeded.datasourceId);
+    expectAnswer(await apiRaw(o.request, "GET", bundleViewPath(bundleId)), API_ERRORS.NO_PERMISSION_TO_REQUEST_APP, "before: the bundle is not public yet");
+
+    await publishBundle(a.request, bundleId);
+    await setBundlePublicToAll(a.request, bundleId, true);
+
+    const view = await apiRaw(o.request, "GET", bundleViewPath(bundleId));
+    expectAnswer(view, OK, "the outsider's view of the published, public bundle");
+    expect(view.body, "the published DSL still holds the app element").toContain(seeded.appId);
+    expect(view.body, "no button text of the app's draft").not.toContain(SEEDED_BUTTON_TEXT);
+    expect(view.body, "no button test id of the app's draft").not.toContain(SEEDED_BUTTON_TEST_ID);
+    expect(view.body, "no data source id of the app's query").not.toContain(seeded.datasourceId);
+
+    // Pins the boundary of the defect (README, D-42): by code, /api/** requires authentication and answers 401 before any
+    // bundle code runs, so this passes on the unfixed image too and does NOT by itself prove the fix (the checks above do).
+    const anon = await apiRaw(anonymous, "GET", bundleViewPath(bundleId));
+    expectAnswer(anon, API_ERRORS.UNAUTHENTICATED, "an anonymous caller's view of the public bundle");
+    expect(anon.body, "no body on the 401").toBe("");
+    expect(anon.body, "no button text leaks to an anonymous caller either").not.toContain(SEEDED_BUTTON_TEXT);
+    expect(anon.body, "no button test id leaks to an anonymous caller either").not.toContain(SEEDED_BUTTON_TEST_ID);
+    expect(anon.body, "no data source id leaks to an anonymous caller either").not.toContain(seeded.datasourceId);
   });
 
   test("SEC-R17d a bundle viewer can neither recycle nor delete the bundle", securityTestDetails("SEC-R17d"), async ({ page, apiUser, actor }) => {

@@ -153,7 +153,7 @@ public class GenericAuthenticateTest {
                 .verifyComplete();
 
         String email = "test_register@ob.dev";
-        String password = "lowcoder";
+        String password = "lowcoder1";
         String source1 = AuthSourceConstants.EMAIL;
 
         var authConfig1 = new EmailAuthConfig(AuthSourceConstants.EMAIL, true, true);

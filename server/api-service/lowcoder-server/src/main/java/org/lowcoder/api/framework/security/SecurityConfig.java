@@ -113,7 +113,6 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, DATASOURCE_URL + "/jsDatasourcePlugins"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, META_URL + "/"),
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GITHUB_STAR),
 
@@ -132,7 +131,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.FLOW_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL + "/deploymentId"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, NewUrl.STATE_URL + "/healthCheck"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/**"),
+                        // health only, for probes; metrics and prometheus require authentication (D-39)
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/health"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/health/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view_marketplace"),
@@ -149,7 +150,6 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.META_URL + "/"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.NPM_REGISTRY + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/docs/**")
                 )
@@ -179,39 +179,77 @@ public class SecurityConfig {
 
         
     /**
-     * enable CORS
+     * CORS, resolved per request. CORS controls only whether the BROWSER exposes a cross-origin answer to the calling
+     * page's script (the {@code Access-Control-Allow-Credentials} response header); it never stops the browser from
+     * attaching the session cookie to the request in the first place (see the limit below). The single rule:
+     * {@code Access-Control-Allow-Credentials} is granted only to an origin matching a non-wildcard entry of
+     * {@code LOWCODER_CORS_DOMAINS} ({@code commonConfig.getSecurity().getAllCorsAllowedDomains()}); a wildcard
+     * sub-pattern entry such as {@code https://*.example.com} counts as listed (it is kept as written and matched by
+     * {@code CorsConfiguration#checkOrigin}), only a standalone {@code "*"} entry does not. An origin that is not
+     * listed still gets a 200 answer, with no {@code Access-Control-Allow-Credentials} (so a credentialed `fetch`
+     * from that origin cannot read the answer's body or headers), on a path this method used to grant "any origin,
+     * with credentials" unconditionally ({@code publicPaths}, the former {@code skipCheckCorsForAll} list), or on any
+     * path at all when the configured domains contain the literal entry {@code "*"}; otherwise it is refused (403),
+     * the same as for any other unlisted path today.
+     * <p>
+     * Limit NOT closed by this method: CSRF stays off and the session cookie is {@code SameSite=None} on HTTPS
+     * regardless, so the cookie still reaches the server, with the server still acting on it, on a cross-site SIMPLE
+     * request (a plain HTML form submit, which triggers no CORS preflight and needs no credential grant to be SENT,
+     * only to have its ANSWER read) — e.g. {@code POST /api/users/password?password=...}. This method only withholds
+     * the answer from the calling page's own script; it was never a defense against the request itself being made
+     * with the cookie attached.
      */
     private CorsConfigurationSource buildCorsConfigurationSource() {
-        CorsConfiguration skipCheckCorsForAll = skipCheckCorsForAll();
-        CorsConfiguration skipCheckCorsForAllowListDomains = skipCheckCorsForAllowListDomains();
+        UrlBasedCorsConfigurationSource publicPaths = buildPublicPathsSource();
+        CorsConfiguration credentialedListed = credentialedListedOriginsConfiguration();
+        CorsConfiguration anyOriginNoCredentials = anyOriginNoCredentialsConfiguration();
+        boolean wildcardConfigured = commonConfig.getSecurity().getAllCorsAllowedDomains().contains("*");
 
+        return exchange -> {
+            String origin = exchange.getRequest().getHeaders().getOrigin();
+            if (origin == null) {
+                return null;
+            }
+            if (credentialedListed.checkOrigin(origin) != null) {
+                return credentialedListed;
+            }
+            boolean formerAnyOriginPath = publicPaths.getCorsConfiguration(exchange) != null;
+            return (formerAnyOriginPath || wildcardConfigured) ? anyOriginNoCredentials : credentialedListed;
+        };
+    }
+
+    /**
+     * Path matcher only: the configurations registered here are never returned to a caller (only checked for
+     * presence), they merely mark the paths that used to grant "any origin, with credentials" unconditionally.
+     */
+    @Nonnull
+    private UrlBasedCorsConfigurationSource buildPublicPathsSource() {
+        CorsConfiguration marker = skipCheckCorsForAll();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(USER_URL + "/me", skipCheckCorsForAll);
-        source.registerCorsConfiguration(CONFIG_URL, skipCheckCorsForAll);
-        source.registerCorsConfiguration(GROUP_URL + "/list", skipCheckCorsForAll);
-        source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
-        source.registerCorsConfiguration(APPLICATION_URL + "/*", skipCheckCorsForAll);
-        source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
-        source.registerCorsConfiguration(APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
-        source.registerCorsConfiguration(APPLICATION_URL + "/*/marketplace-preview/image", skipCheckCorsForAll);
-        source.registerCorsConfiguration(APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);
-        source.registerCorsConfiguration(GITHUB_STAR, skipCheckCorsForAll);
-        source.registerCorsConfiguration(ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
-        source.registerCorsConfiguration(DATASOURCE_URL + "/jsDatasourcePlugins", skipCheckCorsForAll);
+        source.registerCorsConfiguration(USER_URL + "/me", marker);
+        source.registerCorsConfiguration(CONFIG_URL, marker);
+        source.registerCorsConfiguration(GROUP_URL + "/list", marker);
+        source.registerCorsConfiguration(QUERY_URL + "/execute", marker);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*", marker);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*/view", marker);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*/view_marketplace", marker);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*/marketplace-preview/image", marker);
+        source.registerCorsConfiguration(APPLICATION_URL + "/marketplace-apps", marker);
+        source.registerCorsConfiguration(GITHUB_STAR, marker);
+        source.registerCorsConfiguration(ORGANIZATION_URL + "/*/datasourceTypes", marker);
+        source.registerCorsConfiguration(DATASOURCE_URL + "/jsDatasourcePlugins", marker);
 
-        source.registerCorsConfiguration(NewUrl.USER_URL + "/me", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.CONFIG_URL, skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/marketplace-preview/image", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
-        source.registerCorsConfiguration(NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins", skipCheckCorsForAll);
-
-        source.registerCorsConfiguration("/**", skipCheckCorsForAllowListDomains);
+        source.registerCorsConfiguration(NewUrl.USER_URL + "/me", marker);
+        source.registerCorsConfiguration(NewUrl.CONFIG_URL, marker);
+        source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", marker);
+        source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", marker);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*", marker);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", marker);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view_marketplace", marker);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/marketplace-preview/image", marker);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/marketplace-apps", marker);
+        source.registerCorsConfiguration(NewUrl.ORGANIZATION_URL + "/*/datasourceTypes", marker);
+        source.registerCorsConfiguration(NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins", marker);
         return source;
     }
 
@@ -225,14 +263,29 @@ public class SecurityConfig {
         return skipForAllowlistDomains;
     }
 
+    /** The configured domains with the literal {@code "*"} entry removed; a wildcard sub-pattern entry is kept as written. */
     @Nonnull
-    private CorsConfiguration skipCheckCorsForAllowListDomains() {
-        CorsConfiguration skipForAllowlistDomains = new CorsConfiguration();
-        skipForAllowlistDomains.setAllowedOriginPatterns(commonConfig.getSecurity().getAllCorsAllowedDomains());
-        skipForAllowlistDomains.setAllowedMethods(List.of("*"));
-        skipForAllowlistDomains.setAllowedHeaders(List.of("*"));
-        skipForAllowlistDomains.setAllowCredentials(true);
-        return skipForAllowlistDomains;
+    private CorsConfiguration credentialedListedOriginsConfiguration() {
+        List<String> listedOrigins = commonConfig.getSecurity().getAllCorsAllowedDomains().stream()
+                .filter(domain -> !"*".equals(domain))
+                .toList();
+        CorsConfiguration credentialedListed = new CorsConfiguration();
+        credentialedListed.setAllowedOriginPatterns(listedOrigins);
+        credentialedListed.setAllowedMethods(List.of("*"));
+        credentialedListed.setAllowedHeaders(List.of("*"));
+        credentialedListed.setAllowCredentials(true);
+        return credentialedListed;
+    }
+
+    /** Any origin, no {@code Access-Control-Allow-Credentials}: the fallback for an unlisted origin. */
+    @Nonnull
+    private CorsConfiguration anyOriginNoCredentialsConfiguration() {
+        CorsConfiguration anyOriginNoCredentials = new CorsConfiguration();
+        anyOriginNoCredentials.setAllowedOriginPatterns(List.of("*"));
+        anyOriginNoCredentials.setAllowedMethods(List.of("*"));
+        anyOriginNoCredentials.setAllowedHeaders(List.of("*"));
+        anyOriginNoCredentials.setAllowCredentials(false);
+        return anyOriginNoCredentials;
     }
 
     @Bean

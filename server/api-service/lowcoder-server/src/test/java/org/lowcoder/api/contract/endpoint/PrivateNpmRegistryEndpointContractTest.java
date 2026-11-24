@@ -17,7 +17,10 @@ import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.permission.model.ResourceAction;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.infra.js.NodeServerHelper;
+import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.contract.BoundarySites;
 import org.lowcoder.sdk.contract.GoldenJson;
 import org.mockito.Mockito;
@@ -183,6 +186,9 @@ class PrivateNpmRegistryEndpointContractTest {
     }
 
     private void applicationOrganizationHas(OrganizationCommonSettings settings) {
+        Mockito.when(builder.mock(ResourcePermissionService.class).checkResourcePermissionWithError(
+                        Authentication.ANONYMOUS_USER_ID, APPLICATION_ID, ResourceAction.READ_APPLICATIONS))
+                .thenReturn(Mono.empty());
         Mockito.when(builder.mock(ApplicationServiceImpl.class).findById(APPLICATION_ID))
                 .thenReturn(Mono.just(Application.builder().id(APPLICATION_ID).organizationId(ORG_ID).build()));
         Mockito.when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(Organization.builder().id(ORG_ID).build()));

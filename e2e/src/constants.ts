@@ -56,8 +56,11 @@ export const API_PATHS = {
   CONFIGS: "/api/configs",
   META: "/api/meta/",
   STATUS_PROMETHEUS: "/api/status/prometheus",
+  STATUS_METRICS: "/api/status/metrics",
   /** The registry proxy of the app: `<this>/<applicationId>/<package path>` (api/npm/PrivateNpmRegistryEndpoint.java). */
   NPM_REGISTRY: "/api/npm/registry",
+  /** The package-asset proxy of the app: `<this>/<applicationId>/<package path>` (api/npm/PrivateNpmRegistryEndpoint.java). */
+  NPM_PACKAGE: "/api/npm/package",
 } as const;
 
 /** `GET` path of the registry proxy for a package of the app; the proxy is open to anonymous callers (D-35). */
@@ -178,11 +181,11 @@ export const TAGS = {
    * The tests of the instance super admin (SEC-R16a to SEC-R16d): out of the default run and of the @security and @core
    * gate runs, in only with E2E_INCLUDE_SUPERADMIN (see src/run-selection.ts). On the 3.0.0 image the super admin is a
    * member of every workspace and its requests time out once the stack holds more than about 420 workspaces (defect
-   * D-47), a size that repeated security runs reach. SEC-R16c and SEC-R16d also carry @quarantine and need both flags.
+   * D-47), a size that repeated security runs reach. (SEC-R16c and SEC-R16d were quarantined until 3.0.1-e2e; they need only this flag now.)
    */
   SUPERADMIN: "@superadmin",
   /**
-   * The tests of the second stack in ENTERPRISE workspace mode (SEC-E01 to SEC-E06b, tests/security/enterprise*.spec.ts):
+   * The tests of the second stack in ENTERPRISE workspace mode (SEC-E01 to SEC-E07b, tests/security/enterprise*.spec.ts):
    * out of every run on the default stack, the only ones of a run with E2E_STACK_PROFILE=enterprise (see
    * src/run-selection.ts). SEC-E05 also carries @quarantine (open defect D-40) and @superadmin.
    */
@@ -499,6 +502,10 @@ export function bundlePublishPath(bundleId: string): string {
   return `${bundlePath(bundleId)}/publish`;
 }
 
+export function bundlePublicToAllPath(bundleId: string): string {
+  return `${bundlePath(bundleId)}/public-to-all`;
+}
+
 export function datasourcePath(datasourceId: string): string {
   return `${API_PATHS.DATASOURCES}/${datasourceId}`;
 }
@@ -615,6 +622,11 @@ export function userPhotoPath(orgId: string, userId: string): string {
   return `${API_PATHS.USERS}/photo/${orgId}/${userId}`;
 }
 
+/** `POST /api/users/new/{orgId}`: an admin of the organisation creates a user with an e-mail and a password and adds it as a member. */
+export function createUserInOrgPath(orgId: string): string {
+  return `${API_PATHS.USERS}/new/${orgId}`;
+}
+
 export function apiKeyPath(apiKeyId: string): string {
   return `${API_PATHS.API_KEYS}/${apiKeyId}`;
 }
@@ -701,6 +713,9 @@ export const RESET_TOKEN_MESSAGES = {
   INVALID: "Invalid token received for password reset request",
   EXPIRED: "Token to reset the password has expired",
 } as const;
+
+/** The message of the server's password-rule refusal (INVALID_PASSWORD 403 / 5608, key PASSWORD_TOO_WEAK in `locale_en.properties`; D-48). */
+export const PASSWORD_TOO_WEAK_MESSAGE = "The password must be at least 8 characters long, contain a letter and a digit, and contain no whitespace.";
 
 /**
  * How long a test polls for the clean-up a removal, a leave or a workspace deletion starts (a listener on its own scheduler,

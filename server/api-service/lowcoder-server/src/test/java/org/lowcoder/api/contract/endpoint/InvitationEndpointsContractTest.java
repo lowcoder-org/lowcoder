@@ -3,6 +3,8 @@ package org.lowcoder.api.contract.endpoint;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.contract.support.ContractTestClient;
 import org.lowcoder.api.contract.support.EndpointContract;
 import org.lowcoder.api.contract.support.PayloadSamples;
@@ -138,6 +140,27 @@ class InvitationEndpointsContractTest {
             ArgumentCaptor<String[]> emails = ArgumentCaptor.forClass(String[].class);
             Mockito.verify(mail).sendInvitationEmails(emails.capture(), eq(PUBLIC_URL + INVITE_PATH + invitation.getInviteCode()), eq(INVITATION_MESSAGE));
             assertThat(emails.getValue()).as("the bound emails, in order").containsExactly(sample.emails());
+        }
+    }
+
+    /**
+     * D-54: the invitation link has exactly one slash before {@code invite/<code>} whether the configured public URL
+     * ends in none, one or several slashes. The double-slash case is the one {@code StringUtils.removeEnd} would fail
+     * (it removes one slash only).
+     */
+    @ParameterizedTest(name = "public URL \"{0}\"")
+    @ValueSource(strings = {PUBLIC_URL, PUBLIC_URL + "/", PUBLIC_URL + "//"})
+    void sendInvitationEmailsLinkHasOneSlash(String publicUrl) {
+        InviteEmailRequest sample = (InviteEmailRequest) PayloadSamples.of(InviteEmailRequest.class).value();
+        InvitationVO invitation = UserManagementSamples.invitationVO();
+        Mockito.when(builder.mock(CommonConfig.class).getLowcoderPublicUrl()).thenReturn(publicUrl);
+        Mockito.when(invitationApiService.create(sample.orgId())).thenReturn(Mono.just(invitation));
+        EmailCommunicationService mail = builder.mock(EmailCommunicationService.class);
+        Mockito.when(mail.sendInvitationEmails(any(), anyString(), anyString())).thenReturn(true);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "sendInvitationEmails", Map.of(), EndpointContract.d1(InviteEmailRequest.class));
+            EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
+            Mockito.verify(mail).sendInvitationEmails(any(), eq(PUBLIC_URL + INVITE_PATH + invitation.getInviteCode()), eq(INVITATION_MESSAGE));
         }
     }
 

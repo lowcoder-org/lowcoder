@@ -46,7 +46,7 @@ function InviteContent(props: { inviteInfo: InviteInfo, onClose?: () => void }) 
     try {
       const resp = await InviteApi.sendInvitations({emails: filteredEmails, orgId: inviteInfo.invitedOrganizationId})
       if (validateResponse(resp) && resp.data.success) {
-        messageInstance.success(trans('membersSettings.inviteByEmailSuccess'));
+        messageInstance.success(trans('memberSettings.inviteByEmailSuccess'));
         onClose?.();
         return;
       }

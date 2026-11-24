@@ -41,6 +41,7 @@ import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -348,14 +349,15 @@ class ApplicationEndpointsContractTest {
         }
     }
 
-    /** {@code @JsonView(Public)}: the body is the {@code S1Public} golden, without the auth configs' secrets. */
+    /** {@code @JsonView(Public)}: the body is the {@code Public} output of the sample, which equals its S1 golden since the
+     * organization carries no auth configs (D-14). */
     @Test
     void getUserHomePage() {
         Mockito.when(userHomeApiService.getUserHomePageView(ApplicationType.APPLICATION)).thenReturn(Mono.just(ApplicationSamples.userHomepageView()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getUserHomePage", Map.of("applicationType", APPLICATION_TYPE), null);
             EndpointContract.assertResponse(result, HttpStatus.OK,
-                    EndpointContract.success(EndpointContract.fixture(UserHomepageView.class, "S1Public")));
+                    EndpointContract.success(EndpointContract.s1(UserHomepageView.class, JsonViews.Public.class)));
         }
     }
 

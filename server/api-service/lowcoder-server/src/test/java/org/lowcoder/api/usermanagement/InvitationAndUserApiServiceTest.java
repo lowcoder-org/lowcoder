@@ -51,8 +51,8 @@ import reactor.test.StepVerifier;
 /**
  * {@link InvitationApiServiceImpl} (joining by invitation, the invitation view, invitation creation),
  * {@link InvitationVO} and {@link UserApiServiceImpl} (the admin gate of user detail and password reset, and the
- * removal of stale tokens), with every collaborator mocked. The two one-line delegates of {@code UserApiServiceImpl}
- * ({@code lostPassword}, {@code resetLostPassword}) are not tested: that would test a mock.
+ * removal of stale tokens), with every collaborator mocked. The one-line delegate {@code lostPassword} is not
+ * tested: that would test a mock; {@code resetLostPassword} is tested in {@code UserApiServiceImplResetLostPasswordTest}.
  *
  * <p>Fixed (BF-080, was the plan section 9 row "InvitationApiServiceImpl raises INVITER_NOT_FOUND with the message key
  * INVITED_ORG_DELETED"): a missing inviter is reported with its own message
@@ -70,6 +70,7 @@ class InvitationAndUserApiServiceTest {
     private static final String INVITATION_ID = "invitation-1";
     private static final String ORG_ID = "org-1";
     private static final String VISITOR_ID = "visitor-1";
+    private static final String VISITOR_TOKEN = "InvitationAndUserApiServiceTest.visitorToken";
     private static final String CREATOR_ID = "creator-1";
     private static final String TARGET_ID = "target-1";
     private static final String ORG_NAME = "Org One";
@@ -474,6 +475,11 @@ class InvitationAndUserApiServiceTest {
         lenient().when(userService.findById(TARGET_ID)).thenReturn(logged("findById", target));
         lenient().when(userService.buildUserDetail(target, false)).thenReturn(logged("detail", detail));
         lenient().when(userService.resetPassword(TARGET_ID)).thenReturn(logged("reset", "new-password"));
+        lenient().when(sessionUserService.getVisitorToken()).thenReturn(Mono.just(VISITOR_TOKEN));
+        lenient().when(sessionUserService.endSessionsOfUser(TARGET_ID, null)).thenReturn(Mono.defer(() -> {
+            events.add("endSessions");
+            return Mono.empty();
+        }));
 
         Mono<?> result = operation == UserOperation.GET_DETAIL ? userApiService.getUserDetailById(TARGET_ID)
                 : userApiService.resetPassword(TARGET_ID);
@@ -484,8 +490,9 @@ class InvitationAndUserApiServiceTest {
             // resetPassword's new checkResetTargetBelowSuperAdmin also calls
             // userService.findById(userId) (to read the superAdmin flag) before userService.resetPassword, reusing
             // this test's existing logged("findById", target) stub -- so the allowed case now logs "findById" too.
+            // resetPassword's sweep (D-34) then ends the target's sessions, logging "endSessions" last.
             assertThat(events).isEqualTo(operation == UserOperation.GET_DETAIL
-                    ? List.of("findById", "detail") : List.of("findById", "reset"));
+                    ? List.of("findById", "detail") : List.of("findById", "reset", "endSessions"));
         } else {
             StepVerifier.create(result)
                     .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))

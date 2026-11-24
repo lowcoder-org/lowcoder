@@ -19,10 +19,11 @@ public interface MetaEndpoints
 	/**
 	 * The meta views (id and name; for an application also title, description, category and icon, for a user also the
 	 * email) of every application, user, organization, folder, datasource, bundle, group and library query the request
-	 * names by key. No permission is checked, and the route is open to anonymous callers unless it is listed in
-	 * {@code common.security.forbiddenEndpoints} (NEW-105: kept as upstream designed, owner decision D4).
+	 * names by key. No permission is checked. The route requires authentication (a session or an API key); an
+	 * anonymous caller gets 401 (D-12). It can still be closed entirely through
+	 * {@code common.security.forbiddenEndpoints}.
 	 * <p>
-	 * Limits: a caller who knows a key can learn that entity's meta view; the eight lookups are joined, so one failing
+	 * Limits: any signed-in caller who knows a key, in any workspace, can learn that entity's meta view; the eight lookups are joined, so one failing
 	 * lookup fails the whole answer; blank keys are dropped from the organization, application and folder lists (NEW-81,
 	 * NEW-104, NEW-106), and the other lists pass them to their queries (a null bundle key matched no bundle, NEW-110).
 	 */

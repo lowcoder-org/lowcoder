@@ -1,5 +1,5 @@
 import { apiRaw, signInRaw } from "../../src/api/client";
-import { API_ERRORS, API_OK, API_PATHS, CHANGED_PASSWORD, TAGS, TEST_PASSWORD, UI_PATHS, USER_SET_PASSWORD_PARAM } from "../../src/constants";
+import { API_ERRORS, API_OK, API_PATHS, CHANGED_PASSWORD, PASSWORD_TOO_WEAK_MESSAGE, TAGS, TEST_PASSWORD, UI_PATHS, USER_SET_PASSWORD_PARAM } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { PASSWORD_RULE_TEXT } from "../../src/pages/AuthPage";
 import { ProfileModal } from "../../src/pages/ProfileModal";
@@ -82,16 +82,23 @@ test.describe("lifecycle: password change", () => {
 
     const answer = await apiRaw(user.request, "POST", API_PATHS.USER_PASSWORD, { params: { [USER_SET_PASSWORD_PARAM]: CHANGED_PASSWORD } });
 
-    expect(answer.status, "the route that sets a password refuses a user who already has one").toBeGreaterThanOrEqual(400);
+    expectAnswer(answer, API_ERRORS.INVALID_PASSWORD, "the route that sets a password refuses a user who already has one");
     expectAnswer(await signInRaw((await newUserSession()).page.request, user.email, TEST_PASSWORD), ALLOWED, "the old password still signs in");
+    expectAnswer(await signInRaw((await newUserSession()).page.request, user.email, CHANGED_PASSWORD), API_ERRORS.INVALID_PASSWORD, "the attempted password does not sign in");
   });
 
   test("LC-PR14 the server refuses a new password the client rule refuses", lifecycleTestDetails("LC-PR14"), async ({ actor, newUserSession }) => {
     const user = await actor("weakpw");
+    const second = (await newUserSession()).page.request;
+    expectAnswer(await signInRaw(second, user.email, TEST_PASSWORD), ALLOWED, "setup: a second session of the user");
 
     const answer = await apiRaw(user.request, "PUT", API_PATHS.USER_PASSWORD, { data: { oldPassword: TEST_PASSWORD, newPassword: WEAK_PASSWORD } });
 
-    expect(answer.status, "a one-character new password is refused").toBeGreaterThanOrEqual(400);
+    expectAnswer(answer, API_ERRORS.INVALID_PASSWORD, "a one-character new password is refused");
+    expect(answer.body, "the refusal names the rule").toContain(PASSWORD_TOO_WEAK_MESSAGE);
     expectAnswer(await signInRaw((await newUserSession()).page.request, user.email, TEST_PASSWORD), ALLOWED, "the password is unchanged");
+    expectAnswer(await signInRaw((await newUserSession()).page.request, user.email, WEAK_PASSWORD), API_ERRORS.INVALID_PASSWORD, "the weak password does not sign in");
+    expectAnswer(await apiRaw(second, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "the second session survives: the refused change ended nothing");
+    expectAnswer(await apiRaw(user.request, "PUT", API_PATHS.USER_PASSWORD, { data: { oldPassword: TEST_PASSWORD, newPassword: CHANGED_PASSWORD } }), ALLOWED, "control: the route accepts a password that meets the rule");
   });
 });

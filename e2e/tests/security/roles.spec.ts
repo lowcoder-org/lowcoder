@@ -10,6 +10,7 @@ import {
   grantDatasourcePermission,
   listAppNames,
   listAppPermissions,
+  listAppVersions,
   listDatasourcePermissions,
   listGroups,
   listOrgMembers,
@@ -73,6 +74,7 @@ import {
   SEEDED_APP_NAME,
   grantApp,
   joinWorkspace,
+  makeAdmin,
   makeDeveloper,
   seedPrivateApp,
   type Actor,
@@ -337,6 +339,11 @@ const SERVER_CONFIG_VALUE = "e2e-sec-config-value";
 /** The anonymous user the server answers `GET /api/users/me` with (measured: `anonymous: true`, no id, no workspaces). */
 const ANONYMOUS_USER = { anonymous: true, id: null, orgAndRoles: null } as const;
 
+/** Reads the live or a named record of an app's DSL (`GET /api/application-records`), one spec only (D-32 rows). */
+function readRecord(request: Actor["request"], appId: string, recordId: string) {
+  return apiRaw(request, "GET", API_PATHS.APPLICATION_RECORDS, { params: { applicationId: appId, applicationRecordId: recordId } });
+}
+
 /** The DSL of the seeded app with a different button text and, optionally, queries: what an edit sends. */
 function editedDsl(text: string, queries: object[] = []): object {
   return appDsl([button({ id: SEEDED_BUTTON_ID, name: SEEDED_BUTTON_NAME, text, testId: SEEDED_BUTTON_TEST_ID })], { queries });
@@ -398,17 +405,85 @@ test.describe("security: roles inside one workspace (further rows)", () => {
   test("SEC-R01d a member without a grant cannot read the live record of the app", securityTestDetails("SEC-R01d"), async ({ page, apiUser, actor }) => {
     const { a, seeded } = await sceneOf(page, apiUser);
     const m = await memberOf(a, actor, "member");
-    const liveRecord = (request: Actor["request"]) =>
-      apiRaw(request, "GET", API_PATHS.APPLICATION_RECORDS, { params: { applicationId: seeded.appId, applicationRecordId: LIVE_RECORD_ID } });
-    const own = await liveRecord(a.request);
+    const own = await readRecord(a.request, seeded.appId, LIVE_RECORD_ID);
     expectAnswer(own, ALLOWED, "before: the owner reads the live record");
     expect(own.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
 
-    const answer = await liveRecord(m.request);
+    const answer = await readRecord(m.request, seeded.appId, LIVE_RECORD_ID);
 
-    // The desired answer is the denial of any other app route (401 / 5001); no available image gives it (SF-27 is open on HEAD).
+    // D-32: the route needs EDIT on the app since the fix.
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "the member's read of the live record");
     expect(answer.body, "no DSL in the answer").not.toContain(SEEDED_BUTTON_TEST_ID);
+  });
+
+  test("SEC-R01e a viewer opens the published app but cannot read its live or a named record", securityTestDetails("SEC-R01e"), async ({ page, apiUser, actor }) => {
+    const { a, seeded } = await sceneOf(page, apiUser);
+    const v = await memberOf(a, actor, "viewer");
+    await grantApp(a, seeded.appId, v, APP_ROLES.VIEWER);
+    const versionId = (await listAppVersions(a.request, seeded.appId))[0]?.id;
+    expect(versionId, "setup: the seeded app has a published version").toBeTruthy();
+
+    const ownLive = await readRecord(a.request, seeded.appId, LIVE_RECORD_ID);
+    expectAnswer(ownLive, ALLOWED, "before: the owner reads the live record");
+    expect(ownLive.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+    const ownNamed = await readRecord(a.request, seeded.appId, versionId as string);
+    expectAnswer(ownNamed, ALLOWED, "before: the owner reads the named record");
+    expect(ownNamed.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+
+    const viewAnswer = await apiRaw(v.request, "GET", appViewPath(seeded.appId));
+    expectAnswer(viewAnswer, ALLOWED, "the viewer's published view (the legitimate view, unaffected by D-32)");
+    expect(viewAnswer.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+    await new AppViewPage(v.session.page).open(seeded.appId);
+    await expect(
+      new AppViewPage(v.session.page).buttonByTestId(SEEDED_BUTTON_TEST_ID),
+      "the viewer's published view shows the app",
+    ).toHaveText(SEEDED_BUTTON_TEXT);
+
+    const liveAnswer = await readRecord(v.request, seeded.appId, LIVE_RECORD_ID);
+    expectAnswer(liveAnswer, API_ERRORS.NOT_AUTHORIZED, "the viewer's read of the live record");
+    expect(liveAnswer.body, "no DSL in the live-record denial").not.toContain(SEEDED_BUTTON_TEST_ID);
+    const namedAnswer = await readRecord(v.request, seeded.appId, versionId as string);
+    expectAnswer(namedAnswer, API_ERRORS.NOT_AUTHORIZED, "the viewer's read of the named record");
+    expect(namedAnswer.body, "no DSL in the named-record denial").not.toContain(SEEDED_BUTTON_TEST_ID);
+
+    const afterView = await apiRaw(v.request, "GET", appViewPath(seeded.appId));
+    expectAnswer(afterView, ALLOWED, "after: the viewer's published view still works");
+  });
+
+  test("SEC-R01f+ an editor reads the live and a named record", securityTestDetails("SEC-R01f+"), async ({ page, apiUser, actor }) => {
+    const { a, seeded } = await sceneOf(page, apiUser);
+    const e = await memberOf(a, actor, "editor");
+    await grantApp(a, seeded.appId, e, APP_ROLES.EDITOR);
+    const versionId = (await listAppVersions(a.request, seeded.appId))[0]?.id;
+    expect(versionId, "setup: the seeded app has a published version").toBeTruthy();
+    expectAnswer(await apiRaw(e.request, "GET", applicationPath(seeded.appId)), ALLOWED, "before: E holds the editor right");
+
+    const liveAnswer = await readRecord(e.request, seeded.appId, LIVE_RECORD_ID);
+    expectAnswer(liveAnswer, ALLOWED, "the editor's read of the live record");
+    expect(liveAnswer.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+    const namedAnswer = await readRecord(e.request, seeded.appId, versionId as string);
+    expectAnswer(namedAnswer, ALLOWED, "the editor's read of the named record");
+    expect(namedAnswer.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+  });
+
+  test("SEC-R01g+ a workspace admin without an app grant reads the live and a named record", securityTestDetails("SEC-R01g+"), async ({ page, apiUser, actor }) => {
+    const { a, seeded } = await sceneOf(page, apiUser);
+    const admin = await memberOf(a, actor, "admin");
+    await makeAdmin(a, admin);
+    const versionId = (await listAppVersions(a.request, seeded.appId))[0]?.id;
+    expect(versionId, "setup: the seeded app has a published version").toBeTruthy();
+    expect(await roleOf(a, admin.userId), "before: the guest is an admin of the workspace").toBe(ORG_ROLES.ADMIN);
+    // Whether the permission list shows an admin implicitly is NOT VERIFIED here (deferred to the combined final e2e run);
+    // if it does, this assertion needs dropping.
+    const appPermissionRow = (await listAppPermissions(a.request, seeded.appId)).userPermissions.find((row) => row.id === admin.userId);
+    expect(appPermissionRow, "before: the admin has no explicit permission row on the app (the access is implicit OWNER)").toBeUndefined();
+
+    const liveAnswer = await readRecord(admin.request, seeded.appId, LIVE_RECORD_ID);
+    expectAnswer(liveAnswer, ALLOWED, "the workspace admin's read of the live record (implicit OWNER)");
+    expect(liveAnswer.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
+    const namedAnswer = await readRecord(admin.request, seeded.appId, versionId as string);
+    expectAnswer(namedAnswer, ALLOWED, "the workspace admin's read of the named record (implicit OWNER)");
+    expect(namedAnswer.body, "and it holds the app's DSL").toContain(SEEDED_BUTTON_TEST_ID);
   });
 
   test("SEC-R02d+ a viewer may list who has access to the app", securityTestDetails("SEC-R02d+"), async ({ page, apiUser, actor }) => {
@@ -480,10 +555,27 @@ test.describe("security: roles inside one workspace (further rows)", () => {
       data: { applicationStatus: APP_STATUS.RECYCLED },
     });
 
-    // Desired: the status needs MANAGE like `recycle` (401 / 5001, R03d). The code takes it from EDIT on HEAD too (SF-4).
+    // The status needs MANAGE like recycle (401 / 5001, R03d); the editor right is not enough (D-9).
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "the editor's status update");
     expect((await getApp(a.request, seeded.appId)).applicationStatus, "after: the app is still normal").toBe(APP_STATUS.NORMAL);
     expect(await listAppNames(a.request), "and still listed").toContain(before.name);
+  });
+
+  test("SEC-R03f+ an owner of the app may change its status through the update route", securityTestDetails("SEC-R03f+"), async ({ page, apiUser, actor }) => {
+    const { a, seeded } = await sceneOf(page, apiUser);
+    const o = await memberOf(a, actor, "app-owner");
+    await grantApp(a, seeded.appId, o, APP_ROLES.OWNER);
+    const before = await getApp(a.request, seeded.appId);
+    expect(before.applicationStatus, "before: the app is normal").toBe(APP_STATUS.NORMAL);
+
+    const answer = await apiRaw(o.request, "PUT", applicationPath(seeded.appId), {
+      params: { updateStatus: true },
+      data: { applicationStatus: APP_STATUS.RECYCLED },
+    });
+
+    expectAnswer(answer, ALLOWED, "the owner's status update");
+    const recycled = await listRecycledApps(a.request);
+    expect(recycled.find((app) => app.applicationId === seeded.appId)?.applicationStatus, "after: the app is in the trash, recycled").toBe(APP_STATUS.RECYCLED);
   });
 
   test("SEC-R03c an editor cannot grant the owner role", securityTestDetails("SEC-R03c"), async ({ page, apiUser, actor }) => {
@@ -577,9 +669,32 @@ test.describe("security: roles inside one workspace (further rows)", () => {
       data: { orgId: a.orgId, name: NEW_APP_BY_MEMBER, applicationType: APP_TYPE_APPLICATION, editingApplicationDSL: {} },
     });
 
-    // Desired: the same refusal as R06a. The dev check reads the CURRENT workspace, where M is admin (SF-6, open on HEAD).
+    // The same refusal as R06a; the dev check now reads the TARGET workspace, where M is only a plain member (D-11).
     expectAnswer(answer, API_ERRORS.NEED_DEV_TO_CREATE_RESOURCE, "the member's create with its own workspace current");
     expect(await listAppNames(a.request), "after: nothing was created in OA").not.toContain(NEW_APP_BY_MEMBER);
+  });
+
+  test("SEC-R06e a member whose own workspace is current cannot create a data source in another workspace", securityTestDetails("SEC-R06e"), async ({ page, apiUser, actor }) => {
+    const { a } = await sceneOf(page, apiUser);
+    const m = await memberOf(a, actor, "member");
+    await switchOrganization(m.request, m.orgId);
+    expect((await currentUser(m.request)).currentOrgId, "setup: M's own workspace is current").toBe(m.orgId);
+    const datasourcesBefore = (await apiRaw(a.request, "GET", datasourcesByOrgPath(), { params: { orgId: a.orgId } })).body;
+
+    const answer = await apiRaw(m.request, "POST", API_PATHS.DATASOURCES, {
+      data: {
+        name: `${FOREIGN_DATASOURCE}-r06e`,
+        type: "postgres",
+        organizationId: a.orgId,
+        datasourceConfig: { ...postgresConnection(), usingSsl: false, extParams: {} },
+      },
+    });
+
+    // The same refusal as R06b; the dev check now reads the TARGET workspace, where M is only a plain member (D-11, D-41).
+    expectAnswer(answer, API_ERRORS.NEED_DEV_TO_CREATE_RESOURCE, "the member's data source create with its own workspace current");
+    const datasourcesAfter = (await apiRaw(a.request, "GET", datasourcesByOrgPath(), { params: { orgId: a.orgId } })).body;
+    expect(datasourcesAfter, "after: the data sources are as they were").toBe(datasourcesBefore);
+    expect(datasourcesAfter, "and no foreign one").not.toContain(`${FOREIGN_DATASOURCE}-r06e`);
   });
 
   test("SEC-R06d+ a developer can create apps, data sources, folders and library queries", securityTestDetails("SEC-R06d+"), async ({ page, apiUser, actor }) => {
@@ -647,6 +762,21 @@ test.describe("security: roles inside one workspace (further rows)", () => {
     const answer = await apiRaw(m.request, "GET", orgPath(a.orgId));
 
     expectAnswer(answer, ALLOWED, "the member's organisation read (the read itself works)");
+    expect(answer.body, "the secret is nowhere in the body").not.toContain(secret);
+  });
+
+  test("SEC-R07e a member's profile carries no sign-in secret", securityTestDetails("SEC-R07e"), async ({ page, apiUser, actor }) => {
+    const { a } = await sceneOf(page, apiUser);
+    const m = await memberOf(a, actor, "member");
+    const secret = `${OAUTH_SECRET_PREFIX}${randomUUID()}`;
+    await seedOAuthConfig(a.request, { clientSecret: secret });
+    expect((await apiRaw(a.request, "GET", API_PATHS.AUTH_CONFIGS)).body, "before: the admin's config list holds the secret").toContain(secret);
+
+    const answer = await apiRaw(m.request, "GET", API_PATHS.CURRENT_USER);
+
+    expectAnswer(answer, ALLOWED, "the member's profile read (the read itself works)");
+    const orgIds = (answer.json as { data: { orgAndRoles: { org: { id: string } }[] } }).data.orgAndRoles.map((entry) => entry.org.id);
+    expect(orgIds, "the profile lists the admin's workspace, so the secret's absence is not a missing workspace").toContain(a.orgId);
     expect(answer.body, "the secret is nowhere in the body").not.toContain(secret);
   });
 
@@ -814,7 +944,7 @@ test.describe("security: data source use inside one workspace", () => {
       data: { editingApplicationDSL: editedDsl(EDITED_BUTTON_TEXT, queries) },
     });
 
-    // Suspected (SF-33, D-38): the batched check takes the workspace from the first data source, where E is an admin.
+    // D-38: each data source is decided in its own workspace, so E's admin role in its own workspace grants no use of A's data source.
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "the editor's save with a query on a data source it may not use");
     expect(JSON.stringify((await getApp(a.request, seeded.appId)).dsl), "after: the query is not stored").not.toContain(QUERY_ON_FOREIGN_DATASOURCE);
   });

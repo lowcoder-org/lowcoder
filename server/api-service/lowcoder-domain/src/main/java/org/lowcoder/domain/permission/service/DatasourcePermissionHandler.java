@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,14 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
     protected Mono<String> getOrgId(String resourceId) {
         return datasourceService.getById(resourceId)
                 .map(Datasource::getOrganizationId);
+    }
+
+    /** One {@code getByIds} call (one query per key kind present, D-38); the same per-document conversion as
+     * {@link #getOrgId} (it may fetch a JS plugin definition). */
+    @Override
+    protected Mono<Map<String, String>> getOrgIds(Set<String> resourceIds) {
+        return orgIdsByKey(datasourceService.getByIds(resourceIds), resourceIds, Datasource::getId, Datasource::getGid,
+                Datasource::getOrganizationId);
     }
 
     @Override

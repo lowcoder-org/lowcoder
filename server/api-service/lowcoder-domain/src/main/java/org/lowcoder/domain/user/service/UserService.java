@@ -51,9 +51,20 @@ public interface UserService {
 
     Mono<Boolean> lostPassword(String userEmail);
 
-    Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
+    /** Resets a lost password by its mailed token; answers the id of the account whose password was reset, so the caller can end its sessions (D-34). */
+    Mono<String> resetLostPassword(String userEmail, String token, String newPassword);
 
     Mono<Boolean> setPassword(String userId, String password);
+
+    /**
+     * Sets the password of an account that has none (missing, null or blank), in one conditional MongoDB update, so the
+     * check cannot race another write of the password (D-49). Fails with INVALID_PASSWORD / PASSWORD_ALREADY_SET when the
+     * account has a password, USER_NOT_EXIST when there is no such account. {@link #setPassword} stays the unconditional
+     * write for the super admin job. Limit: a whole-document save of the same user that read it before this update (for
+     * example a login's token save) can write the old, absent password back.
+     */
+    Mono<Boolean> setPasswordIfAbsent(String userId, String password);
+
     Mono<Boolean> markAsSuperAdmin(String userId);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);

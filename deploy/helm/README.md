@@ -192,7 +192,7 @@ you do not use the meeting components. Without credentials `/rte/...` answers HT
 | `global.config.workspaceMode`           | Sets the workspace mode. Possible types are: SAAS, ENTERPRISE                     | `SAAS`         |
 | `global.config.userId`                  | User ID of user running Lowcoder server application in container                  | `9001`         |
 | `global.config.groupId`                 | Group ID of user running Lowcoder server application in container                 | `9001`         |
-| `global.config.corsAllowedDomains`      | CORS allowed domains                                                              | `*`            |
+| `global.config.corsAllowedDomains`      | CORS allowed domains, comma-separated; only a listed, non-wildcard origin's own script may read a credentialed answer cross-origin (not a CSRF defense) | `*`            |
 | `global.config.enableUserSignUp`        | Enable users signing up to lowcoder via login page                                | `true`         |
 | `global.config.enableEmailAuth`         | Controls whether authentication via email is enabled                              | `true`         |
 | `global.config.emailNotificationSender` | Email used in notifications from lowcoder                                         | `info@localhost` |

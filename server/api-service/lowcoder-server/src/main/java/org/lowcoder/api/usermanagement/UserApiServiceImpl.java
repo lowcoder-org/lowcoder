@@ -64,13 +64,16 @@ public class UserApiServiceImpl implements UserApiService {
      * SUPER_ADMIN member of every workspace), is refused with {@code UNSUPPORTED_OPERATION} unless the visitor is
      * resetting their OWN password -- the same rank rule {@code OrgApiServiceImpl#checkSuperAdminRoleUnchanged}
      * applies to a role change. Limits: an ADMIN may still reset another ADMIN's password (unchanged, by design);
-     * no session of the target is ended by a reset, fixed or not (tracked separately).
+     * after the reset every session of the target ends (D-34), except the caller's own when the caller resets its
+     * own password; when a session cannot be ended the call fails with PASSWORD_CHANGED_SESSIONS_NOT_ENDED after
+     * the password has changed, so the generated password is never shown and the admin resets again.
      */
     @Override
     public Mono<String> resetPassword(String userId) {
         return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
                 .then(checkResetTargetBelowSuperAdmin(userId))
-                .then(userService.resetPassword(userId));
+                .then(userService.resetPassword(userId))
+                .delayUntil(newPassword -> endSessionsAfterReset(userId));
     }
 
     private Mono<Void> checkResetTargetBelowSuperAdmin(String userId) {
@@ -96,6 +99,14 @@ public class UserApiServiceImpl implements UserApiService {
                 });
     }
 
+    /** D-34: ends every session of the reset user; keeps the caller's own only when the caller reset its own password. */
+    private Mono<Void> endSessionsAfterReset(String userId) {
+        return sessionUserService.getVisitorId()
+                .zipWith(sessionUserService.getVisitorToken())
+                .flatMap(visitor -> sessionUserService.endSessionsOfUser(userId,
+                        visitor.getT1().equals(userId) ? visitor.getT2() : null));
+    }
+
     @Override
     public Mono<Boolean> lostPassword(String userEmail) {
         return userService.lostPassword(userEmail);
@@ -103,7 +114,9 @@ public class UserApiServiceImpl implements UserApiService {
 
     @Override
     public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
-        return userService.resetLostPassword(userEmail, token, newPassword);
+        return userService.resetLostPassword(userEmail, token, newPassword)
+                .delayUntil(userId -> sessionUserService.endSessionsOfUser(userId, null))
+                .map(userId -> true);
     }
 
     // ========================== TOKEN OPERATIONS START ==========================

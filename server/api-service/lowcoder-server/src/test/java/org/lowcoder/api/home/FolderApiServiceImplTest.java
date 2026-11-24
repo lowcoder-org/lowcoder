@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -43,6 +44,7 @@ import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -90,6 +92,7 @@ class FolderApiServiceImplTest {
     private UserService userService;
     private OrganizationService organizationService;
     private UserFolderInteractionService interactionService;
+    private OrgMemberService orgMemberService;
     private FolderApiServiceImpl service;
 
     @BeforeEach
@@ -104,9 +107,10 @@ class FolderApiServiceImplTest {
         userService = mock(UserService.class);
         organizationService = mock(OrganizationService.class);
         interactionService = mock(UserFolderInteractionService.class);
+        orgMemberService = mock(OrgMemberService.class);
         service = new FolderApiServiceImpl(folderService, sessionUserService, orgDevChecker, userHomeApiService,
                 relationService, permissionService, permissionHelper, mock(GroupService.class), userService,
-                organizationService, interactionService);
+                organizationService, interactionService, orgMemberService);
 
         signedInAs(MemberRole.MEMBER);
         when(orgDevChecker.checkCurrentOrgDev()).thenReturn(Mono.empty());
@@ -114,6 +118,7 @@ class FolderApiServiceImplTest {
         when(folderService.findByOrganizationId(anyString())).thenReturn(Flux.empty());
         when(folderService.create(any(Folder.class))).thenAnswer(invocation -> Mono.just(invocation.<Folder>getArgument(0)));
         when(userService.findById(anyString())).thenAnswer(invocation -> Mono.just(user(invocation.getArgument(0))));
+        when(orgMemberService.getOrgMember(anyString(), anyString())).thenReturn(Mono.empty());
     }
 
     // ----------------------------------------------------------------- fixtures
@@ -122,6 +127,44 @@ class FolderApiServiceImplTest {
         OrgMember member = OrgMember.builder().orgId(ORG).userId(VISITOR).role(role).build();
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(member));
         when(sessionUserService.getVisitorId()).thenReturn(Mono.just(VISITOR));
+    }
+
+    private void memberOf(String org, MemberRole role) {
+        when(orgMemberService.getOrgMember(org, VISITOR))
+                .thenReturn(Mono.just(OrgMember.builder().orgId(org).userId(VISITOR).role(role).build()));
+    }
+
+    /** Flags for {@code getPermissions}: whether the rows, the group view, the user view and the organization were read. */
+    private record PermissionViewStubs(AtomicBoolean rowsRead, AtomicBoolean groupsBuilt, AtomicBoolean usersBuilt,
+            AtomicBoolean orgRead, PermissionItemView groupItem, PermissionItemView userItem) {
+    }
+
+    private PermissionViewStubs permissionViewStubs() {
+        AtomicBoolean rowsRead = new AtomicBoolean();
+        AtomicBoolean groupsBuilt = new AtomicBoolean();
+        AtomicBoolean usersBuilt = new AtomicBoolean();
+        AtomicBoolean orgRead = new AtomicBoolean();
+        PermissionItemView groupItem = mock(PermissionItemView.class);
+        PermissionItemView userItem = mock(PermissionItemView.class);
+        Organization organization = new Organization();
+        organization.setName("Acme");
+        when(permissionService.getByResourceTypeAndResourceId(eq(ResourceType.FOLDER), anyString()))
+                .thenReturn(flagged(rowsRead, List.<ResourcePermission>of()));
+        when(permissionHelper.getGroupPermissions(anyList())).thenReturn(flagged(groupsBuilt, List.of(groupItem)));
+        when(permissionHelper.getUserPermissions(anyList())).thenReturn(flagged(usersBuilt, List.of(userItem)));
+        when(organizationService.getById(anyString())).thenReturn(flagged(orgRead, organization));
+        return new PermissionViewStubs(rowsRead, groupsBuilt, usersBuilt, orgRead, groupItem, userItem);
+    }
+
+    private void assertNothingOfTheListWasRead(PermissionViewStubs stubs) {
+        assertThat(stubs.rowsRead()).isFalse();
+        assertThat(stubs.groupsBuilt()).isFalse();
+        assertThat(stubs.usersBuilt()).isFalse();
+        assertThat(stubs.orgRead()).isFalse();
+        verify(permissionService, never()).getByResourceTypeAndResourceId(any(), any());
+        verify(permissionHelper, never()).getGroupPermissions(anyList());
+        verify(permissionHelper, never()).getUserPermissions(anyList());
+        verify(organizationService, never()).getById(anyString());
     }
 
     private static User user(String id) {
@@ -904,27 +947,97 @@ class FolderApiServiceImplTest {
         assertThat(mutated).isFalse();
     }
 
-    @Test
-    void getPermissions_assemblesTheViewFromTheFolderItsPermissionsAndTheOrg() {
+    /** Catches D-8: any signed-in user reading any folder's permission list. A member of the folder's workspace, in any
+     * role, still gets the view. */
+    @ParameterizedTest
+    @EnumSource(MemberRole.class)
+    void getPermissions_memberOfTheFolderWorkspace_inAnyRole_getsTheView(MemberRole role) {
         when(folderService.findById("f1")).thenReturn(Mono.just(folder("f1", ORG, null, "f1", OTHER_USER)));
-        when(folderService.findById("ghost")).thenReturn(Mono.empty());
-        when(permissionService.getByResourceTypeAndResourceId(ResourceType.FOLDER, "f1")).thenReturn(Mono.just(List.of()));
-        PermissionItemView groupItem = mock(PermissionItemView.class);
-        PermissionItemView userItem = mock(PermissionItemView.class);
-        when(permissionHelper.getGroupPermissions(anyList())).thenReturn(Mono.just(List.of(groupItem)));
-        when(permissionHelper.getUserPermissions(anyList())).thenReturn(Mono.just(List.of(userItem)));
-        Organization organization = new Organization();
-        organization.setName("Acme");
-        when(organizationService.getById(ORG)).thenReturn(Mono.just(organization));
+        memberOf(ORG, role);
+        PermissionViewStubs stubs = permissionViewStubs();
 
         StepVerifier.create(service.getPermissions("f1")).assertNext(view -> {
             assertThat(view.getCreatorId()).isEqualTo(OTHER_USER);
             assertThat(view.getOrgName()).isEqualTo("Acme");
-            assertThat(view.getGroupPermissions()).containsExactly(groupItem);
-            assertThat(view.getUserPermissions()).containsExactly(userItem);
+            assertThat(view.getGroupPermissions()).containsExactly(stubs.groupItem());
+            assertThat(view.getUserPermissions()).containsExactly(stubs.userItem());
         }).verifyComplete();
-        when(permissionService.getByResourceTypeAndResourceId(ResourceType.FOLDER, "ghost")).thenReturn(Mono.just(List.of()));
-        StepVerifier.create(service.getPermissions("ghost")).verifyComplete();
+        assertThat(stubs.rowsRead()).isTrue();
+        assertThat(stubs.groupsBuilt()).isTrue();
+        assertThat(stubs.usersBuilt()).isTrue();
+        assertThat(stubs.orgRead()).isTrue();
+        verify(orgMemberService).getOrgMember(ORG, VISITOR);
+        System.out.println("[FolderApiServiceImplTest] getPermissions, member of the folder workspace as " + role + ": gets the view");
+    }
+
+    /** Catches the check reading the visitor's CURRENT workspace membership instead of the folder's workspace. */
+    @Test
+    void getPermissions_memberOfTheFolderWorkspaceThatIsNotCurrent_getsTheView() {
+        signedInAs(MemberRole.MEMBER);
+        when(folderService.findById("f9")).thenReturn(Mono.just(folder("f9", OTHER_ORG, null, "f9", OTHER_USER)));
+        memberOf(OTHER_ORG, MemberRole.MEMBER);
+        PermissionViewStubs stubs = permissionViewStubs();
+
+        StepVerifier.create(service.getPermissions("f9")).assertNext(view -> {
+            assertThat(view.getCreatorId()).isEqualTo(OTHER_USER);
+            assertThat(view.getOrgName()).isEqualTo("Acme");
+        }).verifyComplete();
+        verify(organizationService).getById(OTHER_ORG);
+        verify(orgMemberService).getOrgMember(OTHER_ORG, VISITOR);
+        verify(sessionUserService, never()).getVisitorOrgMemberCache();
+        System.out.println("[FolderApiServiceImplTest] getPermissions, member of a workspace that is not current: gets the view");
+    }
+
+    /** Catches D-8 itself: a non-member of the folder's workspace reading the list. */
+    @Test
+    void getPermissions_nonMemberOfTheFolderWorkspace_isNotAuthorized_andReadsNothingOfTheList() {
+        signedInAs(MemberRole.MEMBER);
+        when(folderService.findById("f9")).thenReturn(Mono.just(folder("f9", OTHER_ORG, null, "f9", OTHER_USER)));
+        PermissionViewStubs stubs = permissionViewStubs();
+
+        StepVerifier.create(service.getPermissions("f9"))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.NOT_AUTHORIZED);
+                    assertThat(((BizException) error).getMessageKey()).isEqualTo("NOT_AUTHORIZED");
+                })
+                .verify();
+        assertNothingOfTheListWasRead(stubs);
+        System.out.println("[FolderApiServiceImplTest] getPermissions, non-member of the folder workspace: NOT_AUTHORIZED, nothing read");
+    }
+
+    /** Catches an empty visitor id reaching the membership lookup or the list. */
+    @Test
+    void getPermissions_withoutAVisitor_isNotAuthorized_andReadsNothingOfTheList() {
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.empty());
+        when(folderService.findById("f1")).thenReturn(Mono.just(folder("f1", ORG, null, "f1", OTHER_USER)));
+        PermissionViewStubs stubs = permissionViewStubs();
+
+        StepVerifier.create(service.getPermissions("f1"))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.NOT_AUTHORIZED);
+                })
+                .verify();
+        verify(orgMemberService, never()).getOrgMember(any(), any());
+        assertNothingOfTheListWasRead(stubs);
+        System.out.println("[FolderApiServiceImplTest] getPermissions, no visitor: NOT_AUTHORIZED, nothing read");
+    }
+
+    /** Catches the folder-not-found error being normalized or swallowed instead of passed through unchanged. */
+    @Test
+    void getPermissions_ofAnUnknownObjectId_passesTheFolderNotFoundErrorThrough_andChecksNothingElse() {
+        BizException notFound = new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", "ghost");
+        when(folderService.findById("ghost")).thenReturn(Mono.error(notFound));
+        PermissionViewStubs stubs = permissionViewStubs();
+
+        StepVerifier.create(service.getPermissions("ghost"))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(notFound))
+                .verify();
+        verify(sessionUserService, never()).getVisitorId();
+        verify(orgMemberService, never()).getOrgMember(any(), any());
+        assertNothingOfTheListWasRead(stubs);
+        System.out.println("[FolderApiServiceImplTest] getPermissions, unknown object id: the FOLDER_NOT_FOUND error passes through unchanged");
     }
 
     // ------------------------------------------------------------ view building

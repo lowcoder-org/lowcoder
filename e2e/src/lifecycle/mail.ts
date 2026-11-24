@@ -210,21 +210,16 @@ export function resetLinkOf(mail: ParsedMail): string {
   return match[0];
 }
 
-/** A link with the repeated slashes of its path collapsed (`http://h//user/x` -> `http://h/user/x`): what a browser needs when the public URL ends in a slash. */
-export function withSingleSlashes(link: string): string {
-  const url = new URL(link);
-  url.pathname = url.pathname.replace(/\/{2,}/g, "/");
-  return url.toString();
-}
-
-/** The invitation code of an invitation mail: the text after `/invite/` in its link. */
-export function inviteCodeOf(mail: ParsedMail): string {
-  const match = new RegExp(`${INVITE_LINK_PATH.replace(/\//g, "\\/")}([A-Za-z0-9]+)`).exec(textOf(mail));
-  const code = match?.[1];
-  if (code === undefined) {
+/**
+ * The invitation link of an invitation mail exactly as mailed (the path starts with whatever slashes the server's
+ * public URL leaves, D-54). Use it to open a page, never put it into a matcher or a message.
+ */
+export function inviteLinkOf(mail: ParsedMail): string {
+  const match = new RegExp(`https?:\\/\\/[^\\s<"']*${INVITE_LINK_PATH.replace(/\//g, "\\/")}[A-Za-z0-9]+`).exec(textOf(mail));
+  if (!match) {
     throw new MalformedMailError(`no ${INVITE_LINK_PATH} link with a code`);
   }
-  return code;
+  return match[0];
 }
 
 /** Whether a parsed mail is a password-reset mail / an invitation (by subject). */

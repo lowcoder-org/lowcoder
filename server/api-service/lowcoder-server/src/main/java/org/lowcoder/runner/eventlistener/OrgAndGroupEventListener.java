@@ -9,9 +9,11 @@ import java.util.concurrent.Executors;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
 import org.lowcoder.domain.datasource.repository.DatasourceRepository;
 import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.group.event.GroupDeletedEvent;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
@@ -65,6 +67,12 @@ public class OrgAndGroupEventListener {
     @Autowired
     private ResourcePermissionService resourcePermissionService;
 
+    @Autowired
+    private FolderService folderService;
+
+    @Autowired
+    private BundleService bundleService;
+
     @EventListener
     public void onOrgDeleted(OrgDeletedEvent event) {
 
@@ -81,11 +89,14 @@ public class OrgAndGroupEventListener {
     }
 
     /**
-     * Removes the user who left from the organization's groups and their application and datasource permissions there. The
-     * three cleanups run independently, each with its own retries (BF-015): one failing for good does not cancel the others,
-     * and its error is logged once all three have ended.
+     * Removes the user who left from the organization's groups and their application, data source, folder and bundle
+     * permissions there (D-59, D-60). The five cleanups run independently, each with its own retries (BF-015): one
+     * failing for good does not cancel the others, and its error is logged once all five have ended.
      * <p>
-     * Limits: a cleanup that fails after its retries is not attempted again later, so what it should have removed stays.
+     * Limits: a cleanup that fails after its retries is not attempted again later, so what it should have removed
+     * stays. This removes only the USER-holder permission rows this organization's resources carry for the leaving
+     * user; it does not revoke the access a creator (`createdBy`) keeps on the apps, bundles and folders it created,
+     * which is a separate, unrevoked mechanism (D-26, D-60 residual).
      */
     @EventListener
     public void onUserLeaveOrg(OrgMemberLeftEvent orgMemberLeftEvent) {
@@ -109,7 +120,20 @@ public class OrgAndGroupEventListener {
                 .retry(CLEANUP_RETRIES)
                 .subscribeOn(orgEventScheduler);
 
-        Mono.whenDelayError(removeGroupMember, removeAppPermissions, removeDatasourcePermissions)
+        Mono<List<Boolean>> removeFolderPermissions = folderService.findByOrganizationId(orgId)
+                .flatMap(folder -> resourcePermissionService.removeUserFolderPermission(folder.getId(), userId))
+                .collectList()
+                .retry(CLEANUP_RETRIES)
+                .subscribeOn(orgEventScheduler);
+
+        Mono<List<Boolean>> removeBundlePermissions = bundleService.findByOrganizationId(orgId)
+                .flatMap(bundle -> resourcePermissionService.removeUserBundlePermission(bundle.getId(), userId))
+                .collectList()
+                .retry(CLEANUP_RETRIES)
+                .subscribeOn(orgEventScheduler);
+
+        Mono.whenDelayError(removeGroupMember, removeAppPermissions, removeDatasourcePermissions,
+                        removeFolderPermissions, removeBundlePermissions)
                 .doOnError(e -> log.error("fail to handle user {} leaving org {}", userId, orgId, e))
                 .subscribe();
     }

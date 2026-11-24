@@ -1,6 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
 import { SETTING_PATHS } from "../constants";
 
+/** The invite dialog's success notice (`en.ts` `memberSettings.inviteByEmailSuccess`; D-55). */
+export const INVITE_SUCCESS_TEXT = "Invitations sent successfully!";
+
 /**
  * The workspace settings at /setting (3.0.0 client). Everything here is measured: a plain member who opens any /setting URL
  * is sent to /apps, a developer reaches the pages, an admin also gets the provider list.

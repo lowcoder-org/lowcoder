@@ -42,7 +42,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 
@@ -94,7 +93,8 @@ public class BundleApiServiceImpl implements BundleApiService {
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> orgMemberService.getOrgMember(bundle.getOrganizationId(), userId))
                 .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
+                // developer of the target workspace, not of the current one (D-11, D-41)
+                .delayUntil(orgDevChecker::checkOrgDev)
                 .delayUntil(orgMember -> checkBundleNameUnique(bundle.getName(), orgMember.getUserId()))
                 .delayUntil(orgMember -> {
                     String folderId = createBundleRequest.folderId();
@@ -361,9 +361,41 @@ public class BundleApiServiceImpl implements BundleApiService {
     private Mono<Bundle> addAppToBundle(Bundle bundle, Application newapplication) {
         var map = bundle.getEditingBundleDSL();
         if(map == null) map = new HashMap<>();
-        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).add(newapplication);
+        // no app editing DSL in bundle DSLs: their readers may not edit the app (D-42)
+        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).add(withoutEditingDsl(newapplication));
         bundle.setEditingBundleDSL(map);
         return bundleRepository.save(bundle);
+    }
+
+    /**
+     * A detached copy of the application for a reader who may not edit it (D-42): every field the application stores, with an
+     * empty editing DSL. The copy is a new instance, so its memoized editingQueries and editingModules are computed from the
+     * empty map (empty sets), whatever the original has already computed; the original is not changed. The DSL is an empty map,
+     * not null: getEditingModules() of a null DSL throws, which would fail the answer's serialization.
+     * Limits: the fields are copied by name; a field added to Application later is missing from the copy (absent, not
+     * leaked) until it is added here. The flags and the type are read through their getters, so a stored null becomes
+     * false / APPLICATION in the copy (the JSON already shows those values).
+     */
+    private static Application withoutEditingDsl(Application application) {
+        return Application.builder()
+                .id(application.getId())
+                .createdAt(application.getCreatedAt())
+                .updatedAt(application.getUpdatedAt())
+                .createdBy(application.getCreatedBy())
+                .modifiedBy(application.getModifiedBy())
+                .gid(application.getGid())
+                .slug(application.getSlug())
+                .organizationId(application.getOrganizationId())
+                .name(application.getName())
+                .applicationType(application.getApplicationType())
+                .applicationStatus(application.getApplicationStatus())
+                .editingApplicationDSL(new HashMap<>())
+                .publicToAll(application.isPublicToAll())
+                .publicToMarketplace(application.isPublicToMarketplace())
+                .agencyProfile(application.agencyProfile())
+                .editingUserId(application.getEditingUserId())
+                .lastEditedAt(application.getLastEditedAt())
+                .build();
     }
 
     /**
@@ -414,24 +446,36 @@ public class BundleApiServiceImpl implements BundleApiService {
     /**
      * The elements of a bundle, with the checks of {@link #getEditingBundle} (BF-020): the visitor may read the bundle
      * (READ_BUNDLES, computed in the bundle's organization; the readable errors of
-     * {@link #checkPermissionWithReadableErrorMsg}) and the bundle is NORMAL (BAD_REQUEST otherwise).
+     * {@link #checkPermissionWithReadableErrorMsg}) and the bundle is NORMAL (BAD_REQUEST otherwise). Each element is the
+     * application as stored now (not the bundle DSL's copy), in position order; it carries its editing DSL only when the
+     * visitor may edit it (EDIT_APPLICATIONS, one single-id check per element, in sequence), otherwise it is a copy without
+     * it (D-42). Limits: an empty visitor id answers no elements; the stored copies in the bundle DSLs are not filtered here.
      *
      * @return flux of {@link BundleApplication}
      */
     @Override
     public Flux<?> getElements(String bundleId, @Nullable ApplicationType applicationType) {
-        return checkPermissionWithReadableErrorMsg(bundleId, READ_BUNDLES)
-                .then(bundleService.findById(bundleId))
-                .flatMap(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
-                .thenMany(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId))
-                .sort((o1, o2) -> {
-                    var pos1 = Integer.parseInt(o1.getExtParam1());
-                    var pos2 = Integer.parseInt(o2.getExtParam1());
-                    return pos1 - pos2;
-                }).map(bi -> applicationServiceImpl.findById(bi.getTargetId()))
-                .index()
-                .publishOn(Schedulers.boundedElastic())
-                .map(tuple -> new BundleApplication(tuple.getT2().block(), tuple.getT1()));
+        return sessionUserService.getVisitorId()
+                .flatMapMany(visitorId -> checkPermissionWithReadableErrorMsg(bundleId, READ_BUNDLES)
+                        .then(bundleService.findById(bundleId))
+                        .flatMap(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                        .thenMany(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId))
+                        .sort((o1, o2) -> {
+                            var pos1 = Integer.parseInt(o1.getExtParam1());
+                            var pos2 = Integer.parseInt(o2.getExtParam1());
+                            return pos1 - pos2;
+                        })
+                        .concatMap(bi -> applicationServiceImpl.findById(bi.getTargetId())
+                                .flatMap(application -> withDslOnlyForEditors(visitorId, bi.getTargetId(), application)))
+                        .index()
+                        .map(tuple -> new BundleApplication(tuple.getT2(), tuple.getT1())));
+    }
+
+    private Mono<Application> withDslOnlyForEditors(String visitorId, String applicationId, Application application) {
+        return resourcePermissionService.checkUserPermissionStatusOnResource(visitorId, applicationId, EDIT_APPLICATIONS)
+                .map(UserPermissionOnResourceStatus::hasPermission)
+                .defaultIfEmpty(false)
+                .map(editable -> editable ? application : withoutEditingDsl(application));
     }
 
     @Override

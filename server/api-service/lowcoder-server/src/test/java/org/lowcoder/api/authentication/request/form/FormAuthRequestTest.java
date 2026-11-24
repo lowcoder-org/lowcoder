@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,8 @@ class FormAuthRequestTest {
     private static final String PASSWORD = "pw-1";
     private static final String ENCODED = "encoded-pw";
     private static final String INVALID_EMAIL_OR_PASSWORD = "INVALID_EMAIL_OR_PASSWORD";
+    private static final String WEAK_PASSWORD = "a";
+    private static final String ACCEPTABLE_PASSWORD = "Passw0rd-1";
 
     @Mock private UserService userService;
     @Mock private EncryptionService encryptionService;
@@ -54,7 +57,15 @@ class FormAuthRequestTest {
     }
 
     private static FormAuthRequestContext context(boolean register, AbstractAuthConfig authConfig) {
-        FormAuthRequestContext context = new FormAuthRequestContext(LOGIN_ID, PASSWORD, register, "org-1");
+        return context(register, authConfig, PASSWORD);
+    }
+
+    private static FormAuthRequestContext context(boolean register, AbstractAuthConfig authConfig, String password) {
+        return context(LOGIN_ID, register, authConfig, password);
+    }
+
+    private static FormAuthRequestContext context(String loginId, boolean register, AbstractAuthConfig authConfig, String password) {
+        FormAuthRequestContext context = new FormAuthRequestContext(loginId, password, register, "org-1");
         context.setAuthConfig(authConfig);
         return context;
     }
@@ -64,9 +75,17 @@ class FormAuthRequestTest {
         assertThat(((BizException) throwable).getError()).isEqualTo(expected);
     }
 
+    private static void assertBizError(Throwable throwable, BizError expected, String messageKey) {
+        assertBizError(throwable, expected);
+        assertThat(((BizException) throwable).getMessageKey()).isEqualTo(messageKey);
+    }
+
     // -------------------------------------------------------------------- login
 
-    /** Catches a login with the right password failing, or the user being built from something other than the login id. */
+    /**
+     * Catches a login with the right password failing, or the user being built from something other than the
+     * login id. {@code pw-1} breaks the sign-up rule on purpose: sign-in never applies it (D-48).
+     */
     @Test
     void login_rightPassword_returnsTheAuthUserOfTheLoginId() {
         when(userService.findBySourceAndId(AuthSourceConstants.EMAIL, LOGIN_ID)).thenReturn(Mono.just(User.builder().password(ENCODED).build()));
@@ -138,6 +157,57 @@ class FormAuthRequestTest {
     void register_withANonEmailConfigOfTheEmailSource_isUnsupported() {
         assertRegistrationRefused(Oauth2SimpleAuthConfig.builder().id("cfg").source(AuthSourceConstants.EMAIL).sourceName("x").enable(true)
                 .enableRegister(true).clientId("c").authType("GITHUB").build(), "not an EmailAuthConfig");
+    }
+
+    /** D-48: a weak password refuses registration before the duplicate-address lookup or any encryption call. */
+    @Test
+    void register_weakPassword_failsPasswordTooWeakAndLooksNothingUp() {
+        EmailAuthConfig config = new EmailAuthConfig("cfg", true, true);
+
+        StepVerifier.create(request.auth(context(true, config, WEAK_PASSWORD)))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK"))
+                .verify();
+        verify(userService, never()).findBySourceAndId(anyString(), anyString());
+        verifyNoInteractions(encryptionService);
+        System.out.println("[FormAuthRequestTest] register weak password -> INVALID_PASSWORD / PASSWORD_TOO_WEAK, no lookup, no encryption call");
+    }
+
+    /** D-48 ordering: a malformed address is refused before the weak-password check runs. */
+    @Test
+    void register_weakPasswordAndMalformedAddress_failsInvalidEmailFormatFirst() {
+        EmailAuthConfig config = new EmailAuthConfig("cfg", true, true);
+        FormAuthRequestContext context = context("not-an-address", true, config, WEAK_PASSWORD);
+
+        StepVerifier.create(request.auth(context))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.INVALID_EMAIL_FORMAT, "INVALID_EMAIL_FORMAT"))
+                .verify();
+        verify(userService, never()).findBySourceAndId(anyString(), anyString());
+        System.out.println("[FormAuthRequestTest] register malformed address + weak password -> INVALID_EMAIL_FORMAT first");
+    }
+
+    /** D-48: a password that meets the rule is let through to the duplicate-address lookup. */
+    @Test
+    void register_acceptablePassword_looksUpTheAddressAndAnswersTheAuthUser() {
+        EmailAuthConfig config = new EmailAuthConfig("cfg", true, true);
+        when(userService.findBySourceAndId(AuthSourceConstants.EMAIL, LOGIN_ID)).thenReturn(Mono.empty());
+
+        AuthUser authUser = request.auth(context(true, config, ACCEPTABLE_PASSWORD)).block();
+
+        assertThat(authUser.getUid()).isEqualTo(LOGIN_ID);
+        verify(userService).findBySourceAndId(AuthSourceConstants.EMAIL, LOGIN_ID);
+        System.out.println("[FormAuthRequestTest] register acceptable password -> looked up, authUser=" + authUser.getUid());
+    }
+
+    /** D-48 + the duplicate check: an acceptable password of an already-registered address still fails as a duplicate. */
+    @Test
+    void register_acceptablePasswordOfARegisteredAddress_failsUserLoginIdExist() {
+        EmailAuthConfig config = new EmailAuthConfig("cfg", true, true);
+        when(userService.findBySourceAndId(AuthSourceConstants.EMAIL, LOGIN_ID)).thenReturn(Mono.just(User.builder().build()));
+
+        StepVerifier.create(request.auth(context(true, config, ACCEPTABLE_PASSWORD)))
+                .expectErrorSatisfies(e -> assertBizError(e, BizError.USER_LOGIN_ID_EXIST, "USER_LOGIN_ID_EXIST"))
+                .verify();
+        System.out.println("[FormAuthRequestTest] register acceptable password of a registered address -> USER_LOGIN_ID_EXIST");
     }
 
     @Test

@@ -55,7 +55,7 @@ export function runFlagsFromEnv(env: Record<string, string | undefined>): RunFla
  * independent), and always `@enterprise`, `@enterprise-takeover` and `@signup-disabled`. Signup-disabled profile: `@quarantine` unless its flag is set. Enterprise profile: `@quarantine` unless its flag is set,
  * and `@enterprise-takeover` unless ITS flag is set; the other two flags do not apply there (`@insert-all` tests are outside
  * the `@enterprise` selection anyway, and the super admin of that stack is a member of ONE workspace, so the D-47 capacity
- * limit behind `@superadmin` does not arise: SEC-E01 to E06a use it and carry the tag for the guard of
+ * limit behind `@superadmin` does not arise: SEC-E01 to E06a and SEC-E07a, E07b use it and carry the tag for the guard of
  * tests/foundation/run-selection.spec.ts).
  */
 export function excludedTags(flags: RunFlags): string[] {
@@ -83,8 +83,8 @@ export function excludedTags(flags: RunFlags): string[] {
  * out. Default profile, no flag: `/@quarantine|@insert-all|@superadmin|@enterprise|@enterprise-takeover/` (the default run);
  * in between, the alternation of the tags whose flag is not set, the two enterprise tags always last. Enterprise profile:
  * `/@quarantine|@enterprise-takeover/` by default, `/@quarantine/` with the takeover flag only, `/@enterprise-takeover/`
- * with the quarantine flag only. A test tagged with several opt-in tags runs only when all their flags are set (SEC-R16c and
- * SEC-R16d carry @quarantine and @superadmin; SEC-E05 carries @quarantine and @enterprise-takeover). Limit: it matches the
+ * with the quarantine flag only. A test tagged with several opt-in tags runs only when all their flags are set (SEC-E05 carries
+ * @quarantine and @enterprise-takeover; no other test carries two opt-in tags since SEC-R16c and SEC-R16d left the quarantine). Limit: it matches the
  * tags in the test title, so a title that contains the text of an excluded tag is excluded too (no test title does).
  */
 export function grepInvertFor(flags: RunFlags): RegExp | undefined {

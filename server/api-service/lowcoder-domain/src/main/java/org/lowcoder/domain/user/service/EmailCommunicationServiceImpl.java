@@ -38,7 +38,8 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = config.getLowcoderPublicUrl() + "/user/auth/lost-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+            // D-54
+            String resetLink = CommonConfig.withoutTrailingSlashes(config.getLowcoderPublicUrl()) + "/user/auth/lost-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
             String formattedMessage = fillTemplate(message, to, resetLink);
             mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 

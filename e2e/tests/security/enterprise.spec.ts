@@ -44,6 +44,13 @@ const MEMBER_TAG = "user";
 const ADMIN_TAG = "admin";
 const UNKNOWN_ADDRESS_TAG = "nobody";
 
+/**
+ * File-wide (trace/screenshot/video cannot be set in a describe group: Playwright forces a new worker and refuses).
+ * SEC-E07a/b reset a password and must keep it out of every artifact; applying this to the whole file costs nothing,
+ * since it only removes debugging artifacts and changes no assertion.
+ */
+test.use({ trace: "off", screenshot: "off", video: "off" });
+
 function bearer(token: string): Record<string, string> {
   return { [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${token}` };
 }
@@ -167,6 +174,43 @@ test.describe("security: the ENTERPRISE stack", () => {
       expectAnswer(unknownAnswer, ALLOWED, "the lookup of an address nobody signed up with");
       expect(orgIdsOf(known.json), "the workspaces listed for U's address: OE only").toEqual([u.orgId]);
       expect(orgIdsOf(unknownAnswer.json), "the same list for an unknown address: no account oracle in this mode").toEqual([u.orgId]);
+    },
+  );
+});
+
+/** SEC-E07a, SEC-E07b: an admin password reset and the sessions of the reset user (D-34). The reset answer carries a new
+ * password, so no artifact of these tests keeps a response body and no assertion receives one. */
+test.describe("security: the ENTERPRISE stack, sessions after a password reset", () => {
+  test(
+    "SEC-E07a an admin's reset of a member's password ends the member's sessions",
+    securityTestDetails("SEC-E07a", [TAGS.ENTERPRISE, TAGS.SUPERADMIN]),
+    async ({ actor, superAdmin }) => {
+      const a = await enterpriseAdmin(superAdmin, actor, ADMIN_TAG);
+      const u = await actor(MEMBER_TAG);
+      expectAnswer(await apiRaw(u.request, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "before: U's session works");
+
+      const reset = await apiRaw(a.request, "POST", API_PATHS.USER_RESET_PASSWORD, { data: { userId: u.userId } });
+
+      expectAnswer(reset, ALLOWED, "A's reset of U's password");
+      expectAnswer(await apiRaw(u.request, "GET", API_PATHS.USER_MY_ORG), API_ERRORS.UNAUTHENTICATED, "after: U's session from before the reset");
+      expectAnswer(await apiRaw(a.request, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "control: a reset of someone else leaves A's own session alone");
+    },
+  );
+
+  test(
+    "SEC-E07b an admin who resets its own password keeps the session that asked and loses its other one",
+    securityTestDetails("SEC-E07b", [TAGS.ENTERPRISE, TAGS.SUPERADMIN]),
+    async ({ actor, superAdmin, newUserSession }) => {
+      const a = await enterpriseAdmin(superAdmin, actor, ADMIN_TAG);
+      const other = (await newUserSession()).page.request;
+      await signIn(other, a.email);
+      expectAnswer(await apiRaw(other, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "before: A's second session works");
+
+      const reset = await apiRaw(a.request, "POST", API_PATHS.USER_RESET_PASSWORD, { data: { userId: a.userId } });
+
+      expectAnswer(reset, ALLOWED, "A's reset of its own password");
+      expectAnswer(await apiRaw(a.request, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "after: the session that asked for the reset still works");
+      expectAnswer(await apiRaw(other, "GET", API_PATHS.USER_MY_ORG), API_ERRORS.UNAUTHENTICATED, "after: A's other session");
     },
   );
 });

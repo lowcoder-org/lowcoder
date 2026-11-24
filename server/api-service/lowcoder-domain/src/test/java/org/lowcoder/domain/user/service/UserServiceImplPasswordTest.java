@@ -6,6 +6,7 @@ import static org.lowcoder.domain.user.service.UserServiceFixture.ORG_ID;
 import static org.lowcoder.domain.user.service.UserServiceFixture.USER_EMAIL;
 import static org.lowcoder.domain.user.service.UserServiceFixture.USER_ID;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,8 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
 import org.mockito.ArgumentCaptor;
+
+import com.mongodb.client.result.UpdateResult;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -173,6 +176,57 @@ class UserServiceImplPasswordTest {
         System.out.println("[UserServiceImplPasswordTest] setPassword stored a hash that matches the password");
     }
 
+    // ---------------------------------------------------------------- setPasswordIfAbsent
+
+    /** Catches the check and the write disagreeing, or a fallback to the unconditional save ({@code UserServiceImpl.setPasswordIfAbsent}). */
+    @Test
+    void setPasswordIfAbsent_noPassword_writesTheHashOfThePassword() {
+        when(fixture.repository.setPasswordIfAbsent(eq(USER_ID), anyString()))
+                .thenReturn(Mono.just(UpdateResult.acknowledged(1, 1L, null)));
+
+        StepVerifier.create(service.setPasswordIfAbsent(USER_ID, NEW_PASSWORD)).expectNext(true).verifyComplete();
+
+        ArgumentCaptor<String> hash = ArgumentCaptor.forClass(String.class);
+        verify(fixture.repository).setPasswordIfAbsent(eq(USER_ID), hash.capture());
+        assertThat(hash.getValue()).isNotEqualTo(NEW_PASSWORD);
+        assertThat(fixture.encryptionService.matchPassword(NEW_PASSWORD, hash.getValue())).isTrue();
+        verify(fixture.repository, never()).save(any(User.class));
+        System.out.println("[UserServiceImplPasswordTest] setPasswordIfAbsent on a passwordless account stored a hash that matches the password");
+    }
+
+    /** Catches the conditional write losing the race and silently overwriting an existing password ({@code UserServiceImpl.setPasswordIfAbsent}). */
+    @Test
+    void setPasswordIfAbsent_passwordPresent_failsPasswordAlreadySetAndChangesNothing() {
+        User user = fixture.userWithPassword(OLD_PASSWORD);
+        String storedHash = user.getPassword();
+        when(fixture.repository.setPasswordIfAbsent(eq(USER_ID), anyString()))
+                .thenReturn(Mono.just(UpdateResult.acknowledged(0, 0L, null)));
+        when(fixture.repository.findById(USER_ID)).thenReturn(Mono.just(user));
+
+        StepVerifier.create(service.setPasswordIfAbsent(USER_ID, NEW_PASSWORD))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET"))
+                .verify();
+
+        verify(fixture.repository, never()).save(any(User.class));
+        assertThat(user.getPassword()).isEqualTo(storedHash);
+        System.out.println("[UserServiceImplPasswordTest] setPasswordIfAbsent on an account with a password -> PASSWORD_ALREADY_SET, nothing changed");
+    }
+
+    /** Catches an unknown account being reported as "already has a password" instead of USER_NOT_EXIST ({@code UserServiceImpl.setPasswordIfAbsent}). */
+    @Test
+    void setPasswordIfAbsent_unknownUser_failsUserNotExist() {
+        when(fixture.repository.setPasswordIfAbsent(eq(MISSING_USER_ID), anyString()))
+                .thenReturn(Mono.just(UpdateResult.acknowledged(0, 0L, null)));
+        when(fixture.repository.findById(MISSING_USER_ID)).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.setPasswordIfAbsent(MISSING_USER_ID, NEW_PASSWORD))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.USER_NOT_EXIST, USER_NOT_EXIST_KEY))
+                .verify();
+
+        verify(fixture.repository, never()).save(any(User.class));
+        System.out.println("[UserServiceImplPasswordTest] setPasswordIfAbsent on an unknown id -> USER_NOT_EXIST, nothing saved");
+    }
+
     /** Catches the super admin flag not being set ({@code UserServiceImpl.markAsSuperAdmin}). */
     @Test
     void markAsSuperAdmin_setsFlagAndSaves() {
@@ -238,7 +292,7 @@ class UserServiceImplPasswordTest {
         stubEmailLookup(user);
 
         StepVerifier.create(service.resetLostPassword(USER_EMAIL, TOKEN, NEW_PASSWORD))
-                .expectNext(true)
+                .expectNext(USER_ID)
                 .verifyComplete();
 
         assertThat(fixture.encryptionService.matchPassword(NEW_PASSWORD, user.getPassword())).isTrue();
@@ -274,7 +328,7 @@ class UserServiceImplPasswordTest {
         when(fixture.repository.findByName("some-handle")).thenReturn(Mono.just(user));
 
         StepVerifier.create(service.resetLostPassword("some-handle", TOKEN, NEW_PASSWORD))
-                .expectNext(true)
+                .expectNext(USER_ID)
                 .verifyComplete();
         verify(fixture.repository).findByName("some-handle");
         System.out.println("[UserServiceImplPasswordTest] reset resolved the account by name after an empty e-mail lookup");

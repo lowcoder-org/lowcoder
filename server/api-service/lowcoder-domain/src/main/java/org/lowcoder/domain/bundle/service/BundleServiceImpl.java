@@ -202,6 +202,11 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
+    public Flux<Bundle> findByOrganizationId(String organizationId) {
+        return repository.findByOrganizationId(organizationId);
+    }
+
+    @Override
     public Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll) {
         Bundle bundle = Bundle.builder()
                 .publicToAll(publicToAll)
