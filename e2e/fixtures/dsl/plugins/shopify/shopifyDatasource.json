@@ -1,0 +1,9 @@
+{
+ "name": "shopify",
+ "type": "shopify",
+ "datasourceConfig": {
+  "endpoint": "http://placeholder.invalid",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

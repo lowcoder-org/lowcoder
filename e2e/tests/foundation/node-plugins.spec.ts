@@ -156,6 +156,30 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     }
   });
 
+  test("the gitlab and shopify recordings are the form's body and the editor's saved query, with no value of the recording session", () => {
+    // the form drops empty key/value rows, so the gitlab body has no `headers` (a filled row is `[{ key, value }]`, measured in the form)
+    const expectations = [
+      { id: "gitlab", config: ["endpoint", "token"] },
+      { id: "shopify", config: ["endpoint"] },
+    ];
+    for (const { id, config } of expectations) {
+      const datasource = recordedPluginDatasource(id);
+      const query = recordedPluginQuery(id);
+      expect(datasource.type, `${id}: the data source type`).toBe(id);
+      expect(Object.keys(datasource.datasourceConfig).slice(0, config.length), `${id}: the form fields`).toEqual(config);
+      expect(datasource.datasourceConfig.endpoint, `${id}: the placeholder host`).toBe(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL);
+      expect(query.compType, `${id}: the query type`).toBe(id);
+      expect(query.comp.actionName, `${id}: the only action of the plugin`).toBe("query");
+      expect(Object.keys(query.comp.action as Record<string, unknown>), `${id}: the action's parameters`).toEqual(["query", "variables", "headers"]);
+      expect(Object.keys(query), `${id}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(Object.keys(datasource), `${id}: no workspace id`).toEqual(["name", "type", "datasourceConfig"]);
+      const text = [`${id}Datasource.json`, `${id}Query.json`].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, id, file), "utf8")).join("\n");
+      expect(text, `${id}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${id}: an ISO timestamp`).not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+      expect(text, `${id}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+  });
+
   test("the recorded placeholder host is one that never resolves", () => {
     expect(new URL(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL).hostname.endsWith(".invalid")).toBe(true);
   });

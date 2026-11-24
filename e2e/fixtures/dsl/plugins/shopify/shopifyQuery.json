@@ -1,0 +1,27 @@
+{
+ "compType": "shopify",
+ "comp": {
+  "actionName": "query",
+  "action": {
+   "query": "",
+   "variables": [
+    {
+     "key": "",
+     "value": ""
+    }
+   ],
+   "headers": [
+    {
+     "key": "",
+     "value": ""
+    }
+   ]
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
