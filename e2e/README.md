@@ -8,7 +8,7 @@ the Extensions panel and the visual components. Apps are seeded through the HTTP
 
 Rules for writing or changing tests: [AGENTS.md](AGENTS.md).
 
-Not covered: Firefox and WebKit; the multi-container compose setup; databases other than PostgreSQL; the server and
+Not covered: Firefox and WebKit; the multi-container compose setup; databases other than PostgreSQL (the data sources that run in node-service are covered by their catalogue only, D3: which plugins the image serves and that each definition has a form and a query config; no plugin query is run yet); the server and
 node-service as separate units; any request to a real external host (the network guard blocks them); the app-level
 layouts `navLayout` and `mobileTabLayout` (open decision). The functional behaviour of the nine components that need a
 cloud service, credentials, third-party scripts or a device (3 Agora meetings, `turnstileCaptcha`, `scanner`,
@@ -209,6 +209,7 @@ e2e/
   fixtures/sql/init.sql             PostgreSQL data: items, products, notes
   fixtures/dsl/<type>.json          112 DSL defaults recorded from the editor
   fixtures/dsl/n8n/                 n8nQuery.json (the query the editor saved for "Retrieve all workflows", reduced to type and action) and n8nDatasource.json (the data source form's create body, without workspace, target or key); no id or timestamp of the recording session survives (a unit test checks); a subfolder so the component catalog test does not count them
+  fixtures/dsl/plugins/             `<id>/<id>Datasource.json` and `<id>Query.json` per node-service data source plugin (loaders `recordedPluginQuery` and `recordedPluginDatasource`, same reduction and no-session-value rule as `fixtures/dsl/n8n/`); a subfolder so the component catalog test does not count them; no plugin is recorded yet, so the folder appears with the first recording
   src/
     constants.ts                    TAGS, RUN_FLAGS, D3_RETRY_ANNOTATION, API paths, timeouts with reasons, PRODUCTS, labels
     fixtures.ts                     `test` with networkGuard, apiUser, newUserSession, actor, superAdmin; uniqueEmail
@@ -220,6 +221,7 @@ e2e/
     pages/                          page objects: AppList, AppView, Auth, Datasource, Editor, Extensions panel, Login, Property panel, Query panel, Setting, TableView, UserMenu
     logic/helpers.ts                rawLocalStorage, countAfterEquals, parseCounter, expectTextStays, DEBOUNCE_SETTLE_MS
     datasource/notes-queries.ts     query builders: shared read-only products, owner-scoped notes
+    datasource/node-plugins.ts      `NODE_PLUGIN_IDS` (the 46 node plugin ids), `nodePluginIdsOf`, `NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL`
     components/                     insert-all.ts (S1 helpers), insert-catalog.ts (112 types), scenario.ts (boundText, withValueAt, openSeededView)
     simple-components/seed.ts       container and slot seeds, openSeededApp
     modules/moduleScenario.ts       module scenario DSL, saved-instance polling, HandlerRetryBudget
@@ -244,15 +246,16 @@ Test titles carry these ids.
 - S16 npm plugins in the Extensions panel; S17 AI Chat; S18 chat controller and iframe; S19 npm templates; S20 chat box.
 - L1 temporary states; L2 local storage; L3 query triggers.
 - D1 a PostgreSQL query feeds a text and a table, write queries re-read; D2 table with query data (sort, page, filter, edit).
+- D3 the plugin catalogue of node-service: the image serves exactly the registered node plugins, each definition has a form and a query config, the Java-native types carry no definition (`@node-service`; the catalogue only, no plugin query runs).
 - M1 two module instances, every direction across the boundary; M2 which module version a host shows; M3 host built in the editor.
 
 ## Test catalogue
 
 Counts (re-measured 2026-11-24 with `LOWCODER_BASE_URL=http://localhost:1 ./node_modules/.bin/playwright test --list --reporter=list` from `e2e/`, after this branch's security fixes; this is a static listing, not a Docker run. A combined final run against an image built from this branch (tag `secfix-combined-e2e`) has since confirmed pass/fail for every scenario named in the per-defect rows below: 693/696 default tests passed, the 3 failures pre-existing or unrelated suite drift (documented in their own rows below)):
-default **696 tests in 104 files**; with `E2E_INCLUDE_QUARANTINE=1` **709 in 105**; with `E2E_INCLUDE_SUPERADMIN=1` **701 in 104**; with both of those **714 in 105**;
-with `E2E_INCLUDE_INSERT_ALL=1` **808 in 105**; with all three opt-in variables **826 in 106** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
+default **713 tests in 106 files**; with `E2E_INCLUDE_QUARANTINE=1` **726 in 107**; with `E2E_INCLUDE_SUPERADMIN=1` **718 in 106**; with both of those **731 in 107**;
+with `E2E_INCLUDE_INSERT_ALL=1` **825 in 107**; with all three opt-in variables **843 in 108** (the takeover variable changes nothing on the default stack). With `E2E_STACK_PROFILE=enterprise`:
 **8 in 1** (SEC-E01 to E04, E06a, E06b, E07a, E07b as of D-34; also with `E2E_INCLUDE_QUARANTINE=1` alone, which opens nothing extra), **1 in 1** with `E2E_INCLUDE_ENTERPRISE_TAKEOVER=1` alone (SEC-E05 alone, no quarantine flag needed any more); `E2E_INCLUDE_INSERT_ALL` and `E2E_INCLUDE_SUPERADMIN` add nothing there. `@enterprise` is 9 tests, none in a default-stack listing. With `E2E_STACK_PROFILE=signup-disabled`: **5 in 1** (LC-AU20 to AU24).
-Default-run tag counts (`--list --reporter=list --grep <tag>`): `@smoke` 5, `@core` 57, `@slow` 39, `@npm` 32, `@security` 157, `@lifecycle` 111. On request: `@quarantine` 13 (with `E2E_INCLUDE_QUARANTINE=1`; no `@quarantine` test also carries `@superadmin` any more, so the same 13 with both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. The 13 `@quarantine` tests: the lifecycle ones are LC-AK04 (D-45, intermittent UI test), LC-AU15 (D-30) and the three new creator-shortcut candidates LC-DL13 to LC-DL15 (`workspace/leave-removal.spec.ts`, D-26/D-60 residual, an open scope question for the owner); the rest are the open security findings SEC-C17c (D-30, two variants), SEC-R17f (D-46), SEC-A10b (D-13), the two quarantined tests of `foundation/security-helpers.spec.ts` (D-45, D-46 candidates), `editor/drop-size.spec.ts` (D-5) and the icon switch of `components/displays.spec.ts` (CD-9 candidate). Whether each of these PASSES as expected (quarantined ones failing, default-run ones passing) on a built image is confirmed in the combined run (2026-11-24, image `secfix-combined-e2e`).
+Default-run tag counts (`--list --reporter=list --grep <tag>`): `@smoke` 5, `@core` 57, `@slow` 39, `@npm` 32, `@security` 157, `@lifecycle` 111, `@node-service` 17 (the 14 unit tests of `foundation/node-plugins.spec.ts` and D3a to D3c; a selection tag, they stay in the default run). On request: `@quarantine` 13 (with `E2E_INCLUDE_QUARANTINE=1`; no `@quarantine` test also carries `@superadmin` any more, so the same 13 with both variables), `@superadmin` 5 (the four SEC-R16 tests and the `superAdmin` fixture helper test), `@insert-all` 112. The 13 `@quarantine` tests: the lifecycle ones are LC-AK04 (D-45, intermittent UI test), LC-AU15 (D-30) and the three new creator-shortcut candidates LC-DL13 to LC-DL15 (`workspace/leave-removal.spec.ts`, D-26/D-60 residual, an open scope question for the owner); the rest are the open security findings SEC-C17c (D-30, two variants), SEC-R17f (D-46), SEC-A10b (D-13), the two quarantined tests of `foundation/security-helpers.spec.ts` (D-45, D-46 candidates), `editor/drop-size.spec.ts` (D-5) and the icon switch of `components/displays.spec.ts` (CD-9 candidate). Whether each of these PASSES as expected (quarantined ones failing, default-run ones passing) on a built image is confirmed in the combined run (2026-11-24, image `secfix-combined-e2e`).
 Since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` the quarantine holds only what still fails there (plus LC-AK04, an intermittent UI test): 25 tests whose test passed on 3.0.1 left it and are in the default run (SEC-R16c and SEC-R16d are in the `@superadmin` run), and LC-GR03, LC-PR06 and LC-IP07 left the open list.
 
 ### smoke (4)
@@ -301,7 +304,7 @@ Since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` the 
 | editor/js-query.spec.ts | a JS query written in the editor runs | @core | 1 |
 | editor/drop-size.spec.ts | a component dropped right after ready has width above 0 (D-5) | @quarantine | 1 |
 
-### datasource (10)
+### datasource (13)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
@@ -309,6 +312,7 @@ Since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` the 
 | datasource/table.spec.ts | D2: editor-built table bound to a query; published table; sort, page, select, filter, notes edit/save | @core @slow | 3 |
 | datasource/query-feeds-components.spec.ts | D1: query feeds text and table, owner-scoped writes re-read, chart renders | @core @slow @npm | 1 |
 | datasource/notes-queries.spec.ts | unit tests of the query builders | none | 4 |
+| datasource/node-plugins-catalogue.spec.ts | D3: the catalogue serves exactly the 46 registered node plugins (measured on 3.0.0-e2e and 3.0.1-e2e, so `duckdb` loads), every definition has a form and a query config, all 14 Java-native types of the catalogue answer `definition: null` (an explicit list, so a dropped or renamed type fails) | @node-service | 3 |
 
 ### logic (22)
 
@@ -452,12 +456,13 @@ first makes sure some admin exists (accepting both answers), so none depends on 
 
 SEC-R09d (D-38) left the quarantine: the check took the workspace of the first id of a `HashSet`; each id is now decided in its own workspace (Java unit and MongoDB integration tests green 2026-11-24; Docker/e2e confirmed in the combined run (2026-11-24, image `secfix-combined-e2e`)). Accounting of the earlier 3.0.0 run `E2E_INCLUDE_QUARANTINE=1 e2e/scripts/run-in-docker.sh --workers=4 --reporter=list --grep "@quarantine" tests/security` (measured before the `@superadmin` tag existed and before the reassessment, so it listed 44 tests, 19 of which have since left the quarantine): 44 listed, 43 failed, 1 passed (SEC-R09d); the two quarantined tests of `foundation/security-helpers.spec.ts` are outside that folder.
 
-### foundation (264 default, 267 with the quarantined and the `@superadmin` ones; unit and builder tests; several touch the stack)
+### foundation (278 default, 281 with the quarantined and the `@superadmin` ones; unit and builder tests; several touch the stack)
 
 | File | Proves | Tags | Tests |
 |---|---|---|---|
 | foundation/builders.spec.ts | every DSL builder's output shape, and the n8n recordings with `n8nWorkflowsQuery` | none | 40 |
 | foundation/recorded.spec.ts | recorded-fixture parsing and errors | none | 5 |
+| foundation/node-plugins.spec.ts | the node-service data source helpers (no stack): `parsePluginRecording` (wrong type, missing `comp.actionName`), `recordedPluginQuery` and `recordedPluginDatasource` errors, `nodePluginQuery` (action merge, recording unchanged), `nodePluginDatasourceBody`, `nodePluginIdsOf`, `NODE_PLUGIN_IDS`, the data source routes, and `createNodePluginDatasource`, `testDatasourceRaw`, `pluginDynamicConfigRaw` (method, path, body and answer handling) against a local server | @node-service | 14 |
 | foundation/run-selection.spec.ts | `grepInvertFor`, `grepFor`, `excludedTags`, `runFlagsFromEnv`, `stackProfileFromEnv` for the four opt-in flags and the stack profile (every flag combination on the default and enterprise stacks and the signup-disabled profile: SEC-E05 runs only with its own flag and then alone), and the guard that every `superAdmin` fixture test carries `@superadmin` (parses each spec with the TypeScript compiler: `test` and every local name bound to it, by an aliased import of the fixtures or of `@playwright/test` or by a `test.extend(...)` variable; `test.only/skip/fixme/fail`, hooks, tags on an enclosing `test.describe`; comments, titles and annotations never count; the guard itself is tested on synthetic sources) | none | 27 |
 | foundation/media.spec.ts | media fixtures have the right signatures | none | 8 |
 | foundation/create-module.spec.ts | `createModule` request shape | none | 4 |

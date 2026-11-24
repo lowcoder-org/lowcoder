@@ -26,6 +26,10 @@ export const API_PATHS = {
   INVITATION: "/api/invitation",
   MARK_USER_STATUS: "/api/users/mark-status",
   DATASOURCES: "/api/datasources",
+  /** `POST /api/datasources/test`: the connection test of a data source body (`DatasourceEndpoints.java`, `@PostMapping("/test")`). */
+  DATASOURCE_TEST: "/api/datasources/test",
+  /** `POST /api/datasources/getPluginDynamicConfig`: the dynamic form parameters of a node plugin (`DatasourceEndpoints.java`, `@PostMapping("/getPluginDynamicConfig")`). */
+  PLUGIN_DYNAMIC_CONFIG: "/api/datasources/getPluginDynamicConfig",
   // Routes of the security helpers and scenarios (tests/security/):
   APPLICATION_RECORDS: "/api/application-records",
   APPLICATION_HISTORY_SNAPSHOTS: "/api/application/history-snapshots",
@@ -202,6 +206,12 @@ export const TAGS = {
    * Every fixture that makes a user signs up, so no other test can run on that stack.
    */
   SIGNUP_DISABLED: "@signup-disabled",
+  /**
+   * The tests of the data sources that run in node-service (the node plugins: the catalogue of the image, DuckDB, the
+   * plugins pointed at the echo sidecar) and the stack-free unit spec of their helpers. A selection tag
+   * (`--grep @node-service`), not an opt-in one: these tests stay in the default run.
+   */
+  NODE_SERVICE: "@node-service",
 } as const;
 
 /** Environment variables that widen the run beyond the default selection (read by playwright.config.ts). */
@@ -674,6 +684,11 @@ export function publicToMarketplacePath(appId: string): string {
 /** `GET /api/datasources/listByOrg?orgId=`: the datasources of a workspace that the caller may USE. */
 export function datasourcesByOrgPath(): string {
   return `${API_PATHS.DATASOURCES}/listByOrg`;
+}
+
+/** `GET /api/organizations/{orgId}/datasourceTypes`: the Java-native types plus every node plugin with its `definition` (`OrganizationEndpoints.java`, `@GetMapping("/{orgId}/datasourceTypes")`). */
+export function orgDatasourceTypesPath(orgId: string): string {
+  return `${orgPath(orgId)}/datasourceTypes`;
 }
 
 /** `GET /api/bundles/recycle/list`: the trash of bundles. */

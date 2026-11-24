@@ -9,7 +9,7 @@
  *
  * Typical use: `appDsl(stackItems([text(...), button(...)]), { queries: [...], tempStates: [...] })`.
  */
-import { recordedBaseHooks, recordedHook, recordedItem, recordedN8nQuery, type RecordedHook } from "./recorded";
+import { recordedBaseHooks, recordedHook, recordedItem, recordedN8nQuery, type RecordedHook, type RecordedPluginQuery } from "./recorded";
 
 export interface GridPosition {
   x: number;
@@ -459,6 +459,31 @@ export function n8nWorkflowsQuery(
   return {
     compType: recorded.compType,
     comp: { ...recorded.comp, action: { ...recorded.comp.action, [N8N_NAME_PARAM_KEY]: params.nameParam } },
+    datasourceId: params.datasourceId,
+    ...queryDefaults({ ...params, trigger: params.trigger ?? "manual" }),
+  };
+}
+
+/**
+ * A query on a node-service data source (a node plugin), from the query the editor saved (`recordedPluginQuery(id)`): the
+ * recorded `compType` and `comp`, with `action` merged by key over the recorded action (the generated `actionName` and the
+ * action's other defaults stay). The recording is deep-copied, so a call never changes what the next call starts from.
+ * Starts `manual` like `n8nWorkflowsQuery`: a test runs it with `POST /api/query/execute` or a button.
+ */
+export function nodePluginQuery(
+  params: {
+    id: string;
+    name: string;
+    datasourceId: string;
+    recorded: RecordedPluginQuery;
+    action?: Record<string, unknown>;
+    trigger?: PostgresQueryTrigger;
+  } & QueryOptions,
+): object {
+  const recorded = structuredClone(params.recorded);
+  return {
+    compType: recorded.compType,
+    comp: { ...recorded.comp, action: { ...recorded.comp.action, ...structuredClone(params.action ?? {}) } },
     datasourceId: params.datasourceId,
     ...queryDefaults({ ...params, trigger: params.trigger ?? "manual" }),
   };

@@ -1,5 +1,5 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
-import { recordedN8nDatasource } from "../dsl/recorded";
+import { recordedN8nDatasource, type RecordedPluginDatasource } from "../dsl/recorded";
 import {
   API_ERRORS,
   API_OK,
@@ -35,6 +35,7 @@ import {
   NEW_USER_GUIDANCE_STATUS,
   NPM_REGISTRIES_SETTING_KEY,
   orgCommonSettingsPath,
+  orgDatasourceTypesPath,
   orgMembersPath,
   orgRemoveMemberPath,
   orgRolePath,
@@ -1032,4 +1033,65 @@ export async function createN8nDatasource(
     await request.post(API_PATHS.DATASOURCES, { data: n8nDatasourceBody(params) }),
   );
   return data.id;
+}
+
+/** The definition a node plugin serves in the catalogue (`listPlugins`, `server/node-service/src/services/plugin.ts`): the form and query config; the fields a test reads are typed, the rest is open. */
+export interface NodePluginDefinition {
+  id?: string;
+  name?: string;
+  dataSourceConfig?: { type?: string; params?: unknown; extra?: unknown };
+  /** `{ type: "query", ... }` or, for a plugin whose config is a function, `{ type: "dynamic" }`. */
+  queryConfig?: { type?: string; [key: string]: unknown };
+  shouldValidateDataSourceConfig?: boolean;
+  [key: string]: unknown;
+}
+
+/**
+ * One entry of `GET /api/organizations/{orgId}/datasourceTypes`. `DatasourceMetaInfo.java` serialises its `type` as `id` and
+ * its `displayName` as `name` (`@JsonProperty`). `definition` is null for a Java-native type.
+ */
+export interface DatasourceTypeEntry {
+  id: string;
+  name?: string;
+  definition: NodePluginDefinition | null;
+}
+
+/** The data source types the image serves, as the caller sees them in `orgId` (Java-native types, then every node plugin). */
+export async function supportedDatasourceTypes(request: APIRequestContext, orgId: string): Promise<DatasourceTypeEntry[]> {
+  return unwrap<DatasourceTypeEntry[]>(`list the data source types of ${orgId}`, await request.get(orgDatasourceTypesPath(orgId)));
+}
+
+/** The `POST /api/datasources` body of a node-plugin data source: the recorded form body with the workspace set and `config` merged over its `datasourceConfig` (the target and the credentials). */
+export function nodePluginDatasourceBody(
+  recorded: RecordedPluginDatasource,
+  params: { orgId: string; name?: string; config: Record<string, unknown> },
+): object {
+  return {
+    ...recorded,
+    name: params.name ?? recorded.name,
+    organizationId: params.orgId,
+    datasourceConfig: { ...recorded.datasourceConfig, ...params.config },
+  };
+}
+
+/** Creates a data source of a node plugin from its recording; returns its id. */
+export async function createNodePluginDatasource(
+  request: APIRequestContext,
+  params: { orgId: string; name?: string; recorded: RecordedPluginDatasource; config: Record<string, unknown> },
+): Promise<string> {
+  const data = await unwrap<{ id: string }>(
+    `create ${params.recorded.type} datasource`,
+    await request.post(API_PATHS.DATASOURCES, { data: nodePluginDatasourceBody(params.recorded, params) }),
+  );
+  return data.id;
+}
+
+/** `POST /api/datasources/test` with a data source body (the connection test; only plugins that define a validator answer more than success). Raw answer. */
+export async function testDatasourceRaw(request: APIRequestContext, body: object): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.DATASOURCE_TEST, { data: body });
+}
+
+/** `POST /api/datasources/getPluginDynamicConfig` with the list of requests (`GetPluginDynamicConfigRequestDTO`). Raw answer. */
+export async function pluginDynamicConfigRaw(request: APIRequestContext, dtos: object[]): Promise<RawAnswer> {
+  return apiRaw(request, "POST", API_PATHS.PLUGIN_DYNAMIC_CONFIG, { data: dtos });
 }
