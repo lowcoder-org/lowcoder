@@ -1,0 +1,13 @@
+{
+ "compType": "uiPath",
+ "comp": {
+  "actionName": "Folders_Get",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

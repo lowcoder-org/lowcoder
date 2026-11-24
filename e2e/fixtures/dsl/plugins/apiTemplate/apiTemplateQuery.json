@@ -1,0 +1,20 @@
+{
+ "compType": "apiTemplate",
+ "comp": {
+  "actionName": "list_templates",
+  "action": {
+   "query_@_limit": "",
+   "query_@_offset": "",
+   "query_@_format": "",
+   "query_@_template_id": "",
+   "query_@_group_name": "",
+   "query_@_with_layer_info": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
