@@ -1,0 +1,15 @@
+{
+ "compType": "datadog",
+ "comp": {
+  "actionName": "get_api_v1_validate",
+  "action": {
+   "header_@_Accept": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

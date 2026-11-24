@@ -1,0 +1,12 @@
+{
+ "name": "couchdb",
+ "type": "couchdb",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "BasicAuth.username": "placeholder",
+  "BasicAuth.password": "placeholder",
+  "JwtAuth.value": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "compType": "woocommerce",
+ "comp": {
+  "actionName": "get_products",
+  "action": {
+   "query_@_context": "view",
+   "query_@_page": "",
+   "query_@_per_page": "",
+   "query_@_search": "",
+   "query_@_after": "",
+   "query_@_before": "",
+   "query_@_modified_after": "",
+   "query_@_modified_before": "",
+   "query_@_dates_are_gmt": "",
+   "query_@_exclude": "[]",
+   "query_@_include": "[]",
+   "query_@_offset": "",
+   "query_@_order": "asc",
+   "query_@_orderby": "date",
+   "query_@_parent": "[]",
+   "query_@_parent_exclude": "[]",
+   "query_@_slug": "",
+   "query_@_status": "any",
+   "query_@_type": "simple",
+   "query_@_sku": "",
+   "query_@_featured": "",
+   "query_@_category": "",
+   "query_@_tag": "",
+   "query_@_shipping_class": "",
+   "query_@_attribute": "",
+   "query_@_attribute_term": "",
+   "query_@_on_sale": "",
+   "query_@_min_price": "",
+   "query_@_max_price": "",
+   "query_@_stock_status": "instock"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

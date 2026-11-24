@@ -1,0 +1,11 @@
+{
+ "name": "woocommerce",
+ "type": "woocommerce",
+ "datasourceConfig": {
+  "serverURL": "http://placeholder.invalid",
+  "basicAuth.username": "placeholder",
+  "basicAuth.password": "placeholder",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}
