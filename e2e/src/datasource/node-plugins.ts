@@ -144,3 +144,34 @@ export function parseBasicAuthorization(header: string | string[] | undefined): 
   if (colon < 0) return undefined;
   return { user: decoded.slice(0, colon), password: decoded.slice(colon + 1) };
 }
+
+/** The pieces of an AWS Signature Version 4 `Authorization` header (the form the AWS SDK sends). */
+export interface SigV4Authorization {
+  /** The access key id of the credential scope. */
+  accessKey: string;
+  /** The `YYYYMMDD` date of the credential scope. */
+  date: string;
+  region: string;
+  /** The service of the credential scope (`dynamodb`, `s3`). */
+  service: string;
+  /** The header names that were signed, in the order the header lists them. */
+  signedHeaders: string[];
+  /** The 64 hex digits of the signature (never compared with a value: it depends on the clock and a random invocation id). */
+  signature: string;
+}
+
+const SIGV4_PATTERN = /^AWS4-HMAC-SHA256 Credential=([^/,\s]+)\/(\d{8})\/([^/,\s]+)\/([^/,\s]+)\/aws4_request, SignedHeaders=([a-z0-9;-]+), Signature=([0-9a-f]{64})$/;
+
+/**
+ * Parses `AWS4-HMAC-SHA256 Credential=<key>/<date>/<region>/<service>/aws4_request, SignedHeaders=<a;b>, Signature=<64 hex>`.
+ * Returns `undefined` for anything else: no header, a repeated header (an array), another scheme, a different order or spacing of
+ * the three parts, a scope that does not end in `aws4_request`, or a signature that is not 64 lower-case hex digits. A test compares
+ * the stable parts (key, scope, signed-header list) and never the signature.
+ */
+export function parseSigV4Authorization(header: string | string[] | undefined): SigV4Authorization | undefined {
+  if (typeof header !== "string") return undefined;
+  const match = SIGV4_PATTERN.exec(header);
+  if (!match) return undefined;
+  const [, accessKey, date, region, service, signedHeaders, signature] = match as unknown as [string, string, string, string, string, string, string];
+  return { accessKey, date, region, service, signedHeaders: signedHeaders.split(";"), signature };
+}

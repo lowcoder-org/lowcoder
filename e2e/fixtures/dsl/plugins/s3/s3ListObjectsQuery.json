@@ -1,0 +1,19 @@
+{
+ "compType": "s3",
+ "comp": {
+  "actionName": "listObjects",
+  "action": {
+   "bucket": "",
+   "prefix": "",
+   "delimiter": "",
+   "limit": "10",
+   "returnSignedUrl": false
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

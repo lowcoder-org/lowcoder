@@ -1,0 +1,17 @@
+{
+ "compType": "s3",
+ "comp": {
+  "actionName": "readFile",
+  "action": {
+   "bucket": "",
+   "fileName": "",
+   "encoding": "base64"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

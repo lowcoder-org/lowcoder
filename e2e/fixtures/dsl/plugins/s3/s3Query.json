@@ -1,0 +1,13 @@
+{
+ "compType": "s3",
+ "comp": {
+  "actionName": "listBuckets",
+  "action": {},
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

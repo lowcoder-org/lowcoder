@@ -1,0 +1,16 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "Query",
+  "action": {
+   "tableName": "",
+   "params": "{\n    \"KeyConditionExpression\": \"id = :n\",\n    \"ExpressionAttributeValues\": {\n        \":n\": {\n            \"N\": \"1\"\n        }\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

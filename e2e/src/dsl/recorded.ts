@@ -264,21 +264,27 @@ export function parsePluginRecording(label: string, text: string, expect: { comp
   return parsed;
 }
 
-function loadPluginRecording(pluginId: string, suffix: "Query" | "Datasource", expect: { compType?: string; type?: string }): Record<string, unknown> {
-  const label = `plugins/${pluginId}/${pluginId}${suffix}`;
+function loadPluginRecording(pluginId: string, suffix: "Query" | "Datasource", expect: { compType?: string; type?: string }, variant = ""): Record<string, unknown> {
+  const file = `${pluginId}${variant}${suffix}`;
+  const label = `plugins/${pluginId}/${file}`;
   if (!PLUGIN_ID_PATTERN.test(pluginId)) throw new RecordedFixtureError(label, "the plugin id is not a folder name (letters and digits only)");
+  if (variant !== "" && !PLUGIN_ID_PATTERN.test(variant)) throw new RecordedFixtureError(label, "the variant is not a file name part (letters and digits only)");
   let text: string;
   try {
-    text = readFileSync(join(RECORDED_PLUGINS_DIR, pluginId, `${pluginId}${suffix}.json`), "utf8");
+    text = readFileSync(join(RECORDED_PLUGINS_DIR, pluginId, `${file}.json`), "utf8");
   } catch (error) {
     throw new RecordedFixtureError(label, error instanceof Error ? error.message : String(error));
   }
   return parsePluginRecording(label, text, expect);
 }
 
-/** The query the editor saved for plugin `pluginId`, as a fresh deep copy; its `compType` is the plugin id. Throws RecordedFixtureError when missing or malformed. */
-export function recordedPluginQuery(pluginId: string): RecordedPluginQuery {
-  return structuredClone(loadPluginRecording(pluginId, "Query", { compType: pluginId })) as unknown as RecordedPluginQuery;
+/**
+ * The query the editor saved for plugin `pluginId`, as a fresh deep copy; its `compType` is the plugin id. `variant` (letters and digits
+ * only) picks a further recording of the same plugin, `<id><variant>Query.json` (a plugin whose queries differ by action keeps one
+ * recording per action). Throws RecordedFixtureError when missing or malformed.
+ */
+export function recordedPluginQuery(pluginId: string, variant = ""): RecordedPluginQuery {
+  return structuredClone(loadPluginRecording(pluginId, "Query", { compType: pluginId }, variant)) as unknown as RecordedPluginQuery;
 }
 
 /** The create body the form sent for a data source of plugin `pluginId`, as a fresh deep copy; its `type` is the plugin id. Throws RecordedFixtureError when missing or malformed. */

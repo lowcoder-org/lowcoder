@@ -1,0 +1,20 @@
+{
+ "compType": "s3",
+ "comp": {
+  "actionName": "uploadData",
+  "action": {
+   "bucket": "",
+   "fileName": "",
+   "encoding": "base64",
+   "data": "",
+   "contentType": "",
+   "returnSignedUrl": false
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
