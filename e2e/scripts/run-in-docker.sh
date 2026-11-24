@@ -24,7 +24,7 @@
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
 ##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
 ##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources whose protocol is not HTTP
-##                       (today a Firebird server, FIREBIRD_IMAGE below) and run their @node-service-sidecar tests; independent of the
+##                       (today a Firebird server, FIREBIRD_IMAGE below, and a libSQL server, LIBSQL_IMAGE below) and run their @node-service-sidecar tests; independent of the
 ##                       other flags, default stack only (any other profile is an error). Without it the run starts none of them,
 ##                       neither lists nor runs those tests, and pulls no extra image.
 ##                       Run only these: E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 $0 --grep @node-service-sidecar
@@ -42,6 +42,7 @@
 ##                       E2E_INCLUDE_QUARANTINE=1 E2E_INCLUDE_ENTERPRISE_TAKEOVER=1 E2E_STACK_PROFILE=enterprise $0
 ##   POSTGRES_IMAGE      PostgreSQL sidecar for the data source tests (pinned by digest)
 ##   FIREBIRD_IMAGE      Firebird sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
+##   LIBSQL_IMAGE        libSQL server (sqld) sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
 ## Set by the script for each run (a value of the caller is overwritten; the password is new every run, never printed,
@@ -77,6 +78,14 @@
 ## the image's own isql answers over TCP, and `cleanup` removes the container however the run ends. Its credentials are throw-away constants
 ## that must equal FIREBIRD in e2e/src/constants.ts. Without the flag nothing of this runs: no container, no image pull, no variable for the runner.
 ##
+## Only with E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 it also starts a libSQL server sidecar (LIBSQL_IMAGE) under the alias e2e-libsql, port 8080: the target of
+## the Turso data source of node-service (a real Hrana-over-HTTP server in place of the echo's canned answers). It starts after the Firebird sidecar and
+## is reached exactly like it: `--add-host e2e-libsql:<IP>` for the app container and the runner, and the alias as E2E_LIBSQL_HOST for the runner.
+## sqld accepts only a JWT signed by a throw-away key: the script gives it the public half (LIBSQL_JWT_PUBLIC_KEY) and uses the read-write token
+## (LIBSQL_TOKEN) for its readiness call, one real `select 1` pipeline posted to the sidecar from the echo container over the run network. Both
+## must equal LIBSQL in e2e/src/constants.ts. The database lives in a tmpfs (the image declares /var/lib/sqld a volume, which `docker rm -f` would
+## leave behind), and `cleanup` removes the container however the run ends. Without the flag nothing of this runs.
+##
 ## Not covered: Firefox and WebKit (only Chromium runs), the multi-container compose setup, databases other than
 ## PostgreSQL.
 ##
@@ -109,6 +118,18 @@ readonly FIREBIRD_ROOT_PASSWORD="e2e-firebird-root-password"
 readonly FIREBIRD_USE_LEGACY_AUTH="true"
 readonly FIREBIRD_ALIAS="e2e-firebird"
 readonly FIREBIRD_PORT=3050
+# libSQL server (sqld) sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. The image is sqld 0.24.33 by tag and
+# digest. It is told to accept only a JWT (SQLD_AUTH_JWT_KEY: the URL-safe base64 of a PUBLIC Ed25519 key); the matching private key was thrown away after
+# signing the tokens of LIBSQL in e2e/src/constants.ts, so the values below are throw-away, the container dies with the run. LIBSQL_PORT is the image's
+# own HTTP port. The values below must equal LIBSQL in e2e/src/constants.ts (the foundation tests check it, and that the token verifies under the key).
+readonly DEFAULT_LIBSQL_IMAGE="ghcr.io/tursodatabase/libsql-server:v0.24.33@sha256:f8ca0134cdded747793888e48591aece07647d9d598d3ac229aabfa93159ca88"
+readonly LIBSQL_IMAGE="${LIBSQL_IMAGE:-$DEFAULT_LIBSQL_IMAGE}"
+readonly LIBSQL_ALIAS="e2e-libsql"
+readonly LIBSQL_PORT=8080
+readonly LIBSQL_JWT_PUBLIC_KEY="GC25tiEOubxlGdpbkc60UOXqUQeepEUWZmAbEKjt1rQ"
+readonly LIBSQL_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicncifQ.tlvnzqEfO2pnCYHReSfLIQ3dHk393fsOH5hLtLo4ZkJWJV6b9q9Zf56QbS5spbT2G9XuzYQaVsZqO4jUVSsPAw"
+# The image's data directory, mounted as a tmpfs so that no anonymous volume outlives the run
+readonly LIBSQL_DATA_DIR="/var/lib/sqld"
 # The instance super admin of the throw-away stack; the domain equals TEST_EMAIL_DOMAIN in e2e/src/constants.ts; the suite
 # reads the name from E2E_SUPERUSER_USERNAME (SUPER_ADMIN_ENV). The password is generated per run (generate_superuser_password).
 readonly SUPERUSER_USERNAME="e2e-superadmin@example.test"
@@ -142,6 +163,7 @@ readonly POSTGRES_CONTAINER="${NAME_PREFIX}-pg"
 readonly RUNNER_CONTAINER="${NAME_PREFIX}-runner"
 readonly ECHO_CONTAINER="${NAME_PREFIX}-echo"
 readonly FIREBIRD_CONTAINER="${NAME_PREFIX}-fb"
+readonly LIBSQL_CONTAINER="${NAME_PREFIX}-libsql"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
@@ -151,7 +173,7 @@ readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
 ECHO_IP=""
-# Set by start_firebird (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
+# Set by start_firebird and start_libsql (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
 SIDECAR_ADD_HOST=()
 SIDECAR_RUNNER_ENV=()
 
@@ -165,7 +187,7 @@ fail() {
 }
 
 cleanup() {
-    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" > /dev/null 2>&1 || true
+    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" > /dev/null 2>&1 || true
     docker network rm "$NETWORK" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -325,6 +347,36 @@ wait_for_firebird() {
     log "Firebird sidecar ready after ${waited}s"
 }
 
+# sqld needs no init script: the tests make their own tables. The sidecar is started after the echo (its container is the one that probes it).
+start_libsql() {
+    log "Starting $LIBSQL_IMAGE as $LIBSQL_CONTAINER (alias $LIBSQL_ALIAS, port $LIBSQL_PORT)"
+    docker run -d --name "$LIBSQL_CONTAINER" --network "$NETWORK" --network-alias "$LIBSQL_ALIAS" \
+        --tmpfs "$LIBSQL_DATA_DIR" -e SQLD_AUTH_JWT_KEY="$LIBSQL_JWT_PUBLIC_KEY" \
+        "$LIBSQL_IMAGE" > /dev/null
+    local libsql_ip
+    libsql_ip="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$LIBSQL_CONTAINER")"
+    [ -n "$libsql_ip" ] || fail "no IP address for $LIBSQL_CONTAINER on $NETWORK"
+    SIDECAR_ADD_HOST+=(--add-host "${LIBSQL_ALIAS}:${libsql_ip}")
+    SIDECAR_RUNNER_ENV+=(-e "E2E_LIBSQL_HOST=${LIBSQL_ALIAS}")
+    log "libSQL sidecar is $LIBSQL_ALIAS = $libsql_ip"
+}
+
+# A real Hrana pipeline with the read-write token, posted to the sidecar's alias over the run network from the echo container (the image has no
+# curl and no shell tools of use): ready when it answers 200 with the integer 1 for `select 1`.
+wait_for_libsql() {
+    local waited=0
+    local probe="fetch(process.env.LIBSQL_PROBE_URL + '/v2/pipeline', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.LIBSQL_PROBE_TOKEN }, body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: 'select 1' } }, { type: 'close' }] }) }).then((r) => r.text().then((t) => process.exit(r.ok && t.includes('\"value\":\"1\"') ? 0 : 1)), () => process.exit(1))"
+    until docker exec -e LIBSQL_PROBE_URL="http://${LIBSQL_ALIAS}:${LIBSQL_PORT}" -e LIBSQL_PROBE_TOKEN="$LIBSQL_TOKEN" "$ECHO_CONTAINER" node -e "$probe" > /dev/null 2>&1; do
+        if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
+            docker logs --tail "$LOG_TAIL_LINES" "$LIBSQL_CONTAINER" >&2 || true
+            fail "the libSQL sidecar did not become ready within ${STARTUP_TIMEOUT}s"
+        fi
+        sleep "$POLL_INTERVAL"
+        waited=$((waited + POLL_INTERVAL))
+    done
+    log "libSQL sidecar ready after ${waited}s"
+}
+
 wait_for_app() {
     local waited=0
     log "Waiting for $READY_PATH (at most ${STARTUP_TIMEOUT}s)"
@@ -385,11 +437,17 @@ start_echo
 if node_service_sidecars_enabled; then
     start_firebird
 fi
+if node_service_sidecars_enabled; then
+    start_libsql
+fi
 start_app
 wait_for_postgres
 wait_for_echo
 if node_service_sidecars_enabled; then
     wait_for_firebird
+fi
+if node_service_sidecars_enabled; then
+    wait_for_libsql
 fi
 wait_for_app
 run_tests "$@"
