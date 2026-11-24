@@ -220,8 +220,9 @@ export const TAGS = {
    */
   NODE_SERVICE: "@node-service",
   /**
-   * The node-service data source tests that need a sidecar of their own because the plugin's protocol is not HTTP (today the
-   * Firebird tests, `tests/datasource/plugin-firebird.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
+   * The node-service data source tests that need a sidecar of their own: the plugin's protocol is not HTTP (the Firebird tests,
+   * `tests/datasource/plugin-firebird.spec.ts`) or the test wants a real server instead of canned answers (the libSQL server tests,
+   * `tests/datasource/plugin-turso-libsql.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
    * the default run (neither listed nor run, and the run script starts no such sidecar), in only with
    * `E2E_INCLUDE_NODE_SERVICE_SIDECARS` (see src/run-selection.ts and scripts/run-in-docker.sh).
    */
@@ -236,7 +237,7 @@ export const RUN_FLAGS = {
   /** Enterprise profile only: run SEC-E05 (`@enterprise-takeover`) and nothing else. */
   INCLUDE_ENTERPRISE_TAKEOVER: "E2E_INCLUDE_ENTERPRISE_TAKEOVER",
   /**
-   * Default stack only: also start the sidecars of the node-service data sources whose protocol is not HTTP (Firebird) and run
+   * Default stack only: also start the sidecars of the node-service data sources (Firebird, a libSQL server) and run
    * their `@node-service-sidecar` tests. Without it the run starts none of them.
    */
   INCLUDE_NODE_SERVICE_SIDECARS: "E2E_INCLUDE_NODE_SERVICE_SIDECARS",
@@ -305,6 +306,26 @@ export const FIREBIRD = {
   DATABASE: "/var/lib/firebird/data/e2e.fdb",
   USERNAME: "e2euser",
   PASSWORD: "e2e-firebird-password",
+} as const;
+
+/**
+ * The libSQL server (sqld) sidecar that scripts/run-in-docker.sh starts on the run's network ONLY when `E2E_INCLUDE_NODE_SERVICE_SIDECARS` is
+ * set. The run script passes the host name (the sidecar's network alias); the rest is fixed there and must equal the `LIBSQL_*` values of the
+ * script. The sidecar accepts only a JWT signed by the private half of a key pair that was generated once and thrown away: `JWT_PUBLIC_KEY`
+ * is the public half (what the script gives sqld), and the three tokens are signed JWTs without an expiry, made with the private half
+ * (`READ_WRITE_TOKEN`, claim `a: "rw"`; `READ_ONLY_TOKEN`, claim `a: "ro"`) or with the private half of a second throw-away pair that the
+ * sidecar does not know (`FOREIGN_TOKEN`). Nothing here is a real secret: the container is removed when the run ends and holds no other data.
+ */
+export const LIBSQL = {
+  HOST_ENV: "E2E_LIBSQL_HOST",
+  PORT: 8080,
+  JWT_PUBLIC_KEY: "GC25tiEOubxlGdpbkc60UOXqUQeepEUWZmAbEKjt1rQ",
+  READ_WRITE_TOKEN:
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicncifQ.tlvnzqEfO2pnCYHReSfLIQ3dHk393fsOH5hLtLo4ZkJWJV6b9q9Zf56QbS5spbT2G9XuzYQaVsZqO4jUVSsPAw",
+  READ_ONLY_TOKEN:
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicm8ifQ.6pik3ukdCu1vxNNnUPe-ZuVrX4jgTqcJSnPU2SQOIKtVtwVbtZpzFWD8yKG4afdInqfsirG4PfeGizOeno7QDQ",
+  FOREIGN_TOKEN:
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicncifQ.QtYpcj3lGU5Rtry83fcTaI-e_WwmcvSDEFrysDlxiHGMfb_GNaJTzOvuSgas_Hivmf4D68Azw-lK7Te4vuIABg",
 } as const;
 
 export const SEEDED_ITEM_NAMES = ["alpha", "beta"] as const;

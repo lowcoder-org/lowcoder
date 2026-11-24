@@ -566,8 +566,9 @@ test.describe("run selection: the node-service sidecar tests are opt-in", () => 
   });
 });
 
-/** The name of the helper whose use makes a spec need the Firebird sidecar, and the tag every test of such a spec must wear. */
-const SIDECAR_HELPER = "firebirdConnection";
+/** The names of the helpers whose use makes a spec need a sidecar (Firebird, libSQL), and the tag every test of such a spec must wear. */
+const SIDECAR_HELPERS = ["firebirdConnection", "libsqlConnection"] as const;
+const SIDECAR_HELPER = SIDECAR_HELPERS[0];
 const SIDECAR_TAG_KEY = "NODE_SERVICE_SIDECAR";
 
 /** True when the expression, or any expression inside it, is `TAGS.NODE_SERVICE_SIDECAR` or the string `"@node-service-sidecar"`. Comments are no nodes. */
@@ -588,14 +589,14 @@ function detailsTagWithSidecar(details: ts.Expression): boolean {
 }
 
 /**
- * The tests of a spec source that does not wear `TAGS.NODE_SERVICE_SIDECAR`, when the source uses `firebirdConnection` (a spec that needs the
+ * The tests of a spec source that does not wear `TAGS.NODE_SERVICE_SIDECAR`, when the source uses a sidecar helper (`firebirdConnection` or `libsqlConnection`; a spec that needs the
  * sidecar: untagged, its tests would run in the default run, where the sidecar is not started). A source that does not use the helper
  * reports nothing. A tag on an enclosing `test.describe*(title, details, body)` counts for every test inside. Each result is `line <n>`.
  * Limits: the same as `untaggedSuperAdminTests` (a `test` passed through a parameter is not recognised, a tag through a variable is not followed).
  */
 function untaggedSidecarTests(source: string, fileName = "synthetic.spec.ts"): string[] {
   const file = ts.createSourceFile(fileName, source, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS);
-  if (!source.includes(`${SIDECAR_HELPER}(`)) return [];
+  if (!SIDECAR_HELPERS.some((helper) => source.includes(`${helper}(`))) return [];
   const untagged: string[] = [];
   const testNames = localTestNames(file);
   const visit = (node: ts.Node, tagged: boolean): void => {
@@ -622,19 +623,19 @@ function untaggedSidecarTests(source: string, fileName = "synthetic.spec.ts"): s
   return untagged;
 }
 
-test.describe("run selection: every test that needs the Firebird sidecar carries the opt-in tag", () => {
-  test("every spec that uses firebirdConnection tags all its tests with TAGS.NODE_SERVICE_SIDECAR, and the Firebird spec does use it", () => {
+test.describe("run selection: every test that needs a sidecar carries the opt-in tag", () => {
+  test("every spec that uses a sidecar helper tags all its tests with TAGS.NODE_SERVICE_SIDECAR, and the Firebird and libSQL specs do use one", () => {
     const untagged: string[] = [];
     const users: string[] = [];
     for (const file of specFilesUnder(join(__dirname, ".."))) {
       const source = readFileSync(file, "utf8");
       if (file.includes(`${join("tests", "foundation")}`)) continue;
-      if (source.includes(`${SIDECAR_HELPER}(`)) users.push(file);
+      if (SIDECAR_HELPERS.some((helper) => source.includes(`${helper}(`))) users.push(file);
       untagged.push(...untaggedSidecarTests(source, file).map((entry) => `${file}: ${entry}`));
     }
 
-    expect(users.map((file) => file.split("tests/")[1]), "the specs that use the helper (a positive control that the guard looks at the Firebird spec)").toEqual(["datasource/plugin-firebird.spec.ts"]);
-    expect(untagged, "tests of a Firebird spec without TAGS.NODE_SERVICE_SIDECAR (they would run, and fail, in the default run)").toEqual([]);
+    expect(users.map((file) => file.split("tests/")[1]), "the specs that use the helper (a positive control that the guard looks at the Firebird and the libSQL spec)").toEqual(["datasource/plugin-firebird.spec.ts", "datasource/plugin-turso-libsql.spec.ts"]);
+    expect(untagged, "tests of a sidecar spec without TAGS.NODE_SERVICE_SIDECAR (they would run, and fail, in the default run)").toEqual([]);
   });
 
   test("the guard accepts a describe tag and a test tag, and reports an untagged test, a tag in a comment or a title, and a tag through a variable", () => {
@@ -646,5 +647,7 @@ test.describe("run selection: every test that needs the Firebird sidecar carries
     expect(untaggedSidecarTests(`${use}// TAGS.NODE_SERVICE_SIDECAR\ntest("uses @node-service-sidecar in its title", async () => {});`), "comment and title").toEqual(["line 3"]);
     expect(untaggedSidecarTests(`${use}const D = { tag: [TAGS.NODE_SERVICE_SIDECAR] };\ntest("a", D, async () => {});`), "a variable is not followed").toEqual(["line 3"]);
     expect(untaggedSidecarTests(`test("a", async () => {});`), "a spec that does not use the helper is not asked").toEqual([]);
+    expect(untaggedSidecarTests(`const c = libsqlConnection();\ntest("a", async () => {});`), "the libSQL helper is asked too").toEqual(["line 2"]);
+    expect(untaggedSidecarTests(`const c = libsqlConnection();\ntest.describe("g", { tag: [TAGS.NODE_SERVICE, TAGS.NODE_SERVICE_SIDECAR] }, () => { test("a", async () => {}); });`), "and accepts its describe tag").toEqual([]);
   });
 });

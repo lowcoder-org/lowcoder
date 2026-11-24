@@ -1,10 +1,11 @@
+import { createPublicKey, verify } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
-import { API_OK, API_PATHS, FIREBIRD, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
+import { API_OK, API_PATHS, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
@@ -16,6 +17,7 @@ import {
   type RecordedPluginQuery,
 } from "../../src/dsl/recorded";
 import { FIREBIRD_ITEMS, firebirdConnection, FirebirdSidecarMissingError } from "../../src/datasource/firebird";
+import { LIBSQL_PIPELINE_PATH, libsqlConnection, libsqlDirect, LibsqlSidecarMissingError } from "../../src/datasource/libsql";
 import {
   NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
   NODE_PLUGIN_IDS,
@@ -585,6 +587,8 @@ test.describe("node-service data source request helpers", { tag: [TAGS.NODE_SERV
 
 /** The alias the run script gives the Firebird sidecar, the host of the recorded form body. */
 const FIREBIRD_ALIAS = "e2e-firebird";
+/** The alias the run script gives the libSQL sidecar. */
+const LIBSQL_ALIAS = "e2e-libsql";
 
 /** The text of `scripts/run-in-docker.sh` and of `fixtures/firebird/init.sql`. */
 const RUN_SCRIPT = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
@@ -687,5 +691,92 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     expect(codeLines.match(new RegExp(FIREBIRD.HOST_ENV, "g")), "the host variable is named once in the script's code, in start_firebird").toHaveLength(1);
     expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$FIREBIRD_CONTAINER"/);
     expect(RUN_SCRIPT, "another stack profile with the flag is refused").toContain("E2E_INCLUDE_NODE_SERVICE_SIDECARS needs E2E_STACK_PROFILE=$DEFAULT_PROFILE");
+  });
+
+  test("libsqlConnection reads the host from the environment and builds a plain-HTTP URL with the read-write token", () => {
+    expect(libsqlConnection({ [LIBSQL.HOST_ENV]: LIBSQL_ALIAS })).toEqual({ url: `http://${LIBSQL_ALIAS}:${LIBSQL.PORT}`, token: LIBSQL.READ_WRITE_TOKEN });
+  });
+
+  test("libsqlConnection throws a named error that names the variable and the flag when the host is unset or empty", () => {
+    for (const env of [{}, { [LIBSQL.HOST_ENV]: "" }]) {
+      expect(() => libsqlConnection(env), `env ${JSON.stringify(env)}`).toThrow(LibsqlSidecarMissingError);
+      expect(() => libsqlConnection(env)).toThrow(LIBSQL.HOST_ENV);
+      expect(() => libsqlConnection(env)).toThrow(`${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}=1`);
+    }
+  });
+
+  test("the run script's libSQL values equal LIBSQL in the constants", () => {
+    expect(scriptConstant("LIBSQL_ALIAS"), "alias").toBe(LIBSQL_ALIAS);
+    expect(Number(RUN_SCRIPT.match(/^readonly LIBSQL_PORT=(\d+)$/m)?.[1]), "port").toBe(LIBSQL.PORT);
+    expect(scriptConstant("LIBSQL_JWT_PUBLIC_KEY"), "the public key sqld is given").toBe(LIBSQL.JWT_PUBLIC_KEY);
+    expect(scriptConstant("LIBSQL_TOKEN"), "the token of the readiness call is the read-write one").toBe(LIBSQL.READ_WRITE_TOKEN);
+    expect(scriptConstant("DEFAULT_LIBSQL_IMAGE"), "the image is pinned by tag and digest").toMatch(/^ghcr\.io\/tursodatabase\/libsql-server:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
+    expect(scriptConstant("LIBSQL_DATA_DIR"), "the data directory the image declares a volume").toBe("/var/lib/sqld");
+    expect(RUN_SCRIPT, "the data directory is a tmpfs, so no anonymous volume outlives the run").toContain('--tmpfs "$LIBSQL_DATA_DIR"');
+  });
+
+  test("the three tokens are JWTs of the claims they are named for, and only the two sidecar tokens verify under the sidecar's key", () => {
+    const key = createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x: LIBSQL.JWT_PUBLIC_KEY }, format: "jwk" });
+    const check = (token: string): { signed: boolean; claims: unknown } => {
+      const [header, payload, signature] = token.split(".") as [string, string, string];
+      return {
+        signed: verify(null, Buffer.from(`${header}.${payload}`), key, Buffer.from(signature, "base64url")),
+        claims: JSON.parse(Buffer.from(payload, "base64url").toString("utf8")),
+      };
+    };
+    expect(check(LIBSQL.READ_WRITE_TOKEN), "read-write token").toEqual({ signed: true, claims: { a: "rw" } });
+    expect(check(LIBSQL.READ_ONLY_TOKEN), "read-only token").toEqual({ signed: true, claims: { a: "ro" } });
+    expect(check(LIBSQL.FOREIGN_TOKEN), "a token of another key: well-formed, same claims, not signed by the sidecar's key").toEqual({ signed: false, claims: { a: "rw" } });
+  });
+
+  test("the run script starts, waits for and passes the libSQL sidecar only under the flag, next to the Firebird one", () => {
+    const lines = RUN_SCRIPT.split("\n");
+    for (const fn of ["start_libsql", "wait_for_libsql"]) {
+      const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
+      expect(calls, `${fn} is called exactly once`).toHaveLength(1);
+      const call = calls[0] as { index: number };
+      expect(lines[call.index - 1]?.trim(), `${fn} is the first line of an if node_service_sidecars_enabled block`).toBe("if node_service_sidecars_enabled; then");
+      expect(lines[call.index + 1]?.trim(), `${fn} is the only line of that block`).toBe("fi");
+    }
+    const startBody = /start_libsql\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    // `+=`, so that the Firebird entries set before stay: both sidecars are passed to the app container and the runner
+    expect(startBody, "start_libsql appends the runner's host variable").toContain(`SIDECAR_RUNNER_ENV+=(-e "${LIBSQL.HOST_ENV}=`);
+    expect(startBody, "start_libsql appends the --add-host entry").toContain("SIDECAR_ADD_HOST+=(--add-host");
+    const codeLines = lines.filter((line) => !line.trim().startsWith("#")).join("\n");
+    expect(codeLines.match(new RegExp(LIBSQL.HOST_ENV, "g")), "the host variable is named once in the script's code, in start_libsql").toHaveLength(1);
+    expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$LIBSQL_CONTAINER"/);
+    expect(RUN_SCRIPT, "the app container and the runner both get the add-host entries").toMatch(/--add-host "\$\{ECHO_ALIAS\}:\$\{ECHO_IP\}" "\$\{SIDECAR_ADD_HOST\[@\]\}"[\s\S]*--add-host "\$\{ECHO_ALIAS\}:\$\{ECHO_IP\}" "\$\{SIDECAR_ADD_HOST\[@\]\}"/);
+  });
+
+  test("libsqlDirect posts one execute and one close with the bearer token, sends no header without a token, and parses a JSON or a text body", async () => {
+    const received: { method?: string; url?: string; authorization?: string; body: unknown }[] = [];
+    const server: Server = createServer((request: IncomingMessage, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk: Buffer) => chunks.push(chunk));
+      request.on("end", () => {
+        received.push({ method: request.method, url: request.url, authorization: request.headers.authorization, body: JSON.parse(Buffer.concat(chunks).toString("utf8")) });
+        if (request.headers.authorization === undefined) {
+          response.writeHead(401, "Unauthorized").end("plain text, not JSON");
+        } else {
+          response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ results: [] }));
+        }
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    try {
+      const withToken = await libsqlDirect({ url }, "SELECT 1", "tok");
+      const withoutToken = await libsqlDirect({ url }, "SELECT 2");
+
+      expect(withToken, "a JSON body is parsed").toEqual({ status: 200, statusText: "OK", body: { results: [] } });
+      expect(withoutToken, "a body that is not JSON stays text").toEqual({ status: 401, statusText: "Unauthorized", body: "plain text, not JSON" });
+      expect(received.map(({ method, url: path, authorization }) => ({ method, path, authorization })), "method, path and header of both calls").toEqual([
+        { method: "POST", path: LIBSQL_PIPELINE_PATH, authorization: "Bearer tok" },
+        { method: "POST", path: LIBSQL_PIPELINE_PATH, authorization: undefined },
+      ]);
+      expect(received[0]?.body, "the pipeline the plugin sends").toEqual({ requests: [{ type: "execute", stmt: { sql: "SELECT 1" } }, { type: "close" }] });
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
   });
 });
