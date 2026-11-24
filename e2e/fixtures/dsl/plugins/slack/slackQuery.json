@@ -1,0 +1,16 @@
+{
+ "compType": "slack",
+ "comp": {
+  "actionName": "Query",
+  "action": {
+   "message": "",
+   "channel": ""
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

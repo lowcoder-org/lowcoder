@@ -1,0 +1,9 @@
+{
+ "name": "slack",
+ "type": "slack",
+ "datasourceConfig": {
+  "webhookURL": "http://placeholder.invalid",
+  "authConfigType": "NO_AUTH",
+  "sslCertVerificationType": "VERIFY_CA_CERT"
+ }
+}

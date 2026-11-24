@@ -1,0 +1,16 @@
+{
+ "compType": "turso",
+ "comp": {
+  "actionName": "Query",
+  "action": {
+   "queryString": "SELECT 1",
+   "includeRaw": false
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

@@ -131,6 +131,31 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     expect(text, "an epoch of 10 digits or more (the saved query's order)").not.toMatch(/\b\d{10,}\b/);
   });
 
+  test("the turso and slack recordings are the form's body and the editor's saved query, with no value of the recording session", () => {
+    const expectations = [
+      { id: "turso", config: ["url", "token"], action: ["queryString", "includeRaw"] },
+      { id: "slack", config: ["webhookURL"], action: ["message", "channel"] },
+    ];
+    for (const { id, config, action } of expectations) {
+      const datasource = recordedPluginDatasource(id);
+      const query = recordedPluginQuery(id);
+      expect(datasource.type, `${id}: the data source type`).toBe(id);
+      expect(Object.keys(datasource.datasourceConfig), `${id}: the form fields`).toEqual(expect.arrayContaining(config));
+      for (const key of config.filter((name) => name === "url" || name === "webhookURL")) {
+        expect(datasource.datasourceConfig[key], `${id}: the placeholder host`).toBe(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL);
+      }
+      expect(query.compType, `${id}: the query type`).toBe(id);
+      expect(query.comp.actionName, `${id}: the only action of the plugin`).toBe("Query");
+      expect(Object.keys(query.comp.action as Record<string, unknown>), `${id}: the action's parameters`).toEqual(action);
+      expect(Object.keys(query), `${id}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(Object.keys(datasource), `${id}: no workspace id`).toEqual(["name", "type", "datasourceConfig"]);
+      const text = [`${id}Datasource.json`, `${id}Query.json`].map((file) => readFileSync(join(RECORDED_PLUGINS_DIR, id, file), "utf8")).join("\n");
+      expect(text, `${id}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${id}: an ISO timestamp`).not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+      expect(text, `${id}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+  });
+
   test("the recorded placeholder host is one that never resolves", () => {
     expect(new URL(NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL).hostname.endsWith(".invalid")).toBe(true);
   });
