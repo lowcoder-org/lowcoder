@@ -2,6 +2,7 @@ package org.lowcoder.api.bundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -9,6 +10,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -80,6 +82,7 @@ import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.JsonUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -538,7 +541,7 @@ class BundleApiServiceImplPermissionsTest {
 
     private void stubCreateFlow(Bundle created) {
         lenient().when(orgMemberService.getOrgMember(ORG, VISITOR)).thenReturn(Mono.just(member()));
-        lenient().when(orgDevChecker.checkCurrentOrgDev()).thenAnswer(invocation -> loggedVoid("dev"));
+        lenient().when(orgDevChecker.checkOrgDev(any())).thenAnswer(invocation -> loggedVoid("dev"));
         lenient().when(bundleService.findByUserId(VISITOR)).thenReturn(Flux.just(bundle));
         lenient().when(bundleService.create(any(Bundle.class), eq(VISITOR))).thenAnswer(invocation -> logged("create", created));
         lenient().when(folderApiService.checkFolderExist("folder-1")).thenAnswer(invocation -> logged("folderExist", new Folder()));
@@ -588,12 +591,38 @@ class BundleApiServiceImplPermissionsTest {
                 .expectErrorSatisfies(error -> assertBizError(error, BizError.BUNDLE_NAME_CONFLICT, "BUNDLE_NAME_CONFLICT")).verify();
 
         BizException devDenied = new BizException(BizError.NEED_DEV_TO_CREATE_RESOURCE, "NEED_DEV_TO_CREATE_RESOURCE");
-        when(orgDevChecker.checkCurrentOrgDev()).thenReturn(Mono.error(devDenied));
+        when(orgDevChecker.checkOrgDev(any())).thenReturn(Mono.error(devDenied));
         StepVerifier.create(service.create(createRequest("Fresh", null, "folder-1")))
                 .expectErrorSatisfies(error -> assertThat(error).isSameAs(devDenied)).verify();
 
         assertThat(events).doesNotContain("create", "folderExist");
         say("create refusals -> nothing created");
+    }
+
+    /**
+     * D-11/D-41: the developer check runs on the TARGET workspace (the request's {@code orgId}), not the visitor's
+     * current one. An admin of its own, current workspace who is a plain member of the target still needs the real
+     * {@link org.lowcoder.api.usermanagement.OrgDevChecker#checkOrgDev} to refuse, so the call must carry the target
+     * membership; the current-workspace cache is never even read in {@code create}.
+     */
+    @Test
+    void create_developerOfTheCurrentWorkspace_butNotOfTheTargetWorkspace_isRefused() {
+        OrgMember targetMember = member();
+        stubCreateFlow(createdBundle());
+        when(orgMemberService.getOrgMember(ORG, VISITOR)).thenReturn(Mono.just(targetMember));
+        when(orgDevChecker.checkOrgDev(targetMember)).thenReturn(Mono.error(
+                new BizException(BizError.NEED_DEV_TO_CREATE_RESOURCE, "NEED_DEV_TO_CREATE_RESOURCE")));
+        lenient().when(sessionUserService.getVisitorOrgMemberCache())
+                .thenReturn(Mono.just(new OrgMember("other-org", VISITOR, MemberRole.ADMIN, "normal", 0L)));
+
+        StepVerifier.create(service.create(createRequest("Fresh", null, null)))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NEED_DEV_TO_CREATE_RESOURCE, "NEED_DEV_TO_CREATE_RESOURCE"))
+                .verify();
+
+        verify(orgDevChecker).checkOrgDev(targetMember);
+        verify(sessionUserService, never()).getVisitorOrgMemberCache();
+        assertThat(events).doesNotContain("create");
+        say("create: admin of the current workspace, plain member of the target -> refused, target checked");
     }
 
     /**
@@ -919,6 +948,57 @@ class BundleApiServiceImplPermissionsTest {
         return application;
     }
 
+    private static final String UI_SECRET = "ui-secret-7f3a";
+    private static final String QUERY_SECRET = "query-secret-91c2";
+    private static final String MODULE_SECRET = "module-secret-5d0e";
+    private static final Set<String> DSL_DERIVED = Set.of("editingApplicationDSL", "editingApplicationDSLOrNull", "editingQueries", "editingModules");
+
+    /** A real {@link Application}, every field set, its editing DSL carrying the three secrets (D-42). */
+    private Application realAppWithSecrets(String id) {
+        Map<String, Object> moduleComp = new HashMap<>();
+        moduleComp.put("appId", MODULE_SECRET);
+        Map<String, Object> module = new HashMap<>();
+        module.put("compType", "module");
+        module.put("comp", moduleComp);
+
+        Map<String, Object> uiComp = new HashMap<>();
+        uiComp.put("text", UI_SECRET);
+        Map<String, Object> ui = new HashMap<>();
+        ui.put("compType", "normal");
+        ui.put("comp", uiComp);
+        ui.put("items", List.of(module));
+
+        Map<String, Object> queryComp = new HashMap<>();
+        queryComp.put("body", QUERY_SECRET);
+        Map<String, Object> query = new HashMap<>();
+        query.put("id", "q-" + id);
+        query.put("name", "query-" + id);
+        query.put("comp", queryComp);
+        query.put("compType", "restApi");
+
+        Map<String, Object> dsl = new HashMap<>();
+        dsl.put("ui", ui);
+        dsl.put("queries", List.of(query));
+
+        return Application.builder()
+                .id(id)
+                .gid("gid-" + id)
+                .slug("slug-" + id)
+                .organizationId(ORG)
+                .name("App " + id)
+                .applicationType(org.lowcoder.domain.application.model.ApplicationType.APPLICATION.getValue())
+                .applicationStatus(org.lowcoder.domain.application.model.ApplicationStatus.NORMAL)
+                .editingApplicationDSL(dsl)
+                .publicToAll(true)
+                .publicToMarketplace(true)
+                .agencyProfile(true)
+                .editingUserId("editing-user")
+                .lastEditedAt(CREATED_AT)
+                .createdBy("creator")
+                .createdAt(CREATED_AT)
+                .build();
+    }
+
     private Bundle bundleWithApps(String id, List<Application> applications) {
         Bundle value = bundle(id, BundleStatus.NORMAL);
         Map<String, Object> dsl = new HashMap<>();
@@ -965,7 +1045,7 @@ class BundleApiServiceImplPermissionsTest {
                 "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle", "findFrom", "findTo",
                 "deleteRelation:from-bundle", "findFrom", "save:from-bundle", "repoFindTo", "save:to-bundle", "createRelation:to-bundle");
         assertThat(applicationsOf(from)).isEmpty();
-        assertThat(applicationsOf(to)).containsExactly(application);
+        assertThat(applicationsOf(to)).extracting(Application::getId).containsExactly(APP_ID);
 
         events.clear();
         Bundle target = bundleWithApps("to-bundle", List.of());
@@ -973,7 +1053,7 @@ class BundleApiServiceImplPermissionsTest {
         StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
         assertThat(events).containsExactly("perm:" + ResourceAction.MANAGE_APPLICATIONS, "perm:" + ResourceAction.MANAGE_BUNDLES + "@to-bundle",
                 "findTo", "deleteRelation:to-bundle", "findTo", "save:to-bundle", "createRelation:to-bundle");
-        assertThat(applicationsOf(target)).containsExactly(application);
+        assertThat(applicationsOf(target)).extracting(Application::getId).containsExactly(APP_ID);
 
         events.clear();
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "")).verifyComplete();
@@ -997,8 +1077,56 @@ class BundleApiServiceImplPermissionsTest {
         StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
 
         assertThat(applicationsOf(from)).isEmpty();
-        assertThat(applicationsOf(to)).containsExactly(application);
+        assertThat(applicationsOf(to)).extracting(Application::getId).containsExactly(APP_ID);
         say("move from a bundle without DSL -> empty application list created");
+    }
+
+    /**
+     * D-42 change B: {@code addApp} and {@code moveApp} store a detached copy of the application, without its editing DSL,
+     * in the target bundle's editing DSL, whatever the adder may do; the repository instance is not mutated.
+     */
+    @Test
+    void addApp_andMoveApp_storeADetachedCopyWithoutTheEditingDsl() throws Exception {
+        Application real = realAppWithSecrets(APP_ID);
+        Bundle from = bundleWithApps("from-bundle", List.of(real));
+        Bundle to = bundleWithApps("to-bundle", List.of());
+        stubRelations(from, to, real);
+        when(applicationRepository.findById(APP_ID)).thenReturn(Mono.just(real));
+        ArgumentCaptor<Bundle> savedBundle = ArgumentCaptor.forClass(Bundle.class);
+
+        StepVerifier.create(service.addApp(APP_ID, "to-bundle")).verifyComplete();
+
+        verify(bundleRepository, org.mockito.Mockito.atLeastOnce()).save(savedBundle.capture());
+        Bundle toSaved = savedBundle.getAllValues().stream().filter(b -> "to-bundle".equals(b.getId())).findFirst().orElseThrow();
+        List<Application> toApps = applicationsOf(toSaved);
+        assertThat(toApps).hasSize(1);
+        Application storedCopy = toApps.get(0);
+        assertThat(storedCopy).isNotSameAs(real);
+        assertThat(storedCopy.getId()).isEqualTo(APP_ID);
+        assertThat(storedCopy.getEditingApplicationDSL()).isEmpty();
+        assertThat(storedCopy.getEditingQueries()).isEmpty();
+        assertThat(storedCopy.getEditingModules()).isEmpty();
+        String dslJson = JsonUtils.getObjectMapper().writeValueAsString(toSaved.getEditingBundleDSL());
+        say("addApp stored bundle DSL: %s", dslJson);
+        assertThat(dslJson).contains(APP_ID).doesNotContain(UI_SECRET).doesNotContain(QUERY_SECRET).doesNotContain(MODULE_SECRET);
+        assertThat(real.getEditingApplicationDSL()).as("the repository instance is not mutated").isNotEmpty();
+
+        events.clear();
+        savedBundle = ArgumentCaptor.forClass(Bundle.class);
+        Bundle moveTo = bundleWithApps("to-bundle", List.of());
+        stubRelations(from, moveTo, real);
+        when(applicationRepository.findById(APP_ID)).thenReturn(Mono.just(real));
+
+        StepVerifier.create(service.moveApp(APP_ID, "from-bundle", "to-bundle")).verifyComplete();
+
+        assertThat(applicationsOf(from)).as("from loses the app").isEmpty();
+        verify(bundleRepository, org.mockito.Mockito.atLeastOnce()).save(savedBundle.capture());
+        Bundle moveToSaved = savedBundle.getAllValues().stream().filter(b -> "to-bundle".equals(b.getId())).reduce((first, second) -> second).orElseThrow();
+        List<Application> moveToApps = applicationsOf(moveToSaved);
+        assertThat(moveToApps).hasSize(1);
+        assertThat(moveToApps.get(0)).isNotSameAs(real);
+        assertThat(moveToApps.get(0).getEditingApplicationDSL()).isEmpty();
+        say("addApp/moveApp store a detached copy without the editing DSL");
     }
 
     /** Catches a move or add by a visitor without the application permission: the denial is the result and nothing is changed. */
@@ -1133,6 +1261,10 @@ class BundleApiServiceImplPermissionsTest {
         when(applicationServiceImpl.findById("t0")).thenReturn(Mono.just(a0));
         when(applicationServiceImpl.findById("t1")).thenReturn(Mono.just(a1));
         when(applicationServiceImpl.findById("t2")).thenReturn(Mono.just(a2));
+        for (String target : new String[] {"t0", "t1", "t2"}) {
+            when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, target, ResourceAction.EDIT_APPLICATIONS))
+                    .thenReturn(Mono.just(status(Status.OK)));
+        }
 
         StepVerifier.create(service.getElements(BUNDLE_ID, null).cast(BundleApplication.class).collectList()).assertNext(elements -> {
             assertThat(elements).extracting(BundleApplication::application).containsExactly(a0, a1, a2);
@@ -1178,6 +1310,7 @@ class BundleApiServiceImplPermissionsTest {
         assertThat(bundleReads).as("the bundle is not read").hasValue(0);
         assertThat(relationReads).as("the element relations are not read").hasValue(0);
         verify(applicationServiceImpl, never()).findById(anyString());
+        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(anyString(), anyString(), eq(ResourceAction.EDIT_APPLICATIONS));
         say("getElements %s -> %s, nothing read", denial, messageKey);
     }
 
@@ -1199,7 +1332,99 @@ class BundleApiServiceImplPermissionsTest {
 
         assertThat(relationReads).hasValue(0);
         verify(applicationServiceImpl, never()).findById(anyString());
+        verify(resourcePermissionService, never()).checkUserPermissionStatusOnResource(anyString(), anyString(), eq(ResourceAction.EDIT_APPLICATIONS));
         say("getElements of a %s bundle -> BAD_REQUEST, nothing read", status);
+    }
+
+    /**
+     * D-42: an element the visitor may edit (EDIT_APPLICATIONS) is the loaded instance itself, DSL included; one it may not
+     * edit is a detached copy without it (every other property equal, position and order kept), and exactly one single-id
+     * permission check is made per element, never a batched one.
+     */
+    @Test
+    void getElements_keepsTheEditingDslForAnEditor_andAnswersADetachedCopyOtherwise() throws Exception {
+        readGranted(BUNDLE_ID);
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, BUNDLE_ID))
+                .thenReturn(Flux.just(relation("locked-app", "2"), relation("editable-app", "1")));
+        Application editable = realAppWithSecrets("editable-app");
+        Application locked = realAppWithSecrets("locked-app");
+        when(applicationServiceImpl.findById("editable-app")).thenReturn(Mono.just(editable));
+        when(applicationServiceImpl.findById("locked-app")).thenReturn(Mono.just(locked));
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, "editable-app", ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(status(Status.OK)));
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, "locked-app", ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.just(status(Status.NOT_ENOUGH)));
+        assertThat(locked.getEditingQueries()).as("precondition: locked has queries").isNotEmpty();
+        assertThat(locked.getEditingModules()).as("precondition: locked has modules").contains(MODULE_SECRET);
+        assertThat(JsonUtils.getObjectMapper().writeValueAsString(locked)).as("precondition: fixture is detectable")
+                .contains(UI_SECRET).contains(QUERY_SECRET).contains(MODULE_SECRET);
+
+        List<BundleApplication> elements = service.getElements(BUNDLE_ID, null).cast(BundleApplication.class).collectList().block();
+
+        assertThat(elements).extracting(BundleApplication::position).containsExactly(0L, 1L);
+        assertThat(elements).extracting(e -> e.application().getId()).containsExactly("editable-app", "locked-app");
+        Application editableElement = elements.get(0).application();
+        Application lockedElement = elements.get(1).application();
+        assertThat(editableElement).isSameAs(editable);
+        assertThat(JsonUtils.getObjectMapper().writeValueAsString(editableElement)).contains(UI_SECRET).contains(QUERY_SECRET).contains(MODULE_SECRET);
+
+        assertThat(lockedElement).isNotSameAs(locked);
+        assertThat(lockedElement.getEditingApplicationDSLOrNull()).isEmpty();
+        assertThat(lockedElement.getEditingApplicationDSL()).isEmpty();
+        assertThat(lockedElement.getEditingQueries()).isEmpty();
+        assertThat(lockedElement.getEditingModules()).isEmpty();
+        String lockedJson = JsonUtils.getObjectMapper().writeValueAsString(lockedElement);
+        say("locked element JSON: %s", lockedJson);
+        assertThat(lockedJson).doesNotContain(UI_SECRET).doesNotContain(QUERY_SECRET).doesNotContain(MODULE_SECRET)
+                .contains("locked-app").contains(locked.getName());
+        // The whole BundleApplication list also carries the editable element's secrets: that element is the loaded
+        // instance itself, unfiltered (the editor may see its own draft); only the locked element's copy is sanitized.
+        String wholeListJson = JsonUtils.getObjectMapper().writeValueAsString(elements);
+        assertThat(wholeListJson).contains(UI_SECRET).contains("editable-app").contains("locked-app");
+
+        var originalTree = JsonUtils.getObjectMapper().valueToTree(locked);
+        var copyTree = JsonUtils.getObjectMapper().valueToTree(lockedElement);
+        assertThat(copyTree.fieldNames()).toIterable().containsExactlyInAnyOrderElementsOf(() -> originalTree.fieldNames());
+        originalTree.fieldNames().forEachRemaining(field -> {
+            if (DSL_DERIVED.contains(field)) {
+                return;
+            }
+            assertThat(copyTree.get(field)).as("property " + field).isEqualTo(originalTree.get(field));
+        });
+        assertThat(copyTree.get("editingApplicationDSL").size()).isZero();
+        assertThat(copyTree.get("editingApplicationDSLOrNull").size()).isZero();
+        assertThat(copyTree.get("editingQueries").size()).isZero();
+        assertThat(copyTree.get("editingModules").size()).isZero();
+
+        assertThat(locked.getEditingApplicationDSL()).as("the loaded locked instance is not mutated").isNotEmpty();
+        assertThat(locked.getEditingModules()).contains(MODULE_SECRET);
+
+        verify(resourcePermissionService, times(1)).checkUserPermissionStatusOnResource(VISITOR, "editable-app", ResourceAction.EDIT_APPLICATIONS);
+        verify(resourcePermissionService, times(1)).checkUserPermissionStatusOnResource(VISITOR, "locked-app", ResourceAction.EDIT_APPLICATIONS);
+        verify(resourcePermissionService, times(2)).checkUserPermissionStatusOnResource(anyString(), anyString(), eq(ResourceAction.EDIT_APPLICATIONS));
+        verify(resourcePermissionService, never()).getMaxMatchingPermission(anyString(), anyCollection(), any());
+        verify(resourcePermissionService, never()).filterResourceWithPermission(anyString(), anyCollection(), any());
+        verify(resourcePermissionService, never()).haveAllEnoughPermissions(anyString(), anyCollection(), any());
+        say("editable element unchanged, locked element a sanitized copy; exactly one single-id check per element");
+    }
+
+    /** D-42: an empty permission answer (no matching row) counts as no permission; the element is the sanitized copy. */
+    @Test
+    void getElements_withAnEmptyPermissionAnswer_answersTheCopy() {
+        readGranted(BUNDLE_ID);
+        when(biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, BUNDLE_ID)).thenReturn(Flux.just(relation("app-x", "0")));
+        Application real = realAppWithSecrets("app-x");
+        when(applicationServiceImpl.findById("app-x")).thenReturn(Mono.just(real));
+        when(resourcePermissionService.checkUserPermissionStatusOnResource(VISITOR, "app-x", ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(service.getElements(BUNDLE_ID, null).cast(BundleApplication.class).collectList()).assertNext(elements -> {
+            assertThat(elements).hasSize(1);
+            Application element = elements.get(0).application();
+            assertThat(element).isNotSameAs(real);
+            assertThat(element.getEditingApplicationDSL()).isEmpty();
+        }).verifyComplete();
+        say("empty permission answer -> fail closed, the copy is answered");
     }
 
     // ------------------------------------------------------------------ small ones

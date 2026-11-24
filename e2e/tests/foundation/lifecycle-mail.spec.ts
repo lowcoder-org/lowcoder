@@ -5,13 +5,12 @@ import { MAIL_SUBJECTS } from "../../src/constants";
 import {
   MalformedMailError,
   UnsupportedMailEncodingError,
-  inviteCodeOf,
+  inviteLinkOf,
   isInvitation,
   isPasswordReset,
   parseMail,
   resetLinkOf,
   resetTokenOf,
-  withSingleSlashes,
   textOf,
   type SinkMail,
 } from "../../src/lifecycle/mail";
@@ -45,12 +44,12 @@ test.describe("mail parser", () => {
     expect(resetTokenOf(mail), "TOKEN%3CPLACEHOLDER%24 decoded").toBe("TOKEN<PLACEHOLDER$");
   });
 
-  test("the recorded invitation mail: subject and code", () => {
+  test("the recorded invitation mail: subject and link", () => {
     const mail = parseMail(fixture("invitation.eml"));
 
     expect(mail.subject).toBe(MAIL_SUBJECTS.INVITATION);
     expect(isInvitation(mail)).toBe(true);
-    expect(inviteCodeOf(mail)).toBe("INVITECODEPLACEHOLDER000");
+    expect(inviteLinkOf(mail), "the link as mailed, double slash kept").toBe("http://lowcoder-e2e-app:3000//invite/INVITECODEPLACEHOLDER000");
     expect(() => resetTokenOf(mail), "an invitation holds no reset link").toThrow(MalformedMailError);
   });
 
@@ -137,13 +136,11 @@ test.describe("mail parser", () => {
     expect(mail.parts.map((part) => part.text)).toEqual(["see --B1 inside and x--B1 too"]);
   });
 
-  test("resetLinkOf returns the link as mailed and withSingleSlashes collapses only the slashes of its path", () => {
+  test("resetLinkOf returns the link as mailed", () => {
     const mail = parseMail(fixture("password-reset.eml"));
     const link = resetLinkOf(mail);
 
     expect(link.replace(/token=.*/, "token=<T>"), "the link keeps the double slash of the public URL").toBe("http://lowcoder-e2e-app:3000//user/auth/lost-password?token=<T>");
-    expect(withSingleSlashes(link).replace(/token=.*/, "token=<T>")).toBe("http://lowcoder-e2e-app:3000/user/auth/lost-password?token=<T>");
-    expect(withSingleSlashes("http://h:1/a/b?x=//y"), "a link with single slashes and slashes in the query is unchanged").toBe("http://h:1/a/b?x=//y");
     expect(() => resetLinkOf(parseMail(fixture("invitation.eml"))), "an invitation holds no reset link").toThrow(MalformedMailError);
   });
 
@@ -160,6 +157,6 @@ test.describe("mail parser", () => {
 
     expect(() => resetTokenOf(none)).toThrow(MalformedMailError);
     expect(() => resetTokenOf(bad)).toThrow(/not valid percent-encoding/);
-    expect(() => inviteCodeOf(none)).toThrow(MalformedMailError);
+    expect(() => inviteLinkOf(none)).toThrow(MalformedMailError);
   });
 });

@@ -24,6 +24,7 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.contract.CanonicalJson;
+import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -67,6 +68,7 @@ class ApplicationHistorySnapshotEndpointsContractTest {
 
     static final EndpointContract CONTRACT = new EndpointContract(ApplicationHistorySnapshotEndpoints.class);
     static final String APPLICATION_ID = "ApplicationHistorySnapshotEndpointsContractTest.applicationId";
+    static final String OTHER_APPLICATION_ID = "ApplicationHistorySnapshotEndpointsContractTest.otherApplicationId";
     static final String SNAPSHOT_ID = "ApplicationHistorySnapshotEndpointsContractTest.snapshotId";
     static final String COMP_NAME = "ApplicationHistorySnapshotEndpointsContractTest.compName";
     static final String THEME = "ApplicationHistorySnapshotEndpointsContractTest.theme";
@@ -97,6 +99,8 @@ class ApplicationHistorySnapshotEndpointsContractTest {
         applicationRecordService = builder.mock(ApplicationRecordService.class);
         Mockito.when(builder.mock(ResourcePermissionService.class).checkResourcePermissionWithError(anyString(), anyString(),
                 eq(ResourceAction.EDIT_APPLICATIONS))).thenReturn(Mono.empty());
+        Mockito.when(applicationService.findByIdWithoutDsl(APPLICATION_ID))
+                .thenReturn(Mono.just(Application.builder().id(APPLICATION_ID).build()));
     }
 
     @AfterAll
@@ -104,24 +108,31 @@ class ApplicationHistorySnapshotEndpointsContractTest {
         CONTRACT.assertComplete(ApplicationHistorySnapshotEndpointsContractTest.class);
     }
 
-    /** The controller passes the body's parts on: the application id, the DSL and the context, compared by D1's rules. */
+    /**
+     * The controller stores the snapshot under the object id the body's application key resolves to (D-31), with the
+     * body's DSL and context, compared by D1's rules.
+     */
     @Test
     @SuppressWarnings("unchecked")
     void create() {
         ApplicationHistorySnapshotRequest expected = (ApplicationHistorySnapshotRequest) PayloadSamples.of(ApplicationHistorySnapshotRequest.class).value();
-        Mockito.when(snapshotService.createHistorySnapshot(eq(expected.applicationId()), any(), any(), eq(Authentication.ANONYMOUS_USER_ID)))
+        assertThat(expected.applicationId()).isNotEqualTo(APPLICATION_ID);
+        Mockito.when(applicationService.findByIdWithoutDsl(expected.applicationId()))
+                .thenReturn(Mono.just(Application.builder().id(APPLICATION_ID).build()));
+        Mockito.when(snapshotService.createHistorySnapshot(any(), any(), any(), eq(Authentication.ANONYMOUS_USER_ID)))
                 .thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(applicationService.updateLastEditedAt(eq(expected.applicationId()), any(), eq(Authentication.ANONYMOUS_USER_ID)))
+        Mockito.when(applicationService.updateLastEditedAt(any(), any(), eq(Authentication.ANONYMOUS_USER_ID)))
                 .thenReturn(Mono.just(Boolean.TRUE));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "create", Map.of(), EndpointContract.d1(ApplicationHistorySnapshotRequest.class));
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
             ArgumentCaptor<Map<String, Object>> dsl = ArgumentCaptor.forClass(Map.class);
             ArgumentCaptor<Map<String, Object>> context = ArgumentCaptor.forClass(Map.class);
-            Mockito.verify(snapshotService).createHistorySnapshot(eq(expected.applicationId()), dsl.capture(), context.capture(),
+            Mockito.verify(snapshotService).createHistorySnapshot(eq(APPLICATION_ID), dsl.capture(), context.capture(),
                     eq(Authentication.ANONYMOUS_USER_ID));
             CanonicalJson.assertSameJava(expected.dsl(), dsl.getValue());
             CanonicalJson.assertSameJava(expected.context(), context.getValue());
+            Mockito.verify(applicationService).updateLastEditedAt(eq(APPLICATION_ID), any(), eq(Authentication.ANONYMOUS_USER_ID));
         }
     }
 
@@ -175,6 +186,8 @@ class ApplicationHistorySnapshotEndpointsContractTest {
         HistorySnapshotDslView view = ApplicationSamples.historySnapshotDslView();
         ApplicationHistorySnapshot snapshot = new ApplicationHistorySnapshot();
         snapshot.setDsl(view.getApplicationsDsl());
+        snapshot.setApplicationId(APPLICATION_ID);
+        snapshot.setApplicationIdResolved(true);
         Mockito.when(snapshotService.getHistorySnapshotDetail(SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
         stubModules(view);
         assertDslView("getHistorySnapshotDsl");
@@ -185,9 +198,47 @@ class ApplicationHistorySnapshotEndpointsContractTest {
         HistorySnapshotDslView view = ApplicationSamples.historySnapshotDslView();
         ApplicationHistorySnapshotTS snapshot = new ApplicationHistorySnapshotTS();
         snapshot.setDsl(view.getApplicationsDsl());
+        snapshot.setApplicationId(APPLICATION_ID);
+        snapshot.setApplicationIdResolved(true);
         Mockito.when(snapshotService.getHistorySnapshotDetailArchived(SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
         stubModules(view);
         assertDslView("getHistorySnapshotDslArchived");
+    }
+
+    /** D-31: a snapshot of another application gets the answer of an unknown snapshot id (same status, code and message). */
+    @Test
+    void getHistorySnapshotDslOfAnotherApplication() {
+        HistorySnapshotDslView view = ApplicationSamples.historySnapshotDslView();
+        ApplicationHistorySnapshot snapshot = new ApplicationHistorySnapshot();
+        snapshot.setDsl(view.getApplicationsDsl());
+        snapshot.setApplicationId(OTHER_APPLICATION_ID);
+        snapshot.setApplicationIdResolved(true);
+        Mockito.when(snapshotService.getHistorySnapshotDetail(SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
+        stubModules(view);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getHistorySnapshotDsl", Map.of(), null, APPLICATION_ID, SNAPSHOT_ID);
+            EndpointContract.assertBizError(result, BizError.INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", SNAPSHOT_ID);
+            Mockito.verify(applicationService, Mockito.never()).findByIdWithoutDsl(OTHER_APPLICATION_ID);
+            Mockito.verify(applicationService, Mockito.never()).getAllDependentModulesFromDsl(any());
+        }
+    }
+
+    /** As {@link #getHistorySnapshotDslOfAnotherApplication}, for the archive route. */
+    @Test
+    void getHistorySnapshotDslArchivedOfAnotherApplication() {
+        HistorySnapshotDslView view = ApplicationSamples.historySnapshotDslView();
+        ApplicationHistorySnapshotTS snapshot = new ApplicationHistorySnapshotTS();
+        snapshot.setDsl(view.getApplicationsDsl());
+        snapshot.setApplicationId(OTHER_APPLICATION_ID);
+        snapshot.setApplicationIdResolved(true);
+        Mockito.when(snapshotService.getHistorySnapshotDetailArchived(SNAPSHOT_ID)).thenReturn(Mono.just(snapshot));
+        stubModules(view);
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getHistorySnapshotDslArchived", Map.of(), null, APPLICATION_ID, SNAPSHOT_ID);
+            EndpointContract.assertBizError(result, BizError.INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", SNAPSHOT_ID);
+            Mockito.verify(applicationService, Mockito.never()).findByIdWithoutDsl(OTHER_APPLICATION_ID);
+            Mockito.verify(applicationService, Mockito.never()).getAllDependentModulesFromDsl(any());
+        }
     }
 
     private ContractTestClient client() {

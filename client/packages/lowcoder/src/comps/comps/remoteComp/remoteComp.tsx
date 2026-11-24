@@ -16,7 +16,7 @@ import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 import React from "react";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { useSelector } from "react-redux";
-import { ExternalEditorContext } from "@lowcoder-ee/util/context/ExternalEditorContext";
+import { ExternalEditorContext, readCheckedApplicationId } from "@lowcoder-ee/util/context/ExternalEditorContext";
 
 /** Unique `key` per `RemoteCompView` so list/grid rows do not all share the same key (remounts + useMount re-runs on unrelated updates). */
 let globalRemoteViewInstanceId = 0;
@@ -67,7 +67,8 @@ const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompView
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
   const externalEditorState = useContext(ExternalEditorContext);
-  const appId = externalEditorState.applicationId;
+  // D-35: a module's own id may not be READ-checked for a host viewer; use the outermost host app id instead.
+  const appId = readCheckedApplicationId(externalEditorState);
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
   const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 

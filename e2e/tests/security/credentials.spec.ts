@@ -179,8 +179,9 @@ test.describe("security: forged and revoked credentials (further rows)", () => {
     const fresh = await newUserSession();
     await signIn(fresh.page.request, first.email, CHANGED_PASSWORD);
     expect(await currentUserId(fresh.page.request), "setup: the new password works, so the password really changed").toBe(first.userId);
-    // Desired: the second session, opened with the old password, is dead. It is not on 3.0.0 or on HEAD (SF-29).
+    // D-34: the second session, opened with the old password, is dead; the session that made the change is kept.
     expectAnswer(await apiRaw(secondSession.page.request, "GET", API_PATHS.USER_MY_ORG), API_ERRORS.UNAUTHENTICATED, "after: the other session");
+    expectAnswer(await apiRaw(first.request, "GET", API_PATHS.USER_MY_ORG), ALLOWED, "after: the session that changed the password still works");
   });
 
   test("SEC-A05 forwarding headers do not open the node-service route", securityTestDetails("SEC-A05"), async ({ page, apiUser, actor }) => {

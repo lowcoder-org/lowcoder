@@ -27,6 +27,7 @@ import {
   grantFolderPermission,
   listAppPermissions,
   listAppVersions,
+  listBundlePermissions,
   listDatasourcePermissions,
   listFolderPermissions,
   listGroupMembers,
@@ -36,7 +37,9 @@ import {
   logout,
   moveToFolder,
   publishApp,
+  publishBundle,
   recycleBundle,
+  setBundlePublicToAll,
   removeAppPermission,
   removeDatasourcePermission,
   removeFolderPermission,
@@ -486,7 +489,7 @@ test.describe("security helpers: credentials and content", () => {
     expect(snapshots[0]?.snapshotId, "with an id").toBeTruthy();
   });
 
-  test("bundle helpers: createBundle, addAppToBundle, bundleElementsRaw, grantBundlePermission, recycleBundle, deleteBundle", async ({
+  test("bundle helpers: createBundle, addAppToBundle, bundleElementsRaw, grantBundlePermission, listBundlePermissions, recycleBundle, deleteBundle", async ({
     actor,
   }) => {
     const owner = await actor("owner");
@@ -502,8 +505,16 @@ test.describe("security helpers: credentials and content", () => {
     expect(elements.status).toBe(200);
     expect(elements.body, "after: the app is in the bundle").toContain(appId);
     expect((await apiRaw(guest.request, "GET", bundleViewPath(bundleId))).code, "before the grant: a member without one").not.toBe(API_OK);
+    expect(
+      (await listBundlePermissions(owner.request, bundleId)).userPermissions.some((item) => item.id === guest.userId),
+      "before the grant: no bundle permission row",
+    ).toBe(false);
     await grantBundlePermission(owner.request, bundleId, { role: APP_ROLES.VIEWER, userIds: [guest.userId] });
     expect((await apiRaw(guest.request, "GET", bundleViewPath(bundleId))).code, "after the grant: viewer views").toBe(API_OK);
+    expect(
+      (await listBundlePermissions(owner.request, bundleId)).userPermissions.find((item) => item.id === guest.userId)?.role,
+      "after the grant: a bundle permission row listing the role",
+    ).toBe(APP_ROLES.VIEWER);
     expect((await apiRaw(owner.request, "GET", RECYCLED_BUNDLES_PATH)).body, "before recycling: not in the trash").not.toContain(bundleId);
     await recycleBundle(owner.request, bundleId);
     expect((await apiRaw(owner.request, "GET", bundleViewPath(bundleId))).code, "recycled: the view is refused").not.toBe(API_OK);
@@ -512,6 +523,28 @@ test.describe("security helpers: credentials and content", () => {
     await deleteBundle(owner.request, bundleId);
 
     expect((await apiRaw(owner.request, "GET", RECYCLED_BUNDLES_PATH)).body, "deleted: out of the trash").not.toContain(bundleId);
+  });
+
+  test("bundle helpers: publishBundle, setBundlePublicToAll", async ({ actor }) => {
+    const owner = await actor("owner");
+    const outsider = await actor("outsider");
+    // A bundle with no app ever added keeps `editingBundleDSL` null (Bundle.java:39 has no builder default), so publishing
+    // it would copy null into `publishedBundleDSL` (BundleServiceImpl.java:90-97) and never satisfy the "after publishing"
+    // assertion below. Add one app first, as every other bundle helpers test does, so there is editing DSL to publish.
+    const bundleId = await createBundle(owner.request, { orgId: owner.orgId, name: BUNDLE_NAME });
+    const { appId } = await createApp(owner.request, { orgId: owner.orgId, name: SCENARIO_APP });
+    await addAppToBundle(owner.request, appId, bundleId);
+    const view = async () => (await apiRaw(owner.request, "GET", bundleViewPath(bundleId))).json as { data: { publishedBundleDSL?: unknown } };
+    expect((await view()).data.publishedBundleDSL, "before publishing: no published DSL yet").toBeFalsy();
+    expect((await apiRaw(outsider.request, "GET", bundleViewPath(bundleId))).code, "before: an outsider has no grant").not.toBe(API_OK);
+
+    await publishBundle(owner.request, bundleId);
+
+    expect((await view()).data.publishedBundleDSL, "after publishing: a published DSL exists").toBeTruthy();
+
+    await setBundlePublicToAll(owner.request, bundleId, true);
+
+    expect((await apiRaw(outsider.request, "GET", bundleViewPath(bundleId))).code, "after public-to-all: an outsider views").toBe(API_OK);
   });
 
   // D-46 (SF-41): the 3.0.0 server recycles a bundle and then answers 500 / 5005.
@@ -544,7 +577,10 @@ test.describe("security helpers: credentials and content", () => {
 
     await publishApp(owner.request, appId);
 
-    expect(await listAppVersions(owner.request, appId), "after: one version").toHaveLength(1);
+    const versions = await listAppVersions(owner.request, appId);
+    expect(versions, "after: one version").toHaveLength(1);
+    expect(typeof versions[0]?.id, "the version carries a non-empty id").toBe("string");
+    expect(versions[0]?.id, "the version's id is not empty").not.toBe("");
   });
 
   test("uploadProfilePhoto stores a photo that readProfilePhoto returns a different one afterwards", async ({ actor }) => {

@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -80,8 +81,10 @@ import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import reactor.core.publisher.Flux;
@@ -131,6 +134,8 @@ class ApplicationApiServiceImplBranchesTest {
     private static final String MSG_NO_EDIT = "NO_PERMISSION_TO_EDIT";
     private static final String MSG_NO_VIEW = "NO_PERMISSION_TO_VIEW";
     private static final String MSG_LACK_OF_DATASOURCE = "APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS";
+    private static final String MSG_NOT_AUTHORIZED = "NOT_AUTHORIZED";
+    private static final String MSG_CANT_FIND_APPLICATION = "CANT_FIND_APPLICATION";
     /** A SQL query with a key in the SQL, one in a {@code --} comment and one in a block comment (NEW-33). */
     private static final String SQL_WITH_KEYS_IN_COMMENTS = "select {{a}} from t -- {{b}}\nwhere c = 1 /* {{c}} */";
     private static final String KEY_OUTSIDE_COMMENTS = "{{a}}";
@@ -305,6 +310,34 @@ class ApplicationApiServiceImplBranchesTest {
                 .verify();
         verifyNoInteractions(sessionUserService, applicationService);
         say("create: %s -> INVALID_PARAMETER %s, no lookup", label, expectedKey);
+    }
+
+    /**
+     * D-11/D-41: the developer check runs on the TARGET workspace (the request's {@code orgId}), not the visitor's
+     * current one. An admin of a different, current workspace who is a plain member of the target still needs the
+     * real {@link org.lowcoder.api.usermanagement.OrgDevChecker#checkOrgDev} to refuse, so the call must carry the
+     * exact target membership; the current-workspace cache is never read in {@code create}.
+     */
+    @Test
+    void create_developerOfTheCurrentWorkspace_butNotOfTheTargetWorkspace_isRefused() {
+        CreateApplicationRequest request = new CreateApplicationRequest(ORG_ID, null, "name",
+                ApplicationType.APPLICATION.getValue(), dsl(), null, null, null);
+        stubVisitor();
+        OrgMember targetMember = new OrgMember(ORG_ID, VISITOR_ID, MemberRole.MEMBER, "normal", 0L);
+        when(orgMemberService.getOrgMember(ORG_ID, VISITOR_ID)).thenReturn(Mono.just(targetMember));
+        when(orgDevChecker.checkOrgDev(targetMember)).thenReturn(Mono.error(
+                new BizException(BizError.NEED_DEV_TO_CREATE_RESOURCE, "NEED_DEV_TO_CREATE_RESOURCE")));
+        lenient().when(sessionUserService.getVisitorOrgMemberCache())
+                .thenReturn(Mono.just(new OrgMember("other-org", VISITOR_ID, MemberRole.ADMIN, "normal", 0L)));
+
+        StepVerifier.create(service.create(request))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NEED_DEV_TO_CREATE_RESOURCE, "NEED_DEV_TO_CREATE_RESOURCE"))
+                .verify();
+
+        verify(orgDevChecker).checkOrgDev(targetMember);
+        verify(sessionUserService, never()).getVisitorOrgMemberCache();
+        verifyNoInteractions(applicationService);
+        say("create: admin of the current workspace, plain member of the target -> refused, target checked");
     }
 
     // ------------------------------------------------------------------ getPublishedApplication: request type gate
@@ -999,48 +1032,70 @@ class ApplicationApiServiceImplBranchesTest {
                 .organizationId(REQUEST_ORG_ID).build();
     }
 
-    private void stubUpdate(Application stored) {
+    private void stubUpdate(Application stored, ResourceRole role) {
         stubVisitor();
         stubViewDependencies();
         lenient().when(applicationService.findByIdWithoutDsl(APP_ID)).thenReturn(Mono.just(stored));
         lenient().when(resourcePermissionService.checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
-                .thenReturn(Mono.just(permission(ResourceRole.EDITOR)));
+                .thenReturn(Mono.just(permission(role)));
+        lenient().when(resourcePermissionService.checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.MANAGE_APPLICATIONS))
+                .thenReturn(role == ResourceRole.OWNER ? Mono.just(permission(ResourceRole.OWNER))
+                        : Mono.error(new BizException(BizError.NOT_AUTHORIZED, MSG_NOT_AUTHORIZED)));
         lenient().when(applicationService.findById(APP_ID)).thenReturn(Mono.just(stored));
         lenient().when(applicationService.updateById(eq(APP_ID), any(Application.class))).thenReturn(Mono.just(true));
     }
 
+    private void stubUpdate(Application stored) {
+        stubUpdate(stored, ResourceRole.EDITOR);
+    }
+
     static Stream<Arguments> updateStatusCases() {
         return Stream.of(
-                // updateStatus, stored status, refused, status written
-                Arguments.of(null, ApplicationStatus.NORMAL, false, null),
-                Arguments.of(false, ApplicationStatus.NORMAL, false, null),
-                Arguments.of(null, ApplicationStatus.RECYCLED, true, null),
-                Arguments.of(false, ApplicationStatus.RECYCLED, true, null),
-                Arguments.of(true, ApplicationStatus.RECYCLED, false, ApplicationStatus.NORMAL));
+                // updateStatus, stored status, requested status, role, refused, refusal, refusal key, status written
+                Arguments.of(null, ApplicationStatus.NORMAL, ApplicationStatus.NORMAL, ResourceRole.EDITOR, false, null, null, null),
+                Arguments.of(false, ApplicationStatus.NORMAL, ApplicationStatus.NORMAL, ResourceRole.EDITOR, false, null, null, null),
+                Arguments.of(null, ApplicationStatus.RECYCLED, ApplicationStatus.NORMAL, ResourceRole.EDITOR, true,
+                        BizError.UNSUPPORTED_OPERATION, MSG_BAD_REQUEST, null),
+                Arguments.of(false, ApplicationStatus.RECYCLED, ApplicationStatus.NORMAL, ResourceRole.EDITOR, true,
+                        BizError.UNSUPPORTED_OPERATION, MSG_BAD_REQUEST, null),
+                Arguments.of(true, ApplicationStatus.RECYCLED, ApplicationStatus.NORMAL, ResourceRole.OWNER, false, null, null,
+                        ApplicationStatus.NORMAL),
+                Arguments.of(true, ApplicationStatus.NORMAL, ApplicationStatus.RECYCLED, ResourceRole.EDITOR, true,
+                        BizError.NOT_AUTHORIZED, MSG_NOT_AUTHORIZED, null),
+                Arguments.of(true, ApplicationStatus.RECYCLED, ApplicationStatus.NORMAL, ResourceRole.EDITOR, true,
+                        BizError.NOT_AUTHORIZED, MSG_NOT_AUTHORIZED, null),
+                Arguments.of(true, ApplicationStatus.NORMAL, ApplicationStatus.RECYCLED, ResourceRole.OWNER, false, null, null,
+                        ApplicationStatus.RECYCLED),
+                Arguments.of(null, ApplicationStatus.NORMAL, ApplicationStatus.RECYCLED, ResourceRole.EDITOR, false, null, null, null));
     }
 
     /**
-     * Catches a recycled application edited by a plain update (UNSUPPORTED_OPERATION, nothing written) and a status
-     * written by accident: without {@code updateStatus} the stored status is checked to be NORMAL and the update
-     * carries no status; with {@code updateStatus = true} the check is skipped and the request's status is written.
+     * Catches a recycled application edited by a plain update (UNSUPPORTED_OPERATION, nothing written), a status
+     * written by accident, and an editor changing the status without the owner right: without {@code updateStatus}
+     * the stored status is checked to be NORMAL and the update carries no status (the body's status is ignored, row
+     * 9); with {@code updateStatus = true} the status check is skipped but the caller now needs MANAGE_APPLICATIONS,
+     * not just EDIT_APPLICATIONS (D-9), and only then is the request's status written.
      */
-    @ParameterizedTest(name = "updateStatus={0} stored={1} refused={2} written status={3}")
+    @ParameterizedTest(name = "updateStatus={0} stored={1} requested={2} role={3} refused={4} written status={7}")
     @MethodSource("updateStatusCases")
-    void update_statusHandling(Boolean updateStatus, ApplicationStatus storedStatus, boolean refused,
-            ApplicationStatus writtenStatus) {
+    void update_statusHandling(Boolean updateStatus, ApplicationStatus storedStatus, ApplicationStatus requestedStatus,
+            ResourceRole role, boolean refused, BizError refusal, String refusalKey, ApplicationStatus writtenStatus) {
         Application stored = appBuilder(APP_ID, dsl()).applicationStatus(storedStatus).build();
-        stubUpdate(stored);
+        stubUpdate(stored, role);
         ArgumentCaptor<Application> written = ArgumentCaptor.forClass(Application.class);
         lenient().when(applicationService.updateById(eq(APP_ID), written.capture())).thenReturn(Mono.just(true));
         Map<String, Object> newDsl = dsl("ui", dsl());
 
-        Mono<ApplicationView> result = service.update(APP_ID, updateRequest(newDsl, ApplicationStatus.NORMAL), updateStatus);
+        Mono<ApplicationView> result = service.update(APP_ID, updateRequest(newDsl, requestedStatus), updateStatus);
 
         if (refused) {
             StepVerifier.create(result)
-                    .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, MSG_BAD_REQUEST))
+                    .expectErrorSatisfies(error -> assertBizError(error, refusal, refusalKey))
                     .verify();
             verify(applicationService, never()).updateById(any(), any());
+            if (Boolean.TRUE.equals(updateStatus)) {
+                verify(applicationService, never()).findById(APP_ID);
+            }
         } else {
             StepVerifier.create(result).expectNextCount(1).verifyComplete();
             Application update = written.getValue();
@@ -1050,8 +1105,17 @@ class ApplicationApiServiceImplBranchesTest {
         }
         if (Boolean.TRUE.equals(updateStatus)) {
             verify(applicationService, never()).findByIdWithoutDsl(APP_ID);
+            verify(resourcePermissionService).checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.MANAGE_APPLICATIONS);
+            verify(resourcePermissionService, never()).checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS);
+        } else if (refused) {
+            // rows 3, 4: the stored-status check refuses before any permission check runs
+            verify(resourcePermissionService, never()).checkAndReturnMaxPermission(any(), any(), any());
+        } else {
+            verify(resourcePermissionService).checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS);
+            verify(resourcePermissionService, never()).checkAndReturnMaxPermission(VISITOR_ID, APP_ID, ResourceAction.MANAGE_APPLICATIONS);
         }
-        say("update updateStatus=%s stored=%s -> refused=%s written status=%s", updateStatus, storedStatus, refused, writtenStatus);
+        say("update updateStatus=%s stored=%s requested=%s role=%s -> refused=%s written status=%s",
+                updateStatus, storedStatus, requestedStatus, role, refused, writtenStatus);
     }
 
     private Application requestWithDatasources(String... datasourceIds) {
@@ -1127,6 +1191,69 @@ class ApplicationApiServiceImplBranchesTest {
             verifyNoInteractions(datasourceService);
         }
         say("update datasource check: %s -> allowed=%s", label, allowed);
+    }
+
+    // ------------------------------------------------------------------ updateSlug
+
+    private static final String NEW_SLUG = "the-new-slug";
+    private final AtomicInteger slugWrites = new AtomicInteger();
+
+    private <T> Mono<T> counting(T value) {
+        return Mono.defer(() -> {
+            slugWrites.incrementAndGet();
+            return Mono.just(value);
+        });
+    }
+
+    static Stream<Arguments> updateSlugCases() {
+        return Stream.of(
+                Arguments.of("editor (check passes)", (Supplier<Mono<Void>>) Mono::empty, null, null),
+                Arguments.of("no edit right (outsider, viewer)",
+                        (Supplier<Mono<Void>>) () -> Mono.error(new BizException(BizError.NOT_AUTHORIZED, MSG_NOT_AUTHORIZED)),
+                        BizError.NOT_AUTHORIZED, MSG_NOT_AUTHORIZED),
+                Arguments.of("id that names no application",
+                        (Supplier<Mono<Void>>) () -> Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, MSG_CANT_FIND_APPLICATION)),
+                        BizError.NO_RESOURCE_FOUND, MSG_CANT_FIND_APPLICATION));
+    }
+
+    /**
+     * Catches the slug route writing before (or regardless of) checking the caller's right (D-37): the EDIT check must
+     * run, and nothing of the domain call may even be assembled, before it passes. A refused row proves two things
+     * together: {@code slugWrites} stays 0 (the domain {@code Mono} is never subscribed) and
+     * {@code verify(applicationService, never()).updateSlug(...)} holds (the mock method is never even called to build
+     * the chain). The allowed row additionally checks {@code InOrder}: the eager
+     * {@code .then(applicationService.updateSlug(...))} form would call the mock at assembly time, before the
+     * permission check is even subscribed, so {@code InOrder} would fail there even though the mock call itself is
+     * eventually recorded and the result is still correct.
+     */
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("updateSlugCases")
+    void updateSlug_needsEditBeforeTheDomainCallIsBuiltD37(String label, Supplier<Mono<Void>> check, BizError refusal,
+            String refusalKey) {
+        stubVisitor();
+        Application written = app(dsl());
+        lenient().when(applicationService.updateSlug(APP_ID, NEW_SLUG)).thenReturn(counting(written));
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS))
+                .thenReturn(check.get());
+
+        Mono<Application> result = service.updateSlug(APP_ID, NEW_SLUG);
+
+        if (refusal == null) {
+            StepVerifier.create(result).expectNext(written).verifyComplete();
+            assertThat(slugWrites.get()).isEqualTo(1);
+            verify(applicationService).updateSlug(APP_ID, NEW_SLUG);
+            InOrder order = Mockito.inOrder(resourcePermissionService, applicationService);
+            order.verify(resourcePermissionService).checkResourcePermissionWithError(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS);
+            order.verify(applicationService).updateSlug(APP_ID, NEW_SLUG);
+        } else {
+            StepVerifier.create(result)
+                    .expectErrorSatisfies(error -> assertBizError(error, refusal, refusalKey))
+                    .verify();
+            assertThat(slugWrites.get()).isEqualTo(0);
+            verify(applicationService, never()).updateSlug(any(), any());
+        }
+        verify(resourcePermissionService).checkResourcePermissionWithError(VISITOR_ID, APP_ID, ResourceAction.EDIT_APPLICATIONS);
+        say("updateSlug: %s -> refusal=%s, domain subscriptions %d", label, refusal, slugWrites.get());
     }
 
     // ------------------------------------------------------------------ grantPermission

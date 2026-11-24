@@ -75,8 +75,8 @@ import static org.mockito.ArgumentMatchers.eq;
  * {@link OrgView}s, {@code getOrgCommonSettings} answers the {@code HashMap} subclass {@link OrganizationCommonSettings},
  * and {@code setCurrentOrganization} a {@code Boolean} or the redirect envelope around a {@link RedirectView} (its bind
  * branch is the {@code NEED_BIND_THIRD_PARTY_CONNECTION} error).
- * {@code getOrganization} and {@code updateSlug} answer a whole {@link Organization} without a view, its auth configs'
- * {@code clientSecret} included (O22). One test per registry response branch, named as the branch.
+ * {@code getOrganization} and {@code updateSlug} answer a whole {@link Organization} without a view,
+ * without its auth configs (D-14; O22 before). One test per registry response branch, named as the branch.
  *
  * <p>Stubbing groups (registry column {@code group}): {@code assembling} for {@code getOrganizationByUser}, whose
  * sorted page the controller builds from organizations; {@code pass-through} for the others, where the payload is one
@@ -397,7 +397,7 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** A {@code String} body is passed through as text (§5.2): the slug keeps the JSON quotes. The answer is O22's. */
+    /** A {@code String} body is passed through as text (§5.2): the slug keeps the JSON quotes. The answer is the organization without its auth configs (D-14). */
     @Test
     void updateSlug() {
         Mockito.when(orgApiService.updateSlug(ORG_ID, SLUG_BODY)).thenReturn(Mono.just(OrganizationSamples.organization()));
@@ -408,7 +408,7 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** {@code withDeleted=true} is handed on to {@code OrgApiService.getOrganization}; the answer is O22's. */
+    /** {@code withDeleted=true} is handed on to {@code OrgApiService.getOrganization}; the answer is the organization without its auth configs (D-14). */
     @Test
     void getOrganization() {
         Mockito.when(orgApiService.getOrganization(ORG_ID, true)).thenReturn(Mono.just(OrganizationSamples.organization()));
@@ -499,10 +499,11 @@ class OrganizationEndpointsContractTest {
         }
     }
 
-    /** The whole {@link Organization}, without a view: its auth configs' {@code clientSecret} is in the answer (O22). */
+    /** The whole {@link Organization} without its auth configs: no {@code clientSecret} in the answer (D-14). */
     private static void assertOrganization(EntityExchangeResult<byte[]> result) {
         EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(Organization.class)));
-        assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8)).as("O22: the organization writes its auth configs' secrets")
-                .contains(PayloadSamples.SECRET_MARKER);
+        assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8))
+                .as("D-14: the organization answer carries no auth config secret")
+                .doesNotContain(PayloadSamples.SECRET_MARKER);
     }
 }

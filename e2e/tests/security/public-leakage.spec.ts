@@ -96,6 +96,9 @@ test.describe("security: what a public app shows an anonymous visitor", () => {
     );
     await updateApp(a.request, seeded.appId, { dsl });
     expect(JSON.stringify((await getApp(a.request, seeded.appId)).dsl), "setup: the draft holds the new query").toContain(DRAFT_QUERY_ID);
+    const ownerDraftRun = await executeAppQueryRaw(a.request, { applicationId: seeded.appId, queryId: DRAFT_QUERY_ID, viewMode: false });
+    expectAnswer(ownerDraftRun, ALLOWED, "before: the owner runs the draft-only query in edit mode");
+    expect(ownerDraftRun.body, "with its marker").toContain("e2e-sec-draft-only");
     const published = await apiRaw(anonymous, "GET", appViewPath(seeded.appId));
     expect(published.body, "before: the published version does not have it").not.toContain(DRAFT_QUERY_NAME);
     const run = await executeAppQueryRaw(anonymous, { applicationId: seeded.appId, queryId: seeded.queryId, viewMode: true });
@@ -104,7 +107,7 @@ test.describe("security: what a public app shows an anonymous visitor", () => {
 
     const answer = await executeAppQueryRaw(anonymous, { applicationId: seeded.appId, queryId: DRAFT_QUERY_ID, viewMode: false });
 
-    // Desired: a draft query needs EDIT, like the editing view (401 / 5001). 3.0.0 and HEAD check READ only (SF-5).
+    // A draft query needs EDIT on the app, like the editing view (401 / 5001) (D-10).
     expectAnswer(answer, API_ERRORS.NOT_AUTHORIZED, "the anonymous run of the draft-only query");
     expect(answer.body, "no draft result in the answer").not.toContain("e2e-sec-draft-only");
   });
@@ -170,12 +173,22 @@ test.describe("security: routes that need no session", () => {
     expect(answer.body, "no workspace id of A in the answer").not.toContain(a.orgId);
   });
 
-  test("SEC-A10c the metrics endpoint is not open to an anonymous caller", securityTestDetails("SEC-A10c"), async ({ newUserSession }) => {
+  test("SEC-A10c the metrics endpoint is not open to an anonymous caller", securityTestDetails("SEC-A10c"), async ({ page, apiUser, newUserSession }) => {
+    const { a } = await sceneOf(page, apiUser);
+    const signedIn = await apiRaw(a.request, "GET", API_PATHS.STATUS_PROMETHEUS);
+    // Prometheus text format, not JSON: apiRaw's `code` is only ever set from a JSON body's `code` field, so a
+    // plain-text 200 answer has code: undefined; assert the HTTP status directly instead of expectAnswer/ALLOWED.
+    expect(signedIn.status, "before: a signed-in caller reads the Prometheus metrics").toBe(200);
+    expect(signedIn.body, "Prometheus text format").toContain("# HELP");
+
     const anonymous = (await newUserSession()).page.request;
 
     const answer = await apiRaw(anonymous, "GET", API_PATHS.STATUS_PROMETHEUS);
-
     expectAnswer(answer, API_ERRORS.UNAUTHENTICATED, "the anonymous metrics request");
     expect(answer.body, "with no body (no metrics text)").toBe("");
+
+    const byName = await apiRaw(anonymous, "GET", `${API_PATHS.STATUS_METRICS}/jvm.memory.used`);
+    expectAnswer(byName, API_ERRORS.UNAUTHENTICATED, "the anonymous named-metric request");
+    expect(byName.body, "with no body (no metric value)").toBe("");
   });
 });

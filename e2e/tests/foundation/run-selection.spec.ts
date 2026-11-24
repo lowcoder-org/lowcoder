@@ -193,7 +193,7 @@ test.describe("run selection: grep and grepInvert from the opt-in flags and the 
   test("a super admin test that is also quarantined runs only when both of its flags are set", () => {
     const runsIn = everyFlagCombination(DEFAULT_STACK).filter((flags) => keptTitles(flags).includes(TITLE_SUPERADMIN_QUARANTINE));
 
-    expect(runsIn.every((flags) => flags.includeQuarantine && flags.includeSuperAdmin), "SEC-R16c and SEC-R16d need both flags").toBe(true);
+    expect(runsIn.every((flags) => flags.includeQuarantine && flags.includeSuperAdmin), "a test with both tags needs both flags").toBe(true);
     expect(runsIn.length, "combinations that keep them (insert-all and takeover free to vary)").toBe(4);
   });
 

@@ -82,7 +82,7 @@ test.describe("security: rights that change while a session is open", () => {
     await expect(view.buttonByTestId(SEEDED_BUTTON_TEST_ID), "and no app").toHaveCount(0);
   });
 
-  test("SEC-R11b a developer removed from the workspace cannot open the editing view of the app it created", securityTestDetails("SEC-R11b"), async ({ page, apiUser, actor }) => {
+  test("SEC-R11b a developer removed from the workspace cannot open the editing view of the app it created", securityTestDetails("SEC-R11b"), async ({ page, apiUser, actor }, testInfo) => {
     const { a } = await sceneOf(page, apiUser);
     const d = await memberOf(a, actor, "developer");
     await makeDeveloper(a, d);
@@ -91,8 +91,17 @@ test.describe("security: rights that change while a session is open", () => {
 
     await removeOrgMember(a.request, a.orgId, d.userId);
 
-    // READ of the app stays allowed by design (commit c377186ad); the editing view is EDIT and must not be.
-    expectAnswer(await apiRaw(d.request, "GET", appViewPath(appId)), ALLOWED, "the removed creator's published view (by design)");
+    // READ of the app stays allowed by the creator-shortcut (commit c377186ad), an unrevoked mechanism separate from
+    // the member-leave clean-up's stored-row deletion (README D-26 and D-60 residuals); the editing view
+    // is EDIT and must not be. LC-DL13 (quarantined candidate) asserts the denial this leaves open.
+    const removedView = await apiRaw(d.request, "GET", appViewPath(appId));
+    expectAnswer(removedView, ALLOWED, "the removed creator's published view (creator-shortcut VIEWER row)");
+    if (removedView.status === ALLOWED.status && removedView.code === ALLOWED.code) {
+      testInfo.annotations.push({
+        type: "defect",
+        description: "D-26 residual, LC-DL13 candidate: the removed creator's published view stays allowed through the creator-shortcut VIEWER row",
+      });
+    }
     expectAnswer(await apiRaw(d.request, "GET", applicationPath(appId)), API_ERRORS.NO_PERMISSION_TO_REQUEST_APP, "the removed creator's editing view");
   });
 

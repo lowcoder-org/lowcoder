@@ -168,13 +168,17 @@ test.describe("lifecycle: user groups", () => {
 
   test("LC-GR09 a built-in group cannot be renamed through the API", lifecycleTestDetails("LC-GR09"), async ({ actor }) => {
     const admin = await actor("grapirename");
-    const allUsers = (await listGroups(admin.request)).find((group) => group.allUsersGroup);
-    expect(allUsers, "the workspace has an all-users group").toBeDefined();
 
-    const answer = await apiRaw(admin.request, "PUT", groupUpdatePath(allUsers!.groupId), { data: { groupName: "renamed-all" } });
+    // D-52: both built-in groups (as LC-GR08 finds them), not only the all-users group.
+    const builtInGroups = (await listGroups(admin.request)).filter((entry) => entry.allUsersGroup || entry.devGroup);
+    expect(builtInGroups, "setup: both built-in groups are found").toHaveLength(2);
+    for (const group of builtInGroups) {
+      const answer = await apiRaw(admin.request, "PUT", groupUpdatePath(group.groupId), { data: { groupName: "renamed-built-in" } });
 
-    expect(answer.status, "the rename of a built-in group is refused").toBeGreaterThanOrEqual(400);
-    expect((await listGroups(admin.request)).find((group) => group.groupId === allUsers!.groupId)?.groupName, "the name is unchanged").toBe(allUsers!.groupName);
+      expectAnswer(answer, API_ERRORS.UNSUPPORTED_OPERATION, `rename of ${group.groupName}`);
+      // The shown name is unchanged; this does not prove the stored name is (GroupView.java always shows the system name).
+      expect((await listGroups(admin.request)).find((entry) => entry.groupId === group.groupId)?.groupName, `shown name of ${group.groupName}`).toBe(group.groupName);
+    }
   });
 
   test("LC-GR10 adding a member to the developers group in the UI makes them a developer", lifecycleTestDetails("LC-GR10"), async ({ actor }) => {

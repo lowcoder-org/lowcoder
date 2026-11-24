@@ -31,6 +31,7 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     public Mono<Boolean> createHistorySnapshot(String applicationId, Map<String, Object> dsl, Map<String, Object> context, String userId) {
         ApplicationHistorySnapshot applicationHistorySnapshot = new ApplicationHistorySnapshot();
         applicationHistorySnapshot.setApplicationId(applicationId);
+        applicationHistorySnapshot.setApplicationIdResolved(true);
         applicationHistorySnapshot.setDsl(dsl);
         applicationHistorySnapshot.setContext(context);
         return repository.save(applicationHistorySnapshot)

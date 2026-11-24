@@ -11,6 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
 import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
 
 import java.util.ArrayList;
@@ -33,11 +34,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.query.view.QueryExecutionRequest;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceCreationSource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.query.model.ApplicationQuery;
 import org.lowcoder.domain.query.model.BaseQuery;
@@ -167,12 +170,17 @@ class ApplicationQueryApiServiceImplTest {
         appQuery = new ApplicationQuery("q-id", "q-gid", "q-name", DATASOURCE_ID, Map.of("sql", "select 1"), "manual", TIMEOUT, "mysql");
 
         lenient().when(sessionUserService.getVisitor()).thenReturn(Mono.just(visitor));
-        lenient().when(applicationService.findById(APP_ID)).thenReturn(Mono.just(app));
+        lenient().when(applicationService.findById(APP_ID)).thenAnswer(invocation -> Mono.defer(() -> {
+            events.add("app:" + APP_ID);
+            return Mono.just(app);
+        }));
         lenient().when(app.getOrganizationId()).thenReturn(APP_ORG);
         lenient().when(app.getQueryByViewModeAndQueryId(anyBoolean(), eq(QUERY_ID), eq(applicationRecordService)))
                 .thenAnswer(invocation -> Mono.just(appQuery));
         lenient().when(resourcePermissionService.checkResourcePermissionWithError(anyString(), anyString(), eq(READ_APPLICATIONS)))
-                .thenAnswer(invocation -> loggedPermission(invocation.getArgument(1)));
+                .thenAnswer(invocation -> loggedPermission(READ_APPLICATIONS, invocation.getArgument(1)));
+        lenient().when(resourcePermissionService.checkResourcePermissionWithError(anyString(), anyString(), eq(EDIT_APPLICATIONS)))
+                .thenAnswer(invocation -> loggedPermission(EDIT_APPLICATIONS, invocation.getArgument(1)));
         lenient().when(datasourceService.getById(DATASOURCE_ID)).thenAnswer(invocation -> Mono.defer(() -> {
             events.add("datasource");
             return Mono.just(datasource);
@@ -192,11 +200,30 @@ class ApplicationQueryApiServiceImplTest {
         System.out.println(LOG_PREFIX + String.format(format, args));
     }
 
-    private Mono<Void> loggedPermission(String resourceId) {
+    private Mono<Void> loggedPermission(ResourceAction action, String resourceId) {
         return Mono.defer(() -> {
-            events.add("permission:" + resourceId);
+            events.add(action.name() + ":" + resourceId);
             return Mono.empty();
         });
+    }
+
+    /** Stubs {@code getAllDependentModulesFromApplicationId(rootId, viewMode)} and records its own event. */
+    private void modulesOf(String rootId, boolean viewMode, String... moduleIds) {
+        List<Application> modules = Stream.of(moduleIds).map(ApplicationQueryApiServiceImplTest::moduleWithId).toList();
+        lenient().when(applicationService.getAllDependentModulesFromApplicationId(rootId, viewMode))
+                .thenAnswer(invocation -> Mono.defer(() -> {
+                    events.add("modules:" + rootId + ":" + viewMode);
+                    return Mono.just(modules);
+                }));
+    }
+
+    /** Catches a read that must not happen after a refusal: the app document, the module lookup's effect already asserted
+     * via events, the query, the datasource and the execution. */
+    private void assertNothingReadAfterTheRefusal() {
+        assertThat(events).doesNotContain("app:" + APP_ID, "datasource", "execute");
+        verify(app, never()).getQueryByViewModeAndQueryId(anyBoolean(), anyString(), any());
+        verify(datasourceService, never()).getById(anyString());
+        verifyNoInteractions(queryExecutionService, libraryQueryService, libraryQueryRecordService, applicationRecordService);
     }
 
     private static void assertBizError(Throwable error, BizError expected, String messageKey) {
@@ -267,48 +294,67 @@ class ApplicationQueryApiServiceImplTest {
 
     static Stream<Arguments> permissionRows() {
         return Stream.of(
-                Arguments.of("edit mode, no path", false, null, APP_ID),
-                Arguments.of("edit mode ignores the path", false, new String[] {ROOT_APP_ID}, APP_ID),
-                Arguments.of("view mode, null path", true, null, APP_ID),
-                Arguments.of("view mode, empty path", true, new String[0], APP_ID),
-                Arguments.of("view mode, blank root", true, new String[] {" "}, APP_ID),
-                Arguments.of("view mode, root app in the path", true, new String[] {ROOT_APP_ID}, ROOT_APP_ID),
-                Arguments.of("view mode, only the first path entry is the root", true, new String[] {ROOT_APP_ID, "nested-module"}, ROOT_APP_ID));
+                Arguments.of("edit, null path", false, null,
+                        List.of("EDIT_APPLICATIONS:" + APP_ID), false),
+                Arguments.of("edit, empty path", false, new String[0],
+                        List.of("EDIT_APPLICATIONS:" + APP_ID), false),
+                Arguments.of("edit, blank root", false, new String[] {" "},
+                        List.of("EDIT_APPLICATIONS:" + APP_ID), false),
+                Arguments.of("edit, root equals the app id (own app)", false, new String[] {APP_ID},
+                        List.of("EDIT_APPLICATIONS:" + APP_ID), false),
+                Arguments.of("edit, module of a host", false, new String[] {ROOT_APP_ID},
+                        List.of("EDIT_APPLICATIONS:" + ROOT_APP_ID, "modules:" + ROOT_APP_ID + ":false", "READ_APPLICATIONS:" + APP_ID), true),
+                Arguments.of("edit, nested module (root is the first entry)", false, new String[] {ROOT_APP_ID, "nested-module"},
+                        List.of("EDIT_APPLICATIONS:" + ROOT_APP_ID, "modules:" + ROOT_APP_ID + ":false", "READ_APPLICATIONS:" + APP_ID), true),
+                Arguments.of("view mode, null path", true, null,
+                        List.of("READ_APPLICATIONS:" + APP_ID), true),
+                Arguments.of("view mode, empty path", true, new String[0],
+                        List.of("READ_APPLICATIONS:" + APP_ID), true),
+                Arguments.of("view mode, blank root", true, new String[] {" "},
+                        List.of("READ_APPLICATIONS:" + APP_ID), true),
+                Arguments.of("view mode, root app in the path", true, new String[] {ROOT_APP_ID},
+                        List.of("modules:" + ROOT_APP_ID + ":true", "READ_APPLICATIONS:" + ROOT_APP_ID), true),
+                Arguments.of("view mode, only the first path entry is the root", true, new String[] {ROOT_APP_ID, "nested-module"},
+                        List.of("modules:" + ROOT_APP_ID + ":true", "READ_APPLICATIONS:" + ROOT_APP_ID), true));
     }
 
     /**
-     * Catches reading the wrong app's permission: edit mode checks READ_APPLICATIONS on the app id and ignores the path;
-     * view mode checks it on the root app of the path (when it is not blank and the app is one of its dependent
-     * modules) and on the app id otherwise. The permission check runs before the datasource is fetched or executed.
+     * Catches permission checks on the wrong app, in the wrong order, or with the wrong query selection: view mode checks
+     * READ on the root app of the path (when it is not blank and the app is one of its dependent modules), or on the app
+     * id otherwise; edit mode of the app's OWN query (no host) checks EDIT on the app id and ignores the path; edit mode
+     * of a module run in another app's (the host's) editor checks EDIT on the host, then membership, then READ on the
+     * module itself (D-10). The permission checks run before the app, the datasource or the query are fetched.
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("permissionRows")
-    void execute_checksReadPermissionOnTheRightApp_beforeAnythingElse(String label, boolean viewMode, String[] path, String checkedId) {
-        List<Application> modules = List.of(moduleWithId(ROOT_APP_ID), moduleWithId(APP_ID));
-        lenient().when(applicationService.getAllDependentModulesFromApplicationId(ROOT_APP_ID, true)).thenReturn(Mono.just(modules));
+    void execute_checksPermissionOnTheRightAppsInOrder_beforeAnythingElse(String label, boolean viewMode, String[] path,
+            List<String> expectedEventsBeforeApp, boolean liveQueriesFlag) {
+        modulesOf(ROOT_APP_ID, true, ROOT_APP_ID, APP_ID);
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, APP_ID);
 
         StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, viewMode, path)))
                 .expectNext(result)
                 .verifyComplete();
 
-        assertThat(events).containsExactly("permission:" + checkedId, "datasource", "execute");
-        if (!viewMode) {
-            verify(applicationService, never()).getAllDependentModulesFromApplicationId(anyString(), anyBoolean());
-        }
-        say("%s -> permission checked on %s, events %s", label, checkedId, events);
+        List<String> expected = new ArrayList<>(expectedEventsBeforeApp);
+        expected.addAll(List.of("app:" + APP_ID, "datasource", "execute"));
+        assertThat(events).containsExactly(expected.toArray(new String[0]));
+        verify(app).getQueryByViewModeAndQueryId(liveQueriesFlag, QUERY_ID, applicationRecordService);
+        say("%s -> events %s", label, events);
     }
 
     /**
-     * Catches a query executed after a failed permission check: the error of the check is the result, and neither the
-     * datasource is fetched nor the query executed.
+     * Catches a query executed after a failed permission check: the error of the check is the result, and nothing after
+     * it (the app, the module lookup, the datasource, the execution) is read.
      */
     @ParameterizedTest(name = "view mode {0}")
     @ValueSource(booleans = {false, true})
-    void execute_deniedReadPermission_stopsBeforeTheDatasourceAndTheExecution(boolean viewMode) {
+    void execute_deniedPermission_stopsBeforeAnythingElse(boolean viewMode) {
         BizException denied = new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");
-        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS))
+        ResourceAction deniedAction = viewMode ? READ_APPLICATIONS : EDIT_APPLICATIONS;
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, APP_ID, deniedAction))
                 .thenReturn(Mono.defer(() -> {
-                    events.add("permission:" + APP_ID);
+                    events.add(deniedAction.name() + ":" + APP_ID);
                     return Mono.error(denied);
                 }));
 
@@ -316,9 +362,101 @@ class ApplicationQueryApiServiceImplTest {
                 .expectErrorSatisfies(error -> assertThat(error).isSameAs(denied))
                 .verify();
 
-        assertThat(events).containsExactly("permission:" + APP_ID);
-        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
-        say("denied read permission (view mode %s) -> %s", viewMode, events);
+        assertThat(events).containsExactly(deniedAction.name() + ":" + APP_ID);
+        assertNothingReadAfterTheRefusal();
+        say("denied permission (view mode %s) -> %s", viewMode, events);
+    }
+
+    /** Catches EDIT alone being treated as enough for a module query of a host: READ on the module must still be checked. */
+    @Test
+    void execute_editModeOwnApp_readIsNotEnough() {
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, APP_ID, EDIT_APPLICATIONS))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, null)))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS);
+        assertNothingReadAfterTheRefusal();
+        say("edit own app, EDIT refused -> NOT_AUTHORIZED, READ never consulted");
+    }
+
+    @Test
+    void execute_hostedModule_noEditOnTheHost_isDenied() {
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, ROOT_APP_ID, EDIT_APPLICATIONS))
+                .thenReturn(Mono.defer(() -> {
+                    events.add("EDIT_APPLICATIONS:" + ROOT_APP_ID);
+                    return Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+                }));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        assertThat(events).containsExactly("EDIT_APPLICATIONS:" + ROOT_APP_ID);
+        verify(applicationService, never()).getAllDependentModulesFromApplicationId(anyString(), anyBoolean());
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS);
+        assertNothingReadAfterTheRefusal();
+        say("hosted module, host EDIT refused -> NOT_AUTHORIZED, no module lookup, no READ on the module");
+    }
+
+    @Test
+    void execute_hostedModule_notAModuleOfTheHost_isInvalid() {
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, "some-other-module");
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_PARAMETER, "INVALID_PARAMETER"))
+                .verify();
+
+        assertThat(events).containsExactly("EDIT_APPLICATIONS:" + ROOT_APP_ID, "modules:" + ROOT_APP_ID + ":false");
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS);
+        assertNothingReadAfterTheRefusal();
+        say("hosted module, not among the host's modules -> INVALID_PARAMETER, READ never checked");
+    }
+
+    @Test
+    void execute_hostedModule_editorWithoutReadOnTheModule_isDenied() {
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, APP_ID);
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS))
+                .thenReturn(Mono.defer(() -> {
+                    events.add("READ_APPLICATIONS:" + APP_ID);
+                    return Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+                }));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .verify();
+
+        assertThat(events).containsExactly("EDIT_APPLICATIONS:" + ROOT_APP_ID, "modules:" + ROOT_APP_ID + ":false", "READ_APPLICATIONS:" + APP_ID);
+        assertNothingReadAfterTheRefusal();
+        say("hosted module, host EDIT passes, membership passes, module READ refused -> NOT_AUTHORIZED");
+    }
+
+    static Stream<Arguments> moduleLookupFailureRows() {
+        return Stream.of(
+                // the lookup's own error passes through unchanged (ApplicationQueryApiServiceImpl.java:187-191: flatMap, no catch).
+                Arguments.of("lookup errors", Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "NO_RESOURCE_FOUND")), BizError.NO_RESOURCE_FOUND, "NO_RESOURCE_FOUND"),
+                // an empty completion is caught by the defensive switchIfEmpty guard (:195-198) and becomes INVALID_PARAMETER.
+                Arguments.of("lookup completes empty", Mono.empty(), BizError.INVALID_PARAMETER, "INVALID_PARAMETER"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("moduleLookupFailureRows")
+    void execute_hostedModule_moduleLookupFails_orCompletesEmpty_isNotAPass(String label, Mono<List<Application>> lookupAnswer, BizError expectedError, String expectedMessage) {
+        lenient().when(applicationService.getAllDependentModulesFromApplicationId(ROOT_APP_ID, false))
+                .thenAnswer(invocation -> Mono.defer(() -> {
+                    events.add("modules:" + ROOT_APP_ID + ":false");
+                    return lookupAnswer;
+                }));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, expectedError, expectedMessage))
+                .verify();
+
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR_ID, APP_ID, READ_APPLICATIONS);
+        assertNothingReadAfterTheRefusal();
+        say("%s -> %s, READ never checked", label, expectedError);
     }
 
     /**
@@ -328,17 +466,167 @@ class ApplicationQueryApiServiceImplTest {
      * on the root.
      */
     @Test
+    void execute_viewMode_rootEqualsTheApp_isStillInvalid() {
+        Application rootStandIn = moduleWithId(ROOT_APP_ID);
+        lenient().when(applicationService.findById(ROOT_APP_ID)).thenReturn(Mono.just(rootStandIn));
+        modulesOf(ROOT_APP_ID, true, "some-other-module");
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(ROOT_APP_ID, QUERY_ID, true, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_PARAMETER, "INVALID_PARAMETER"))
+                .verify();
+
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any());
+        say("view mode, root equals the app, not among the (forged) modules -> INVALID_PARAMETER, no permission check");
+    }
+
+    @Test
     void execute_forgedPath_appNotAmongTheRootsModules_isRejected() {
-        List<Application> modules = List.of(moduleWithId(ROOT_APP_ID), moduleWithId("some-other-module"));
-        when(applicationService.getAllDependentModulesFromApplicationId(ROOT_APP_ID, true)).thenReturn(Mono.just(modules));
+        modulesOf(ROOT_APP_ID, true, ROOT_APP_ID, "some-other-module");
 
         StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, true, new String[] {ROOT_APP_ID})))
                 .expectErrorSatisfies(error -> assertBizError(error, BizError.INVALID_PARAMETER, "INVALID_PARAMETER"))
                 .verify();
 
-        assertThat(events).isEmpty();
+        assertThat(events).containsExactly("modules:" + ROOT_APP_ID + ":true");
         verify(resourcePermissionService, never()).checkResourcePermissionWithError(anyString(), anyString(), any());
         say("forged path -> INVALID_PARAMETER, no permission check, no execution");
+    }
+
+    // ------------------------------------------------------------------ query selection (live vs. draft, D-10)
+
+    private static final String DRAFT_ONLY_ID = "query-draft-only";
+
+    /** A query map in the exact JSON shape {@link ApplicationQuery}'s {@code @JsonCreator} expects, built by hand
+     * (not round-tripped through an {@code ApplicationQuery} instance: its default getter-based serialization does
+     * not use the same property names its constructor expects). */
+    private static Map<String, Object> q(String id, String sql) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("gid", id + "-gid");
+        map.put("name", id + "-name");
+        map.put("datasourceId", DATASOURCE_ID);
+        map.put("comp", Map.of("sql", sql));
+        map.put("triggerType", "manual");
+        map.put("timeout", TIMEOUT);
+        map.put("compType", PLAIN_TYPE);
+        return map;
+    }
+
+    private static Application moduleWithQueries(String id, Map<String, Object>... queries) {
+        return Application.builder().id(id).organizationId(APP_ORG)
+                .editingApplicationDSL(Map.of("queries", List.of(queries)))
+                .build();
+    }
+
+    private void published(String appId, Map<String, Object>... liveQueries) {
+        lenient().when(applicationRecordService.getLatestRecordByApplicationId(appId))
+                .thenReturn(Mono.just(ApplicationVersion.builder().applicationDSL(Map.of("queries", List.of(liveQueries))).build()));
+    }
+
+    private void neverPublished(String appId) {
+        lenient().when(applicationRecordService.getLatestRecordByApplicationId(appId)).thenReturn(Mono.empty());
+    }
+
+    /** Catches the wrong query text (draft vs. published) and the wrong error: a real {@link Application}, not the
+     * {@code app} mock, so {@code Application.java}'s own live/draft selection runs. Reads the LATEST call's config
+     * (not an exactly-once verify): some selection tests execute more than once to contrast two outcomes. */
+    @SuppressWarnings("unchecked")
+    private String executedSql() {
+        ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
+        verify(queryExecutionService, org.mockito.Mockito.atLeastOnce()).executeQuery(any(), captor.capture(), any(), any(), any());
+        List<Map<String, Object>> all = captor.getAllValues();
+        return (String) all.get(all.size() - 1).get("sql");
+    }
+
+    @Test
+    void execute_publishedModule_draftTextDiffers_inHostEditor_runsLiveText() {
+        Application module = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"), q(DRAFT_ONLY_ID, "draft-only"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(module));
+        published(APP_ID, q(QUERY_ID, "live"));
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, APP_ID);
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectNext(result).verifyComplete();
+
+        assertThat(executedSql()).isEqualTo("live");
+        say("S1 published module, draft differs, host editor -> live text ran");
+    }
+
+    @Test
+    void execute_publishedModule_draftOnlyQuery_inHostEditor_isQueryNotFound() {
+        Application module = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"), q(DRAFT_ONLY_ID, "draft-only"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(module));
+        published(APP_ID, q(QUERY_ID, "live"));
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, APP_ID);
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, DRAFT_ONLY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"))
+                .verify();
+
+        verify(queryExecutionService, never()).executeQuery(any(), any(), any(), any(), any());
+        verify(datasourceService, never()).getById(anyString());
+        say("S2 published module, draft-only query, host editor -> QUERY_NOT_FOUND, nothing executed");
+    }
+
+    @Test
+    void execute_publishedModule_ownEditor_runsItsDraft() {
+        Application module = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"), q(DRAFT_ONLY_ID, "draft-only"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(module));
+        published(APP_ID, q(QUERY_ID, "live"));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, null)))
+                .expectNext(result).verifyComplete();
+        assertThat(executedSql()).isEqualTo("draft");
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, DRAFT_ONLY_ID, false, null)))
+                .expectNext(result).verifyComplete();
+        assertThat(executedSql()).isEqualTo("draft-only");
+        say("S3 published module, own editor -> runs its own draft");
+    }
+
+    @Test
+    void execute_neverPublishedModule_inHostEditor_runsItsDraft_acceptedBehaviour() {
+        Application module = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(module));
+        neverPublished(APP_ID);
+        modulesOf(ROOT_APP_ID, false, ROOT_APP_ID, APP_ID);
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {ROOT_APP_ID})))
+                .expectNext(result).verifyComplete();
+
+        assertThat(executedSql()).isEqualTo("draft");
+        say("S4 never-published module, host editor -> runs its draft (accepted, 3.3 b)");
+    }
+
+    @Test
+    void execute_rootEqualsTheAppId_runsItsDraft_onlyEditChecked() {
+        Application own = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(own));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, false, new String[] {APP_ID})))
+                .expectNext(result).verifyComplete();
+
+        assertThat(executedSql()).isEqualTo("draft");
+        assertThat(events).containsExactly("EDIT_APPLICATIONS:" + APP_ID, "datasource", "execute");
+        verify(applicationService, never()).getAllDependentModulesFromApplicationId(anyString(), anyBoolean());
+        say("S5 root equals the app id -> runs its draft, only EDIT checked");
+    }
+
+    @Test
+    void execute_viewMode_publishedOrNeverPublished_pins() {
+        Application module = moduleWithQueries(APP_ID, q(QUERY_ID, "draft"));
+        when(applicationService.findById(APP_ID)).thenReturn(Mono.just(module));
+        published(APP_ID, q(QUERY_ID, "live"));
+
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, true, null)))
+                .expectNext(result).verifyComplete();
+        assertThat(executedSql()).isEqualTo("live");
+
+        neverPublished(APP_ID);
+        StepVerifier.create(service.executeApplicationQuery(exchange, request(APP_ID, QUERY_ID, true, null)))
+                .expectNext(result).verifyComplete();
+        assertThat(executedSql()).isEqualTo("draft");
+        say("S6 view mode: published runs live, never-published runs its draft (unchanged)");
     }
 
     // ------------------------------------------------------------------ the datasource / app tenant check

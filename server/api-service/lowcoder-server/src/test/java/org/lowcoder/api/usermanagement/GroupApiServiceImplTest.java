@@ -204,6 +204,11 @@ class GroupApiServiceImplTest {
         assertThat(((BizException) error).getError()).isEqualTo(expected);
     }
 
+    private static void assertBizError(Throwable error, BizError expected, String messageKey) {
+        assertBizError(error, expected);
+        assertThat(((BizException) error).getMessageKey()).isEqualTo(messageKey);
+    }
+
     private static List<String> userIds(GroupMemberAggregateView view) {
         return view.getMembers().stream().map(GroupMemberView::getUserId).toList();
     }
@@ -878,6 +883,51 @@ class GroupApiServiceImplTest {
         assertThat(group.getDynamicRule()).isEqualTo(DYNAMIC_RULE);
         say("update: group %s renamed to %s with rule %s", group.getId(), group.getName(java.util.Locale.ENGLISH),
                 group.getDynamicRule());
+    }
+
+    /**
+     * D-52: a rename of a system group (any of the three encodings) is refused with UNSUPPORTED_OPERATION
+     * (message key BAD_REQUEST) and writes nothing, even though the same request also carries a dynamic rule change.
+     */
+    @ParameterizedTest(name = "type {0}, allUsersGroup {1}")
+    @MethodSource("systemGroups")
+    void update_systemGroupRename_isUnsupportedAndWritesNothing(String type, Boolean allUsersGroup) {
+        stubVisitor(orgMember(MemberRole.ADMIN), null, group(GROUP_ID, ORG_ID, type, allUsersGroup));
+        UpdateGroupRequest request = new UpdateGroupRequest();
+        request.setGroupName("renamed");
+        request.setDynamicRule(DYNAMIC_RULE);
+
+        StepVerifier.create(service.update(GROUP_ID, request))
+                .expectErrorSatisfies(error -> assertBizError(error, BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"))
+                .verify();
+
+        verify(groupService, never()).updateGroup(any(Group.class));
+        assertThat(mutations).hasValue(0);
+        say("update: system group (type=%s, allUsersGroup=%s) rename -> UNSUPPORTED_OPERATION/BAD_REQUEST, no write",
+                type, allUsersGroup);
+    }
+
+    /**
+     * D-52: a system group's dynamic-rule-only update (no name in the request) is not refused: the guard checks the
+     * request's {@code groupName} field, not the group's system-ness in isolation.
+     */
+    @ParameterizedTest(name = "type {0}, allUsersGroup {1}")
+    @MethodSource("systemGroups")
+    void update_systemGroupDynamicRuleOnly_isWritten(String type, Boolean allUsersGroup) {
+        stubVisitor(orgMember(MemberRole.ADMIN), null, group(GROUP_ID, ORG_ID, type, allUsersGroup));
+        ArgumentCaptor<Group> updated = ArgumentCaptor.forClass(Group.class);
+        when(groupService.updateGroup(updated.capture())).thenReturn(Mono.just(true));
+        UpdateGroupRequest request = new UpdateGroupRequest();
+        request.setDynamicRule(DYNAMIC_RULE);
+
+        StepVerifier.create(service.update(GROUP_ID, request)).expectNext(true).verifyComplete();
+
+        Group group = updated.getValue();
+        assertThat(group.getId()).isEqualTo(GROUP_ID);
+        assertThat(group.getName(java.util.Locale.ENGLISH)).isNull();
+        assertThat(group.getDynamicRule()).isEqualTo(DYNAMIC_RULE);
+        say("update: system group (type=%s, allUsersGroup=%s) dynamic-rule-only -> written, name untouched",
+                type, allUsersGroup);
     }
 
     /**

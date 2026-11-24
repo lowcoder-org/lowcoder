@@ -15,8 +15,10 @@ import {
   API_OK,
   API_PATHS,
   CHANGED_PASSWORD,
+  INVITE_LINK_PATH,
   MAIL_SUBJECTS,
   PASSWORD_RESET_EMAIL_TEMPLATE_KEY,
+  PASSWORD_TOO_WEAK_MESSAGE,
   RESET_TOKEN_MESSAGES,
   SETTING_PATHS,
   TAGS,
@@ -26,17 +28,17 @@ import {
   userProfilePath,
 } from "../../src/constants";
 import { expect, test, uniqueEmail, type UserSession } from "../../src/fixtures";
-import { inviteCodeOf, resetLinkOf, resetTokenOf, textOf, withSingleSlashes, type Mailbox } from "../../src/lifecycle/mail";
+import { inviteLinkOf, resetLinkOf, resetTokenOf, textOf, type Mailbox } from "../../src/lifecycle/mail";
 import { AuthPage } from "../../src/pages/AuthPage";
 import { LoginPage } from "../../src/pages/LoginPage";
 import { PasswordRecoveryPage } from "../../src/pages/PasswordRecoveryPage";
-import { SettingPage } from "../../src/pages/SettingPage";
+import { INVITE_SUCCESS_TEXT, SettingPage } from "../../src/pages/SettingPage";
 import { joinWorkspace } from "../../src/security/actors";
 import { expectAnswer } from "../../src/security/assertions";
 import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 /**
- * Password recovery and invitation mails (LC-PW01 to LC-PW15). The mails come from the run's mail sink. A reset token is a
+ * Password recovery and invitation mails (LC-PW01 to LC-PW16). The mails come from the run's mail sink. A reset token is a
  * credential: it is compared as a boolean or sent to the server, never given to a matcher or a message, and the trace is off
  * because it would record the pages and requests that carry it. A denial first proves its setup (a mail arrived, a token works).
  * Not covered: the 12-hour expiry (no clock control) and rate limiting (a per-URL limit of the whole server).
@@ -46,9 +48,8 @@ test.use({ trace: "off" });
 
 const ALLOWED = { status: 200, code: API_OK } as const;
 const OTHER_PASSWORD = "Passw0rd-e2e-other";
+const WEAK_PASSWORD = "a";
 const MADE_UP_TOKEN = "madeUpTok1";
-/** What a notice shows when the client asks for a translation that does not exist: the framework's "oups!" marker, or a dotted key such as `membersSettings.inviteByEmailSuccess`. */
-const UNTRANSLATED_NOTICE = /oups!|\b[a-z]+Settings\.[A-Za-z]+/i;
 const TOKEN_REFUSED = API_ERRORS.INVALID_PARAMETER;
 
 /** A request context with no session of the test's browser (the page of a new session, never logged in). */
@@ -100,7 +101,7 @@ test.describe("lifecycle: password recovery", () => {
     const session = await newUserSession();
     const recovery = new PasswordRecoveryPage(session.page);
 
-    await recovery.openLink(withSingleSlashes(link));
+    await recovery.openLink(link);
     await recovery.submitReset(user.email, CHANGED_PASSWORD);
 
     await expect(recovery.resetSuccessMessage, "the page confirms the reset").toBeVisible();
@@ -271,8 +272,9 @@ test.describe("lifecycle: password recovery", () => {
 
     const mails = await mailbox.waitForMail(guest.email, MAIL_SUBJECTS.INVITATION);
     expect(mails.length, "exactly one invitation mail").toBe(1);
-    const code = inviteCodeOf(mails[0]!);
-    await guest.session.page.goto(`/invite/${code}`);
+    const link = inviteLinkOf(mails[0]!);
+    expect(new URL(link).pathname, "one slash before invite/<code> (D-54)").toMatch(new RegExp(`^${INVITE_LINK_PATH}[A-Za-z0-9]+$`));
+    await guest.session.page.goto(link);
     await expect(guest.session.page, "the invitation leads to the app list").toHaveURL(UI_PATHS.APP_LIST);
     await expect
       .poll(async () => (await currentUser(guest.request)).orgAndRoles.map((entry) => ({ id: entry.org.id, role: entry.role })), "the guest joined the workspace as a member")
@@ -305,7 +307,21 @@ test.describe("lifecycle: password recovery", () => {
     const notice = await settings.inviteNotice.innerText(); // read at once: the notice is transient
     await mailbox.waitForMail(invitee, MAIL_SUBJECTS.INVITATION); // control: the invitation was sent
 
-    expect(notice.trim().length > 0, "the notice has text").toBe(true);
-    expect(UNTRANSLATED_NOTICE.test(notice), "the notice is text, not a translation key").toBe(false);
+    expect(notice.trim(), "the notice is the localized success text").toBe(INVITE_SUCCESS_TEXT);
+  });
+
+  test("LC-PW16 a reset to a password the client rule refuses is refused and leaves the token usable", lifecycleTestDetails("LC-PW16"), async ({ actor, newUserSession, mailbox }) => {
+    const user = await actor("pwweak");
+    const anon = await visitor(newUserSession);
+    const token = await tokenOfRequest(anon, mailbox, user.email);
+
+    const weak = await resetLostPasswordRaw(anon, { address: user.email, token, password: WEAK_PASSWORD });
+
+    expectAnswer(weak, API_ERRORS.INVALID_PASSWORD, "a reset to a one-character password");
+    expect(weak.body, "the refusal names the rule").toContain(PASSWORD_TOO_WEAK_MESSAGE);
+    expect(await canSignIn(newUserSession, user.email, TEST_PASSWORD), "the password is unchanged").toBe(true);
+    expect(await canSignIn(newUserSession, user.email, WEAK_PASSWORD), "the weak password does not sign in").toBe(false);
+    expectAnswer(await resetLostPasswordRaw(anon, { address: user.email, token, password: CHANGED_PASSWORD }), ALLOWED, "the same live token then resets to a password that meets the rule");
+    expect(await canSignIn(newUserSession, user.email, CHANGED_PASSWORD), "the new password signs in").toBe(true);
   });
 });

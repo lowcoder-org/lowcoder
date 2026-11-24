@@ -41,6 +41,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.contract.CanonicalJson;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -102,7 +103,9 @@ class UserEndpointsContractTest {
     static final String OTHER_LANGUAGE = "xx-NEW136";
     static final String HAS_SET_NICKNAME_FIELD = "hasSetNickname";
     static final String ORG_NAME = "UserEndpointsContractTest.orgName";
-    static final String PASSWORD = "UserEndpointsContractTest.password";
+    static final String PASSWORD = "UserEndpointsContractTest.password1";
+    /** D-48: refused by the client's password rule regardless of any other check. */
+    static final String WEAK_PASSWORD = "a";
     static final String BLANK = " ";
     static final String UNKNOWN_STATUS_TYPE = "UserEndpointsContractTest.unknownStatusType";
     static final String NOT_AN_EMAIL = "UserEndpointsContractTest.notAnEmail";
@@ -110,6 +113,7 @@ class UserEndpointsContractTest {
     /** The visitor is the {@code User} sample; {@code SessionUserService#getVisitorId} answers its id. */
     static final User VISITOR = UserSamples.user();
     static final String VISITOR_ID = VISITOR.getId();
+    private static final String VISITOR_TOKEN = "UserEndpointsContractTest.visitorToken";
     static final OrgMember VISITOR_ORG_MEMBER = new OrgMember(UserManagementSamples.orgViewOrganization().getId(), VISITOR_ID,
             MemberRole.ADMIN, "UserEndpointsContractTest.state", 3_000_000_150L);
     /** The path's user, a plain member of {@code ORG_ID}, for the admin routes' membership check. */
@@ -218,9 +222,9 @@ class UserEndpointsContractTest {
     }
 
     /**
-     * No organization-domain action: the profile in a {@code ResponseView}. The endpoint has no {@code @JsonView}, so
-     * the organizations of {@code orgAndRoles} are written whole, the auth configs' {@code clientSecret} included
-     * (O22); the explicit check makes a fix fail here by name, not only as a golden difference.
+     * No organization-domain action: the profile in a {@code ResponseView}. The endpoint has no {@code @JsonView}; the
+     * organizations of {@code orgAndRoles} are written without their auth configs (D-14), and the explicit check fails
+     * by name if a secret returns, not only as a golden difference.
      */
     @Test
     void getUserProfile() {
@@ -228,8 +232,9 @@ class UserEndpointsContractTest {
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getUserProfile", Map.of(), null);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(EndpointContract.s1(UserProfileView.class)));
-            assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8)).as("O22: the profile writes the auth configs' secrets")
-                    .contains(PayloadSamples.SECRET_MARKER);
+            assertThat(new String(result.getResponseBody(), StandardCharsets.UTF_8))
+                    .as("D-14: the profile carries no auth config secret")
+                    .doesNotContain(PayloadSamples.SECRET_MARKER);
         }
     }
 
@@ -594,10 +599,41 @@ class UserEndpointsContractTest {
     void updatePassword() {
         UpdatePasswordRequest request = (UpdatePasswordRequest) PayloadSamples.of(UpdatePasswordRequest.class).value();
         Mockito.when(userService.updatePassword(VISITOR_ID, request.oldPassword(), request.newPassword())).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(sessionUserService.getVisitorToken()).thenReturn(Mono.just(VISITOR_TOKEN));
+        Mockito.when(sessionUserService.endSessionsOfUser(VISITOR_ID, VISITOR_TOKEN)).thenReturn(Mono.empty());
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updatePassword", Map.of(), EndpointContract.d1(UpdatePasswordRequest.class));
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
             Mockito.verify(userService).updatePassword(VISITOR_ID, request.oldPassword(), request.newPassword());
+            Mockito.verify(sessionUserService).endSessionsOfUser(VISITOR_ID, VISITOR_TOKEN);
+        }
+    }
+
+    /** D-34: a session that cannot be ended fails the request although the password has changed. */
+    @Test
+    void updatePasswordSessionsNotEnded() {
+        UpdatePasswordRequest request = (UpdatePasswordRequest) PayloadSamples.of(UpdatePasswordRequest.class).value();
+        Mockito.when(userService.updatePassword(VISITOR_ID, request.oldPassword(), request.newPassword())).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(sessionUserService.getVisitorToken()).thenReturn(Mono.just(VISITOR_TOKEN));
+        Mockito.when(sessionUserService.endSessionsOfUser(VISITOR_ID, VISITOR_TOKEN)).thenReturn(
+                Mono.error(new BizException(BizError.PASSWORD_CHANGED_SESSIONS_NOT_ENDED, "PASSWORD_CHANGED_SESSIONS_NOT_ENDED", 1)));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updatePassword", Map.of(), EndpointContract.d1(UpdatePasswordRequest.class));
+            EndpointContract.assertBizError(result, BizError.PASSWORD_CHANGED_SESSIONS_NOT_ENDED, "PASSWORD_CHANGED_SESSIONS_NOT_ENDED", 1);
+            Mockito.verify(userService).updatePassword(VISITOR_ID, request.oldPassword(), request.newPassword());
+        }
+    }
+
+    /** A wrong old password fails before the sweep ever runs. */
+    @Test
+    void updatePasswordWrongOldPassword() {
+        UpdatePasswordRequest request = (UpdatePasswordRequest) PayloadSamples.of(UpdatePasswordRequest.class).value();
+        Mockito.when(userService.updatePassword(VISITOR_ID, request.oldPassword(), request.newPassword()))
+                .thenReturn(Mono.error(new BizException(BizError.INVALID_PASSWORD, "INVALID_PASSWORD")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updatePassword", Map.of(), EndpointContract.d1(UpdatePasswordRequest.class));
+            EndpointContract.assertBizError(result, BizError.INVALID_PASSWORD, "INVALID_PASSWORD");
+            Mockito.verify(sessionUserService, Mockito.never()).endSessionsOfUser(Mockito.any(), Mockito.any());
         }
     }
 
@@ -607,6 +643,19 @@ class UserEndpointsContractTest {
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updatePassword", Map.of(), "{\"oldPassword\": \"" + PASSWORD + "\"}");
             EndpointContract.assertBizError(result, BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");
+            Mockito.verify(sessionUserService, Mockito.never()).endSessionsOfUser(Mockito.any(), Mockito.any());
+        }
+    }
+
+    /** D-48: a weak new password is refused before the old password is checked or any session is ended. */
+    @Test
+    void updatePasswordTooWeak() {
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "updatePassword", Map.of(),
+                    "{\"oldPassword\": \"" + PASSWORD + "\", \"newPassword\": \"" + WEAK_PASSWORD + "\"}");
+            EndpointContract.assertBizError(result, BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK");
+            Mockito.verifyNoInteractions(userService);
+            Mockito.verify(sessionUserService, Mockito.never()).endSessionsOfUser(Mockito.any(), Mockito.any());
         }
     }
 
@@ -683,13 +732,39 @@ class UserEndpointsContractTest {
         }
     }
 
-    /** The password is a query parameter, not a body. */
+    /** D-48: a weak new password is refused before the token is checked or burnt. */
+    @Test
+    void resetLostPasswordTooWeak() {
+        ResetLostPasswordRequest request = (ResetLostPasswordRequest) PayloadSamples.of(ResetLostPasswordRequest.class).value();
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "resetLostPassword", Map.of(),
+                    "{\"userEmail\": \"" + request.userEmail() + "\", \"token\": \"" + request.token() + "\", \"newPassword\": \"" + WEAK_PASSWORD + "\"}");
+            EndpointContract.assertBizError(result, BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK");
+            Mockito.verifyNoInteractions(userApiService);
+        }
+    }
+
+    /** The password is a query parameter, not a body. An account without a password (D-49). */
     @Test
     void setPassword() {
-        Mockito.when(userService.setPassword(VISITOR_ID, PASSWORD)).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(userService.setPasswordIfAbsent(VISITOR_ID, PASSWORD)).thenReturn(Mono.just(Boolean.TRUE));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setPassword", Map.of("password", PASSWORD), null);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
+            Mockito.verify(userService).setPasswordIfAbsent(VISITOR_ID, PASSWORD);
+            Mockito.verify(userService, Mockito.never()).setPassword(Mockito.any(), Mockito.any());
+        }
+    }
+
+    /** An account that already has a password refuses the route (D-49). */
+    @Test
+    void setPasswordAlreadySet() {
+        Mockito.when(userService.setPasswordIfAbsent(VISITOR_ID, PASSWORD))
+                .thenReturn(Mono.error(new BizException(BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setPassword", Map.of("password", PASSWORD), null);
+            EndpointContract.assertBizError(result, BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET");
+            Mockito.verify(userService, Mockito.never()).setPassword(Mockito.any(), Mockito.any());
         }
     }
 
@@ -698,6 +773,23 @@ class UserEndpointsContractTest {
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setPassword", Map.of("password", BLANK), null);
             EndpointContract.assertBizError(result, BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");
+            Mockito.verifyNoInteractions(userService);
+        }
+    }
+
+    /**
+     * D-48 ordering against D-49: the visitor fixture already has a password ({@code UserSamples.java:55}), so a
+     * wrong check order would answer {@code PASSWORD_ALREADY_SET} instead of {@code PASSWORD_TOO_WEAK}.
+     */
+    @Test
+    void setPasswordTooWeak() {
+        Mockito.when(userService.setPasswordIfAbsent(VISITOR_ID, WEAK_PASSWORD))
+                .thenReturn(Mono.error(new BizException(BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET")));
+        try (ContractTestClient client = client()) {
+            EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "setPassword", Map.of("password", WEAK_PASSWORD), null);
+            EndpointContract.assertBizError(result, BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK");
+            Mockito.verify(userService, Mockito.never()).setPasswordIfAbsent(Mockito.any(), Mockito.any());
+            Mockito.verify(userService, Mockito.never()).setPassword(Mockito.any(), Mockito.any());
         }
     }
 

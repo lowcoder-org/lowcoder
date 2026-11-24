@@ -22,8 +22,7 @@
 ##   E2E_INCLUDE_INSERT_ALL  set to 1 to also run the @insert-all tests (S1, the insert-every-component smoke test, 112
 ##                       tests); independent of E2E_INCLUDE_QUARANTINE. Nightly: E2E_INCLUDE_INSERT_ALL=1 $0 --grep @insert-all
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
-##                       independent of the other flags; SEC-R16c and SEC-R16d also carry @quarantine and then need
-##                       E2E_INCLUDE_QUARANTINE=1 too). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
+##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
 ##   E2E_STACK_PROFILE   which stack to start: `default` (the all-in-one image in its SAAS workspace mode; the default) or
 ##                       `enterprise` (the same image with LOWCODER_WORKSPACE_MODE=ENTERPRISE: one workspace shared by every
 ##                       user; it runs only the @enterprise tests, SEC-E01 to SEC-E04, E06a, E06b) or `signup-disabled` (the same

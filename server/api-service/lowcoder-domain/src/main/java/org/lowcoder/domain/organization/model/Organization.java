@@ -137,6 +137,12 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
         return createdAt != null ? createdAt.toEpochMilli() : 0;
     }
 
+    /**
+     * The sign-in configurations of the organization, for server code. Never part of the organization's JSON: the
+     * configurations hold OAuth client secrets, and admins read them through {@code GET /api/auth/configs} (D-14).
+     * Limits: storage is not affected ({@code OrganizationDomain} stores them through its MongoDB hooks).
+     */
+    @JsonIgnore
     public List<AbstractAuthConfig> getAuthConfigs() {
         return Optional.ofNullable(organizationDomain)
                 .map(OrganizationDomain::getConfigs)

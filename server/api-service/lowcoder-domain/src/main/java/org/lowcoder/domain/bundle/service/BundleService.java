@@ -55,4 +55,6 @@ public interface BundleService {
     Flux<Bundle> findAllMarketplaceBundles();
 
     Flux<Bundle> findAllAgencyProfileBundles();
+
+    Flux<Bundle> findByOrganizationId(String organizationId);
 }

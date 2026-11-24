@@ -11,7 +11,7 @@ import { getCurrentUser } from "../../redux/selectors/usersSelectors";
 import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 
 import { useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import history from "util/history";
 import { trans, languageList } from "../../i18n";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
@@ -36,6 +36,7 @@ import {
 import { useDispatch } from "react-redux";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
 import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActions";
+import { fetchAllApplications } from "../../redux/reduxActions/applicationActions";
 import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
@@ -155,6 +156,14 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
   const currentPath = useLocation().pathname;
   const dispatch = useDispatch();
+
+  // The "Info" counts read the redux app list, which no other component on this page fills (its other callers fetch
+  // lazily and only when the list is empty), so fetch it on mount and whenever the workspace changes (D-63).
+  useEffect(() => {
+    if (currentOrgId) {
+      dispatch(fetchAllApplications({}));
+    }
+  }, [currentOrgId, dispatch]);
 
   const handleUploadChange = (info: UploadChangeParam) => {
     if (info.file.status === "done") {

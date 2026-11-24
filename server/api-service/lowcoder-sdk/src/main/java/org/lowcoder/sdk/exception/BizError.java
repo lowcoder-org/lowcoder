@@ -134,6 +134,7 @@ public enum BizError {
     // user related, code range 6200 - 6250,
     INVALID_USER_STATUS(500, 6200),
     USER_BANNED(500, 6201),
+    PASSWORD_CHANGED_SESSIONS_NOT_ENDED(500, 6202),
 
     // license related, code range 6251 - 6300
     CANT_DEPLOY_IN_AIR_GAPPED_ENV(400, 6251),

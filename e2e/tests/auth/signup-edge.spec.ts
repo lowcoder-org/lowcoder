@@ -7,16 +7,16 @@ import {
   signIn,
   signInRaw,
 } from "../../src/api/client";
-import { API_ERRORS, API_OK, API_PATHS, TAGS, TEST_PASSWORD, UI_PATHS } from "../../src/constants";
+import { API_ERRORS, API_OK, API_PATHS, createUserInOrgPath, PASSWORD_TOO_WEAK_MESSAGE, TAGS, TEST_PASSWORD, UI_PATHS } from "../../src/constants";
 import { expect, test, uniqueEmail } from "../../src/fixtures";
 import { AuthPage, PASSWORD_RULE_TEXT } from "../../src/pages/AuthPage";
 import { expectAnswer } from "../../src/security/assertions";
 import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 /**
- * Edge cases of the sign-up (LC-AU01 to LC-AU08, LC-AU15, LC-AU16): a registered address in any casing, a malformed one,
- * the password rules of the form, the invitation link and the workspace sign-up page. A denial first proves its setup (the
- * account the refusal protects exists and works).
+ * Edge cases of the sign-up (LC-AU01 to LC-AU08, LC-AU15 to LC-AU17): a registered address in any casing, a malformed one,
+ * the password rules of the form, the invitation link, the workspace sign-up page and an admin's create-user route. A
+ * denial first proves its setup (the account the refusal protects exists and works).
  */
 
 const ALLOWED = { status: 200, code: API_OK } as const;
@@ -113,15 +113,30 @@ test.describe("lifecycle: sign-up edge cases", () => {
     lifecycleTestDetails("LC-AU07"),
     async ({ newUserSession }, testInfo) => {
       const visitor = (await newUserSession()).page.request;
-      const control = await registerRaw((await newUserSession()).page.request, uniqueEmail("ctl", testInfo.workerIndex), TEST_PASSWORD);
-      expectAnswer(control, ALLOWED, "control: a sign-up with a password that meets the rules works");
+      const weakAddress = uniqueEmail("weak", testInfo.workerIndex);
 
-      const answer = await registerRaw(visitor, uniqueEmail("weak", testInfo.workerIndex), WEAK_PASSWORD);
+      const answer = await registerRaw(visitor, weakAddress, WEAK_PASSWORD);
 
-      expect(answer.status, "the server refuses a one-character password").toBeGreaterThanOrEqual(400);
+      expectAnswer(answer, API_ERRORS.INVALID_PASSWORD, "the server refuses a one-character password");
+      expect(answer.body, "the refusal names the rule").toContain(PASSWORD_TOO_WEAK_MESSAGE);
       expectAnswer(await apiRaw(visitor, "GET", API_PATHS.USER_MY_ORG), API_ERRORS.UNAUTHENTICATED, "no session was opened");
+      expectAnswer(await registerRaw((await newUserSession()).page.request, weakAddress, TEST_PASSWORD), ALLOWED, "no account was created: the address still signs up");
     },
   );
+
+  test("LC-AU17 an admin cannot create a user with a password the client rule refuses", lifecycleTestDetails("LC-AU17"), async ({ actor, newUserSession }, testInfo) => {
+    const admin = await actor("creator");
+    const weakAddress = uniqueEmail("created-weak", testInfo.workerIndex);
+    const strongAddress = uniqueEmail("created-ok", testInfo.workerIndex);
+
+    const answer = await apiRaw(admin.request, "POST", createUserInOrgPath(admin.orgId), { data: { email: weakAddress, password: WEAK_PASSWORD } });
+
+    expectAnswer(answer, API_ERRORS.INVALID_PASSWORD, "the admin route refuses a one-character password");
+    expect(answer.body, "the refusal names the rule").toContain(PASSWORD_TOO_WEAK_MESSAGE);
+    expectAnswer(await registerRaw((await newUserSession()).page.request, weakAddress, TEST_PASSWORD), ALLOWED, "no account was created: the address still signs up");
+    expectAnswer(await apiRaw(admin.request, "POST", createUserInOrgPath(admin.orgId), { data: { email: strongAddress, password: TEST_PASSWORD } }), ALLOWED, "control: the route creates a user with a password that meets the rule");
+    expectAnswer(await signInRaw((await newUserSession()).page.request, strongAddress, TEST_PASSWORD), ALLOWED, "control: the created user signs in");
+  });
 
   test("LC-AU08 an invited visitor signs up through the invitation link and joins only that workspace", lifecycleTestDetails("LC-AU08", [TAGS.CORE]), async ({ actor, newUserSession }, testInfo) => {
     const inviter = await actor("inviter");

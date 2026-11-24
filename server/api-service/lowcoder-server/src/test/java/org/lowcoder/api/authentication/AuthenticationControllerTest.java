@@ -55,7 +55,7 @@ public class AuthenticationControllerTest {
     @Test
     public void testFormRegisterSuccess() {
         String email = "test_register@ob.dev";
-        String password = "lowcoder";
+        String password = "lowcoder1";
         String source = AuthSourceConstants.EMAIL;
 
         String authId = getEmailAuthConfigId();
@@ -101,7 +101,7 @@ public class AuthenticationControllerTest {
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";
-        String password = "lowcoder";
+        String password = "lowcoder1";
         String source = AuthSourceConstants.EMAIL;
 
         String authId = getEmailAuthConfigId();
@@ -155,7 +155,7 @@ public class AuthenticationControllerTest {
     public void testRegisterFailByLoginIdExist() {
 
         String email = "test_register_fail@ob.dev";
-        String password = "lowcoder";
+        String password = "lowcoder1";
         String source = AuthSourceConstants.EMAIL;
 
         FormLoginRequest formLoginRequest = new FormLoginRequest(email, password, true, source, getEmailAuthConfigId());
@@ -207,7 +207,7 @@ public class AuthenticationControllerTest {
     @Test
     public void logout() {
         String email = "test_logout@ob.dev";
-        String password = "lowcoder";
+        String password = "lowcoder1";
         String source = AuthSourceConstants.EMAIL;
 
         FormLoginRequest registerRequest = new FormLoginRequest(email, password, true, source, getEmailAuthConfigId());
@@ -244,5 +244,44 @@ public class AuthenticationControllerTest {
 
         // ...and the session really is gone, so replaying the old value cannot authenticate
         assertEquals(Boolean.FALSE, sessionUserService.tokenExist(token).block());
+    }
+
+    /**
+     * D-48: the password rule is confined to the register branch. A user whose password was stored
+     * before the rule existed -- {@code "lowcoder"}, which the rule now refuses on sign-up -- must still be
+     * able to sign in with it.
+     */
+    @Test
+    public void testFormLoginWithAStoredWeakPasswordSucceeds() {
+        String email = "test_weak_login@ob.dev";
+        String weakPassword = "lowcoder";
+        String source = AuthSourceConstants.EMAIL;
+
+        User seeded = userRepository.save(User.builder()
+                        .name(email)
+                        .email(email)
+                        .password(encryptionService.encryptPassword(weakPassword))
+                        .state(UserState.ACTIVATED)
+                        .isEnabled(true)
+                        .connections(java.util.Set.of(Connection.builder()
+                                .source(source)
+                                .name(email)
+                                .rawId(email)
+                                .email(email)
+                                .build()))
+                        .build())
+                .block();
+        assertNotNull(seeded);
+
+        FormLoginRequest formLoginRequest = new FormLoginRequest(email, weakPassword, false, source, getEmailAuthConfigId());
+        MockServerHttpRequest request = MockServerHttpRequest.post("").build();
+        MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
+
+        StepVerifier.create(authenticationController.formLogin(formLoginRequest, null, null, exchange))
+                .assertNext(response -> assertTrue(response.isSuccess()))
+                .verifyComplete();
+
+        MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+        assertTrue(cookies.containsKey(SESSION_COOKIE_NAME));
     }
 }

@@ -27,10 +27,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
 import org.lowcoder.domain.datasource.repository.DatasourceRepository;
 import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.folder.model.Folder;
+import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.group.event.GroupDeletedEvent;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.service.GroupMemberService;
@@ -73,6 +77,8 @@ class OrgAndGroupEventListenerTest {
     private static final String APP_2 = "app-2";
     private static final String DATASOURCE_1 = "ds-1";
     private static final String DATASOURCE_2 = "ds-2";
+    private static final String FOLDER_1 = "folder-1";
+    private static final String BUNDLE_1 = "bundle-1";
     private static final String SCHEDULER_THREAD = "org-event-async-executor";
     private static final long WAIT_SECONDS = 10;
     private static final int RETRIES = 3;
@@ -85,6 +91,8 @@ class OrgAndGroupEventListenerTest {
     private DatasourceService datasourceService;
     private ResourcePermissionService resourcePermissionService;
     private DatasourceRepository datasourceRepository;
+    private FolderService folderService;
+    private BundleService bundleService;
 
     private final List<String> events = new CopyOnWriteArrayList<>();
     private final List<Throwable> dropped = new CopyOnWriteArrayList<>();
@@ -102,6 +110,8 @@ class OrgAndGroupEventListenerTest {
         datasourceService = mock(DatasourceService.class);
         resourcePermissionService = mock(ResourcePermissionService.class);
         datasourceRepository = mock(DatasourceRepository.class);
+        folderService = mock(FolderService.class);
+        bundleService = mock(BundleService.class);
         ReflectionTestUtils.setField(listener, "orgMemberService", orgMemberService);
         ReflectionTestUtils.setField(listener, "groupService", groupService);
         ReflectionTestUtils.setField(listener, "groupMemberService", groupMemberService);
@@ -109,6 +119,8 @@ class OrgAndGroupEventListenerTest {
         ReflectionTestUtils.setField(listener, "datasourceService", datasourceService);
         ReflectionTestUtils.setField(listener, "resourcePermissionService", resourcePermissionService);
         ReflectionTestUtils.setField(listener, "datasourceRepository", datasourceRepository);
+        ReflectionTestUtils.setField(listener, "folderService", folderService);
+        ReflectionTestUtils.setField(listener, "bundleService", bundleService);
         Hooks.onErrorDropped(error -> {
             dropped.add(error);
             Throwable expected = expectedFailure;
@@ -133,6 +145,18 @@ class OrgAndGroupEventListenerTest {
 
     private static Datasource datasource(String id) {
         return Datasource.builder().id(id).build();
+    }
+
+    private static Folder folder(String id) {
+        Folder folder = new Folder();
+        folder.setId(id);
+        return folder;
+    }
+
+    private static Bundle bundle(String id) {
+        Bundle bundle = Bundle.builder().build();
+        bundle.setId(id);
+        return bundle;
     }
 
     private static void await(CountDownLatch latch, String what) throws InterruptedException {
@@ -450,12 +474,16 @@ class OrgAndGroupEventListenerTest {
 
     // ------------------------------------------------------------------ onUserLeaveOrg
 
-    private void stubOrgContents(List<String> groups, List<String> apps, List<String> datasources) {
+    private void stubOrgContents(List<String> groups, List<String> apps, List<String> datasources, List<String> folders, List<String> bundles) {
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.fromIterable(groups.stream().map(OrgAndGroupEventListenerTest::group).toList()));
         when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID))
                 .thenReturn(Flux.fromIterable(apps.stream().map(OrgAndGroupEventListenerTest::application).toList()));
         when(datasourceService.getByOrgId(ORG_ID))
                 .thenReturn(Flux.fromIterable(datasources.stream().map(OrgAndGroupEventListenerTest::datasource).toList()));
+        when(folderService.findByOrganizationId(ORG_ID))
+                .thenReturn(Flux.fromIterable(folders.stream().map(OrgAndGroupEventListenerTest::folder).toList()));
+        when(bundleService.findByOrganizationId(ORG_ID))
+                .thenReturn(Flux.fromIterable(bundles.stream().map(OrgAndGroupEventListenerTest::bundle).toList()));
     }
 
     /**
@@ -464,10 +492,10 @@ class OrgAndGroupEventListenerTest {
      * swapped id is noticed as a missing removal.
      */
     @Test
-    void onUserLeaveOrg_removesTheUserFromEveryGroup_andEveryApplicationAndDatasourcePermission() throws InterruptedException {
-        CountDownLatch removals = new CountDownLatch(5);
+    void onUserLeaveOrg_removesTheUserFromEveryGroup_andEveryApplicationDatasourceFolderAndBundlePermission() throws InterruptedException {
+        CountDownLatch removals = new CountDownLatch(7);
         List<String> threads = new CopyOnWriteArrayList<>();
-        stubOrgContents(List.of(GROUP_1, GROUP_2), List.of(APP_1, APP_2), List.of(DATASOURCE_1));
+        stubOrgContents(List.of(GROUP_1, GROUP_2), List.of(APP_1, APP_2), List.of(DATASOURCE_1), List.of(FOLDER_1), List.of(BUNDLE_1));
         for (String groupId : List.of(GROUP_1, GROUP_2)) {
             when(groupMemberService.removeMember(groupId, USER_ID)).thenReturn(Mono.defer(() -> {
                 events.add("group " + groupId);
@@ -490,28 +518,42 @@ class OrgAndGroupEventListenerTest {
             removals.countDown();
             return Mono.just(true);
         }));
+        when(resourcePermissionService.removeUserFolderPermission(FOLDER_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            events.add("folder " + FOLDER_1);
+            threads.add(Thread.currentThread().getName());
+            removals.countDown();
+            return Mono.just(true);
+        }));
+        when(resourcePermissionService.removeUserBundlePermission(BUNDLE_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            events.add("bundle " + BUNDLE_1);
+            threads.add(Thread.currentThread().getName());
+            removals.countDown();
+            return Mono.just(true);
+        }));
 
         listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
-        await(removals, "the five removals");
+        await(removals, "the seven removals");
 
         assertThat(Set.copyOf(events)).containsExactlyInAnyOrder("group " + GROUP_1, "group " + GROUP_2,
-                "application " + APP_1, "application " + APP_2, "datasource " + DATASOURCE_1);
-        assertThat(events).hasSize(5);
-        assertThat(threads).as("every part runs on the listener's scheduler, none on the caller").hasSize(5)
+                "application " + APP_1, "application " + APP_2, "datasource " + DATASOURCE_1, "folder " + FOLDER_1, "bundle " + BUNDLE_1);
+        assertThat(events).hasSize(7);
+        assertThat(threads).as("every part runs on the listener's scheduler, none on the caller").hasSize(7)
                 .allSatisfy(name -> assertThat(name).isEqualTo(SCHEDULER_THREAD));
         verify(applicationService).findByOrganizationIdWithoutDsl(ORG_ID);
     }
 
     @Test
-    void onUserLeaveOrg_anOrgWithoutGroupsApplicationsOrDatasources_callsNoRemoval() throws InterruptedException {
-        CountDownLatch listed = new CountDownLatch(3);
+    void onUserLeaveOrg_anOrgWithoutGroupsApplicationsDatasourcesFoldersOrBundles_callsNoRemoval() throws InterruptedException {
+        CountDownLatch listed = new CountDownLatch(5);
         when(groupService.getByOrgId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Group>empty().doOnComplete(listed::countDown)));
         when(applicationService.findByOrganizationIdWithoutDsl(ORG_ID))
                 .thenReturn(Flux.defer(() -> Flux.<Application>empty().doOnComplete(listed::countDown)));
         when(datasourceService.getByOrgId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Datasource>empty().doOnComplete(listed::countDown)));
+        when(folderService.findByOrganizationId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Folder>empty().doOnComplete(listed::countDown)));
+        when(bundleService.findByOrganizationId(ORG_ID)).thenReturn(Flux.defer(() -> Flux.<Bundle>empty().doOnComplete(listed::countDown)));
 
         listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
-        await(listed, "the three listings");
+        await(listed, "the five listings");
 
         verifyNoInteractions(groupMemberService, resourcePermissionService);
         assertThat(dropped).isEmpty();
@@ -523,8 +565,10 @@ class OrgAndGroupEventListenerTest {
         AtomicInteger groupAttempts = new AtomicInteger();
         AtomicInteger appAttempts = new AtomicInteger();
         AtomicInteger datasourceAttempts = new AtomicInteger();
-        CountDownLatch done = new CountDownLatch(3);
-        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of(DATASOURCE_1));
+        AtomicInteger folderAttempts = new AtomicInteger();
+        AtomicInteger bundleAttempts = new AtomicInteger();
+        CountDownLatch done = new CountDownLatch(5);
+        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of(DATASOURCE_1), List.of(FOLDER_1), List.of(BUNDLE_1));
         when(groupMemberService.removeMember(GROUP_1, USER_ID)).thenReturn(Mono.defer(() -> {
             if (groupAttempts.incrementAndGet() <= 2) {
                 return Mono.<Boolean>error(new IllegalStateException("transient group"));
@@ -546,24 +590,40 @@ class OrgAndGroupEventListenerTest {
             done.countDown();
             return Mono.just(true);
         }));
+        when(resourcePermissionService.removeUserFolderPermission(FOLDER_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            if (folderAttempts.incrementAndGet() <= 2) {
+                return Mono.<Boolean>error(new IllegalStateException("transient folder"));
+            }
+            done.countDown();
+            return Mono.just(true);
+        }));
+        when(resourcePermissionService.removeUserBundlePermission(BUNDLE_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            if (bundleAttempts.incrementAndGet() <= 2) {
+                return Mono.<Boolean>error(new IllegalStateException("transient bundle"));
+            }
+            done.countDown();
+            return Mono.just(true);
+        }));
 
         listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
-        await(done, "all three parts to succeed after two failures each");
+        await(done, "all five parts to succeed after two failures each");
 
         assertThat(groupAttempts.get()).isEqualTo(3);
         assertThat(appAttempts.get()).isEqualTo(3);
         assertThat(datasourceAttempts.get()).isEqualTo(3);
+        assertThat(folderAttempts.get()).isEqualTo(3);
+        assertThat(bundleAttempts.get()).isEqualTo(3);
         assertThat(dropped).isEmpty();
     }
 
-    /** A part that always fails is attempted 1 + 3 times, for each of the three parts on its own. */
+    /** A part that always fails is attempted 1 + 3 times, for each of the five parts on its own. */
     @ParameterizedTest(name = "always failing part: {0}")
-    @ValueSource(strings = {"group", "application", "datasource"})
+    @ValueSource(strings = {"group", "application", "datasource", "folder", "bundle"})
     void onUserLeaveOrg_aPartThatAlwaysFails_isAttemptedFourTimes(String part) throws InterruptedException {
         IllegalStateException failure = new IllegalStateException("permanent " + part);
         expectedFailure = failure;
         AtomicInteger attempts = new AtomicInteger();
-        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of(DATASOURCE_1));
+        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of(DATASOURCE_1), List.of(FOLDER_1), List.of(BUNDLE_1));
         Mono<Boolean> failing = Mono.defer(() -> {
             attempts.incrementAndGet();
             return Mono.<Boolean>error(failure);
@@ -573,6 +633,10 @@ class OrgAndGroupEventListenerTest {
                 .thenReturn("application".equals(part) ? failing : Mono.just(true));
         when(resourcePermissionService.removeUserDatasourcePermission(DATASOURCE_1, USER_ID))
                 .thenReturn("datasource".equals(part) ? failing : Mono.just(true));
+        when(resourcePermissionService.removeUserFolderPermission(FOLDER_1, USER_ID))
+                .thenReturn("folder".equals(part) ? failing : Mono.just(true));
+        when(resourcePermissionService.removeUserBundlePermission(BUNDLE_1, USER_ID))
+                .thenReturn("bundle".equals(part) ? failing : Mono.just(true));
 
         listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
         await(droppedLatch, "the end of the failing handler");
@@ -598,7 +662,7 @@ class OrgAndGroupEventListenerTest {
         AtomicInteger applicationCancelled = new AtomicInteger();
         AtomicInteger applicationCompleted = new AtomicInteger();
         AtomicReference<MonoSink<Boolean>> applicationSink = new AtomicReference<>();
-        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of());
+        stubOrgContents(List.of(GROUP_1), List.of(APP_1), List.of(), List.of(), List.of());
         when(groupMemberService.removeMember(GROUP_1, USER_ID)).thenReturn(Mono.defer(() -> {
             groupGaveUp.countDown();
             return Mono.<Boolean>error(failure);
@@ -622,5 +686,77 @@ class OrgAndGroupEventListenerTest {
         assertThat(applicationCancelled.get()).isZero();
         assertThat(droppedFailure(failure)).isTrue();
         say("group part failed for good -> application part not cancelled, finished; then the handler ended with the error");
+    }
+
+    /** D-60: a persistent folder-removal failure does not cancel the still-running application part, same shape as the group case. */
+    @Test
+    void onUserLeaveOrg_aPersistentFolderFailureDoesNotCancelTheOtherParts() throws InterruptedException {
+        IllegalStateException failure = new IllegalStateException("permanent folder failure");
+        expectedFailure = failure;
+        CountDownLatch applicationInFlight = new CountDownLatch(1);
+        CountDownLatch folderGaveUp = new CountDownLatch(1 + RETRIES);
+        AtomicInteger applicationCancelled = new AtomicInteger();
+        AtomicInteger applicationCompleted = new AtomicInteger();
+        AtomicReference<MonoSink<Boolean>> applicationSink = new AtomicReference<>();
+        stubOrgContents(List.of(), List.of(APP_1), List.of(), List.of(FOLDER_1), List.of());
+        when(resourcePermissionService.removeUserFolderPermission(FOLDER_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            folderGaveUp.countDown();
+            return Mono.<Boolean>error(failure);
+        }));
+        when(resourcePermissionService.removeUserApplicationPermission(APP_1, USER_ID)).thenReturn(Mono.<Boolean>create(sink -> {
+            sink.onCancel(applicationCancelled::incrementAndGet);
+            applicationSink.set(sink);
+            applicationInFlight.countDown();
+        }).doOnNext(ignored -> applicationCompleted.incrementAndGet()));
+
+        listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
+        await(applicationInFlight, "the application part to be in flight");
+        await(folderGaveUp, "the folder part to fail on every attempt");
+
+        assertThat(applicationCancelled.get()).as("the failing folder part does not cancel the application part").isZero();
+        assertThat(droppedFailure(failure)).as("the handler waits for the application part before it ends").isFalse();
+        applicationSink.get().success(true);
+        await(droppedLatch, "the end of the handler after the application part finished");
+
+        assertThat(applicationCompleted.get()).as("the application permission removal finished").isEqualTo(1);
+        assertThat(applicationCancelled.get()).isZero();
+        assertThat(droppedFailure(failure)).isTrue();
+        say("folder part failed for good -> application part not cancelled, finished; then the handler ended with the error");
+    }
+
+    /** D-60: a persistent bundle-removal failure does not cancel the still-running application part, same shape as the group case. */
+    @Test
+    void onUserLeaveOrg_aPersistentBundleFailureDoesNotCancelTheOtherParts() throws InterruptedException {
+        IllegalStateException failure = new IllegalStateException("permanent bundle failure");
+        expectedFailure = failure;
+        CountDownLatch applicationInFlight = new CountDownLatch(1);
+        CountDownLatch bundleGaveUp = new CountDownLatch(1 + RETRIES);
+        AtomicInteger applicationCancelled = new AtomicInteger();
+        AtomicInteger applicationCompleted = new AtomicInteger();
+        AtomicReference<MonoSink<Boolean>> applicationSink = new AtomicReference<>();
+        stubOrgContents(List.of(), List.of(APP_1), List.of(), List.of(), List.of(BUNDLE_1));
+        when(resourcePermissionService.removeUserBundlePermission(BUNDLE_1, USER_ID)).thenReturn(Mono.defer(() -> {
+            bundleGaveUp.countDown();
+            return Mono.<Boolean>error(failure);
+        }));
+        when(resourcePermissionService.removeUserApplicationPermission(APP_1, USER_ID)).thenReturn(Mono.<Boolean>create(sink -> {
+            sink.onCancel(applicationCancelled::incrementAndGet);
+            applicationSink.set(sink);
+            applicationInFlight.countDown();
+        }).doOnNext(ignored -> applicationCompleted.incrementAndGet()));
+
+        listener.onUserLeaveOrg(new OrgMemberLeftEvent(ORG_ID, USER_ID));
+        await(applicationInFlight, "the application part to be in flight");
+        await(bundleGaveUp, "the bundle part to fail on every attempt");
+
+        assertThat(applicationCancelled.get()).as("the failing bundle part does not cancel the application part").isZero();
+        assertThat(droppedFailure(failure)).as("the handler waits for the application part before it ends").isFalse();
+        applicationSink.get().success(true);
+        await(droppedLatch, "the end of the handler after the application part finished");
+
+        assertThat(applicationCompleted.get()).as("the application permission removal finished").isEqualTo(1);
+        assertThat(applicationCancelled.get()).isZero();
+        assertThat(droppedFailure(failure)).isTrue();
+        say("bundle part failed for good -> application part not cancelled, finished; then the handler ended with the error");
     }
 }

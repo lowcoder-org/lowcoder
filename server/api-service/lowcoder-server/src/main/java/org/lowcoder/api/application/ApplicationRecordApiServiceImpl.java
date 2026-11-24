@@ -10,6 +10,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationCombineId;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.service.UserService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,7 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.lowcoder.api.util.ViewBuilder.multiBuild;
+import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
 import static org.lowcoder.sdk.exception.BizError.APPLICATION_AND_ORG_NOT_MATCH;
+import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
     private final SessionUserService sessionUserService;
     private final OrgDevChecker orgDevChecker;
     private final UserService userService;
+    private final ResourcePermissionService resourcePermissionService;
 
     @Override
     public Mono<Map<String, Object>> getRecordDSLFromApplicationCombineId(ApplicationCombineId applicationCombineId) {
@@ -52,8 +56,9 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
 
     /**
      * The versions of an application of the visitor's organization; another organization's is APPLICATION_AND_ORG_NOT_MATCH,
-     * as for the record DSL and the delete (BF-012). Limit: like them, this checks the organization only, not a permission
-     * on the application itself.
+     * as for the record DSL and the delete (BF-012). Limit: unlike the record DSL (D-32), this still checks the
+     * organization only, not EDIT_APPLICATIONS on the application itself; the delete still checks the developer role and
+     * the organization only.
      */
     @Override
     public Mono<List<ApplicationRecordMetaView>> getByApplicationId(String applicationId) {
@@ -73,14 +78,25 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
                         .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId()))));
     }
 
+    /**
+     * Workspace match, then EDIT_APPLICATIONS on the record's own application (D-32); an empty visitor id is
+     * NOT_AUTHORIZED.
+     */
     Mono<Void> checkApplicationRecordViewPermission(ApplicationCombineId applicationCombineId) {
-        return checkApplicationOfVisitorOrg(Mono.defer(() -> {
+        return Mono.defer(() -> {
             if (applicationCombineId.isUsingLiveRecord()) {
                 return applicationService.findById(applicationCombineId.applicationId());
             }
             return applicationRecordService.getById(applicationCombineId.applicationRecordId())
                     .flatMap(applicationRecord -> applicationService.findById(applicationRecord.getApplicationId()));
-        }));
+        }).flatMap(application -> checkApplicationOfVisitorOrg(Mono.just(application))
+                .then(Mono.defer(() -> checkEditable(application))));
+    }
+
+    private Mono<Void> checkEditable(Application application) {
+        return sessionUserService.getVisitorId()
+                .switchIfEmpty(ofError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .flatMap(visitorId -> resourcePermissionService.checkResourcePermissionWithError(visitorId, application.getId(), EDIT_APPLICATIONS));
     }
 
     /** The application belongs to the visitor's current organization, else APPLICATION_AND_ORG_NOT_MATCH. */

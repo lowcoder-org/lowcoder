@@ -28,6 +28,7 @@ import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.EmailUtils;
+import org.lowcoder.sdk.util.PasswordRule;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -263,8 +264,11 @@ public class UserController implements UserEndpoints
         if (StringUtils.isBlank(request.oldPassword()) || StringUtils.isBlank(request.newPassword())) {
             return ofError(BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");
         }
+        if (!PasswordRule.isAcceptable(request.newPassword())) {
+            return ofError(BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK"); // D-48: before the old password is checked or anything is written
+        }
         return sessionUserService.getVisitorId()
-                .flatMap(user -> userService.updatePassword(user, request.oldPassword(), request.newPassword()))
+                .flatMap(visitorId -> userService.updatePassword(visitorId, request.oldPassword(), request.newPassword()).delayUntil(changed -> endOtherSessionsOf(visitorId))) // D-34
                 .map(ResponseView::success);
     }
 
@@ -296,6 +300,9 @@ public class UserController implements UserEndpoints
                 || StringUtils.isBlank(request.newPassword())) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_PARAMETER");
         }
+        if (!PasswordRule.isAcceptable(request.newPassword())) {
+            return ofError(BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK"); // D-48: before the token is checked or used
+        }
 
         return userApiService.resetLostPassword(request.userEmail(), request.token(), request.newPassword())
                 .map(ResponseView::success);
@@ -306,8 +313,11 @@ public class UserController implements UserEndpoints
         if (StringUtils.isBlank(password)) {
             return ofError(BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");
         }
+        if (!PasswordRule.isAcceptable(password)) {
+            return ofError(BizError.INVALID_PASSWORD, "PASSWORD_TOO_WEAK"); // D-48: before setPasswordIfAbsent, which decides and writes in one update
+        }
         return sessionUserService.getVisitorId()
-                .flatMap(user -> userService.setPassword(user, password))
+                .flatMap(visitorId -> userService.setPasswordIfAbsent(visitorId, password)) // D-49: refuses an account that has a password
                 .map(ResponseView::success);
     }
 
@@ -385,5 +395,11 @@ public class UserController implements UserEndpoints
                             }
                             return Mono.just(target);
                         }));
+    }
+
+    /** D-34: ends every session of the user except the one making this request (none kept for a request without a session cookie). */
+    private Mono<Void> endOtherSessionsOf(String userId) {
+        return sessionUserService.getVisitorToken()
+                .flatMap(token -> sessionUserService.endSessionsOfUser(userId, token));
     }
 }

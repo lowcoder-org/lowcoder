@@ -82,7 +82,8 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> orgMemberService.getOrgMember(datasource.getOrganizationId(), userId))
                 .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
-                .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
+                // developer of the target workspace, not of the current one (D-11, D-41)
+                .delayUntil(orgDevChecker::checkOrgDev)
                 .flatMap(orgMember -> datasourceService.create(datasource, orgMember.getUserId()))
                 .delayUntil(jsDatasourceHelper::processDynamicQueryConfig);
     }

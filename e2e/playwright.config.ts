@@ -46,6 +46,8 @@ export default defineConfig({
     ["junit", { outputFile: "./test-results/junit.xml" }],
     // Fails the run when more than half of the tests of S1 or M3 needed a D-3 retry.
     ["./src/reporters/d3-threshold-reporter.ts"],
+    // One run's raw results, merged across runs (e.g. default and enterprise stacks) with `playwright merge-reports`.
+    ["blob", { outputDir: "./blob-report" }],
   ],
   use: {
     baseURL: BASE_URL,

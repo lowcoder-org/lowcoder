@@ -66,7 +66,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_REDIS_URL`                | Redis server URL                                                        | `redis://localhost:6379`                              |
 | `LOWCODER_DB_ENCRYPTION_PASSWORD`   | Encryption password                                                     | `lowcoder.org`                                        |
 | `LOWCODER_DB_ENCRYPTION_SALT`       | Salt used for encrypting password                                       | `lowcoder.org`                                        |
-| `LOWCODER_CORS_DOMAINS`             | CORS allowed domains                                                    | `*`                                                   |
+| `LOWCODER_CORS_DOMAINS`             | CORS allowed domains, comma-separated; only a listed, non-wildcard origin's own script may read a credentialed answer cross-origin (not a CSRF defense) | `*`                                                   |
 | `LOWCODER_PUBLIC_URL`               | The URL of the public User Interface                                    | `localhost:3000`                                      |
 | `LOWCODER_MAX_REQUEST_SIZE`         | Lowcoder max request size                                               | `20m`                                                 |
 | `LOWCODER_MAX_QUERY_TIMEOUT`        | Lowcoder max query timeout (in seconds)                                 | `120`                                                 |
@@ -148,7 +148,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_REDIS_URL`            | Redis server URL                                                    | `redis://localhost:6379`                              |
 | `LOWCODER_DB_ENCRYPTION_PASSWORD`           | Encryption password                                     | `lowcoder.org`                                        |
 | `LOWCODER_DB_ENCRYPTION_SALT`               | Salt used for encrypting password                       | `lowcoder.org`                                        |
-| `LOWCODER_CORS_DOMAINS`         | CORS allowed domains                                                | `*`                                                   |
+| `LOWCODER_CORS_DOMAINS`         | CORS allowed domains, comma-separated; only a listed, non-wildcard origin's own script may read a credentialed answer cross-origin (not a CSRF defense) | `*`                                                   |
 | `LOWCODER_PUBLIC_URL`           | The URL of the public User Interface                                | `localhost:3000`                                      |
 | `LOWCODER_MAX_ORGS_PER_USER`    | Default maximum organizations per user                              | `100`                                                 |
 | `LOWCODER_MAX_MEMBERS_PER_ORG`  | Default maximum members per organization                            | `1000`                                                |

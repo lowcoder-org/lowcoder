@@ -1,4 +1,4 @@
-import { requestPasswordReset, resetLostPasswordRaw, sendInvitationEmails } from "../../src/api/client";
+import { requestPasswordReset, resetLostPasswordRaw, sendInvitationEmails, signIn } from "../../src/api/client";
 import { API_ERRORS, API_OK, MAIL_SUBJECTS, CHANGED_PASSWORD } from "../../src/constants";
 import { expect, test, uniqueEmail } from "../../src/fixtures";
 import { resetTokenOf } from "../../src/lifecycle/mail";
@@ -18,6 +18,9 @@ test.describe("lifecycle recovery helpers", () => {
     const token = resetTokenOf((await mailbox.waitForMail(user.email, MAIL_SUBJECTS.PASSWORD_RESET))[0]!);
     const first = await resetLostPasswordRaw(anon, { address: user.email, token, password: CHANGED_PASSWORD });
     const second = await resetLostPasswordRaw(anon, { address: user.email, token, password: CHANGED_PASSWORD });
+    // D-34: a successful reset ends every other session of the user, so `user.request`'s own sign-in from `actor()` is
+    // gone; sign it back in with the new password before using it, as a real user would.
+    await signIn(user.request, user.email, CHANGED_PASSWORD);
     const invitee = uniqueEmail("rawinvitee", testInfo.workerIndex);
     const sent = await sendInvitationEmails(user.request, user.orgId, [invitee]);
 

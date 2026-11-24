@@ -177,8 +177,8 @@ public class OrgApiServiceImpl implements OrgApiService {
     /**
      * Sets the slug for an admin of the organization (ADMIN or SUPER_ADMIN, {@link #checkVisitorAdminRole}; NEW-102: any
      * signed-in user could). Limits: {@code orgId} is the object id, not converted from a gid or slug, as before, so a
-     * gid or slug answers NOT_AUTHORIZED; the slug rules are {@code OrganizationService.updateSlug}'s; the answer is the
-     * whole organization, as before.
+     * gid or slug answers NOT_AUTHORIZED; the slug rules are {@code OrganizationService.updateSlug}'s; the answer is
+     * the organization without its auth configs (D-14).
      */
     @Override
     public Mono<Organization> updateSlug(String orgId, String slug) {
@@ -192,8 +192,7 @@ public class OrgApiServiceImpl implements OrgApiService {
      * organization role), read as {@code ConfigController.updateServerConfig} reads it. Anyone else gets
      * NOT_AUTHORIZED before this method reads the organization ({@code organizationService.getById} or {@code
      * getByIdWithDeleted}), whether it exists or not (NEW-102: any signed-in user read any organization). Limits:
-     * the answer is still the whole organization, its auth configs' {@code clientSecret} included (O22, an owner
-     * decision not made here); a deleted organization is read, with {@code withDeleted}, by its former members
+     * the answer carries no auth configs (D-14), but the full common settings; a deleted organization is read, with {@code withDeleted}, by its former members
      * until the asynchronous cleanup that follows its deletion ({@code OrgAndGroupEventListener.onOrgDeleted}) has
      * removed their memberships, and by all of them whose membership deletion did not happen (it is the listener's
      * first step; a later step failing for good does not undo it); that cleanup keeps every membership with the

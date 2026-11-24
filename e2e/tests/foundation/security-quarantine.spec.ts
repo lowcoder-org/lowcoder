@@ -16,10 +16,31 @@ import {
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: 26 fixed-on-branch scenarios (21 security ids plus LC-AK04, LC-AK08, LC-PW09, LC-PW10 and LC-PW14), and 44 open ones (28 security ids plus the lifecycle ids LC-GR03, LC-GR09, LC-AU07, LC-AU15, LC-PR06, LC-PR13, LC-PR14, LC-PW08, LC-PW11, LC-PW12, LC-PW15, LC-DL03, LC-DL04, LC-IP07, LC-IP14 and LC-OT02). */
-const FIXED_ON_BRANCH_COUNT = 26;
-const OPEN_DEFECTS_COUNT = 44;
-/** Lifecycle ids: LC-AU07 and LC-AU15 are in a map so far; the listed-id branches are also tested through an injected lookup. */
+/** Sizes of the two maps: 1 fixed-on-branch scenario (the lifecycle id LC-AK04, an intermittent UI test), and 4 open ones
+ * (3 security ids plus the lifecycle id LC-AU15). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
+ * closed SEC-C09, SEC-C11, SEC-C19a, SEC-C19b, SEC-C22e, SEC-R15c, SEC-A04, SEC-A11, SEC-A12, SEC-E05, LC-PW08, LC-PW11,
+ * LC-IP14, LC-PR13, LC-AU07 and LC-PR14. D-12 and D-39 also left the map: the fix closed SEC-A10a and SEC-A10c. D-35 also left the map:
+ * the fix closed SEC-X01b and SEC-X01c. D-10 also left the map: the fix closed SEC-A09c. D-14 also left the map: the
+ * fix closed SEC-R07d and SEC-R07e. D-32 also left the map: the fix closed SEC-R01d (SEC-R01e, SEC-R01f+ and
+ * SEC-R01g+ are new and were never quarantined). D-31 also left the map: the fix closed SEC-C21. D-42 also left the
+ * map, only partly: the fix closed SEC-R17c (SEC-R17g is new and was never quarantined); copies stored in bundle
+ * DSLs before the fix remain unfiltered. D-38 also left the map: each id of a batched permission lookup is now
+ * decided in its own workspace, so SEC-R09d is no longer quarantined and no longer intermittent. D-8 also left the
+ * map: a folder's permission list now requires the caller to be a member of the folder's workspace, so SEC-C10 is no
+ * longer quarantined. D-9 and D-37 also left the map: a status change now needs MANAGE_APPLICATIONS and the app slug
+ * route now needs EDIT_APPLICATIONS, so SEC-R03b and SEC-C16f are no longer quarantined. D-11 and D-41 also left the
+ * map: app, bundle and data source creation now check the developer role of the TARGET workspace, so SEC-R06c and
+ * SEC-R17b are no longer quarantined (SEC-R06e is new and was never quarantined). D-59 and D-60 also left the map:
+ * the member-leave clean-up now deletes the right data source rows and gained a folder and a bundle step, so
+ * LC-DL03 and LC-DL04 are no longer quarantined (LC-DL12 is new and was never quarantined). D-52 also left the map:
+ * a system group's rename is now refused with UNSUPPORTED_OPERATION, so LC-GR09 is no longer quarantined. D-54 also
+ * left the map: the mail links now carry the public URL without its trailing slashes, so LC-PW12 is no longer
+ * quarantined. D-55 also left the map: the invite dialog's success notice now uses the right translation key, so
+ * LC-PW15 is no longer quarantined. D-63 also left the map: the profile now fetches the app list it counts, so
+ * LC-OT02 is no longer quarantined. */
+const FIXED_ON_BRANCH_COUNT = 1;
+const OPEN_DEFECTS_COUNT = 4;
+/** Lifecycle ids: LC-AU15 is in a map so far; the listed-id branches are also tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
 const INJECTED_DEFECTS: Readonly<Record<string, string>> = { [LC_INJECTED_ID]: "D-45" };
@@ -27,8 +48,12 @@ const LC_AREAS = ["AU", "PR", "AK", "WM", "GR", "SH", "PW", "DL", "IP", "OT"];
 const injected = lifecycleDetailsFor((id) => INJECTED_DEFECTS[id]);
 /** A scenario id that is in neither map (a scenario that passes on the image). */
 const PASSING_ID = "SEC-C01a";
-const FIXED_ID = "SEC-C13";
-const OPEN_ID = "SEC-C09";
+/** The one id of `FIXED_ON_BRANCH` is a lifecycle id, so the security functions are exercised with open-defect ids. */
+const FIXED_LC_ID = "LC-AK04";
+/** A scenario that left the quarantine on 3.0.1 (its test passes, so it is in neither map). */
+const LEFT_QUARANTINE_ID = "SEC-C13";
+const OPEN_ID = "SEC-C17c";
+const OTHER_OPEN_ID = "SEC-R17f";
 
 /** The title as Playwright matches `grep` / `grepInvert` against: the title followed by the tags of the test. */
 function titleWithTags(id: string, tags: string[]): string {
@@ -37,9 +62,9 @@ function titleWithTags(id: string, tags: string[]): string {
 
 test.describe("security quarantine list", () => {
   test("a listed id gets the security and quarantine tags and the defect annotation", () => {
-    expect(securityTestDetails(FIXED_ID), "a fixed-on-branch id").toEqual({
-      tag: [TAGS.SECURITY, TAGS.QUARANTINE],
-      annotation: { type: DEFECT_ANNOTATION_TYPE, description: FIXED_ON_BRANCH[FIXED_ID] },
+    expect(lifecycleTestDetails(FIXED_LC_ID), "a fixed-on-branch id").toEqual({
+      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
+      annotation: { type: DEFECT_ANNOTATION_TYPE, description: FIXED_ON_BRANCH[FIXED_LC_ID] },
     });
     expect(securityTestDetails(OPEN_ID), "an open-defect id").toEqual({
       tag: [TAGS.SECURITY, TAGS.QUARANTINE],
@@ -52,11 +77,12 @@ test.describe("security quarantine list", () => {
 
     expect(details.tag).toEqual([TAGS.SECURITY]);
     expect(details, "no annotation key at all").not.toHaveProperty("annotation");
+    expect(securityTestDetails(LEFT_QUARANTINE_ID), "an id that left the quarantine on 3.0.1").toEqual({ tag: [TAGS.SECURITY] });
   });
 
   test("extra tags are appended after the quarantine tags; the P0 set passes TAGS.CORE", () => {
     expect(securityTestDetails(PASSING_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.CORE]);
-    expect(securityTestDetails(FIXED_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
+    expect(securityTestDetails(OPEN_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
   });
 
   test("an id that is not a scenario id is refused, so a typo cannot leave a test unquarantined", () => {
@@ -83,13 +109,13 @@ test.describe("security quarantine list", () => {
   });
 
   test("quarantinedDefect names the defect of a listed id and nothing for an unlisted one", () => {
-    expect(quarantinedDefect(FIXED_ID)).toBe(FIXED_ON_BRANCH[FIXED_ID]);
+    expect(quarantinedDefect(FIXED_LC_ID)).toBe(FIXED_ON_BRANCH[FIXED_LC_ID]);
     expect(quarantinedDefect(OPEN_ID)).toBe(OPEN_DEFECTS[OPEN_ID]);
     expect(quarantinedDefect(PASSING_ID)).toBeUndefined();
   });
 
   test("the default run leaves a quarantined security test out and E2E_INCLUDE_QUARANTINE brings it back", () => {
-    const quarantined = titleWithTags(FIXED_ID, securityTestDetails(FIXED_ID).tag);
+    const quarantined = titleWithTags(OTHER_OPEN_ID, securityTestDetails(OTHER_OPEN_ID).tag);
     const passing = titleWithTags(PASSING_ID, securityTestDetails(PASSING_ID).tag);
     const defaultRun = grepInvertFor(runFlagsFromEnv({}));
     const withQuarantine = grepInvertFor(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_QUARANTINE]: "1" }));
@@ -107,7 +133,7 @@ test.describe("security quarantine list", () => {
     expect(securityCandidateDetails("SEC-A98a", "x", [TAGS.CORE]).tag, "extra tags last").toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
     expect(() => securityCandidateDetails("SEC-A02", "x"), "pattern needs two digits").not.toThrow();
     expect(() => securityCandidateDetails("bad", "x")).toThrow(/is not a security scenario id/);
-    expect(() => securityCandidateDetails(FIXED_ID, "x"), "an id of a map").toThrow(/quarantine map/);
+    expect(() => securityCandidateDetails(OTHER_OPEN_ID, "x"), "an id of a map").toThrow(/quarantine map/);
     expect(() => securityCandidateDetails("SEC-A98a", "  "), "no measurement").toThrow(/names what was measured/);
   });
 

@@ -22,6 +22,7 @@ import org.lowcoder.domain.interaction.UserFolderInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -45,6 +46,7 @@ import java.util.function.ToLongFunction;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.exception.BizError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
@@ -52,6 +54,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 public class FolderApiServiceImpl implements FolderApiService {
 
     private static final String INVALID_PARAMETER_KEY = "INVALID_PARAMETER";
+    private static final String NOT_AUTHORIZED_KEY = "NOT_AUTHORIZED";
 
     private static final Comparator<Node<ApplicationInfoView, FolderInfoView>> DEFAULT_COMPARATOR =
             // compare by last view time reversed.
@@ -82,6 +85,7 @@ public class FolderApiServiceImpl implements FolderApiService {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final UserFolderInteractionService userFolderInteractionService;
+    private final OrgMemberService orgMemberService;
 
     /**
      * Creates a new folder in the visitor's organization. Its id and gid are always the server's: an id in the request body
@@ -473,9 +477,31 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .then();
     }
 
+    /**
+     * The permission list of a folder (its user and group rows, its creator id and its workspace's name), for a member of
+     * the folder's workspace in any role, whichever workspace is current (D-8: any signed-in user read any folder's list).
+     * A visitor who is not a member of that workspace, or no visitor, gets NOT_AUTHORIZED, and no permission row, user,
+     * group or workspace is read before the check passes. App and bundle create call this for the folder they create in,
+     * after checking that the visitor is a member of the folder's workspace, so they pass. Limits: the folder is looked up
+     * first and its lookup error passes through unchanged (an object id no folder has is NO_RESOURCE_FOUND from
+     * {@link FolderServiceImpl#findById}; the controller answers a gid no folder has with FOLDER_NOT_EXIST before this
+     * method runs, BF-158), so an outsider can still tell an existing folder from an unknown one; the rows are read by the
+     * id passed in, as before; the membership query runs for every caller, its timing is not equalized.
+     */
     @Override
     public Mono<ApplicationPermissionView> getPermissions(String folderId) {
+        return folderService.findById(folderId)
+                .flatMap(folder -> requireMemberOfFolderOrg(folder)
+                        .then(Mono.defer(() -> buildPermissionView(folderId, folder))));
+    }
 
+    private Mono<OrgMember> requireMemberOfFolderOrg(Folder folder) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> orgMemberService.getOrgMember(folder.getOrganizationId(), visitorId))
+                .switchIfEmpty(deferredError(NOT_AUTHORIZED, NOT_AUTHORIZED_KEY));
+    }
+
+    private Mono<ApplicationPermissionView> buildPermissionView(String folderId, Folder folder) {
         Mono<List<ResourcePermission>> folderPermissions =
                 resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.FOLDER, folderId).cache();
 
@@ -485,21 +511,18 @@ public class FolderApiServiceImpl implements FolderApiService {
         Mono<List<PermissionItemView>> userPermissionPairsMono = folderPermissions
                 .flatMap(permissionHelper::getUserPermissions);
 
-        return folderService.findById(folderId)
-                .flatMap(folder -> {
-                    Mono<Organization> orgMono = organizationService.getById(folder.getOrganizationId());
-                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
-                            .map(tuple -> {
-                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
-                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
-                                Organization organization = tuple.getT3();
-                                return ApplicationPermissionView.builder()
-                                        .groupPermissions(groupPermissionPairs)
-                                        .userPermissions(userPermissionPairs)
-                                        .creatorId(folder.getCreatedBy())
-                                        .orgName(organization.getName())
-                                        .build();
-                            });
+        Mono<Organization> orgMono = organizationService.getById(folder.getOrganizationId());
+        return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
+                .map(tuple -> {
+                    List<PermissionItemView> groupPermissionPairs = tuple.getT1();
+                    List<PermissionItemView> userPermissionPairs = tuple.getT2();
+                    Organization organization = tuple.getT3();
+                    return ApplicationPermissionView.builder()
+                            .groupPermissions(groupPermissionPairs)
+                            .userPermissions(userPermissionPairs)
+                            .creatorId(folder.getCreatedBy())
+                            .orgName(organization.getName())
+                            .build();
                 });
     }
 

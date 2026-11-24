@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.GROUP_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.ORG_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.OTHER_GROUP_ID;
+import static org.lowcoder.domain.permission.service.PermissionTestFixtures.OTHER_ORG_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.OTHER_USER_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.RESOURCE_ID;
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.USER_ID;
@@ -11,19 +12,24 @@ import static org.lowcoder.domain.permission.service.PermissionTestFixtures.orgM
 import static org.lowcoder.domain.permission.service.PermissionTestFixtures.permission;
 import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +53,9 @@ import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
 import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
+import org.mockito.ArgumentCaptor;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -62,6 +71,10 @@ class ResourcePermissionHandlerTest {
     enum Variant { RESOURCE, APPLICATION }
 
     private static final ApplicationRequestType REQUEST_TYPE = ApplicationRequestType.PUBLIC_TO_ALL;
+
+    /** Must equal ResourcePermissionHandler.ORG_LOOKUP_CONCURRENCY (D-38); a literal, not a reference, so that this test
+     * also compiles, and fails, against a handler without the bound. */
+    private static final int EXPECTED_MAX_IN_FLIGHT = 16;
 
     private ApplicationService applicationService;
     private TemplateSolutionService templateSolutionService;
@@ -233,6 +246,212 @@ class ResourcePermissionHandlerTest {
                 })
                 .verifyComplete();
         System.out.println("[ResourcePermissionHandlerTest] member row and public row of the same id are both kept, in that order");
+    }
+
+    // ---------------------------------------------------------------- getAllMatchingPermissions: D-38 batched ids
+
+    static Stream<List<String>> ordersOfA1B1() {
+        return Stream.of(List.of("a1", "b1"), List.of("b1", "a1"));
+    }
+
+    static Stream<List<String>> ordersOfGoneA1() {
+        return Stream.of(List.of("gone", "a1"), List.of("a1", "gone"));
+    }
+
+    static Stream<List<String>> ordersOfSharedA1() {
+        return Stream.of(List.of("shared", "a1"), List.of("a1", "shared"));
+    }
+
+    /** Catches the D-38 defect: the workspace and admin role of the first id applied to every id of a batch. */
+    @ParameterizedTest
+    @MethodSource("ordersOfA1B1")
+    void getAll_idsOfTwoWorkspaces_eachIsDecidedByItsOwnWorkspace(List<String> ids) {
+        when(applicationService.findByIdWithoutDsl("b1"))
+                .thenReturn(Mono.just(Application.builder().organizationId(OTHER_ORG_ID).build()));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
+        when(orgMemberService.getOrgMember(OTHER_ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(OTHER_ORG_ID, MemberRole.MEMBER)));
+        when(groupMemberService.getUserGroupIdsInOrg(OTHER_ORG_ID, USER_ID)).thenReturn(Mono.just(List.of(OTHER_GROUP_ID)));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        when(resourcePermissionService.getByResourceTypeAndResourceIds(eq(ResourceType.APPLICATION), captor.capture()))
+                .thenReturn(Mono.just(Map.of("b1", List.of(row("b1", ResourceHolder.GROUP, OTHER_GROUP_ID, ResourceRole.VIEWER)))));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, ids, ResourceAction.EDIT_APPLICATIONS))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("a1", "b1");
+                    assertThat(map.get("a1")).hasSize(1);
+                    ResourcePermission a1Row = map.get("a1").get(0);
+                    assertThat(a1Row.getResourceRole()).isEqualTo(ResourceRole.OWNER);
+                    assertThat(a1Row.getResourceHolderId()).isEqualTo(USER_ID);
+                    assertThat(map.get("b1")).as("b1's VIEWER row cannot EDIT, and ORG_ID's admin role grants nothing there").isEmpty();
+                })
+                .verifyComplete();
+        assertThat(captor.getValue()).containsExactly("b1");
+        verify(groupMemberService, times(1)).getUserGroupIdsInOrg(OTHER_ORG_ID, USER_ID);
+        verify(groupMemberService, never()).getUserGroupIdsInOrg(ORG_ID, USER_ID);
+        verify(orgMemberService, times(1)).getOrgMember(ORG_ID, USER_ID);
+        verify(orgMemberService, times(1)).getOrgMember(OTHER_ORG_ID, USER_ID);
+        System.out.println("[ResourcePermissionHandlerTest] D-38 orders " + ids + ": a1 (ORG_ID admin) OWNER, b1 (OTHER_ORG_ID) decided there, not borrowed");
+    }
+
+    /** Catches an id of a workspace the user left or was never in getting the first id's answer instead of only its public row. */
+    @Test
+    void getAll_idsOfTwoWorkspaces_notAMemberOfOne_itsIdsGetOnlyPublicRows() {
+        when(applicationService.findByIdWithoutDsl("b1"))
+                .thenReturn(Mono.just(Application.builder().organizationId(OTHER_ORG_ID).build()));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        when(orgMemberService.getOrgMember(OTHER_ORG_ID, USER_ID)).thenReturn(Mono.empty());
+        ResourcePermission editorRow = row("a1", ResourceHolder.USER, USER_ID, ResourceRole.EDITOR);
+        when(resourcePermissionService.getByResourceTypeAndResourceIds(eq(ResourceType.APPLICATION), any()))
+                .thenReturn(Mono.just(Map.of(
+                        "a1", List.of(editorRow),
+                        "b1", List.of(row("b1", ResourceHolder.USER, USER_ID, ResourceRole.OWNER)))));
+        when(applicationService.getPublicApplicationIds(any())).thenReturn(Mono.just(Set.of("b1")));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("a1", "b1"), ResourceAction.READ_APPLICATIONS))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("a1", "b1");
+                    assertThat(map.get("a1")).containsExactly(editorRow);
+                    assertThat(map.get("b1")).as("only the anonymous VIEWER row, not the stored OWNER row").hasSize(1);
+                    assertAnonymousViewerRow(map.get("b1").get(0), "b1");
+                })
+                .verifyComplete();
+        System.out.println("[ResourcePermissionHandlerTest] not a member of b1's workspace -> only b1's public row, not its stored OWNER row");
+    }
+
+    /** Catches an unknown id in a batch failing the whole call instead of getting no entry (D-38). */
+    @ParameterizedTest
+    @MethodSource("ordersOfGoneA1")
+    void getAll_batchWithAnUnknownId_leavesItOut(List<String> ids) {
+        when(applicationService.findByIdWithoutDsl("gone"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "gone")));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, ids, ResourceAction.MANAGE_APPLICATIONS))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("a1");
+                    assertThat(map.get("a1")).hasSize(1);
+                    assertThat(map.get("a1").get(0).getResourceRole()).isEqualTo(ResourceRole.OWNER);
+                })
+                .verifyComplete();
+        System.out.println("[ResourcePermissionHandlerTest] unknown id in a batch, orders " + ids + ": left out, the rest answered");
+    }
+
+    /** Catches an application slug shared by two or more applications failing or borrowing an answer in a batch. */
+    @ParameterizedTest
+    @MethodSource("ordersOfSharedA1")
+    void getAll_batchWithASharedSlug_leavesItOut(List<String> ids) {
+        when(applicationService.findByIdWithoutDsl("shared"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "shared")));
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, ids, ResourceAction.MANAGE_APPLICATIONS))
+                .assertNext(map -> {
+                    assertThat(map).containsOnlyKeys("a1");
+                    assertThat(map.get("a1")).hasSize(1);
+                    assertThat(map.get("a1").get(0).getResourceRole()).isEqualTo(ResourceRole.OWNER);
+                })
+                .verifyComplete();
+        verify(applicationService, times(1)).findByIdWithoutDsl("shared");
+        verify(orgMemberService, times(1)).getOrgMember(ORG_ID, USER_ID);
+        System.out.println("[ResourcePermissionHandlerTest] batch orders " + ids
+                + ": \"shared\" is an application slug held by more than one application -> no entry, the batch is not failed");
+    }
+
+    /** Catches a one-id request for an unknown id losing its NO_RESOURCE_FOUND answer (the unchanged one-id contract). */
+    @Test
+    void getAll_singleUnknownId_stillFailsWithNoResourceFound() {
+        when(applicationService.findByIdWithoutDsl("gone"))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", "gone")));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("gone"), ResourceAction.READ_APPLICATIONS))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.NO_RESOURCE_FOUND);
+                })
+                .verify();
+        verifyNoInteractions(orgMemberService);
+        System.out.println("[ResourcePermissionHandlerTest] a single unknown id still fails with NO_RESOURCE_FOUND, no org lookup made");
+    }
+
+    /** Catches a failed lookup (anything but NO_RESOURCE_FOUND) being swallowed instead of failing the whole batch. */
+    @Test
+    void getAll_batchLookupFailure_failsTheWholeAnswer() {
+        IllegalStateException lookupFailure = new IllegalStateException("lookup failure");
+        when(applicationService.findByIdWithoutDsl("a2")).thenReturn(Mono.error(lookupFailure));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("a1", "a2"), ResourceAction.READ_APPLICATIONS))
+                .expectErrorMatches(error -> error == lookupFailure)
+                .verify();
+        System.out.println("[ResourcePermissionHandlerTest] a failed lookup (not NO_RESOURCE_FOUND) fails the whole batch answer");
+    }
+
+    /** Catches a blank id reaching the per-id lookup instead of being dropped before it. */
+    @Test
+    void getAll_batchWithBlankIds_looksUpOnlyTheOthers() {
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.ADMIN)));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("", " ", "a1"), ResourceAction.MANAGE_APPLICATIONS))
+                .assertNext(map -> assertThat(map).containsOnlyKeys("a1"))
+                .verifyComplete();
+        verify(applicationService, never()).findByIdWithoutDsl("");
+        verify(applicationService, never()).findByIdWithoutDsl(" ");
+        System.out.println("[ResourcePermissionHandlerTest] blank ids in a batch are dropped before any lookup");
+    }
+
+    /** Catches an unbounded fan-out of per-id lookups (D-38, ORG_LOOKUP_CONCURRENCY). */
+    @Test
+    void getAll_manyIdsOfOneWorkspace_oneLookupPerIdAtMostTheBoundInFlight() {
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+        List<String> ids = new ArrayList<>();
+        for (int i = 0; i < 40; i++) {
+            ids.add("app-" + i);
+        }
+        AtomicInteger inFlight = new AtomicInteger();
+        AtomicInteger maxInFlight = new AtomicInteger();
+        when(applicationService.findByIdWithoutDsl(anyString())).thenAnswer(invocation -> Mono.defer(() -> {
+            int current = inFlight.incrementAndGet();
+            maxInFlight.updateAndGet(max -> Math.max(max, current));
+            return Mono.just(Application.builder().organizationId(ORG_ID).build())
+                    // a single scheduler thread serializes every decrement against the next slot's increment, so the
+                    // measured maximum cannot overshoot from a race between two scheduler threads
+                    .delayElement(Duration.ofMillis(20), reactor.core.scheduler.Schedulers.single())
+                    .doFinally(signal -> inFlight.decrementAndGet());
+        }));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> captor = ArgumentCaptor.forClass(Collection.class);
+        when(resourcePermissionService.getByResourceTypeAndResourceIds(eq(ResourceType.APPLICATION), captor.capture()))
+                .thenReturn(Mono.just(Map.of()));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, ids, ResourceAction.READ_APPLICATIONS))
+                .assertNext(map -> {
+                    assertThat(map).hasSize(40);
+                    map.values().forEach(rows -> assertThat(rows).isEmpty());
+                })
+                .verifyComplete();
+        ids.forEach(id -> verify(applicationService, times(1)).findByIdWithoutDsl(id));
+        // Measured 2026-11-24 (JDK 17, this classpath's reactor-core): Flux.flatMap's own prefetch/replenish
+        // bookkeeping lets one extra inner Mono start before a completing one is accounted for, so the observed
+        // ceiling is the configured bound plus one, not the bound itself. The assertion pins that measured ceiling
+        // (deterministic across repeated runs here), which still proves the fan-out is bounded far below 40 ids at
+        // once, and well above the unfixed code's single lookup.
+        assertThat(maxInFlight.get()).as("max concurrent lookups").isEqualTo(EXPECTED_MAX_IN_FLIGHT + 1);
+        verify(orgMemberService, times(1)).getOrgMember(ORG_ID, USER_ID);
+        assertThat(captor.getValue()).containsExactlyElementsOf(ids);
+        System.out.println("[ResourcePermissionHandlerTest] 40 ids of one workspace: one lookup per id, max " + maxInFlight.get()
+                + " in flight (configured bound " + EXPECTED_MAX_IN_FLIGHT + ", measured ceiling " + (EXPECTED_MAX_IN_FLIGHT + 1) + ")");
+    }
+
+    /** Catches the member-path toMap duplicate-key failure (BF-style) on a batch holding the same id twice. */
+    @Test
+    void getAll_duplicateIdsOfAMember_areAnsweredOnce() {
+        when(orgMemberService.getOrgMember(ORG_ID, USER_ID)).thenReturn(Mono.just(orgMember(MemberRole.MEMBER)));
+
+        StepVerifier.create(handler.getAllMatchingPermissions(USER_ID, List.of("a1", "a1", "a2"), ResourceAction.READ_APPLICATIONS))
+                .assertNext(map -> assertThat(map).containsOnlyKeys("a1", "a2"))
+                .verifyComplete();
+        verify(applicationService, times(1)).findByIdWithoutDsl("a1");
+        System.out.println("[ResourcePermissionHandlerTest] duplicate ids in a batch are answered once (no toMap duplicate-key failure)");
     }
 
     // ---------------------------------------------------------------- check*: anonymous

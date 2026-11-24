@@ -77,6 +77,25 @@ public class CommonConfigTest {
         assertEquals(List.of("*"), security.getAllCorsAllowedDomains(), "the default of the application yaml");
     }
 
+    /** D-54: only the trailing run of slashes is removed; a doubled slash elsewhere, an empty string and null are kept as they are. */
+    @Test
+    public void withoutTrailingSlashesRemovesOnlyTheTrailingRun() {
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("http://h", "http://h");
+        expected.put("http://h/", "http://h");
+        expected.put("http://h//", "http://h");
+        expected.put("http://h///", "http://h");
+        expected.put("http://h/base//", "http://h/base");
+        expected.put("http://h//base/", "http://h//base");
+        expected.put("", "");
+        expected.forEach((input, normalized) -> {
+            System.out.println("[CommonConfigTest] withoutTrailingSlashes('" + input + "') -> '" + CommonConfig.withoutTrailingSlashes(input) + "'");
+            assertEquals(normalized, CommonConfig.withoutTrailingSlashes(input), "'" + input + "'");
+        });
+
+        assertEquals(null, CommonConfig.withoutTrailingSlashes(null), "null stays null");
+    }
+
     @Test
     public void derivedValuesFollowTheirSettings() {
         CommonConfig config = new CommonConfig();

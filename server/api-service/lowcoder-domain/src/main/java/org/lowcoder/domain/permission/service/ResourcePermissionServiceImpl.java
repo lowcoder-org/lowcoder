@@ -260,8 +260,18 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
     }
 
     @Override
-    public Mono<Boolean> removeUserDatasourcePermission(String appId, String userId) {
-        return repository.removePermissionBy(ResourceType.APPLICATION, appId, ResourceHolder.USER, userId);
+    public Mono<Boolean> removeUserDatasourcePermission(String datasourceId, String userId) {
+        return repository.removePermissionBy(ResourceType.DATASOURCE, datasourceId, ResourceHolder.USER, userId);
+    }
+
+    @Override
+    public Mono<Boolean> removeUserFolderPermission(String folderId, String userId) {
+        return repository.removePermissionBy(ResourceType.FOLDER, folderId, ResourceHolder.USER, userId);
+    }
+
+    @Override
+    public Mono<Boolean> removeUserBundlePermission(String bundleId, String userId) {
+        return repository.removePermissionBy(ResourceType.BUNDLE, bundleId, ResourceHolder.USER, userId);
     }
 
     @Override

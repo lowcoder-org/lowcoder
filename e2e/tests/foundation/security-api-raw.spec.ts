@@ -1,7 +1,8 @@
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { expect, test as base, type APIRequestContext } from "@playwright/test";
-import { apiRaw } from "../../src/api/client";
+import { apiRaw, executeAppQueryRaw } from "../../src/api/client";
+import { API_PATHS } from "../../src/constants";
 
 /** Paths of the local server that stands in for the app: no stack is needed to test how `apiRaw` reads an answer. */
 const PATHS = {
@@ -56,6 +57,17 @@ function startServer(): Promise<{ server: Server; baseURL: string }> {
       case PATHS.HEADERS:
         response.writeHead(200, { "x-e2e-single": "one", "set-cookie": ["a=1; HttpOnly", "b=2"] }).end();
         return;
+      case API_PATHS.QUERY_EXECUTE: {
+        const echo: Echo = {
+          method: request.method ?? "",
+          url: request.url ?? "",
+          contentType: request.headers["content-type"],
+          probeHeader: request.headers[PROBE_HEADER] as string | undefined,
+          body: await readBody(request),
+        };
+        response.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ code: 1, data: echo }));
+        return;
+      }
       case PATHS.ECHO: {
         const echo: Echo = {
           method: request.method ?? "",
@@ -158,5 +170,15 @@ test.describe("apiRaw", () => {
     const answer = await apiRaw(context, "PUT", PATHS.ECHO, { data: "new-slug" });
 
     expect((answer.json as { data: Echo }).data.body).toBe("new-slug");
+  });
+
+  test("executeAppQueryRaw sends the path when given and no path otherwise", async ({ localApi: context }) => {
+    const withPath = await executeAppQueryRaw(context, { applicationId: "app-1", queryId: "q1", viewMode: false, path: ["h1"] });
+    const withPathBody = JSON.parse((withPath.json as { data: Echo }).data.body);
+    expect(withPathBody.path).toEqual(["h1"]);
+
+    const withoutPath = await executeAppQueryRaw(context, { applicationId: "app-1", queryId: "q1", viewMode: false });
+    const withoutPathBody = JSON.parse((withoutPath.json as { data: Echo }).data.body);
+    expect(withoutPathBody).not.toHaveProperty("path");
   });
 });

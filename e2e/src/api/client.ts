@@ -17,6 +17,8 @@ import {
   bundleElementsPath,
   bundlePath,
   bundlePermissionsPath,
+  bundlePublicToAllPath,
+  bundlePublishPath,
   bundleRecyclePath,
   bundleViewPath,
   datasourcePermissionPath,
@@ -691,10 +693,13 @@ export async function logout(request: APIRequestContext): Promise<void> {
   await unwrap<unknown>("log out", await request.post(API_PATHS.AUTH_LOGOUT));
 }
 
-/** Runs an app query as `POST /api/query/execute` does; `viewMode: true` runs the published version. Raw answer. */
+/**
+ * Runs an app query as `POST /api/query/execute` does; `viewMode: true` runs the published version. `path` is the
+ * host chain of a module query (`[hostAppId]`); omit it for the app's own query. Raw answer.
+ */
 export async function executeAppQueryRaw(
   request: APIRequestContext,
-  params: { applicationId: string; queryId: string; viewMode: boolean },
+  params: { applicationId: string; queryId: string; viewMode: boolean; path?: string[] },
 ): Promise<RawAnswer> {
   return apiRaw(request, "POST", API_PATHS.QUERY_EXECUTE, { data: { ...params, params: [] } });
 }
@@ -751,6 +756,17 @@ export async function bundleElementsRaw(request: APIRequestContext, bundleId: st
   return apiRaw(request, "GET", bundleElementsPath(bundleId));
 }
 
+export async function publishBundle(request: APIRequestContext, bundleId: string): Promise<void> {
+  await unwrap<unknown>(`publish bundle ${bundleId}`, await request.post(bundlePublishPath(bundleId)));
+}
+
+export async function setBundlePublicToAll(request: APIRequestContext, bundleId: string, publicToAll: boolean): Promise<void> {
+  await unwrap<unknown>(
+    `set public-to-all of bundle ${bundleId}`,
+    await request.put(bundlePublicToAllPath(bundleId), { data: { publicToAll } }),
+  );
+}
+
 export async function grantBundlePermission(request: APIRequestContext, bundleId: string, grant: PermissionGrant): Promise<void> {
   await unwrap<unknown>(
     `grant ${grant.role} on bundle ${bundleId}`,
@@ -758,6 +774,10 @@ export async function grantBundlePermission(request: APIRequestContext, bundleId
       data: { role: grant.role, userIds: grant.userIds ?? [], groupIds: grant.groupIds ?? [] },
     }),
   );
+}
+
+export async function listBundlePermissions(request: APIRequestContext, bundleId: string): Promise<PermissionView> {
+  return unwrap<PermissionView>(`list permissions of bundle ${bundleId}`, await request.get(bundlePermissionsPath(bundleId)));
 }
 
 /**
@@ -789,7 +809,7 @@ export async function deleteBundle(request: APIRequestContext, bundleId: string)
 
 /**
  * Stores a GitHub sign-in configuration with the given client secret in the workspace of the (admin) caller. GitHub
- * configs are only stored; nothing contacts GitHub. Used to prove whether the secret leaks to other callers (SEC-R07d).
+ * configs are only stored; nothing contacts GitHub. Used to prove whether the secret leaks to other callers (SEC-R07d, SEC-R07e).
  */
 export async function seedOAuthConfig(request: APIRequestContext, params: { clientSecret: string; clientId?: string }): Promise<void> {
   await unwrap<unknown>(
@@ -807,7 +827,7 @@ export async function seedOAuthConfig(request: APIRequestContext, params: { clie
 
 /**
  * One sign-in configuration as `GET /api/auth/configs` lists it (admin only). The answer also carries the client secret in
- * clear (D-14); the type leaves it out so no test reads it.
+ * clear (the admin list, `@JsonView(Internal)`, by design); the type leaves it out so no test reads it.
  */
 export interface AuthConfigEntry {
   id: string;
@@ -932,6 +952,7 @@ export async function getApp(request: APIRequestContext, appId: string): Promise
 
 /** One published version of an app as `GET /api/application-records/listByApplicationId` lists it (`ApplicationRecordMetaView`). */
 export interface AppVersion {
+  id: string;
   tag: string;
 }
 

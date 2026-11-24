@@ -33,6 +33,7 @@ import org.lowcoder.domain.application.service.ApplicationRecordServiceImpl;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.constant.NewUrl;
@@ -42,18 +43,25 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import reactor.core.publisher.Mono;
 
+import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 /**
  * Tests of {@link ApplicationRecordApiServiceImpl} (the versions of an application) with Mockito. The mocks follow the
  * real services: {@code ApplicationServiceImpl.findById} and {@code ApplicationRecordServiceImpl.getById} fail when the
  * row is missing (they do not complete empty), so a missing record or application is an error here as it is in production.
  *
  * <p>BF-012 (was pinned under D-6 as plan §9 row "application version list readable for any application id by any
- * signed-in user"): {@code getByApplicationId} (ApplicationRecordApiServiceImpl:59-67) now checks, like the record DSL and the
+ * signed-in user"): {@code getByApplicationId} (ApplicationRecordApiServiceImpl:64-72) now checks, like the record DSL and the
  * delete, that the application belongs to the visitor's organization
  * ({@link #getByApplicationId_otherOrgsApplication_failsWithApplicationAndOrgNotMatch_andReadsNoVersions}). It is reached from
  * {@code ApplicationRecordController.getByApplicationId} (:28-30) at {@code /api/application-records/listByApplicationId},
  * which has no matcher of its own in SecurityConfig and falls under {@code .pathMatchers("/api/**")} /
  * {@code .authenticated()} (SecurityConfig:156-157), so any signed-in user reaches the check.
+ *
+ * <p>D-32: the record DSL ({@code getRecordDSLFromApplicationCombineId}) now also needs EDIT_APPLICATIONS on the
+ * record's own application, checked in {@code checkApplicationRecordViewPermission} after the workspace match; an
+ * empty visitor id is NOT_AUTHORIZED. {@code getByApplicationId} and {@code delete} are unchanged by D-32.
  */
 class ApplicationRecordApiServiceImplTest {
 
@@ -63,9 +71,11 @@ class ApplicationRecordApiServiceImplTest {
     private static final String OTHER_ORG = "org-2";
     private static final String APP = "app-1";
     private static final String OTHER_APP = "app-2";
+    private static final String UNEDITABLE_APP = "app-3";
     private static final String RECORD = "record-1";
     private static final String LATEST = "latest";
     private static final String EDITING = "editing";
+    private static final String VISITOR = "user-1";
     private static final Map<String, Object> LIVE_DSL = Map.of("src", "live");
     private static final Map<String, Object> RECORD_DSL = Map.of("src", "record");
 
@@ -74,10 +84,12 @@ class ApplicationRecordApiServiceImplTest {
     private SessionUserService sessionUserService;
     private OrgDevChecker orgDevChecker;
     private UserService userService;
+    private ResourcePermissionService resourcePermissionService;
     private ApplicationRecordApiServiceImpl service;
 
     private final AtomicInteger dslSubscriptions = new AtomicInteger();
     private final AtomicInteger deletions = new AtomicInteger();
+    private final AtomicInteger recordReads = new AtomicInteger();
 
     @BeforeEach
     void setUp() {
@@ -86,13 +98,15 @@ class ApplicationRecordApiServiceImplTest {
         sessionUserService = mock(SessionUserService.class);
         orgDevChecker = mock(OrgDevChecker.class);
         userService = mock(UserService.class);
+        resourcePermissionService = mock(ResourcePermissionService.class);
         service = new ApplicationRecordApiServiceImpl(applicationService, recordService, mock(ApplicationApiServiceImpl.class),
-                sessionUserService, orgDevChecker, userService);
+                sessionUserService, orgDevChecker, userService, resourcePermissionService);
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(member(ORG)));
         when(orgDevChecker.checkCurrentOrgDev()).thenReturn(Mono.empty());
         when(recordService.deleteById(anyString())).thenReturn(Mono.fromRunnable(deletions::incrementAndGet));
         dslSubscriptions.set(0);
         deletions.set(0);
+        recordReads.set(0);
     }
 
     // ---------------------------------------------------------------- fixtures
@@ -118,12 +132,33 @@ class ApplicationRecordApiServiceImplTest {
         when(recordService.getById(id)).thenReturn(Mono.just(version(id, applicationId, "creator", 1L)));
     }
 
+    /** Like {@link #recordExists}, but counts every subscription so a test can prove how many times the record was read. */
+    private void countedRecord(String id, String applicationId) {
+        when(recordService.getById(id)).thenReturn(Mono.defer(() -> {
+            recordReads.incrementAndGet();
+            return Mono.just(version(id, applicationId, "creator", 1L));
+        }));
+    }
+
     private void liveDsl(String applicationId) {
         when(applicationService.getLiveDSLByApplicationId(applicationId))
                 .thenReturn(Mono.defer(() -> {
                     dslSubscriptions.incrementAndGet();
                     return Mono.just(LIVE_DSL);
                 }));
+    }
+
+    /** The visitor may EDIT_APPLICATIONS on {@code appId}: stubs the visitor id and the exact-argument permission check. */
+    private void visitorMayEdit(String appId) {
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just(VISITOR));
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR, appId, EDIT_APPLICATIONS)).thenReturn(Mono.empty());
+    }
+
+    /** The visitor may NOT EDIT_APPLICATIONS on {@code appId}: stubs the visitor id and the exact-argument permission check. */
+    private void visitorMayNotEdit(String appId) {
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just(VISITOR));
+        when(resourcePermissionService.checkResourcePermissionWithError(VISITOR, appId, EDIT_APPLICATIONS))
+                .thenReturn(Mono.error(new BizException(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED")));
     }
 
     private static BizException failure(Mono<?> mono) {
@@ -141,15 +176,33 @@ class ApplicationRecordApiServiceImplTest {
 
     /** Catches the live branch reading a stored record, or the DSL being read for another application. */
     @Test
-    void getDsl_liveRecord_returnsTheLiveDsl_afterTheOrgCheck() {
+    void getDsl_liveRecord_returnsTheLiveDsl_afterTheOrgAndEditChecks() {
         applicationExists(APP, ORG);
         liveDsl(APP);
+        visitorMayEdit(APP);
 
         Map<String, Object> dsl = service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, LATEST)).block(WAIT);
 
         assertThat(dsl).isEqualTo(LIVE_DSL);
         verify(applicationService).findById(APP);
         verify(recordService, never()).getById(any());
+        assertThat(dslSubscriptions).hasValue(1);
+        verify(resourcePermissionService).checkResourcePermissionWithError(VISITOR, APP, EDIT_APPLICATIONS);
+        verifyNoMoreInteractions(resourcePermissionService);
+    }
+
+    /** Catches a workspace member without EDIT on the application reaching the DSL (D-32): the DSL must not be read. */
+    @Test
+    void getDsl_liveRecord_sameOrgWithoutEdit_failsNotAuthorized_andNeverReadsTheLiveDsl() {
+        applicationExists(APP, ORG);
+        liveDsl(APP);
+        visitorMayNotEdit(APP);
+
+        BizException error = failure(service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, LATEST)));
+
+        assertCode(error, BizError.NOT_AUTHORIZED);
+        assertThat(dslSubscriptions).hasValue(0);
+        verify(applicationService, never()).getLiveDSLByApplicationId(any());
     }
 
     /** Catches the org check being skipped or inverted for the live branch: the DSL must not even be asked for. */
@@ -162,19 +215,38 @@ class ApplicationRecordApiServiceImplTest {
 
         assertCode(error, BizError.APPLICATION_AND_ORG_NOT_MATCH);
         assertThat(dslSubscriptions).hasValue(0);
+        verifyNoInteractions(resourcePermissionService);
+        verify(sessionUserService, never()).getVisitorId();
     }
 
     /** Catches the named branch returning the live DSL, or checking the org against the wrong application. */
     @Test
     void getDsl_namedRecord_returnsTheRecordsDsl_checkedOnTheRecordsApplication() {
-        recordExists(RECORD, APP);
+        countedRecord(RECORD, APP);
         applicationExists(APP, ORG);
+        visitorMayEdit(APP);
 
         Map<String, Object> dsl = service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, RECORD)).block(WAIT);
 
         assertThat(dsl).isEqualTo(RECORD_DSL);
         verify(applicationService).findById(APP);
         verify(applicationService, never()).getLiveDSLByApplicationId(any());
+        assertThat(recordReads).hasValue(2);
+        verify(resourcePermissionService).checkResourcePermissionWithError(VISITOR, APP, EDIT_APPLICATIONS);
+    }
+
+    /** Catches a workspace member without EDIT on the record's application reaching the named record's DSL (D-32). */
+    @Test
+    void getDsl_namedRecord_sameOrgWithoutEdit_failsNotAuthorized_andNeverReadsTheRecordDsl() {
+        countedRecord(RECORD, APP);
+        applicationExists(APP, ORG);
+        visitorMayNotEdit(APP);
+
+        BizException error = failure(service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, RECORD)));
+
+        assertCode(error, BizError.NOT_AUTHORIZED);
+        assertThat(recordReads).hasValue(1);
+        verify(recordService, org.mockito.Mockito.times(1)).getById(RECORD);
     }
 
     /**
@@ -188,15 +260,56 @@ class ApplicationRecordApiServiceImplTest {
         recordExists(RECORD, APP);
         applicationExists(APP, ORG);
         applicationExists(OTHER_APP, OTHER_ORG);
+        visitorMayEdit(APP);
 
         Map<String, Object> dsl = service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(OTHER_APP, RECORD)).block(WAIT);
         System.out.println(TAG + "record of the caller's org, requested id of another org -> " + dsl);
         assertThat(dsl).isEqualTo(RECORD_DSL);
         verify(applicationService, never()).findById(OTHER_APP);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR, OTHER_APP, EDIT_APPLICATIONS);
 
         recordExists("record-2", OTHER_APP);
         BizException error = failure(service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, "record-2")));
         assertCode(error, BizError.APPLICATION_AND_ORG_NOT_MATCH);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR, OTHER_APP, EDIT_APPLICATIONS);
+    }
+
+    /** D-32: the EDIT check follows the record's own application, never the requested one, in both directions. */
+    @Test
+    void getDsl_namedRecord_editPermissionFollowsTheRecordsApplication_notTheRequestedOne() {
+        applicationExists(APP, ORG);
+        applicationExists(UNEDITABLE_APP, ORG);
+        visitorMayEdit(APP);
+        visitorMayNotEdit(UNEDITABLE_APP);
+
+        countedRecord(RECORD, UNEDITABLE_APP);
+        BizException error = failure(service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, RECORD)));
+        assertCode(error, BizError.NOT_AUTHORIZED);
+        assertThat(recordReads).as("the record of the uneditable app is read once, for the check only").hasValue(1);
+        verify(resourcePermissionService, org.mockito.Mockito.times(1)).checkResourcePermissionWithError(VISITOR, UNEDITABLE_APP, EDIT_APPLICATIONS);
+        verify(resourcePermissionService, never()).checkResourcePermissionWithError(VISITOR, APP, EDIT_APPLICATIONS);
+
+        recordReads.set(0);
+        countedRecord("record-2", APP);
+        Map<String, Object> dsl = service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(UNEDITABLE_APP, "record-2")).block(WAIT);
+        assertThat(dsl).isEqualTo(RECORD_DSL);
+        verify(resourcePermissionService, org.mockito.Mockito.times(1)).checkResourcePermissionWithError(VISITOR, APP, EDIT_APPLICATIONS);
+        verify(resourcePermissionService, org.mockito.Mockito.times(1))
+                .checkResourcePermissionWithError(VISITOR, UNEDITABLE_APP, EDIT_APPLICATIONS);
+    }
+
+    /** D-32: an empty visitor id (no security context) is NOT_AUTHORIZED, and the DSL is never read. */
+    @Test
+    void getDsl_noVisitorId_failsNotAuthorized_andNeverReadsTheDsl() {
+        applicationExists(APP, ORG);
+        liveDsl(APP);
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.empty());
+
+        BizException error = failure(service.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, LATEST)));
+
+        assertCode(error, BizError.NOT_AUTHORIZED);
+        assertThat(dslSubscriptions).hasValue(0);
+        verifyNoInteractions(resourcePermissionService);
     }
 
     /** Catches an unknown record being swallowed into an empty answer: the not-found error must reach the caller. */
@@ -208,6 +321,7 @@ class ApplicationRecordApiServiceImplTest {
 
         assertCode(error, BizError.APPLICATION_NOT_FOUND);
         verify(applicationService, never()).getLiveDSLByApplicationId(any());
+        verifyNoInteractions(resourcePermissionService);
     }
 
     /**
@@ -222,7 +336,8 @@ class ApplicationRecordApiServiceImplTest {
         ApplicationRecordRepository repository = mock(ApplicationRecordRepository.class);
         when(repository.findById(anyString())).thenReturn(Mono.empty());
         ApplicationRecordApiServiceImpl withRealRecordService = new ApplicationRecordApiServiceImpl(applicationService,
-                new ApplicationRecordServiceImpl(repository), mock(ApplicationApiServiceImpl.class), sessionUserService, orgDevChecker, userService);
+                new ApplicationRecordServiceImpl(repository), mock(ApplicationApiServiceImpl.class), sessionUserService, orgDevChecker,
+                userService, resourcePermissionService);
 
         for (String id : new String[] {EDITING, ""}) {
             BizException error = failure(withRealRecordService.getRecordDSLFromApplicationCombineId(new ApplicationCombineId(APP, id)));
@@ -230,6 +345,7 @@ class ApplicationRecordApiServiceImplTest {
             verify(repository).findById(id);
         }
         verify(applicationService, never()).getLiveDSLByApplicationId(any());
+        verifyNoInteractions(resourcePermissionService);
     }
 
     // ---------------------------------------------------------------- delete
@@ -260,6 +376,7 @@ class ApplicationRecordApiServiceImplTest {
         service.delete(RECORD).block(WAIT);
         assertThat(deletions).as("own org's record is deleted").hasValue(1);
         verify(recordService, org.mockito.Mockito.atLeastOnce()).deleteById(RECORD);
+        verifyNoInteractions(resourcePermissionService);
     }
 
     /** Catches an unknown record turning into a successful no-op delete, or the deletion being attempted. */
@@ -308,6 +425,7 @@ class ApplicationRecordApiServiceImplTest {
         assertThat(views).containsExactly(
                 new ApplicationRecordMetaView("r2", APP, "tag-r2", "msg-r2", 2_000L, "Grace"),
                 new ApplicationRecordMetaView("r1", APP, "tag-r1", "msg-r1", 1_000L, "Ada"));
+        verifyNoInteractions(resourcePermissionService);
     }
 
     /**
@@ -401,8 +519,9 @@ class ApplicationRecordApiServiceImplTest {
         when(records.getByApplicationId("foreign-app-of-another-org"))
                 .thenReturn(Mono.just(List.of(version("r1", "foreign-app-of-another-org", "u1", 1_000L))));
         when(users.getByIds(anyCollection())).thenReturn(Mono.just(Map.of("u1", user("u1", "Ada"))));
+        ResourcePermissionService permissions = builder.mock(ResourcePermissionService.class);
         builder.singleton("applicationRecordApiServiceImpl", new ApplicationRecordApiServiceImpl(applications, records,
-                mock(ApplicationApiServiceImpl.class), sessions, builder.mock(OrgDevChecker.class), users));
+                mock(ApplicationApiServiceImpl.class), sessions, builder.mock(OrgDevChecker.class), users, permissions));
         builder.controller(ApplicationRecordController.class);
 
         try (ContractTestClient client = builder.build()) {
@@ -414,6 +533,7 @@ class ApplicationRecordApiServiceImplTest {
                     + new String(result.getResponseBodyContent(), java.nio.charset.StandardCharsets.UTF_8));
             EndpointContract.assertBizError(result, BizError.APPLICATION_AND_ORG_NOT_MATCH, "APPLICATION_AND_ORG_NOT_MATCH");
             verifyNoInteractions(users);
+            verifyNoInteractions(permissions);
         }
     }
 }
