@@ -1,11 +1,11 @@
-FROM node:22.23.5-alpine
+FROM node:26.13.1-alpine
 
 WORKDIR /app
 
 RUN apk add --no-cache curl
 
-COPY package.json ./
-RUN npm install --omit=dev
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 COPY server.js ./
 
