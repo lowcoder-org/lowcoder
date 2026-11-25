@@ -121,6 +121,8 @@ readonly POSTGRES_IMAGE="${POSTGRES_IMAGE:-$DEFAULT_POSTGRES_IMAGE}"
 readonly POSTGRES_DATABASE="shop"
 readonly POSTGRES_USER="postgres"
 readonly POSTGRES_PASSWORD="e2e-postgres-password"
+# The image's data directory (it declares it a volume), mounted as a tmpfs so that no anonymous volume outlives the run
+readonly POSTGRES_DATA_DIR="/var/lib/postgresql/data"
 # Firebird sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. Tag and digest of the image:
 # 3.0.12 with Legacy_Auth first (below): node-firebird 1.1.9 attached 100 of 100 times; with the image's default Srp, 12 of 100 attaches failed
 # with "Your user name and password are not defined" (README, "Firebird sidecar"). The values below must equal FIREBIRD in e2e/src/constants.ts;
@@ -128,7 +130,9 @@ readonly POSTGRES_PASSWORD="e2e-postgres-password"
 readonly DEFAULT_FIREBIRD_IMAGE="firebirdsql/firebird:3.0.12@sha256:e45c9bc4fdacaaddc1980a05b7bb8b297f09fe019eadefb059006efe4dafe875"
 readonly FIREBIRD_IMAGE="${FIREBIRD_IMAGE:-$DEFAULT_FIREBIRD_IMAGE}"
 readonly FIREBIRD_DATABASE_FILE="e2e.fdb"
-readonly FIREBIRD_DATABASE_PATH="/var/lib/firebird/data/$FIREBIRD_DATABASE_FILE"
+# The image's data directory (it declares it a volume), mounted as a tmpfs so that no anonymous volume outlives the run
+readonly FIREBIRD_DATA_DIR="/var/lib/firebird/data"
+readonly FIREBIRD_DATABASE_PATH="$FIREBIRD_DATA_DIR/$FIREBIRD_DATABASE_FILE"
 readonly FIREBIRD_USER="e2euser"
 readonly FIREBIRD_PASSWORD="e2e-firebird-password"
 readonly FIREBIRD_ROOT_PASSWORD="e2e-firebird-root-password"
@@ -326,7 +330,7 @@ start_postgres() {
     log "Starting $POSTGRES_IMAGE as $POSTGRES_CONTAINER"
     docker run -d --name "$POSTGRES_CONTAINER" --network "$NETWORK" \
         -e POSTGRES_DB="$POSTGRES_DATABASE" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
-        -v "$E2E_DIR/fixtures/sql":/docker-entrypoint-initdb.d:ro \
+        --tmpfs "$POSTGRES_DATA_DIR" -v "$E2E_DIR/fixtures/sql":/docker-entrypoint-initdb.d:ro \
         "$POSTGRES_IMAGE" > /dev/null
 }
 
@@ -378,7 +382,7 @@ start_firebird() {
     docker run -d --name "$FIREBIRD_CONTAINER" --network "$NETWORK" --network-alias "$FIREBIRD_ALIAS" \
         -e FIREBIRD_ROOT_PASSWORD="$FIREBIRD_ROOT_PASSWORD" -e FIREBIRD_USER="$FIREBIRD_USER" -e FIREBIRD_PASSWORD="$FIREBIRD_PASSWORD" \
         -e FIREBIRD_DATABASE="$FIREBIRD_DATABASE_FILE" -e FIREBIRD_USE_LEGACY_AUTH="$FIREBIRD_USE_LEGACY_AUTH" \
-        -v "$E2E_DIR/fixtures/firebird":/docker-entrypoint-initdb.d:ro \
+        --tmpfs "$FIREBIRD_DATA_DIR" -v "$E2E_DIR/fixtures/firebird":/docker-entrypoint-initdb.d:ro \
         "$FIREBIRD_IMAGE" > /dev/null
     local firebird_ip
     firebird_ip="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$FIREBIRD_CONTAINER")"
