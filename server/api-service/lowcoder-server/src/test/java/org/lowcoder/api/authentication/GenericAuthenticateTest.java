@@ -167,32 +167,26 @@ public class GenericAuthenticateTest {
         MockServerHttpRequest request1 = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange1 = MockServerWebExchange.builder(request1).build();
 
-        Mono<User> userMono1 = authenticationController.formLogin(formLoginRequest, null, null, exchange1)
-                .then(userRepository.findByConnections_SourceAndConnections_RawId(source1, email));
-
-        StepVerifier.create(userMono1)
-                .assertNext(user -> {
-                    assertEquals(email, user.getEmail());
-                    assertEquals(UserState.ACTIVATED, user.getState());
-                    assertTrue(user.getIsEnabled());
-                    assertTrue(encryptionService.matchPassword(password, user.getPassword()));
-                    assertFalse(user.getIsAnonymous());
-                    assertFalse(user.getIsNewUser());//
-                    assertFalse(user.isHasSetNickname());
-                    assertNotNull(user.getId());
-                    //connections
-                    assertEquals(2, user.getConnections().size());
-                    Connection connection = Iterables.getLast(user.getConnections(), null);
-                    assertNotNull(connection);
-                    assertEquals(authId1, connection.getAuthId());
-                    assertEquals(source1, connection.getSource());
-                    assertEquals(email, connection.getRawId());
-                    assertEquals(email, connection.getName());
-                    assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
-                    assertNull(connection.getAuthConnectionAuthToken());
-                    assertEquals(Map.of("email", email), connection.getRawUserInfo());
+        // A form login whose address matches an account only by e-mail (the Google account above) is refused: the
+        // address alone never links two logins, and nothing of the Google account changes.
+        StepVerifier.create(authenticationController.formLogin(formLoginRequest, null, null, exchange1))
+                .expectErrorSatisfies(throwable -> {
+                    BizException bizException = assertInstanceOf(BizException.class, throwable);
+                    assertEquals(BizError.USER_LOGIN_ID_EXIST, bizException.getError());
+                    assertEquals("USER_LOGIN_ID_EXIST", bizException.getMessageKey());
                 })
+                .verify();
+
+        StepVerifier.create(userRepository.findByConnections_SourceAndConnections_RawId(source, uid))
+                .assertNext(user -> {
+                    assertEquals("Tech Ninja", user.getName());
+                    assertEquals(1, user.getConnections().size());
+                    assertEquals(source, Iterables.getOnlyElement(user.getConnections()).getSource());
+                    assertFalse(encryptionService.matchPassword(password, user.getPassword()));
+                })
+                .verifyComplete();
+
+        StepVerifier.create(userRepository.findByConnections_SourceAndConnections_RawId(source1, email))
                 .verifyComplete();
 
         // Mockito.framework().clearInlineMocks();
