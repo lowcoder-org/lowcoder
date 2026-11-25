@@ -1,0 +1,62 @@
+name: agora-token-service tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'deploy/docker/agora-token-service/**'
+      - '.github/workflows/agora-token-service-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x, 26.x]
+    defaults:
+      run:
+        shell: bash
+        working-directory: deploy/docker/agora-token-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: deploy/docker/agora-token-service/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Test
+        env:
+          NODE_OPTIONS: --test-reporter=tap
+        run: |
+          set -o pipefail
+          node -v
+          npm test 2>&1 | tee "$RUNNER_TEMP/node-test.tap"
+      - name: Check the test summary
+        env:
+          MIN_PASS: 14
+          TODO: 1
+          REQUIRED_TITLES: |
+            token: publisher uid token has channel, uid, expiry and privileges
+            token: signature verifies with the certificate and fails with another
+            token: subscriber userAccount token defaults to 3600 s and privilege 1
+            errors: short path, unknown path and POST are 404
+        run: |
+          log="$RUNNER_TEMP/node-test.tap"
+          grep -qx 'TAP version 13' "$log" || { echo "::error::$log is not TAP output"; exit 1; }
+          read -r pass fail cancelled skipped todo < <(awk '/^# (pass|fail|cancelled|skipped|todo) [0-9]+$/ { v[$2] = $3 } END { printf "%s %s %s %s %s\n", v["pass"] == "" ? -1 : v["pass"], v["fail"] == "" ? -1 : v["fail"], v["cancelled"] == "" ? -1 : v["cancelled"], v["skipped"] == "" ? -1 : v["skipped"], v["todo"] == "" ? -1 : v["todo"] }' "$log")
+          echo "pass $pass, fail $fail, cancelled $cancelled, skipped $skipped, todo $todo"
+          grep -E '^ *(not )?ok [0-9]+ - .* # TODO' "$log" || echo "no todo tests"
+          [ "$fail" = 0 ] && [ "$cancelled" = 0 ] && [ "$skipped" = 0 ] && [ "$todo" = "$TODO" ] && [ "$pass" -ge "$MIN_PASS" ] \
+            || { echo "::error::expected fail 0, cancelled 0, skipped 0, todo $TODO, pass >= $MIN_PASS"; exit 1; }
+          n=0
+          while IFS= read -r t; do
+            [ -n "$t" ] || continue
+            awk -v t="$t" '{ l = $0 } sub(/^ *ok [0-9]+ - /, "", l) && l == t { f = 1 } END { exit !f }' "$log" || { echo "::error::no passing test titled: $t"; exit 1; }
+            n=$((n + 1))
+          done <<< "$REQUIRED_TITLES"
+          [ "$n" -gt 0 ] || { echo "::error::REQUIRED_TITLES is empty"; exit 1; }
+          echo "$n required titles passed"

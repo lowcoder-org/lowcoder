@@ -1,0 +1,66 @@
+name: proxy-service tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'server/proxy-service/**'
+      - '.github/workflows/proxy-service-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x, 26.x]
+    defaults:
+      run:
+        shell: bash
+        working-directory: server/proxy-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Ensure Yarn 1.22.22
+        run: |
+          if [ "$(yarn --version 2>/dev/null)" = 1.22.22 ]; then echo "yarn 1.22.22 already on PATH"; else echo "yarn on PATH: $(yarn --version 2>/dev/null || echo none); installing 1.22.22"; npm install -g yarn@1.22.22; fi
+          [ "$(yarn --version)" = 1.22.22 ] || { echo "::error::yarn $(yarn --version), expected 1.22.22"; exit 1; }
+      - name: Install
+        run: yarn install --frozen-lockfile
+      - name: Test
+        env:
+          NODE_OPTIONS: --test-reporter=tap
+        run: |
+          set -o pipefail
+          node -v
+          yarn test 2>&1 | tee "$RUNNER_TEMP/node-test.tap"
+      - name: Check the test summary
+        env:
+          MIN_PASS: 58
+          TODO: 0
+          REQUIRED_TITLES: |
+            auth: secret rejects a token of another scope
+            google: published responder URL is accepted and cleaned
+            website session: public https URL gives 200 and a proxied URL
+            typeform route: upstream headers are rewritten
+            google-forms route: http target with a session token is 502
+            website route: loopback target with a session token is 400
+        run: |
+          log="$RUNNER_TEMP/node-test.tap"
+          grep -qx 'TAP version 13' "$log" || { echo "::error::$log is not TAP output"; exit 1; }
+          read -r pass fail cancelled skipped todo < <(awk '/^# (pass|fail|cancelled|skipped|todo) [0-9]+$/ { v[$2] = $3 } END { printf "%s %s %s %s %s\n", v["pass"] == "" ? -1 : v["pass"], v["fail"] == "" ? -1 : v["fail"], v["cancelled"] == "" ? -1 : v["cancelled"], v["skipped"] == "" ? -1 : v["skipped"], v["todo"] == "" ? -1 : v["todo"] }' "$log")
+          echo "pass $pass, fail $fail, cancelled $cancelled, skipped $skipped, todo $todo"
+          grep -E '^ *(not )?ok [0-9]+ - .* # TODO' "$log" || echo "no todo tests"
+          [ "$fail" = 0 ] && [ "$cancelled" = 0 ] && [ "$skipped" = 0 ] && [ "$todo" = "$TODO" ] && [ "$pass" -ge "$MIN_PASS" ] \
+            || { echo "::error::expected fail 0, cancelled 0, skipped 0, todo $TODO, pass >= $MIN_PASS"; exit 1; }
+          n=0
+          while IFS= read -r t; do
+            [ -n "$t" ] || continue
+            awk -v t="$t" '{ l = $0 } sub(/^ *ok [0-9]+ - /, "", l) && l == t { f = 1 } END { exit !f }' "$log" || { echo "::error::no passing test titled: $t"; exit 1; }
+            n=$((n + 1))
+          done <<< "$REQUIRED_TITLES"
+          [ "$n" -gt 0 ] || { echo "::error::REQUIRED_TITLES is empty"; exit 1; }
+          echo "$n required titles passed"

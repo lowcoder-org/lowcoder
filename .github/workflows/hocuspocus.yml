@@ -11,6 +11,7 @@ on:
       - 'deploy/docker/hocuspocus/**'
       - '.github/workflows/hocuspocus.yml'
       - '.github/workflows/build-service-image.yml'
+      - '!deploy/docker/hocuspocus/test/**'
 
 permissions:
   contents: read
