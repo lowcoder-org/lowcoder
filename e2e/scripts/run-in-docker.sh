@@ -24,8 +24,8 @@
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
 ##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
 ##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources: real servers a plugin can be pointed at, for plugins
-##                       whose protocol the echo cannot serve (Firebird: a wire protocol) or whose real behaviour the echo's canned answers say nothing about (libSQL, CouchDB)
-##                       (today a Firebird server, FIREBIRD_IMAGE below, a libSQL server, LIBSQL_IMAGE below, and a CouchDB server, COUCHDB_IMAGE below) and run their @node-service-sidecar tests; independent of the
+##                       whose protocol the echo cannot serve (Firebird: a wire protocol) or whose real behaviour the echo's canned answers say nothing about (libSQL, CouchDB, DynamoDB Local)
+##                       (today a Firebird server, FIREBIRD_IMAGE below, a libSQL server, LIBSQL_IMAGE below, a CouchDB server, COUCHDB_IMAGE below, and a DynamoDB Local server, DYNAMODB_IMAGE below) and run their @node-service-sidecar tests; independent of the
 ##                       other flags, default stack only (any other profile is an error). Without it the run starts none of them,
 ##                       neither lists nor runs those tests, and pulls no extra image.
 ##                       Run only these: E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 $0 --grep @node-service-sidecar
@@ -45,6 +45,7 @@
 ##   FIREBIRD_IMAGE      Firebird sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   LIBSQL_IMAGE        libSQL server (sqld) sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   COUCHDB_IMAGE       CouchDB sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
+##   DYNAMODB_IMAGE      DynamoDB Local sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
 ## Set by the script for each run (a value of the caller is overwritten; the password is new every run, never printed,
@@ -96,6 +97,12 @@
 ## 412 when it exists already) and is ready when `_all_dbs` lists all three; it runs inside the sidecar container (the image has curl) against 127.0.0.1, and is repeated
 ## until it succeeds or STARTUP_TIMEOUT passes. The data lives in a tmpfs (the image declares /opt/couchdb/data a volume, which `docker rm -f` would leave behind),
 ## and `cleanup` removes the container however the run ends. Without the flag nothing of this runs.
+##
+## Only with E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 it also starts a DynamoDB Local sidecar (DYNAMODB_IMAGE) under the alias e2e-dynamodb, port 8000: the target of the DynamoDB data
+## source of node-service (a real server that implements the DynamoDB wire API in place of the echo's canned answers). It starts after the CouchDB sidecar and is reached exactly
+## like it: `--add-host e2e-dynamodb:<IP>` for the app container and the runner, and the alias as E2E_DYNAMODB_HOST for the runner. It runs in memory with one database shared by
+## every access key (`-inMemory -sharedDb`), checks no credential, and the image declares no volume, so `cleanup` removes everything however the run ends. The script waits until
+## one real ListTables call, posted from the echo container over the run network, answers 200 with a `TableNames` member. Without the flag nothing of this runs.
 ##
 ## Not covered: Firefox and WebKit (only Chromium runs), the multi-container compose setup, databases other than
 ## PostgreSQL.
@@ -157,10 +164,24 @@ readonly COUCHDB_HTTP_CREATED="201"
 readonly COUCHDB_HTTP_EXISTS="412"
 # Seconds a single readiness request may take to connect and in total (a local server answers in milliseconds); small against POLL_INTERVAL and STARTUP_TIMEOUT
 # so that a stalled request ends the attempt and the wait loop checks its deadline again
+# The wait loops of the four sidecars (Firebird, libSQL, CouchDB, DynamoDB Local) measure real elapsed time with the shell's SECONDS and compare it with STARTUP_TIMEOUT after every
+# failed probe, so the time a probe takes counts. The check comes before the sleep and the next probe, hence the worst case is STARTUP_TIMEOUT + POLL_INTERVAL + PROBE_REQUEST_TIMEOUT
+# (plus the overhead of the docker calls and up to one second of clock granularity, SECONDS counts whole seconds), not an unbounded multiple. This holds for each of the four because
+# one probe is bounded as a whole: the Firebird probe is one isql under `timeout -s KILL`, the libSQL and DynamoDB probes are one fetch with an abort signal, and the CouchDB
+# probe (five requests) shares one PROBE_REQUEST_TIMEOUT budget (couchdb_curl). The PostgreSQL, echo and app waits still count sleeps only (their probes have no time limit).
 readonly PROBE_CONNECT_TIMEOUT=2
 readonly PROBE_REQUEST_TIMEOUT=5
 # The image's data directory, mounted as a tmpfs so that no anonymous volume outlives the run
 readonly COUCHDB_DATA_DIR="/opt/couchdb/data"
+# DynamoDB Local sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. The image is amazon/dynamodb-local 3.3.2 by tag and
+# digest. It runs in memory (`-inMemory`) with one database for every access key (`-sharedDb`); it checks no credential, and the image declares no volume, so nothing
+# outlives the container. DYNAMODB_PORT is the image's own HTTP port.
+readonly DEFAULT_DYNAMODB_IMAGE="amazon/dynamodb-local:3.3.2@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86"
+readonly DYNAMODB_IMAGE="${DYNAMODB_IMAGE:-$DEFAULT_DYNAMODB_IMAGE}"
+readonly DYNAMODB_ALIAS="e2e-dynamodb"
+readonly DYNAMODB_PORT=8000
+# The one status the readiness ListTables call counts as "there"
+readonly DYNAMODB_HTTP_OK=200
 # The instance super admin of the throw-away stack; the domain equals TEST_EMAIL_DOMAIN in e2e/src/constants.ts; the suite
 # reads the name from E2E_SUPERUSER_USERNAME (SUPER_ADMIN_ENV). The password is generated per run (generate_superuser_password).
 readonly SUPERUSER_USERNAME="e2e-superadmin@example.test"
@@ -196,6 +217,7 @@ readonly ECHO_CONTAINER="${NAME_PREFIX}-echo"
 readonly FIREBIRD_CONTAINER="${NAME_PREFIX}-fb"
 readonly LIBSQL_CONTAINER="${NAME_PREFIX}-libsql"
 readonly COUCHDB_CONTAINER="${NAME_PREFIX}-couchdb"
+readonly DYNAMODB_CONTAINER="${NAME_PREFIX}-dynamodb"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
@@ -205,7 +227,7 @@ readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
 ECHO_IP=""
-# Set by start_firebird, start_libsql and start_couchdb (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
+# Set by start_firebird, start_libsql, start_couchdb and start_dynamodb (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
 SIDECAR_ADD_HOST=()
 SIDECAR_RUNNER_ENV=()
 
@@ -219,7 +241,7 @@ fail() {
 }
 
 cleanup() {
-    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" "$COUCHDB_CONTAINER" > /dev/null 2>&1 || true
+    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" "$COUCHDB_CONTAINER" "$DYNAMODB_CONTAINER" > /dev/null 2>&1 || true
     docker network rm "$NETWORK" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -367,15 +389,16 @@ start_firebird() {
 }
 
 wait_for_firebird() {
-    local waited=0
+    local waited=0 started=$SECONDS
     until echo "SELECT COUNT(*) FROM FB_ITEMS;" | docker exec -i "$FIREBIRD_CONTAINER" timeout -s KILL "$PROBE_REQUEST_TIMEOUT" /opt/firebird/bin/isql -b -user "$FIREBIRD_USER" -password "$FIREBIRD_PASSWORD" "127.0.0.1:${FIREBIRD_DATABASE_PATH}" > /dev/null 2>&1; do
+        waited=$((SECONDS - started))
         if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
             docker logs --tail "$LOG_TAIL_LINES" "$FIREBIRD_CONTAINER" >&2 || true
             fail "the Firebird sidecar did not become ready within ${STARTUP_TIMEOUT}s"
         fi
         sleep "$POLL_INTERVAL"
-        waited=$((waited + POLL_INTERVAL))
     done
+    waited=$((SECONDS - started))
     log "Firebird sidecar ready after ${waited}s"
 }
 
@@ -396,29 +419,38 @@ start_libsql() {
 # A real Hrana pipeline with the read-write token, posted to the sidecar's alias over the run network from the echo container (the image has no
 # curl and no shell tools of use): ready when it answers 200 with the integer 1 for `select 1`.
 wait_for_libsql() {
-    local waited=0
+    local waited=0 started=$SECONDS
     local probe="fetch(process.env.LIBSQL_PROBE_URL + '/v2/pipeline', { signal: AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000))), method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.LIBSQL_PROBE_TOKEN }, body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: 'select 1' } }, { type: 'close' }] }) }).then((r) => r.text().then((t) => process.exit(r.ok && t.includes('\"value\":\"1\"') ? 0 : 1)), () => process.exit(1))"
     until docker exec -e LIBSQL_PROBE_URL="http://${LIBSQL_ALIAS}:${LIBSQL_PORT}" -e LIBSQL_PROBE_TOKEN="$LIBSQL_TOKEN" "$ECHO_CONTAINER" node -e "$probe" > /dev/null 2>&1; do
+        waited=$((SECONDS - started))
         if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
             docker logs --tail "$LOG_TAIL_LINES" "$LIBSQL_CONTAINER" >&2 || true
             fail "the libSQL sidecar did not become ready within ${STARTUP_TIMEOUT}s"
         fi
         sleep "$POLL_INTERVAL"
-        waited=$((waited + POLL_INTERVAL))
     done
+    waited=$((SECONDS - started))
     log "libSQL sidecar ready after ${waited}s"
 }
 
 # A fresh single-node CouchDB has an admin and no system databases. This probe is idempotent and runs inside the sidecar over 127.0.0.1 (the image has curl):
 # the server must answer `_up`, each system database is created through the real API (it counts only when the server answers 201 created or 412 already
-# exists; any other answer, or none, is "not ready yet"), and `_all_dbs` must list all of them. Every curl carries a connect and a total time limit, so a
-# stalled request ends the probe and the loop of wait_for_couchdb re-checks its deadline instead of blocking past STARTUP_TIMEOUT.
+# exists; any other answer, or none, is "not ready yet"), and `_all_dbs` must list all of them. A stalled request ends the probe and the loop of wait_for_couchdb
+# re-checks its deadline instead of blocking past STARTUP_TIMEOUT.
+# The probe makes five requests, so the limit is on the WHOLE probe, not on each request: COUCHDB_PROBE_DEADLINE is the second (of the shell's SECONDS) at which the probe
+# must be over, set by couchdb_probe; every request gets the time that is left of it as its total limit (and at most PROBE_CONNECT_TIMEOUT to connect), and a request that
+# finds nothing left is not made and fails the probe.
+COUCHDB_PROBE_DEADLINE=0
 couchdb_curl() {
-    docker exec "$COUCHDB_CONTAINER" curl --connect-timeout "$PROBE_CONNECT_TIMEOUT" --max-time "$PROBE_REQUEST_TIMEOUT" -u "${COUCHDB_USER}:${COUCHDB_PASSWORD}" "$@"
+    local remaining=$((COUCHDB_PROBE_DEADLINE - SECONDS)) connect_limit="$PROBE_CONNECT_TIMEOUT"
+    [ "$remaining" -gt 0 ] || return 1
+    [ "$remaining" -ge "$connect_limit" ] || connect_limit="$remaining"
+    docker exec "$COUCHDB_CONTAINER" curl --connect-timeout "$connect_limit" --max-time "$remaining" -u "${COUCHDB_USER}:${COUCHDB_PASSWORD}" "$@"
 }
 
 couchdb_probe() {
     local base="http://127.0.0.1:${COUCHDB_PORT}" database status listed
+    COUCHDB_PROBE_DEADLINE=$((SECONDS + PROBE_REQUEST_TIMEOUT))
     couchdb_curl -sf "${base}/_up" > /dev/null || return 1
     for database in "${COUCHDB_SYSTEM_DATABASES[@]}"; do
         status="$(couchdb_curl -s -o /dev/null -w '%{http_code}' -X PUT "${base}/${database}")" || return 1
@@ -451,16 +483,48 @@ start_couchdb() {
 }
 
 wait_for_couchdb() {
-    local waited=0
+    local waited=0 started=$SECONDS
     until couchdb_probe > /dev/null 2>&1; do
+        waited=$((SECONDS - started))
         if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
             docker logs --tail "$LOG_TAIL_LINES" "$COUCHDB_CONTAINER" >&2 || true
             fail "the CouchDB sidecar did not become ready within ${STARTUP_TIMEOUT}s"
         fi
         sleep "$POLL_INTERVAL"
-        waited=$((waited + POLL_INTERVAL))
     done
+    waited=$((SECONDS - started))
     log "CouchDB sidecar ready after ${waited}s"
+}
+
+# The image runs the JVM server as its entrypoint (`java -jar DynamoDBLocal.jar`); the flags are the image's own command line plus `-sharedDb`.
+start_dynamodb() {
+    log "Starting $DYNAMODB_IMAGE as $DYNAMODB_CONTAINER (alias $DYNAMODB_ALIAS, port $DYNAMODB_PORT)"
+    docker run -d --name "$DYNAMODB_CONTAINER" --network "$NETWORK" --network-alias "$DYNAMODB_ALIAS" \
+        "$DYNAMODB_IMAGE" -jar DynamoDBLocal.jar -inMemory -sharedDb -port "$DYNAMODB_PORT" > /dev/null
+    local dynamodb_ip
+    dynamodb_ip="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$DYNAMODB_CONTAINER")"
+    [ -n "$dynamodb_ip" ] || fail "no IP address for $DYNAMODB_CONTAINER on $NETWORK"
+    SIDECAR_ADD_HOST+=(--add-host "${DYNAMODB_ALIAS}:${dynamodb_ip}")
+    SIDECAR_RUNNER_ENV+=(-e "E2E_DYNAMODB_HOST=${DYNAMODB_ALIAS}")
+    log "DynamoDB Local sidecar is $DYNAMODB_ALIAS = $dynamodb_ip"
+}
+
+# A real ListTables call posted to the sidecar's alias over the run network from the echo container (the image has no curl and no shell tools of use). The server wants an
+# Authorization header with a `Credential=` scope and does not verify the signature. Ready when it answers exactly DYNAMODB_HTTP_OK with a JSON body whose `TableNames` member is an array (a body that is not JSON, or any error, exits non-zero); the fetch aborts
+# after the request limit, so a stalled request ends the attempt and the wait loop checks its deadline again.
+wait_for_dynamodb() {
+    local waited=0 started=$SECONDS
+    local probe="fetch(process.env.DYNAMODB_PROBE_URL, { signal: AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000))), method: 'POST', headers: { 'Content-Type': 'application/x-amz-json-1.0', 'X-Amz-Target': 'DynamoDB_20120810.ListTables', Authorization: 'AWS4-HMAC-SHA256 Credential=e2e/20260101/us-west-1/dynamodb/aws4_request, SignedHeaders=host, Signature=00' }, body: '{}' }).then((r) => r.text().then((t) => process.exit(r.status === $DYNAMODB_HTTP_OK && Array.isArray(JSON.parse(t).TableNames) ? 0 : 1))).catch(() => process.exit(1))"
+    until docker exec -e DYNAMODB_PROBE_URL="http://${DYNAMODB_ALIAS}:${DYNAMODB_PORT}/" "$ECHO_CONTAINER" node -e "$probe" > /dev/null 2>&1; do
+        waited=$((SECONDS - started))
+        if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
+            docker logs --tail "$LOG_TAIL_LINES" "$DYNAMODB_CONTAINER" >&2 || true
+            fail "the DynamoDB Local sidecar did not become ready within ${STARTUP_TIMEOUT}s"
+        fi
+        sleep "$POLL_INTERVAL"
+    done
+    waited=$((SECONDS - started))
+    log "DynamoDB Local sidecar ready after ${waited}s"
 }
 
 wait_for_app() {
@@ -529,6 +593,9 @@ fi
 if node_service_sidecars_enabled; then
     start_couchdb
 fi
+if node_service_sidecars_enabled; then
+    start_dynamodb
+fi
 start_app
 wait_for_postgres
 wait_for_echo
@@ -540,6 +607,9 @@ if node_service_sidecars_enabled; then
 fi
 if node_service_sidecars_enabled; then
     wait_for_couchdb
+fi
+if node_service_sidecars_enabled; then
+    wait_for_dynamodb
 fi
 wait_for_app
 run_tests "$@"
