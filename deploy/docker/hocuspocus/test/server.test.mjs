@@ -156,8 +156,15 @@ test("secret: wrong and empty tokens are refused with permission-denied", { skip
 function openDocument(url, name, token) {
   const document = new Y.Doc();
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`${name}: not synced after ${SYNC_TIMEOUT_MS} ms`)), SYNC_TIMEOUT_MS);
-    const provider = new HocuspocusProvider({
+    // a provider that never syncs keeps reconnecting and the test process never exits: destroy it on failure
+    let provider;
+    const fail = (message) => {
+      clearTimeout(timer);
+      provider?.destroy();
+      reject(new Error(message));
+    };
+    const timer = setTimeout(() => fail(`${name}: not synced after ${SYNC_TIMEOUT_MS} ms`), SYNC_TIMEOUT_MS);
+    provider = new HocuspocusProvider({
       url,
       name,
       document,
@@ -167,10 +174,7 @@ function openDocument(url, name, token) {
         clearTimeout(timer);
         resolve({ document, provider });
       },
-      onAuthenticationFailed: ({ reason }) => {
-        clearTimeout(timer);
-        reject(new Error(`${name}: authentication failed (${reason})`));
-      },
+      onAuthenticationFailed: ({ reason }) => fail(`${name}: authentication failed (${reason})`),
     });
   });
 }
@@ -181,9 +185,11 @@ test("documents: a value written in document A is not visible in document B", as
   const opened = [];
   try {
     const writer = await openDocument(server.url, DOCUMENT_A, token);
+    opened.push(writer);
     const sameDocument = await openDocument(server.url, DOCUMENT_A, token);
+    opened.push(sameDocument);
     const otherDocument = await openDocument(server.url, DOCUMENT_B, token);
-    opened.push(writer, sameDocument, otherDocument);
+    opened.push(otherDocument);
     const expected = `written-${Date.now()}`;
     const received = new Promise((resolve) => {
       const map = sameDocument.document.getMap(SHARED_MAP);
