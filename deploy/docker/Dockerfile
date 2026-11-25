@@ -58,11 +58,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 # Download nodejs and install yarn
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y nodejs=24.22.3-1nodesource1 \
+  && apt-get install --no-install-recommends -y nodejs=26.13.1-1nodesource1 \
   && npm install -g yarn
 
 # Copy and build the node-service app
@@ -92,11 +92,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_26.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 # Download nodejs and install yarn
 RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y nodejs=24.22.3-1nodesource1 gosu \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y nodejs=26.13.1-1nodesource1 gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
   && addgroup --system --gid 9001 lowcoder \
