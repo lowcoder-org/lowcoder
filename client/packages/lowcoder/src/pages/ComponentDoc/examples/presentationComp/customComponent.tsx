@@ -8,13 +8,34 @@ export default function CustomCompExample() {
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description="The Following Examples Show the Basic Usage of the Image Carousel Component."
+        description="The Following Examples Show the Basic Usage of the Custom Component."
       >
         <Example
-          title="Image Carousel Component"
+          title="Custom Component"
           width={500}
           height={500}
           config={{
+          }}
+          compFactory={CustomComp}
+        />
+        <Example
+          title="Hiding the Custom Component"
+          width={500}
+          height={500}
+          config={{
+            "hidden": true,
+          }}
+          compFactory={CustomComp}
+        />
+        <Example
+          title="Styling of Custom Component"
+          width={500}
+          height={300}
+          config={{
+            "style":{
+              "margin": "10px",
+              "padding": "30px",
+            },
           }}
           compFactory={CustomComp}
         />

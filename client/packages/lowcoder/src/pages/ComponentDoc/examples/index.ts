@@ -97,6 +97,10 @@ import DrawerExample from "./ChartsComp/Drawer";
 import CollapsibleContainerExample from "./ContainersComp/CollapsibleContainer";
 import FloatTextContainerExample from "./ContainersComp/FloatTextContainer";
 import SplitLayoutExample from "./ContainersComp/SplitLayout";
+import BarChartExample from "./ChartsComp/BarChart";
+import LineChartExample from "./ChartsComp/LineChart";
+import PieChartExample from "./ChartsComp/PieChart";
+import ScatterChartExample from "./ChartsComp/ScatterChart";
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
@@ -171,6 +175,7 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   candleStickChart: CandleStickChartExample,
   grid: GridViewExample,
   modal: ModalExample,
+  barChart: BarChartExample,
   funnelChart: FunnelChartExample,
   gaugeChart: GaugeChartExample,
   graphChart: GraphChartExample,
@@ -197,6 +202,9 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   collapsibleContainer: CollapsibleContainerExample,
   floatTextContainer: FloatTextContainerExample,
   splitLayout: SplitLayoutExample,
+  lineChart: LineChartExample,
+  pieChart: PieChartExample,
+  scatterChart: ScatterChartExample,
 };
 
 export default examples;

@@ -286,57 +286,6 @@ export default function ListViewExample() {
           compFactory={ListViewComp}
         />
       </ExampleGroup>
-
-      <ExampleGroup
-        title="Animation Style"
-        description="The Following Examples Show different animations on the List View Component."
-        >
-        <Example
-          title="Bounce Animation"
-          hideSettings={true}
-          config={{
-            noOfRows: rows,
-            container: container, 
-            animationStyle: {
-            "animation": "bounce",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ListViewComp}
-        />
-        <Example
-          title="Swing Animation"
-          hideSettings={true}
-          config={{
-            noOfRows: rows,
-            container: container, 
-            animationStyle: {
-            "animation": "swing",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ListViewComp}
-        />
-        <Example
-          title="Tada Animation"
-          hideSettings={true}
-          config={{
-            noOfRows: rows,
-            container: container, 
-            animationStyle: {
-            "animation": "tada",
-            "animationDelay": "1s",
-            "animationDuration": "3s",
-            "animationIterationCount": "infinite"
-            },
-          }}
-          compFactory={ListViewComp}
-        />
-      </ExampleGroup>
     </>
   );
 }
