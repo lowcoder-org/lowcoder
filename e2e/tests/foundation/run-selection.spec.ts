@@ -566,8 +566,8 @@ test.describe("run selection: the node-service sidecar tests are opt-in", () => 
   });
 });
 
-/** The names of the helpers whose use makes a spec need a sidecar (Firebird, libSQL, CouchDB, DynamoDB Local), and the tag every test of such a spec must wear. */
-const SIDECAR_HELPERS = ["firebirdConnection", "libsqlConnection", "couchdbConnection", "dynamodbConnection"] as const;
+/** The names of the helpers whose use makes a spec need a sidecar (Firebird, libSQL, CouchDB, DynamoDB Local, S3), and the tag every test of such a spec must wear. */
+const SIDECAR_HELPERS = ["firebirdConnection", "libsqlConnection", "couchdbConnection", "dynamodbConnection", "s3Connection"] as const;
 const SIDECAR_HELPER = SIDECAR_HELPERS[0];
 const SIDECAR_TAG_KEY = "NODE_SERVICE_SIDECAR";
 
@@ -589,7 +589,7 @@ function detailsTagWithSidecar(details: ts.Expression): boolean {
 }
 
 /**
- * The tests of a spec source that does not wear `TAGS.NODE_SERVICE_SIDECAR`, when the source uses a sidecar helper (`firebirdConnection`, `libsqlConnection`, `couchdbConnection` or `dynamodbConnection`; a spec that needs the
+ * The tests of a spec source that does not wear `TAGS.NODE_SERVICE_SIDECAR`, when the source uses a sidecar helper (`firebirdConnection`, `libsqlConnection`, `couchdbConnection`, `dynamodbConnection` or `s3Connection`; a spec that needs the
  * sidecar: untagged, its tests would run in the default run, where the sidecar is not started). A source that does not use the helper
  * reports nothing. A tag on an enclosing `test.describe*(title, details, body)` counts for every test inside. Each result is `line <n>`.
  * Limits: the same as `untaggedSuperAdminTests` (a `test` passed through a parameter is not recognised, a tag through a variable is not followed).
@@ -624,7 +624,7 @@ function untaggedSidecarTests(source: string, fileName = "synthetic.spec.ts"): s
 }
 
 test.describe("run selection: every test that needs a sidecar carries the opt-in tag", () => {
-  test("every spec that uses a sidecar helper tags all its tests with TAGS.NODE_SERVICE_SIDECAR, and the Firebird, libSQL, CouchDB and DynamoDB Local specs do use one", () => {
+  test("every spec that uses a sidecar helper tags all its tests with TAGS.NODE_SERVICE_SIDECAR, and the Firebird, libSQL, CouchDB, DynamoDB Local and S3 specs do use one", () => {
     const untagged: string[] = [];
     const users: string[] = [];
     for (const file of specFilesUnder(join(__dirname, ".."))) {
@@ -634,10 +634,11 @@ test.describe("run selection: every test that needs a sidecar carries the opt-in
       untagged.push(...untaggedSidecarTests(source, file).map((entry) => `${file}: ${entry}`));
     }
 
-    expect(users.map((file) => file.split("tests/")[1]), "the specs that use the helper (a positive control that the guard looks at the CouchDB, the DynamoDB Local, the Firebird and the libSQL spec)").toEqual([
+    expect(users.map((file) => file.split("tests/")[1]), "the specs that use the helper (a positive control that the guard looks at the CouchDB, the DynamoDB Local, the Firebird, the S3 and the libSQL spec)").toEqual([
       "datasource/plugin-couchdb.spec.ts",
       "datasource/plugin-dynamodb-local.spec.ts",
       "datasource/plugin-firebird.spec.ts",
+      "datasource/plugin-s3-server.spec.ts",
       "datasource/plugin-turso-libsql.spec.ts",
     ]);
     expect(untagged, "tests of a sidecar spec without TAGS.NODE_SERVICE_SIDECAR (they would run, and fail, in the default run)").toEqual([]);
@@ -658,5 +659,7 @@ test.describe("run selection: every test that needs a sidecar carries the opt-in
     expect(untaggedSidecarTests(`const c = couchdbConnection();\ntest.describe("g", { tag: [TAGS.NODE_SERVICE, TAGS.NODE_SERVICE_SIDECAR] }, () => { test("a", async () => {}); });`), "and accepts its describe tag").toEqual([]);
     expect(untaggedSidecarTests(`const c = dynamodbConnection();\ntest("a", async () => {});`), "the DynamoDB Local helper is asked too").toEqual(["line 2"]);
     expect(untaggedSidecarTests(`const c = dynamodbConnection();\ntest.describe("g", { tag: [TAGS.NODE_SERVICE, TAGS.NODE_SERVICE_SIDECAR] }, () => { test("a", async () => {}); });`), "and accepts its describe tag").toEqual([]);
+    expect(untaggedSidecarTests(`const c = s3Connection();\ntest("a", async () => {});`), "the S3 helper is asked too").toEqual(["line 2"]);
+    expect(untaggedSidecarTests(`const c = s3Connection();\ntest.describe("g", { tag: [TAGS.NODE_SERVICE, TAGS.NODE_SERVICE_SIDECAR] }, () => { test("a", async () => {}); });`), "and accepts its describe tag").toEqual([]);
   });
 });

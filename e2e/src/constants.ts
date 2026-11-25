@@ -223,7 +223,7 @@ export const TAGS = {
    * The node-service data source tests that need a real server of their own to be pointed at: the echo cannot serve the plugin's protocol (the Firebird tests, a
    * wire protocol, `tests/datasource/plugin-firebird.spec.ts`) or its canned answers say nothing about the real server's behaviour (the libSQL server tests,
    * `tests/datasource/plugin-turso-libsql.spec.ts`, the CouchDB server tests, `tests/datasource/plugin-couchdb.spec.ts`, and the DynamoDB Local server tests,
-   * `tests/datasource/plugin-dynamodb-local.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
+   * `tests/datasource/plugin-dynamodb-local.spec.ts`, and the S3-compatible server tests, `tests/datasource/plugin-s3-server.spec.ts`). Worn NEXT TO `@node-service`. Opt-in like `@superadmin`: out of
    * the default run (neither listed nor run, and the run script starts no such sidecar), in only with
    * `E2E_INCLUDE_NODE_SERVICE_SIDECARS` (see src/run-selection.ts and scripts/run-in-docker.sh).
    */
@@ -238,7 +238,7 @@ export const RUN_FLAGS = {
   /** Enterprise profile only: run SEC-E05 (`@enterprise-takeover`) and nothing else. */
   INCLUDE_ENTERPRISE_TAKEOVER: "E2E_INCLUDE_ENTERPRISE_TAKEOVER",
   /**
-   * Default stack only: also start the sidecars of the node-service data sources (Firebird, a libSQL server, a CouchDB server, a DynamoDB Local server) and run
+   * Default stack only: also start the sidecars of the node-service data sources (Firebird, a libSQL server, a CouchDB server, a DynamoDB Local server, an S3-compatible server) and run
    * their `@node-service-sidecar` tests. Without it the run starts none of them.
    */
   INCLUDE_NODE_SERVICE_SIDECARS: "E2E_INCLUDE_NODE_SERVICE_SIDECARS",
@@ -354,6 +354,21 @@ export const DYNAMODB = {
   PORT: 8000,
   ACCESS_KEY: "e2eDynamoKey",
   SECRET_KEY: "e2e-dynamodb-secret",
+  REGION: "us-west-1",
+} as const;
+
+/**
+ * The S3-compatible server sidecar (versitygw) that scripts/run-in-docker.sh starts on the run's network ONLY when `E2E_INCLUDE_NODE_SERVICE_SIDECARS` is set. Unlike the other
+ * sidecars it has NO host name alias: the AWS SDK addresses a bucket of an endpoint that is a host NAME as `<bucket>.<host>`, a name no mapping covers, and an endpoint that is
+ * an IP address path-style (`<endpoint>/<bucket>/<key>`). The run script passes the sidecar's IP address on the run network (`IP_ENV`) and the app container and the runner
+ * reach the server by it. The server verifies AWS Signature Version 4 against one root user, `ACCESS_KEY` and `SECRET_KEY`: throw-away values that must equal the `S3_*` values of
+ * the script (the container is removed when the run ends and holds no other data), never real secrets. `REGION` is the region the server is started with.
+ */
+export const S3 = {
+  IP_ENV: "E2E_S3_IP",
+  PORT: 7070,
+  ACCESS_KEY: "e2eS3Key",
+  SECRET_KEY: "e2e-s3-secret-key",
   REGION: "us-west-1",
 } as const;
 

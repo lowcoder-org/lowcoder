@@ -40,7 +40,7 @@ export function echoReadPrefix(targetPath: string): string {
 
 /** Four dot-separated decimal octets, each 0 to 255 without a leading zero (the form `docker inspect` reports; a leading zero reads as octal in some parsers). */
 const IPV4_OCTET = "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)";
-const IPV4_PATTERN = new RegExp(`^${IPV4_OCTET}(\\.${IPV4_OCTET}){3}$`);
+export const IPV4_PATTERN = new RegExp(`^${IPV4_OCTET}(\\.${IPV4_OCTET}){3}$`);
 
 /** The base URL of the echo sidecar from the environment, without a trailing slash; throws when the run script did not set it. */
 export function echoBaseUrl(env: NodeJS.ProcessEnv): string {

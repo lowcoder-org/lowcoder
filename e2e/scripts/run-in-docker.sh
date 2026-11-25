@@ -24,8 +24,8 @@
 ##   E2E_INCLUDE_SUPERADMIN  set to 1 to also run the @superadmin tests (SEC-R16a to SEC-R16d, the instance super admin;
 ##                       independent of the other flags). Run: E2E_INCLUDE_SUPERADMIN=1 $0 --grep @superadmin
 ##   E2E_INCLUDE_NODE_SERVICE_SIDECARS  set to 1 to also start the sidecars of the node-service data sources: real servers a plugin can be pointed at, for plugins
-##                       whose protocol the echo cannot serve (Firebird: a wire protocol) or whose real behaviour the echo's canned answers say nothing about (libSQL, CouchDB, DynamoDB Local)
-##                       (today a Firebird server, FIREBIRD_IMAGE below, a libSQL server, LIBSQL_IMAGE below, a CouchDB server, COUCHDB_IMAGE below, and a DynamoDB Local server, DYNAMODB_IMAGE below) and run their @node-service-sidecar tests; independent of the
+##                       whose protocol the echo cannot serve (Firebird: a wire protocol) or whose real behaviour the echo's canned answers say nothing about (libSQL, CouchDB, DynamoDB Local, S3)
+##                       (today a Firebird server, FIREBIRD_IMAGE below, a libSQL server, LIBSQL_IMAGE below, a CouchDB server, COUCHDB_IMAGE below, a DynamoDB Local server, DYNAMODB_IMAGE below, and an S3-compatible server, S3_IMAGE below) and run their @node-service-sidecar tests; independent of the
 ##                       other flags, default stack only (any other profile is an error). Without it the run starts none of them,
 ##                       neither lists nor runs those tests, and pulls no extra image.
 ##                       Run only these: E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 $0 --grep @node-service-sidecar
@@ -46,6 +46,7 @@
 ##   LIBSQL_IMAGE        libSQL server (sqld) sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   COUCHDB_IMAGE       CouchDB sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   DYNAMODB_IMAGE      DynamoDB Local sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
+##   S3_IMAGE            S3-compatible server (versitygw) sidecar of the @node-service-sidecar tests (pinned by tag and digest); used only with E2E_INCLUDE_NODE_SERVICE_SIDECARS
 ##   E2E_HOST_PORT       also publish the app on 127.0.0.1:<port> to look at it in a browser while the run lasts
 ##
 ## Set by the script for each run (a value of the caller is overwritten; the password is new every run, never printed,
@@ -103,6 +104,16 @@
 ## like it: `--add-host e2e-dynamodb:<IP>` for the app container and the runner, and the alias as E2E_DYNAMODB_HOST for the runner. It runs in memory with one database shared by
 ## every access key (`-inMemory -sharedDb`), checks no credential, and the image declares no volume, so `cleanup` removes everything however the run ends. The script waits until
 ## one real ListTables call, posted from the echo container over the run network, answers 200 with a `TableNames` member. Without the flag nothing of this runs.
+##
+## Only with E2E_INCLUDE_NODE_SERVICE_SIDECARS=1 it also starts an S3-compatible server sidecar (S3_IMAGE, versitygw with its POSIX backend) on port 7070: the target of the S3 data
+## source of node-service (a real server that verifies AWS Signature Version 4 in place of the echo's canned answers). It starts after the DynamoDB Local sidecar. Unlike the others it
+## has NO name alias and no `--add-host` entry: the AWS SDK addresses a bucket of an endpoint that is a host NAME as `<bucket>.<host>` (virtual-host style), a name no mapping covers
+## and that may resolve outside the run network, whereas an endpoint that is an IP address is addressed path-style. So the app container and the runner reach the server BY ITS IP
+## address on the run network, which this script knows when it starts the container and passes to the runner as E2E_S3_IP (like E2E_ECHO_IP). The root user is one throw-away
+## access key and secret (S3_ACCESS_KEY and S3_SECRET_KEY, which must equal S3 in e2e/src/constants.ts); the server verifies the signature of every request and refuses a wrong key or
+## secret. Objects and their metadata live in two tmpfs directories (S3_DATA_DIR, S3_META_DIR: the image declares no volume, and the metadata sidecar directory keeps the server from
+## needing extended attributes on the data directory), so nothing outlives the container. The script waits until one real signed ListBuckets request, posted from the echo container to the
+## IP address over the run network, answers 200 with a ListAllMyBucketsResult. Without the flag nothing of this runs.
 ##
 ## Not covered: Firefox and WebKit (only Chromium runs), the multi-container compose setup, databases other than
 ## PostgreSQL.
@@ -186,6 +197,19 @@ readonly DYNAMODB_ALIAS="e2e-dynamodb"
 readonly DYNAMODB_PORT=8000
 # The one status the readiness ListTables call counts as "there"
 readonly DYNAMODB_HTTP_OK=200
+# S3-compatible server (versitygw, POSIX backend) sidecar of the @node-service-sidecar tests, started only with E2E_INCLUDE_NODE_SERVICE_SIDECARS. The image is versity/versitygw v1.11.0
+# by tag and digest. It verifies AWS Signature Version 4 against one root user, the throw-away key pair below (must equal S3 in e2e/src/constants.ts; the foundation tests check it).
+# S3_PORT is the gateway's default port. The image declares no volume; the script gives it two tmpfs directories of its own choosing (objects and the metadata sidecar), so nothing outlives the container.
+readonly DEFAULT_S3_IMAGE="versity/versitygw:v1.11.0@sha256:8319a530d08d537426e2f855bae5280709795dc73a3f0c347973ef915d6343c5"
+readonly S3_IMAGE="${S3_IMAGE:-$DEFAULT_S3_IMAGE}"
+readonly S3_PORT=7070
+readonly S3_ACCESS_KEY="e2eS3Key"
+readonly S3_SECRET_KEY="e2e-s3-secret-key"
+readonly S3_REGION="us-west-1"
+readonly S3_DATA_DIR="/data"
+readonly S3_META_DIR="/meta"
+# The one status the readiness ListBuckets call counts as "there"
+readonly S3_HTTP_OK=200
 # The instance super admin of the throw-away stack; the domain equals TEST_EMAIL_DOMAIN in e2e/src/constants.ts; the suite
 # reads the name from E2E_SUPERUSER_USERNAME (SUPER_ADMIN_ENV). The password is generated per run (generate_superuser_password).
 readonly SUPERUSER_USERNAME="e2e-superadmin@example.test"
@@ -222,6 +246,7 @@ readonly FIREBIRD_CONTAINER="${NAME_PREFIX}-fb"
 readonly LIBSQL_CONTAINER="${NAME_PREFIX}-libsql"
 readonly COUCHDB_CONTAINER="${NAME_PREFIX}-couchdb"
 readonly DYNAMODB_CONTAINER="${NAME_PREFIX}-dynamodb"
+readonly S3_CONTAINER="${NAME_PREFIX}-s3"
 # The alias and port the app container and the runner use; E2E_ECHO_URL below is built from them (the suite reads it by ECHO_ENV in e2e/src/constants.ts)
 readonly ECHO_ALIAS="e2e-echo"
 readonly ECHO_PORT=8080
@@ -231,7 +256,9 @@ readonly ECHO_HEALTH_PATH="/__e2e/health"
 readonly ECHO_SCRIPT="$SCRIPT_DIR/echo-server.js"
 # Set by start_echo: the sidecar's IP on the run network (used for --add-host of the app and the runner)
 ECHO_IP=""
-# Set by start_firebird, start_libsql, start_couchdb and start_dynamodb (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
+# Set by start_s3 (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the S3 sidecar's IP on the run network (the sidecar has no alias: the endpoint of the S3 data source is this IP)
+S3_IP=""
+# Set by start_firebird, start_libsql, start_couchdb, start_dynamodb and start_s3 (only with E2E_INCLUDE_NODE_SERVICE_SIDECARS): the extra `--add-host` and `-e` arguments of the app and the runner. Empty otherwise.
 SIDECAR_ADD_HOST=()
 SIDECAR_RUNNER_ENV=()
 
@@ -245,7 +272,7 @@ fail() {
 }
 
 cleanup() {
-    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" "$COUCHDB_CONTAINER" "$DYNAMODB_CONTAINER" > /dev/null 2>&1 || true
+    docker rm -f "$RUNNER_CONTAINER" "$APP_CONTAINER" "$POSTGRES_CONTAINER" "$ECHO_CONTAINER" "$FIREBIRD_CONTAINER" "$LIBSQL_CONTAINER" "$COUCHDB_CONTAINER" "$DYNAMODB_CONTAINER" "$S3_CONTAINER" > /dev/null 2>&1 || true
     docker network rm "$NETWORK" > /dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -531,6 +558,38 @@ wait_for_dynamodb() {
     log "DynamoDB Local sidecar ready after ${waited}s"
 }
 
+# The gateway takes global flags before the backend subcommand: `--quiet` silences its request log, the POSIX backend gets a directory for objects and one for the metadata
+# sidecar. The root user comes from the environment (the image's own variable names), not from the command line.
+start_s3() {
+    log "Starting $S3_IMAGE as $S3_CONTAINER (IP only, no alias, port $S3_PORT)"
+    docker run -d --name "$S3_CONTAINER" --network "$NETWORK" \
+        --tmpfs "$S3_DATA_DIR" --tmpfs "$S3_META_DIR" \
+        -e ROOT_ACCESS_KEY_ID="$S3_ACCESS_KEY" -e ROOT_SECRET_ACCESS_KEY="$S3_SECRET_KEY" -e VGW_REGION="$S3_REGION" \
+        "$S3_IMAGE" --port ":${S3_PORT}" --quiet posix --sidecar "$S3_META_DIR" "$S3_DATA_DIR" > /dev/null
+    S3_IP="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NETWORK\").IPAddress}}" "$S3_CONTAINER")"
+    [ -n "$S3_IP" ] || fail "no IP address for $S3_CONTAINER on $NETWORK"
+    SIDECAR_RUNNER_ENV+=(-e "E2E_S3_IP=${S3_IP}")
+    log "S3 sidecar is $S3_IP:$S3_PORT"
+}
+
+# One real, SIGNED ListBuckets request (the server refuses an unsigned or wrongly signed one) posted to the sidecar's IP over the run network from the echo container (the image has
+# no curl and no shell tools of use; node signs with its own crypto module): ready when it answers exactly S3_HTTP_OK with a ListAllMyBucketsResult. The fetch aborts after the request
+# limit, so a stalled request ends the attempt and the wait loop checks its deadline again. The key pair is handed over by the container's environment, not on a command line.
+wait_for_s3() {
+    local waited=0 started=$SECONDS
+    local probe="const c = require('crypto'), h = (k, d) => c.createHmac('sha256', k).update(d).digest(), x = (d) => c.createHash('sha256').update(d).digest('hex'), e = process.env, host = e.S3_PROBE_HOST, now = new Date().toISOString().replace(/[:-]|[.][0-9]{3}/g, ''), day = now.slice(0, 8), scope = day + '/' + e.S3_PROBE_REGION + '/s3/aws4_request', empty = x(''), canonical = 'GET\\n/\\n\\nhost:' + host + '\\nx-amz-content-sha256:' + empty + '\\nx-amz-date:' + now + '\\n\\nhost;x-amz-content-sha256;x-amz-date\\n' + empty, signingKey = h(h(h(h('AWS4' + e.S3_PROBE_SECRET, day), e.S3_PROBE_REGION), 's3'), 'aws4_request'); fetch('http://' + host + '/', { signal: AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000))), headers: { 'x-amz-date': now, 'x-amz-content-sha256': empty, Authorization: 'AWS4-HMAC-SHA256 Credential=' + e.S3_PROBE_KEY + '/' + scope + ', SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=' + h(signingKey, 'AWS4-HMAC-SHA256\\n' + now + '\\n' + scope + '\\n' + x(canonical)).toString('hex') } }).then((r) => r.text().then((t) => process.exit(r.status === $S3_HTTP_OK && t.includes('<ListAllMyBucketsResult') ? 0 : 1))).catch(() => process.exit(1))"
+    until docker exec -e S3_PROBE_HOST="${S3_IP}:${S3_PORT}" -e S3_PROBE_REGION="$S3_REGION" -e S3_PROBE_KEY="$S3_ACCESS_KEY" -e S3_PROBE_SECRET="$S3_SECRET_KEY" "$ECHO_CONTAINER" node -e "$probe" > /dev/null 2>&1; do
+        waited=$((SECONDS - started))
+        if [ "$waited" -ge "$STARTUP_TIMEOUT" ]; then
+            docker logs --tail "$LOG_TAIL_LINES" "$S3_CONTAINER" >&2 || true
+            fail "the S3 sidecar did not become ready within ${STARTUP_TIMEOUT}s"
+        fi
+        sleep "$POLL_INTERVAL"
+    done
+    waited=$((SECONDS - started))
+    log "S3 sidecar ready after ${waited}s"
+}
+
 wait_for_app() {
     local waited=0
     log "Waiting for $READY_PATH (at most ${STARTUP_TIMEOUT}s)"
@@ -600,6 +659,9 @@ fi
 if node_service_sidecars_enabled; then
     start_dynamodb
 fi
+if node_service_sidecars_enabled; then
+    start_s3
+fi
 start_app
 wait_for_postgres
 wait_for_echo
@@ -614,6 +676,9 @@ if node_service_sidecars_enabled; then
 fi
 if node_service_sidecars_enabled; then
     wait_for_dynamodb
+fi
+if node_service_sidecars_enabled; then
+    wait_for_s3
 fi
 wait_for_app
 run_tests "$@"
