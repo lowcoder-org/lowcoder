@@ -121,13 +121,15 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Standalone image is built from server/proxy-service/Dockerfile
 ##
-FROM node:24.22.3-slim AS build-proxy-service
+FROM node:26.13.1-slim AS build-proxy-service
 
 # Copy only the build inputs, so local build/ and node_modules folders are never picked up
 COPY server/proxy-service/package.json server/proxy-service/yarn.lock server/proxy-service/tsconfig.json /lowcoder/proxy-service/app/
 COPY server/proxy-service/scripts /lowcoder/proxy-service/app/scripts
 COPY server/proxy-service/src /lowcoder/proxy-service/app/src
 WORKDIR /lowcoder/proxy-service/app
+# Node 26 images ship no Yarn
+RUN npm install -g yarn@1.22.22
 RUN yarn install --frozen-lockfile
 RUN yarn build
 # Keep only runtime dependencies
@@ -146,7 +148,7 @@ RUN chmod +x /lowcoder/proxy-service/*.sh
 ##
 ## Standalone image is built from deploy/docker/agora-token-service/Dockerfile
 ##
-FROM node:24.22.3-slim AS build-agora-token-service
+FROM node:26.13.1-slim AS build-agora-token-service
 
 WORKDIR /lowcoder/agora-token-service/app
 COPY deploy/docker/agora-token-service/package.json deploy/docker/agora-token-service/package-lock.json ./
@@ -166,7 +168,7 @@ RUN chmod +x /lowcoder/agora-token-service/*.sh
 ## HOCUSPOCUS_SERVER_VERSION in sync with it.
 ## @hocuspocus/server 4.x requires node >= 22.
 ##
-FROM node:24.22.3-slim AS build-hocuspocus
+FROM node:26.13.1-slim AS build-hocuspocus
 
 ARG HOCUSPOCUS_SERVER_VERSION=4.3.0
 
