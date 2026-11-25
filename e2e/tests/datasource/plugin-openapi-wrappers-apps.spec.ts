@@ -30,14 +30,14 @@ import type { EchoRecord, EchoTarget } from "../../src/security/echo";
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 
 /** Candidate defect: an error status answer with a body is returned as the query's successful result (the generic plugin's D7d shows the same). */
-const ERROR_STATUS_SUCCESS_DEFECT = { type: "defect", description: "NSD-4 candidate" } as const;
+const ERROR_STATUS_SUCCESS_DEFECT = { type: "defect", description: "D-69 candidate" } as const;
 const ERROR_STATUS_DETAILS = { annotation: ERROR_STATUS_SUCCESS_DEFECT };
 
 /**
  * Candidate defect: the UiPath plugin cannot run: `getSchemaExample` (`plugins/openApi/util.ts`) recurses without end on a circular schema of
  * the bundled document, so its query configuration (what the editor lists) and every query fail with `Maximum call stack size exceeded`.
  */
-const UIPATH_DEFECT = { type: "defect", description: "NSD-6 candidate" } as const;
+const UIPATH_DEFECT = { type: "defect", description: "D-71 candidate" } as const;
 const UIPATH_DETAILS = { annotation: UIPATH_DEFECT };
 /** The desired behaviour of the UiPath plugin: it fails today, so it is quarantined (the enclosing describe adds `@node-service`). */
 const UIPATH_QUARANTINE_DETAILS = { tag: [TAGS.QUARANTINE], annotation: UIPATH_DEFECT };
@@ -46,7 +46,7 @@ const UIPATH_QUARANTINE_DETAILS = { tag: [TAGS.QUARANTINE], annotation: UIPATH_D
  * Candidate defect: an OpenAI data source on the spec version `v1.0` (the default when none is chosen) sends no `Authorization` header: the
  * plugin hands the key over as `ApiKeyAuth.value`, the scheme of the `v2.3` document, while the `v1.0` document names its scheme `ApiKey`.
  */
-const OPENAI_V1_AUTH_DEFECT = { type: "defect", description: "NSD-7 candidate" } as const;
+const OPENAI_V1_AUTH_DEFECT = { type: "defect", description: "D-72 candidate" } as const;
 const OPENAI_V1_AUTH_DETAILS = { annotation: OPENAI_V1_AUTH_DEFECT };
 
 /** Observation: a Carbone data source sends its token only with the operations whose document entry lists the `bearerAuth` scheme; `get_status` does not. */
@@ -363,7 +363,7 @@ test.describe("OpenAI", NODE_SERVICE_DETAILS, () => {
     expect(records, "one request per data source").toHaveLength(sides.length);
     // control: with the same key on the same server the v2.3 document sends it, so the missing header below is the plugin's, not the echo's
     expectRequest(onlyRecord(recordsUnder(records, echo, "/v2"), "v2.3 sent one request"), echo, { path: `${echo.path}/v2/models`, headers: { authorization: `Bearer ${key}` } }, "v2.3");
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: the v1.0 document names its scheme `ApiKey`, the plugin hands the key over as `ApiKeyAuth.value`, so no header is sent (NSD-7 candidate, see OPENAI_V1_AUTH_DEFECT).
+    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: the v1.0 document names its scheme `ApiKey`, the plugin hands the key over as `ApiKeyAuth.value`, so no header is sent (D-72 candidate, see OPENAI_V1_AUTH_DEFECT).
     expectRequest(onlyRecord(recordsUnder(records, echo, "/default"), "the default version sent one request"), echo, { path: `${echo.path}/default/models` }, "default version");
     expectRequest(onlyRecord(recordsUnder(records, echo, "/v1"), "v1.0 sent one request"), echo, { path: `${echo.path}/v1/models` }, "v1.0");
     expect(JSON.stringify([records[0], records[1]]).includes(key), "the key is on no part of the v1.0 and default requests").toBe(false);
@@ -386,7 +386,7 @@ test.describe("an error answer", NODE_SERVICE_DETAILS, () => {
     const record = onlyRecord(await echo.received(), "the request reached the echo");
     expectRequest(record, echo, { path: `${echo.path}${requestPathOf(row, marker, "")}`, headers: auth.headers }, row.plugin);
     expectRan(answer);
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: `runOpenApi` returns the body of an error answer as the result (NSD-4 candidate, see ERROR_STATUS_SUCCESS_DEFECT), so the 404 is reported as a successful query.
+    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: `runOpenApi` returns the body of an error answer as the result (D-69 candidate, see ERROR_STATUS_SUCCESS_DEFECT), so the 404 is reported as a successful query.
     expect(envelopeOf(answer).success, "the 404 is reported as success").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code of the 404").toBe(QUERY_CODE_OK);
     expect(envelopeOf(answer).data, "the result is the error body").toEqual(body);
@@ -414,7 +414,7 @@ test.describe("UiPath", NODE_SERVICE_DETAILS, () => {
     const answer = await runDraft(page, appId);
 
     expectRan(answer);
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (NSD-6 candidate, see UIPATH_DEFECT).
+    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (D-71 candidate, see UIPATH_DEFECT).
     expect(envelopeOf(answer).success, "the query failed").toBe(false);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_FAILED);
     expect(envelopeOf(answer).message, "node-service's message").toBe(UIPATH_FAILURE_MESSAGE);
@@ -430,7 +430,7 @@ test.describe("UiPath", NODE_SERVICE_DETAILS, () => {
 
     const answer = await pluginDynamicConfigRaw(page.request, [{ pluginName: "uiPath", path: QUERY_CONFIG_PATH, dataSourceConfig }]);
 
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (NSD-6 candidate, see UIPATH_DEFECT): the request for the UiPath document fails, so the editor
+    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (D-71 candidate, see UIPATH_DEFECT): the request for the UiPath document fails, so the editor
     // cannot list a single operation. The test asserts the failure of this request and, below, that the same request shape succeeds for another
     // plugin; the cause (a `RangeError: Maximum call stack size exceeded` in `getSchemaExample`) was seen in node-service's log while recording, the suite cannot read that log.
     expect(answer.status, "the HTTP status").toBe(HTTP_SERVER_ERROR);

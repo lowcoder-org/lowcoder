@@ -15,12 +15,12 @@ import { recordsContain, type EchoRecord, type EchoTarget } from "../../src/secu
  * path of the canned answer into the app. They are NOT a fidelity test of GitLab or Shopify.
  *
  * Shopify: the plugin reads the query's headers and passes none on, and its data source has no token field, so it cannot send
- * Shopify's access token (D6d, NSD-2 candidate).
+ * Shopify's access token (D6d, D-67 candidate).
  */
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 
 /** Candidate defect: the Shopify plugin drops every header of the query and has no access token field. */
-const SHOPIFY_HEADERS_DEFECT = { type: "defect", description: "NSD-2 candidate" } as const;
+const SHOPIFY_HEADERS_DEFECT = { type: "defect", description: "D-67 candidate" } as const;
 const SHOPIFY_HEADERS_DETAILS = { annotation: SHOPIFY_HEADERS_DEFECT };
 
 /** The path below the target that the endpoint points at. */
@@ -226,7 +226,7 @@ test.describe("Shopify data source against the echo", NODE_SERVICE_DETAILS, () =
     const shopifyRecords = await echo.received();
     const record = onlyRecord(shopifyRecords);
     expect(JSON.parse(record.body), "the request body is the query").toEqual({ query: SHOPIFY_QUERY, variables: {} });
-    // The plugin reads the query's headers and passes `{}` on (NSD-2 candidate, see SHOPIFY_HEADERS_DEFECT): neither the header name nor its value arrives.
+    // The plugin reads the query's headers and passes `{}` on (D-67 candidate, see SHOPIFY_HEADERS_DEFECT): neither the header name nor its value arrives.
     expect(recordsContain(shopifyRecords, marker), "the header value reached the endpoint").toBe(false);
     expect(Object.keys(record.headers).map((name) => name.toLowerCase()), "the header name reached the endpoint").not.toContain(SHOPIFY_TOKEN_HEADER.toLowerCase());
 

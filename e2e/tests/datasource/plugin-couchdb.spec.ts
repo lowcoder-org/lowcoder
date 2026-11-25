@@ -24,11 +24,11 @@ import { expect, test } from "../../src/fixtures";
  * Measured on the images `3.0.0-e2e` and `3.0.1-e2e` against CouchDB 3.5.1 (the plugin's bundled document is the 3.1.1 one):
  * - Every operation the plugin runs answers the JSON body of the server's answer as the query's data (`success: true`, `queryCode: "OK"`).
  * - An HTTP error answer that carries a body is ALSO reported as `success: true`, with the error body as the data: 412 (database exists), 404
- *   (missing database or document), 409 (stale revision), 401 (wrong password) all arrive this way (NSD-4 candidate, the defect D7d shows
+ *   (missing database or document), 409 (stale revision), 401 (wrong password) all arrive this way (D-69 candidate, the defect D7d shows
  *   against a canned answer). The status code is lost; the body's `error` member is the only sign.
  * - An error answer WITHOUT a body fails the query: a conditional read whose ETag still matches is `304` and the query fails with `status: 304`.
  * - `docGet` cannot run without an `If-None-Match` header: the bundled document marks it required (the server treats it as optional: a read
- *   without it answers the document), and the plugin refuses the query with its own message (NSD-16 candidate). A value that is not the
+ *   without it answers the document), and the plugin refuses the query with its own message (D-81 candidate). A value that is not the
  *   current ETag (`e2e-no-match` here) reads the document; the current ETag is a 304.
  * - The plugin sends the Basic credentials of the data source (the admin of the sidecar); `_all_dbs` of a fresh node lists the three system
  *   databases the run script creates, plus every database of the tests running at that time, so the exact lists below are scoped by a key range.
@@ -38,9 +38,9 @@ import { expect, test } from "../../src/fixtures";
  * rest of the document's operations (the query form offers them; these tests run the ones named below).
  */
 /** Candidate defect: an HTTP error answer that carries a body is returned as the query's data with `success: true`. */
-const ERROR_BODY_DEFECT = { type: "defect", description: "NSD-4 candidate" } as const;
+const ERROR_BODY_DEFECT = { type: "defect", description: "D-69 candidate" } as const;
 /** Candidate defect: the bundled document marks the `If-None-Match` header of `docGet` required, so the query cannot run without it, and a matching ETag (304) fails it. */
-const IF_NONE_MATCH_DEFECT = { type: "defect", description: "NSD-16 candidate" } as const;
+const IF_NONE_MATCH_DEFECT = { type: "defect", description: "D-81 candidate" } as const;
 
 const HTTP_OK = 200;
 const HTTP_CREATED = 201;
@@ -89,7 +89,7 @@ const SERVER_ERRORS = {
 const MISSING_HEADER_MESSAGE = "Required parameter If-None-Match is not provided";
 const NOT_MODIFIED_MESSAGE = "status: 304";
 
-/** A header value that is not the current ETag of any document: the workaround that lets `docGet` run (NSD-16 candidate). */
+/** A header value that is not the current ETag of any document: the workaround that lets `docGet` run (D-81 candidate). */
 const NO_MATCH_ETAG = "e2e-no-match";
 
 /** The revision a first write answers (`1-` and the md5 of the body, 32 hex digits), and the one of an update or a delete. */
@@ -424,7 +424,7 @@ test.describe("CouchDB data source against a real CouchDB server", { tag: [TAGS.
         "the server's answers to the refused calls",
       ).toEqual(Array.from({ length: 4 }, () => ({ status: HTTP_CONFLICT, body: SERVER_ERRORS.CONFLICT })));
 
-      // NSD-4 candidate: the plugin reports the 409 body as the data of a successful query
+      // D-69 candidate: the plugin reports the 409 body as the data of a successful query
       for (const query of ["staleWrite", "noRevisionWrite", "staleDelete", "staleIfMatchDelete"]) {
         expect(await runForData(page, appId, query), `${query}: the error body is the data`).toEqual(SERVER_ERRORS.CONFLICT);
       }
@@ -486,7 +486,7 @@ test.describe("CouchDB data source against a real CouchDB server", { tag: [TAGS.
       ]);
 
       expect(await runForData(page, appId, "readPresent"), "positive control: the document that exists is read").toEqual({ _id: "present", _rev: expect.stringMatching(FIRST_REVISION), here: true });
-      // NSD-4 candidate: each error body is the data of a successful query
+      // D-69 candidate: each error body is the data of a successful query
       expect(await runForData(page, appId, "readMissingDoc"), "a missing document").toEqual(SERVER_ERRORS.DOCUMENT_MISSING);
       expect(await runForData(page, appId, "readMissingDb"), "a document of a missing database").toEqual(SERVER_ERRORS.DATABASE_MISSING);
       expect(await runForData(page, appId, "infoMissingDb"), "the information of a missing database").toEqual(SERVER_ERRORS.DATABASE_MISSING);
@@ -534,7 +534,7 @@ test.describe("CouchDB data source against a real CouchDB server", { tag: [TAGS.
       ]);
       expect((await couchdbDirect(sidecar, "GET", "/_all_dbs", { credentials: account })).status, "positive control: the account's own password is accepted by the server").toBe(HTTP_OK);
 
-      // NSD-4 candidate: the wrong password's 401 body is the data of a successful query
+      // D-69 candidate: the wrong password's 401 body is the data of a successful query
       expect(await runForData(page, wrongApp, "list"), "the listing with the wrong password").toEqual(SERVER_ERRORS.BAD_PASSWORD);
       expect(await runForData(page, wrongApp, "create"), "the create with the wrong password").toEqual(SERVER_ERRORS.BAD_PASSWORD);
       expect((await admin("GET", `/${db}`)).status, "the refused create made no database").toBe(HTTP_NOT_FOUND);
@@ -561,7 +561,7 @@ test.describe("CouchDB data source against a real CouchDB server", { tag: [TAGS.
       expect(rightBefore, "before the failures the account's right password lists the databases").toEqual(expect.arrayContaining([...COUCHDB.SYSTEM_DATABASES]));
       const attempts: unknown[] = [];
       for (let attempt = 0; attempt < LOCKOUT_FAILURES + 1; attempt++) attempts.push(await runForData(page, wrongApp, "list"));
-      // NSD-4 candidate: every refusal is the data of a successful query; the sixth is the lockout's 403 body
+      // D-69 candidate: every refusal is the data of a successful query; the sixth is the lockout's 403 body
       expect(attempts, "five wrong passwords are 401 bodies, the next one is the lockout's body").toEqual([
         ...Array.from({ length: LOCKOUT_FAILURES }, () => SERVER_ERRORS.BAD_PASSWORD),
         SERVER_ERRORS.ACCOUNT_LOCKED,
@@ -602,7 +602,7 @@ test.describe("CouchDB data source against a real CouchDB server", { tag: [TAGS.
       const matchingDirect = await admin("GET", `/${db}/${docid}`, { headers: { "If-None-Match": `"${revision}"` } });
       expect(matchingDirect.status, "the server answers 304 to the current ETag").toBe(HTTP_NOT_MODIFIED);
 
-      // NSD-16 candidate
+      // D-81 candidate
       expectFailed(await runDraft(page, appId, "withoutHeader"), MISSING_HEADER_MESSAGE);
       expect(await runForData(page, appId, "withHeader"), "positive control: with a header of any other value the document is read").toEqual({ _id: docid, _rev: revision, n: 1 });
       expectFailed(await runDraft(page, appId, "matching"), NOT_MODIFIED_MESSAGE);

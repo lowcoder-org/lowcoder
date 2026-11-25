@@ -39,7 +39,7 @@ const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
  * `uploadData` and `deleteFile` do not, so the SDK's own text (`Empty value provided for input HTTP label: Bucket.`) reaches the
  * user. No request is sent in either case.
  */
-const BUCKET_CHECK_DEFECT = { type: "defect", description: "NSD-8 candidate" } as const;
+const BUCKET_CHECK_DEFECT = { type: "defect", description: "D-73 candidate" } as const;
 const BUCKET_CHECK_DETAILS = { annotation: BUCKET_CHECK_DEFECT };
 
 const HTTP_OK = 200;
@@ -722,7 +722,7 @@ test.describe("S3 data source against the echo", NODE_SERVICE_DETAILS, () => {
     const rows: Array<{ variant: string; action: Record<string, unknown>; message: string }> = [
       // the one operation that checks the bucket itself
       { variant: "ListObjects", action: { bucket: "" }, message: "Bucket is required" },
-      // NSD-8 candidate: the others hand the SDK's own text to the user (measured)
+      // D-73 candidate: the others hand the SDK's own text to the user (measured)
       { variant: "ReadFile", action: { bucket: "", fileName: OBJECT_KEY }, message: sdkText },
       { variant: "UploadData", action: { bucket: "", fileName: OBJECT_KEY, encoding: "utf8", data: "x" }, message: sdkText },
       { variant: "DeleteFile", action: { bucket: "", fileName: OBJECT_KEY }, message: sdkText },

@@ -30,7 +30,7 @@ import type { EchoRecord, EchoTarget } from "../../src/security/echo";
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 
 /** Candidate defect: an error status answer with a body is returned as the query's successful result. */
-const ERROR_STATUS_SUCCESS_DEFECT = { type: "defect", description: "NSD-4 candidate" } as const;
+const ERROR_STATUS_SUCCESS_DEFECT = { type: "defect", description: "D-69 candidate" } as const;
 const ERROR_STATUS_DETAILS = { annotation: ERROR_STATUS_SUCCESS_DEFECT };
 
 /**
@@ -207,7 +207,7 @@ test.describe("generic openApi data source against the echo", NODE_SERVICE_DETAI
     const record = onlyRecord(await echo.received());
     expect(record.path, "the operation's request reached the echo").toBe(`${echo.path}${ITEMS_PATH}?q=${marker}`);
     expectRan(answer);
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: `runOpenApi` returns the body of an error answer as the result (NSD-4
+    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: `runOpenApi` returns the body of an error answer as the result (D-69
     // candidate, see ERROR_STATUS_SUCCESS_DEFECT), so the 404 is reported as a successful query.
     expect(envelopeOf(answer).success, "the 404 is reported as success").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code of the 404").toBe(QUERY_CODE_OK);

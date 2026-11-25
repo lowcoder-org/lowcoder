@@ -18,7 +18,7 @@ import type { EchoRecord, EchoTarget } from "../../src/security/echo";
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 
 /** Candidate defect: an `error` result of the pipeline is printed as `${result.error}` (an object), so the server's own message never reaches the app. */
-const ERROR_TEXT_DEFECT = { type: "defect", description: "NSD-1 candidate" } as const;
+const ERROR_TEXT_DEFECT = { type: "defect", description: "D-66 candidate" } as const;
 const ERROR_TEXT_DETAILS = { annotation: ERROR_TEXT_DEFECT };
 /** The message of the canned error result. */
 const ERROR_MESSAGE = "e2e-boom";
@@ -186,7 +186,7 @@ test.describe("Turso data source against the echo", NODE_SERVICE_DETAILS, () => 
     expect(answer.status, "the request itself is answered").toBe(HTTP_OK);
     expect(envelopeOf(answer).success, "the query failed").toBe(false);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_FAILED);
-    // The plugin prints `result.error`, which is an object: the server's message is lost (NSD-1 candidate, see ERROR_TEXT_DEFECT).
+    // The plugin prints `result.error`, which is an object: the server's message is lost (D-66 candidate, see ERROR_TEXT_DEFECT).
     expect(envelopeOf(answer).message, "the measured message").toBe(MEASURED_ERROR_TEXT);
     expect((await echo.received()).length, "positive control: the request did reach the echo").toBe(1);
   });

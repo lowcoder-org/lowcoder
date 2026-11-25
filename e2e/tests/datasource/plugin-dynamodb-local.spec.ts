@@ -38,13 +38,13 @@ import { expect, test } from "../../src/fixtures";
  * indexes, transactions, batch operations, streams, TTL, and the signature (the server does not verify it; D10a to D10f assert the signed request).
  */
 /** Candidate defect: the answer of `ReturnValues` (`Attributes`) and `LastEvaluatedKey` stay in the typed form while `Item` and `Items` are unwrapped. */
-const TYPED_ANSWER_DEFECT = { type: "defect", description: "NSD-17 candidate" } as const;
+const TYPED_ANSWER_DEFECT = { type: "defect", description: "D-82 candidate" } as const;
 /** Candidate defect: an array of strings or numbers is always written as a set (SS or NS): never a list, duplicates and an empty array are refused. */
-const ARRAY_SETS_DEFECT = { type: "defect", description: "NSD-18 candidate" } as const;
+const ARRAY_SETS_DEFECT = { type: "defect", description: "D-83 candidate" } as const;
 /** Candidate defect: a binary attribute is read as a byte array, which the answer's JSON turns into an object with index keys; a number beyond a double loses digits. */
-const VALUE_FIDELITY_DEFECT = { type: "defect", description: "NSD-19 candidate" } as const;
+const VALUE_FIDELITY_DEFECT = { type: "defect", description: "D-84 candidate" } as const;
 /** Candidate defect: an `ExclusiveStartKey` in the plain form (as `Key` is written) fails with a JavaScript `TypeError` of the SDK instead of a validation message. */
-const PLAIN_START_KEY_DEFECT = { type: "defect", description: "NSD-20 candidate" } as const;
+const PLAIN_START_KEY_DEFECT = { type: "defect", description: "D-85 candidate" } as const;
 
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
@@ -480,7 +480,7 @@ test.describe("DynamoDB data source against a real DynamoDB Local server", { tag
       expect(await runForData(page, appId, "update"), "an update answers an empty object").toEqual({});
       expect(await runForData(page, appId, "get"), "the item as the plugin reads it after the update").toEqual({ Item: { id: 1, name: "Alice", age: 18, tags: ["x", "y"] } });
       expect(await directItem(table, { id: { N: "1" } }), "the server's own copy").toEqual({ id: { N: "1" }, name: { S: "Alice" }, age: { N: "18" }, tags: { SS: ["x", "y"] } });
-      // NSD-17 candidate: Attributes of ReturnValues stays typed while Item is unwrapped
+      // D-82 candidate: Attributes of ReturnValues stays typed while Item is unwrapped
       expect(await runForData(page, appId, "updateNew"), "ALL_NEW: the attributes are NOT unwrapped").toEqual({
         Attributes: { id: { N: "1" }, name: { S: "Alice" }, age: { N: "19" }, tags: { SS: ["x", "y"] } },
       });
@@ -516,7 +516,7 @@ test.describe("DynamoDB data source against a real DynamoDB Local server", { tag
       expect(await directItem(table, { id: { N: "1" } }), "before the delete the server holds the item").toEqual({ id: { N: "1" }, name: { S: "item-1" } });
       expect(await runForData(page, appId, "remove"), "a delete answers an empty object").toEqual({});
       expect(await directItem(table, { id: { N: "1" } }), "the server no longer holds the item").toBeUndefined();
-      // NSD-17 candidate: Attributes of ReturnValues stays typed
+      // D-82 candidate: Attributes of ReturnValues stays typed
       expect(await runForData(page, appId, "removeOld"), "ALL_OLD: the deleted item's attributes, NOT unwrapped").toEqual({ Attributes: { id: { N: "2" }, name: { S: "item-2" } } });
       expect(await directItem(table, { id: { N: "2" } }), "the item with ALL_OLD is gone too").toBeUndefined();
       expect(await runForData(page, appId, "removeAbsent"), "an item that was never there: success, and the server reports the capacity it used (the delete of an existing item above reports none)").toEqual({

@@ -22,7 +22,7 @@ import { expect, test } from "../../src/fixtures";
  */
 
 /** Candidate defect: rows are keyed by the column's position, so `SELECT 42 AS answer` cannot be read as `row.answer` in an app. */
-const COLUMN_KEY_DEFECT = { type: "defect", description: "NSD-3 candidate" } as const;
+const COLUMN_KEY_DEFECT = { type: "defect", description: "D-68 candidate" } as const;
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 const COLUMN_KEY_DETAILS = { annotation: COLUMN_KEY_DEFECT };
 
@@ -96,14 +96,14 @@ test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
     expect({ status: answer.status, code: answer.code }, "the query ran").toEqual({ status: HTTP_OK, code: API_OK });
     expect(envelopeOf(answer).success, "the query succeeded").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_OK);
-    // An INTEGER column reaches the app as a JSON number; the keys are the column positions (NSD-3 candidate, see the file comment).
+    // An INTEGER column reaches the app as a JSON number; the keys are the column positions (D-68 candidate, see the file comment).
     expect(envelopeOf(answer).data, "the rows, keyed by column position").toEqual([{ [FIRST_COLUMN]: 42, [SECOND_COLUMN]: `e2e-${marker}` }]);
   });
 
   test("D4b: the published view shows the DuckDB result after a click", COLUMN_KEY_DETAILS, async ({ page, apiUser }) => {
     const marker = uniqueMarker();
     const datasourceId = await duckdbDatasource(page, apiUser);
-    // The text reads the second column by its position key (NSD-3 candidate); before the first run `q.data` is not a list.
+    // The text reads the second column by its position key (D-68 candidate); before the first run `q.data` is not a list.
     const expression = `{{${QUERY_NAME}.data ? ${QUERY_NAME}.data[0]["${SECOND_COLUMN}"] : ""}}`;
     const view = await openSeededView(
       page,
@@ -139,7 +139,7 @@ test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
     expect({ status: answer.status, code: answer.code }, "the query ran").toEqual({ status: HTTP_OK, code: API_OK });
     expect(envelopeOf(answer).success, "the query succeeded").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_OK);
-    // `serializeBigInts` turns a `bigint` into a string (designed behaviour), a HUGEINT included (measured); the keys are the column positions (NSD-3 candidate).
+    // `serializeBigInts` turns a `bigint` into a string (designed behaviour), a HUGEINT included (measured); the keys are the column positions (D-68 candidate).
     expect(envelopeOf(answer).data, "the BIGINT and the HUGEINT as exact strings").toEqual([{ [FIRST_COLUMN]: BIGINT_VALUE, [SECOND_COLUMN]: HUGEINT_VALUE }]);
   });
 
