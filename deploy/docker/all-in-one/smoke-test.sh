@@ -38,7 +38,7 @@ readonly STARTUP_TIMEOUT=300
 readonly DISABLED_STARTUP_WAIT=20
 readonly POLL_INTERVAL=3
 
-readonly REQUIRED_NODE_MAJOR="v22"
+readonly REQUIRED_NODE_MAJOR="v24"
 
 readonly PROGRAMS_DEFAULT="redis mongodb hocuspocus agora-token-service api-service node-service proxy-service frontend"
 readonly PROGRAMS_NEW="hocuspocus agora-token-service proxy-service"
