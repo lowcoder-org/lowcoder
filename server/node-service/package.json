@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   },
   "main": "src/server.ts",
   "scripts": {
@@ -63,7 +63,7 @@
     "formdata-node": "4",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
-    "isolated-vm": "6.2.0",
+    "isolated-vm": "7.0.2",
     "jsonpath": "^1.1.1",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",

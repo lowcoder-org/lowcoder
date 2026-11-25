@@ -336,7 +336,7 @@ Please read more information in the following guides:
 
 #### Preparation
 
-To develop and test Datasource Plugins locally in the Node-Service, you should have Node.js installed in Version from v14.18.0 or from v16.0.0.&#x20;
+To develop and test Datasource Plugins locally in the Node-Service, you should have Node.js 24 or later installed; the version the node-service image uses is in `server/node-service/.nvmrc`.&#x20;
 
 #### Start of Development
 
