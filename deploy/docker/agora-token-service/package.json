@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "main": "server.js",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
   "dependencies": {
     "agora-token": "^2.0.4"
   }
