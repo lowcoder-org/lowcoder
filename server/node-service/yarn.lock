@@ -7697,13 +7697,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isolated-vm@npm:6.2.0":
-  version: 6.2.0
-  resolution: "isolated-vm@npm:6.2.0"
+"isolated-vm@npm:7.0.2":
+  version: 7.0.2
+  resolution: "isolated-vm@npm:7.0.2"
   dependencies:
     node-gyp: latest
     node-gyp-build: ^4.8.4
-  checksum: a92bf969f7400601b173463110297ecaebadd8876b997708366cb59d34137039d683e210d47a043f266db6494ab79c12b3968bbb3d95702cbb4ced15a733ed30
+  checksum: 04d7dffd7459f1b4327fc43bb6d5b625e5af2428c197a4a3cfbdfaddf0fa48ebc08d56d3002dc7bc8f7c8ad382db91b852edb5cc160f2a882f1a57121bb63e93
   languageName: node
   linkType: hard
 
@@ -8626,7 +8626,7 @@ __metadata:
     formdata-node: 4
     graphql: ^16.9.0
     graphql-request: ^6.1.0
-    isolated-vm: 6.2.0
+    isolated-vm: 7.0.2
     jest: ^29.3.1
     jsonpath: ^1.1.1
     lodash: ^4.17.21

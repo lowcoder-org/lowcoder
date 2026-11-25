@@ -20,6 +20,8 @@ git@github.com:lowcoder-org/lowcoder.git
 cd server/node-service
 ```
 
+Requires Node.js 24 or later (see `.nvmrc`).
+
 3. Install dependencies.
 
 ```bash
