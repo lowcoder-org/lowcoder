@@ -10,6 +10,7 @@ on:
       - 'deploy/docker/agora-token-service/**'
       - '.github/workflows/agora-token-service.yml'
       - '.github/workflows/build-service-image.yml'
+      - '!deploy/docker/agora-token-service/test/**'
 
 permissions:
   contents: read
