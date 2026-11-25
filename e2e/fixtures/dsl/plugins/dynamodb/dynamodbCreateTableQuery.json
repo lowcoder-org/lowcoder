@@ -1,0 +1,15 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "CreateTable",
+  "action": {
+   "params": "{\n    \"TableName\": \"users\",\n    \"AttributeDefinitions\": [\n        {\n            \"AttributeName\": \"id\",\n            \"AttributeType\": \"N\"\n        }\n    ],\n    \"KeySchema\": [\n        {\n            \"AttributeName\": \"id\",\n            \"KeyType\": \"HASH\"\n        }\n    ],\n    \"ProvisionedThroughput\": {\n        \"ReadCapacityUnits\": 1,\n        \"WriteCapacityUnits\": 1\n    },\n    \"StreamSpecification\": {\n        \"StreamEnabled\": false\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

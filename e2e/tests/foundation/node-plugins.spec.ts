@@ -5,7 +5,7 @@ import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
-import { API_OK, API_PATHS, COUCHDB, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
+import { API_OK, API_PATHS, COUCHDB, DYNAMODB, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
@@ -17,6 +17,7 @@ import {
   type RecordedPluginQuery,
 } from "../../src/dsl/recorded";
 import { couchdbAdmin, couchdbConnection, couchdbDirect, CouchdbSidecarMissingError } from "../../src/datasource/couchdb";
+import { DYNAMODB_CONTENT_TYPE, DYNAMODB_TARGET_PREFIX, dynamodbConnection, dynamodbDirect, DynamodbSidecarMissingError } from "../../src/datasource/dynamodb";
 import { FIREBIRD_ITEMS, firebirdConnection, FirebirdSidecarMissingError } from "../../src/datasource/firebird";
 import { LIBSQL_PIPELINE_PATH, libsqlConnection, libsqlDirect, LibsqlSidecarMissingError } from "../../src/datasource/libsql";
 import {
@@ -592,6 +593,8 @@ const FIREBIRD_ALIAS = "e2e-firebird";
 const LIBSQL_ALIAS = "e2e-libsql";
 /** The alias the run script gives the CouchDB sidecar. */
 const COUCHDB_ALIAS = "e2e-couchdb";
+/** The alias the run script gives the DynamoDB Local sidecar. */
+const DYNAMODB_ALIAS = "e2e-dynamodb";
 
 /** The text of `scripts/run-in-docker.sh` and of `fixtures/firebird/init.sql`. */
 const RUN_SCRIPT = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
@@ -835,8 +838,14 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     const curlBody = functionBody("couchdb_curl");
     const probeBody = functionBody("couchdb_probe");
     expect(curlBody, "couchdb_curl exists and runs curl in the sidecar").toContain('docker exec "$COUCHDB_CONTAINER" curl');
-    expect(curlBody, "a connect limit on every CouchDB readiness curl").toContain('--connect-timeout "$PROBE_CONNECT_TIMEOUT"');
-    expect(curlBody, "a total limit on every CouchDB readiness curl").toContain('--max-time "$PROBE_REQUEST_TIMEOUT"');
+    expect(curlBody, "a connect limit on every CouchDB readiness curl, never longer than the time left of the probe").toContain('--connect-timeout "$connect_limit"');
+    expect(curlBody, "a total limit on every CouchDB readiness curl: the time left of the whole probe, not a fresh PROBE_REQUEST_TIMEOUT per request").toContain('--max-time "$remaining"');
+    expect(curlBody, "no request gets a fresh per-request budget").not.toContain('--max-time "$PROBE_REQUEST_TIMEOUT"');
+    expect(curlBody, "the time left is taken from the probe's deadline and the shell's SECONDS").toContain("local remaining=$((COUCHDB_PROBE_DEADLINE - SECONDS))");
+    expect(curlBody, "a request that finds nothing left is not made").toContain('[ "$remaining" -gt 0 ] || return 1');
+    expect(probeBody, "the probe sets its own deadline, one PROBE_REQUEST_TIMEOUT from its start, before its first request").toMatch(
+      /COUCHDB_PROBE_DEADLINE=\$\(\(SECONDS \+ PROBE_REQUEST_TIMEOUT\)\)\n\s+couchdb_curl /,
+    );
     // structurally: the probe reaches curl only through couchdb_curl, which is the one place that carries the limits
     expect(probeBody.match(/\bcurl\b/g), "the probe names curl nowhere itself").toBeNull();
     expect(probeBody.match(/\bcouchdb_curl\b/g), "the probe's requests: _up, one PUT per system database (in a loop), the listing").toHaveLength(3);
@@ -963,6 +972,167 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
         { method: "GET", url: "/text", authorization: undefined, contentType: undefined, ifMatch: undefined, body: "" },
         { method: "DELETE", url: "/db", authorization: basic("admin", "secret"), contentType: undefined, ifMatch: "2-b", body: "" },
       ]);
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  test("dynamodbConnection reads the host from the environment and builds a plain-HTTP endpoint with the suite's throw-away key", () => {
+    expect(dynamodbConnection({ [DYNAMODB.HOST_ENV]: DYNAMODB_ALIAS })).toEqual({
+      endpointUrl: `http://${DYNAMODB_ALIAS}:${DYNAMODB.PORT}`,
+      accessKey: DYNAMODB.ACCESS_KEY,
+      secretKey: DYNAMODB.SECRET_KEY,
+      region: DYNAMODB.REGION,
+    });
+  });
+
+  test("dynamodbConnection throws a named error that names the variable and the flag when the host is unset or empty", () => {
+    for (const env of [{}, { [DYNAMODB.HOST_ENV]: "" }]) {
+      expect(() => dynamodbConnection(env), `env ${JSON.stringify(env)}`).toThrow(DynamodbSidecarMissingError);
+      expect(() => dynamodbConnection(env)).toThrow(DYNAMODB.HOST_ENV);
+      expect(() => dynamodbConnection(env)).toThrow(`${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}=1`);
+    }
+  });
+
+  test("the run script's DynamoDB Local values equal DYNAMODB in the constants, and the server runs in memory", () => {
+    expect(scriptConstant("DYNAMODB_ALIAS"), "alias").toBe(DYNAMODB_ALIAS);
+    expect(Number(RUN_SCRIPT.match(/^readonly DYNAMODB_PORT=(\d+)$/m)?.[1]), "port").toBe(DYNAMODB.PORT);
+    expect(scriptConstant("DEFAULT_DYNAMODB_IMAGE"), "the image is pinned by tag and digest").toMatch(/^amazon\/dynamodb-local:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
+    const startBody = /start_dynamodb\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    expect(startBody, "the server keeps its tables in memory, so no file or volume is written").toContain("-inMemory");
+    expect(startBody, "one database for every access key").toContain("-sharedDb");
+  });
+
+  test("the run script starts, waits for and passes the DynamoDB Local sidecar only under the flag, next to the other three", () => {
+    const lines = RUN_SCRIPT.split("\n");
+    for (const fn of ["start_dynamodb", "wait_for_dynamodb"]) {
+      const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
+      expect(calls, `${fn} is called exactly once`).toHaveLength(1);
+      const call = calls[0] as { index: number };
+      expect(lines[call.index - 1]?.trim(), `${fn} is the first line of an if node_service_sidecars_enabled block`).toBe("if node_service_sidecars_enabled; then");
+      expect(lines[call.index + 1]?.trim(), `${fn} is the only line of that block`).toBe("fi");
+    }
+    const startBody = /start_dynamodb\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    // `+=`, so that the entries set before stay: all four sidecars are passed to the app container and the runner
+    expect(startBody, "start_dynamodb appends the runner's host variable").toContain(`SIDECAR_RUNNER_ENV+=(-e "${DYNAMODB.HOST_ENV}=`);
+    expect(startBody, "start_dynamodb appends the --add-host entry").toContain("SIDECAR_ADD_HOST+=(--add-host");
+    const codeLines = lines.filter((line) => !line.trim().startsWith("#")).join("\n");
+    expect(codeLines.match(new RegExp(DYNAMODB.HOST_ENV, "g")), "the host variable is named once in the script's code, in start_dynamodb").toHaveLength(1);
+    expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$DYNAMODB_CONTAINER"/);
+    expect(RUN_SCRIPT, "the readiness step shows the server's log on failure").toMatch(/wait_for_dynamodb\(\) \{[\s\S]*?docker logs --tail "\$LOG_TAIL_LINES" "\$DYNAMODB_CONTAINER"[\s\S]*?\n\}/);
+  });
+
+  test("the four sidecar readiness loops measure real elapsed time against STARTUP_TIMEOUT, so the time a probe takes counts (a loop that adds up its sleeps only fails here)", () => {
+    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_couchdb", "wait_for_dynamodb"]) {
+      const body = new RegExp(`${fn}\\(\\) \\{[\\s\\S]*?\\n\\}`).exec(RUN_SCRIPT)?.[0] ?? "";
+      expect(body, `${fn} exists`).not.toBe("");
+      expect(body, `${fn}: the start is recorded from the shell's SECONDS`).toContain("local waited=0 started=$SECONDS");
+      expect(body, `${fn}: after every failed probe the elapsed time is taken from SECONDS and compared with STARTUP_TIMEOUT, before the sleep`).toMatch(
+        /until [^\n]*; do\n\s+waited=\$\(\(SECONDS - started\)\)\n\s+if \[ "\$waited" -ge "\$STARTUP_TIMEOUT" \]; then\n[\s\S]*?\n\s+fi\n\s+sleep "\$POLL_INTERVAL"\n\s+done\n/,
+      );
+      expect(body, `${fn}: no counter that adds up the sleeps only`).not.toContain("waited + POLL_INTERVAL");
+      expect(body, `${fn}: the elapsed time is taken again once the probe succeeded, for the log line`).toMatch(/done\n\s+waited=\$\(\(SECONDS - started\)\)\n\s+log /);
+    }
+    const poll = Number(RUN_SCRIPT.match(/^readonly POLL_INTERVAL=(\d+)$/m)?.[1]);
+    const request = Number(RUN_SCRIPT.match(/^readonly PROBE_REQUEST_TIMEOUT=(\d+)$/m)?.[1]);
+    expect(poll + request, "the worst overshoot past STARTUP_TIMEOUT (one sleep and one probe) is small against it").toBeLessThanOrEqual(Number(RUN_SCRIPT.match(/^readonly STARTUP_TIMEOUT=(\d+)$/m)?.[1]) / 10);
+    // the overshoot above holds only if one probe is bounded as a whole: the Firebird, libSQL and DynamoDB probes are one request, the CouchDB probe shares one budget
+    const functionOf = (name: string): string => new RegExp(`${name}\\(\\) \\{[\\s\\S]*?\\n\\}`).exec(RUN_SCRIPT)?.[0] ?? "";
+    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_dynamodb"]) {
+      expect(functionOf(fn).match(/docker exec/g), `${fn}: the probe is exactly one docker exec`).toHaveLength(1);
+    }
+    expect(functionOf("wait_for_firebird").match(/isql/g), "wait_for_firebird: one isql run, under the container's own timeout").toHaveLength(1);
+    expect(functionOf("wait_for_firebird"), "the isql run is killed after PROBE_REQUEST_TIMEOUT").toContain('timeout -s KILL "$PROBE_REQUEST_TIMEOUT" /opt/firebird/bin/isql');
+    for (const fn of ["wait_for_libsql", "wait_for_dynamodb"]) {
+      expect(functionOf(fn).match(/fetch\(/g), `${fn}: the probe is exactly one fetch`).toHaveLength(1);
+      expect(functionOf(fn).match(/AbortSignal\.timeout\(/g), `${fn}: that fetch aborts after the request limit`).toHaveLength(1);
+    }
+    const couchdbProbe = functionOf("couchdb_probe");
+    expect(couchdbProbe.match(/\bcouchdb_curl\b/g), "couchdb_probe: three call sites (_up, the PUT in a loop, the listing): five requests, which share one budget").toHaveLength(3);
+    expect(couchdbProbe.match(/COUCHDB_PROBE_DEADLINE=/g), "couchdb_probe sets the probe's deadline exactly once").toHaveLength(1);
+    expect(functionOf("couchdb_curl"), "every CouchDB request takes its limit from the probe's deadline").toContain('--max-time "$remaining"');
+  });
+
+  test("the DynamoDB Local readiness call has a request limit, accepts exactly one status and needs the answer's table list", () => {
+    const body = /wait_for_dynamodb\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    expect(body, "the fetch aborts after the request limit").toContain("AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000)))");
+    expect(body, "a real ListTables call").toContain("DynamoDB_20120810.ListTables");
+    expect(body, "ready only on the one accepted status (a named constant), not on any answer").toContain("r.status === $DYNAMODB_HTTP_OK");
+    expect(Number(RUN_SCRIPT.match(/^readonly DYNAMODB_HTTP_OK=(\d+)$/m)?.[1]), "the accepted status is 200").toBe(200);
+    expect(body, "the answer's body is parsed as JSON and its `TableNames` member must be an array (a substring of the text is not enough)").toContain("Array.isArray(JSON.parse(t).TableNames)");
+    expect(body, "a body that is not JSON, or any failure, ends the probe non-zero").toContain(".catch(() => process.exit(1))");
+    expect(body, "no substring test of the body is left").not.toContain("t.includes(");
+    expect(body, "the probe runs in the echo container, over the run network").toContain('"$ECHO_CONTAINER" node -e');
+    expect(body, "no secret: the probe's key is a fixed throw-away scope").not.toContain("PASSWORD");
+    const request = Number(RUN_SCRIPT.match(/^readonly PROBE_REQUEST_TIMEOUT=(\d+)$/m)?.[1]);
+    const startupTimeout = Number(RUN_SCRIPT.match(/^readonly STARTUP_TIMEOUT=(\d+)$/m)?.[1]);
+    expect(request, "a positive request limit small against the startup timeout").toBeGreaterThan(0);
+    expect(request).toBeLessThanOrEqual(startupTimeout / 10);
+  });
+
+  test("the DynamoDB recordings are the editor's saved query per action, with no value of the recording session", () => {
+    const expectations: { variant: string; action: string; keys: string[] }[] = [
+      { variant: "", action: "Query", keys: ["tableName", "params"] },
+      { variant: "Scan", action: "Scan", keys: ["tableName", "params"] },
+      { variant: "PutItem", action: "PutItem", keys: ["tableName", "params"] },
+      { variant: "GetItem", action: "GetItem", keys: ["tableName", "params"] },
+      { variant: "UpdateItem", action: "UpdateItem", keys: ["tableName", "params"] },
+      { variant: "DeleteItem", action: "DeleteItem", keys: ["tableName", "params"] },
+      { variant: "ListTables", action: "ListTables", keys: ["params"] },
+      { variant: "CreateTable", action: "CreateTable", keys: ["params"] },
+    ];
+    for (const { variant, action, keys } of expectations) {
+      const query = recordedPluginQuery("dynamodb", variant);
+      expect(query.compType, `${variant || "default"}: the query type`).toBe("dynamodb");
+      expect(query.comp.actionName, `${variant || "default"}: the recorded action`).toBe(action);
+      expect(Object.keys(query), `${variant || "default"}: only what the builder keeps`).toEqual(["compType", "comp"]);
+      expect(Object.keys(query.comp.action), `${variant || "default"}: the form's fields`).toEqual(keys);
+      expect(JSON.parse(String(query.comp.action.params)), `${variant || "default"}: the editor's default parameters are JSON`).toBeInstanceOf(Object);
+      if ("tableName" in query.comp.action) expect(query.comp.action.tableName, `${variant || "default"}: the table name is the editor's empty default`).toBe("");
+      expect(query.comp.headers, `${variant || "default"}: the editor's empty header row`).toEqual([{ key: "", value: "" }]);
+      const text = readFileSync(join(RECORDED_PLUGINS_DIR, "dynamodb", `dynamodb${variant}Query.json`), "utf8");
+      expect(text, `${variant || "default"}: a 24-hex id`).not.toMatch(/\b[0-9a-f]{24}\b/);
+      expect(text, `${variant || "default"}: a sidecar address`).not.toContain(DYNAMODB_ALIAS);
+      expect(text, `${variant || "default"}: an epoch of 10 digits or more`).not.toMatch(/\b\d{10,}\b/);
+    }
+  });
+
+  test("dynamodbDirect posts the operation's typed JSON body with the target header and a credential scope with the key, and parses a JSON or a text answer", async () => {
+    const received: { method?: string; url?: string; target?: string; contentType?: string; authorization?: string; body: string }[] = [];
+    const server: Server = createServer((request: IncomingMessage, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk: Buffer) => chunks.push(chunk));
+      request.on("end", () => {
+        const body = Buffer.concat(chunks).toString("utf8");
+        received.push({
+          method: request.method,
+          url: request.url,
+          target: request.headers["x-amz-target"] as string | undefined,
+          contentType: request.headers["content-type"],
+          authorization: request.headers.authorization,
+          body,
+        });
+        if (request.headers["x-amz-target"] === `${DYNAMODB_TARGET_PREFIX}Broken`) {
+          response.writeHead(500).end("plain text, not JSON");
+        } else {
+          response.writeHead(400, { "Content-Type": DYNAMODB_CONTENT_TYPE }).end(JSON.stringify({ __type: "e2e#Refused", message: "refused" }));
+        }
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const endpointUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const connection = { endpointUrl, accessKey: "e2eKey", region: "eu-test-1" };
+    try {
+      const json = await dynamodbDirect(connection, "GetItem", { TableName: "t", Key: { id: { N: "1" } } });
+      const text = await dynamodbDirect(connection, "Broken", {});
+
+      expect(json, "a JSON answer is parsed, with its status").toEqual({ status: 400, body: { __type: "e2e#Refused", message: "refused" } });
+      expect(text, "an answer that is not JSON stays text").toEqual({ status: 500, body: "plain text, not JSON" });
+      expect(received.map(({ method, url, target, contentType, body }) => ({ method, url, target, contentType, body })), "method, path, target, type and typed body of the two calls").toEqual([
+        { method: "POST", url: "/", target: `${DYNAMODB_TARGET_PREFIX}GetItem`, contentType: DYNAMODB_CONTENT_TYPE, body: JSON.stringify({ TableName: "t", Key: { id: { N: "1" } } }) },
+        { method: "POST", url: "/", target: `${DYNAMODB_TARGET_PREFIX}Broken`, contentType: DYNAMODB_CONTENT_TYPE, body: "{}" },
+      ]);
+      expect(received[0]?.authorization, "the credential scope names the key, the region and the service").toMatch(/^AWS4-HMAC-SHA256 Credential=e2eKey\/\d{8}\/eu-test-1\/dynamodb\/aws4_request, SignedHeaders=host, Signature=0{64}$/);
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }

@@ -1,0 +1,16 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "UpdateItem",
+  "action": {
+   "tableName": "",
+   "params": "{\n    \"Key\": {\n        \"id\": 1\n    },\n    \"UpdateExpression\": \"set age = :n\",\n    \"ExpressionAttributeValues\": {\n        \":n\": {\n            \"N\": \"18\"\n        }\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

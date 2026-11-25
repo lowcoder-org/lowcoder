@@ -1,0 +1,16 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "Scan",
+  "action": {
+   "tableName": "",
+   "params": "{\n    \"FilterExpression\": \"id > :n\",\n    \"ExpressionAttributeValues\": {\n        \":n\": {\n            \"N\": \"0\"\n        }\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}

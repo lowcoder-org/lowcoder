@@ -1,0 +1,16 @@
+{
+ "compType": "dynamodb",
+ "comp": {
+  "actionName": "DeleteItem",
+  "action": {
+   "tableName": "",
+   "params": "{\n    \"Key\": {\n        \"id\": 1\n    }\n}"
+  },
+  "headers": [
+   {
+    "key": "",
+    "value": ""
+   }
+  ]
+ }
+}
