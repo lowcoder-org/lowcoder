@@ -26,7 +26,7 @@ import { DatasourcePage } from "../../src/pages/DatasourcePage";
  * Measured on the images `3.0.0-e2e` and `3.0.1-e2e` against versitygw v1.11.0 (the AWS SDK of the plugin is the one D10 measures, version 3.668.0 in its user agent):
  * - Every answer of the plugin is `success: true, queryCode: "OK"` with the data below, or `success: false, queryCode: "FAILED"` with the server's own message and no data.
  * - `listBuckets`: `[{ name }]`. `listObjects`: `[{ name, size, lastModified, signedUrl, url }]`: it sends ListObjects (version 1) with the prefix, the delimiter and `limit` as
- *   max-keys and nothing else, so the keys that a delimiter folds into prefixes are dropped (NSD-22) and a truncated listing cannot be continued (NSD-21).
+ *   max-keys and nothing else, so the keys that a delimiter folds into prefixes are dropped (D-87) and a truncated listing cannot be continued (D-86).
  * - `readFile`: `{ contentType, length, lastModified, data }` (the echo scenarios saw neither `length` nor `lastModified`: its canned answers carry no such headers).
  * - `uploadData`: `{ fileName, signedUrl, url }`; `deleteFile`: `{ success: true }` for a key that exists and for one that does not.
  * - A service error fails the query with the server's message: `NoSuchBucket`, `NoSuchKey`, `InvalidAccessKeyId`, `SignatureDoesNotMatch`.
@@ -36,13 +36,13 @@ import { DatasourcePage } from "../../src/pages/DatasourcePage";
  * (it lives 300 s), and a presigned URL fetched from inside the app container (hand-measured, README).
  */
 /** Candidate defect: `listObjects` has no continuation: it sends no marker and returns neither `IsTruncated` nor a next marker, so a bucket with more keys than `limit` silently shows its first page. */
-const NO_CONTINUATION_DEFECT = { type: "defect", description: "NSD-21 candidate" } as const;
+const NO_CONTINUATION_DEFECT = { type: "defect", description: "D-86 candidate" } as const;
 /** Candidate defect: `listObjects` with a delimiter returns only `Contents`: the common prefixes ("folders") the server answers are dropped. */
-const COMMON_PREFIXES_DEFECT = { type: "defect", description: "NSD-22 candidate" } as const;
+const COMMON_PREFIXES_DEFECT = { type: "defect", description: "D-87 candidate" } as const;
 /** Candidate defect: the `url` of `listObjects` and `uploadData` is the endpoint, the bucket and the key joined as they are: a key with `?`, `#` or `%` names another resource, and a space or non-ASCII text is not a valid URL until a client encodes it. */
-const UNENCODED_URL_DEFECT = { type: "defect", description: "NSD-24 candidate" } as const;
+const UNENCODED_URL_DEFECT = { type: "defect", description: "D-89 candidate" } as const;
 /** Candidate defect: `uploadData` decodes the data as base64 by default and Node's decoder accepts text that is not base64, so plain text typed into the form is stored as other bytes without a message. */
-const LENIENT_BASE64_DEFECT = { type: "defect", description: "NSD-23 candidate" } as const;
+const LENIENT_BASE64_DEFECT = { type: "defect", description: "D-88 candidate" } as const;
 
 const HTTP_OK = 200;
 const HTTP_FORBIDDEN = 403;
@@ -80,10 +80,10 @@ const SERVER_MESSAGES = {
   SIGNATURE_MISMATCH: "The request signature we calculated does not match the signature you provided. Check your key and signing method.",
 } as const;
 
-/** What the plugin answers for an empty bucket name: `listObjects` checks it itself, the other actions hand the SDK's own text to the user (NSD-8 candidate, as in D10). */
+/** What the plugin answers for an empty bucket name: `listObjects` checks it itself, the other actions hand the SDK's own text to the user (D-73 candidate, as in D10). */
 const BUCKET_REQUIRED_MESSAGE = "Bucket is required";
 const SDK_EMPTY_BUCKET_MESSAGE = "Empty value provided for input HTTP label: Bucket.";
-const BUCKET_CHECK_DEFECT = { type: "defect", description: "NSD-8 candidate" } as const;
+const BUCKET_CHECK_DEFECT = { type: "defect", description: "D-73 candidate" } as const;
 
 /** The shapes of values the server generates. */
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
@@ -603,7 +603,7 @@ test.describe("S3 data source against a real S3-compatible server", { tag: [TAGS
         listReal: listObjects(bucket),
       });
 
-      // the one operation that checks the bucket itself; NSD-8 candidate: the others hand the SDK's own text to the user (measured)
+      // the one operation that checks the bucket itself; D-73 candidate: the others hand the SDK's own text to the user (measured)
       expectFailed(await runDraft(page, appId, "listEmpty"), BUCKET_REQUIRED_MESSAGE);
       expectFailed(await runDraft(page, appId, "readEmpty"), SDK_EMPTY_BUCKET_MESSAGE);
       expectFailed(await runDraft(page, appId, "uploadEmpty"), SDK_EMPTY_BUCKET_MESSAGE);

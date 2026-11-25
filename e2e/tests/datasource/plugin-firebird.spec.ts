@@ -39,7 +39,7 @@ import { expect, test } from "../../src/fixtures";
  * Candidate defect: a query that fails after the attach (a SQL error or an unknown named parameter) never detaches (`run.ts`: `detachAsync`
  * comes after the awaited query and is skipped when it throws), so the attachment stays open on the server. A successful query does detach.
  */
-const LEAKED_ATTACHMENT_DEFECT = { type: "defect", description: "NSD-13 candidate" } as const;
+const LEAKED_ATTACHMENT_DEFECT = { type: "defect", description: "D-78 candidate" } as const;
 
 const HTTP_OK = 200;
 const CODE_CONNECT_FAILED = 500;

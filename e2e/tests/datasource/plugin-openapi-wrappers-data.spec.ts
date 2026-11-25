@@ -42,7 +42,7 @@ const COUCHDB_AUTH_DETAILS = { annotation: COUCHDB_AUTH_OBSERVATION };
  * Candidate defect: a WooCommerce server URL that already ends in `/wp-json/wc/v3/` (with the trailing slash) is not recognised by
  * `prepareServerUrl`, which then appends `wp-json/wc/v3` a second time.
  */
-const WOO_TRAILING_SLASH_DEFECT = { type: "defect", description: "NSD-5 candidate" } as const;
+const WOO_TRAILING_SLASH_DEFECT = { type: "defect", description: "D-70 candidate" } as const;
 const WOO_TRAILING_SLASH_DETAILS = { annotation: WOO_TRAILING_SLASH_DEFECT };
 
 const HTTP_OK = 200;
@@ -369,7 +369,7 @@ test.describe("WooCommerce server URL", NODE_SERVICE_DETAILS, () => {
     expectSucceeded(answer);
     const record = onlyRecord(await echo.received(), "the request reached the echo");
     // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: `prepareServerUrl` recognises `/wc/v3` only at the very end of the URL, so
-    // the trailing slash makes it append `wp-json/wc/v3` again (NSD-5 candidate, see WOO_TRAILING_SLASH_DEFECT).
+    // the trailing slash makes it append `wp-json/wc/v3` again (D-70 candidate, see WOO_TRAILING_SLASH_DEFECT).
     expectRequest(record, echo, { path: `${echo.path}${doubled}/products?${WOO_QUERY}`, basic: auth.basic }, "doubled API path");
     expect(envelopeOf(answer).data, "the canned answer of the doubled path").toEqual(body);
   });

@@ -31,16 +31,16 @@ const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
  * `Response`, not with the message of the answer: storage-js recognises an HTTP error only as an instance of the global `Response`, and
  * the proxy fetch answers with node-fetch's class.
  */
-const ERROR_TEXT_DEFECT = { type: "defect", description: "NSD-9 candidate" } as const;
+const ERROR_TEXT_DEFECT = { type: "defect", description: "D-74 candidate" } as const;
 /**
  * Candidate defect: the signed-URL validity the plugin sends as `expiresIn` is `Date.now() + 5 minutes` in milliseconds (a 13-digit number
  * of the order of 1.8e12), computed once when node-service loads the plugin, while the API takes seconds.
  */
-const EXPIRY_DEFECT = { type: "defect", description: "NSD-10 candidate" } as const;
+const EXPIRY_DEFECT = { type: "defect", description: "D-75 candidate" } as const;
 /** Candidate defect: the `search` field of listObjects is read by the query form and never sent. */
-const SEARCH_DEFECT = { type: "defect", description: "NSD-11 candidate" } as const;
+const SEARCH_DEFECT = { type: "defect", description: "D-76 candidate" } as const;
 /** Candidate defect: only listObjects checks the bucket (`Bucket is required`); the other operations send a request for an empty bucket name. */
-const EMPTY_BUCKET_DEFECT = { type: "defect", description: "NSD-12 candidate" } as const;
+const EMPTY_BUCKET_DEFECT = { type: "defect", description: "D-77 candidate" } as const;
 /** Observation: an upload without a content type sends an empty `content-type` header (the editor's default is an empty text). */
 const EMPTY_CONTENT_TYPE_OBSERVATION = { type: "observation", description: "an upload without a content type sends an empty content-type header" } as const;
 
@@ -78,7 +78,7 @@ const SHAPE_BAD = "<does NOT match the expected shape>";
 const UPLOAD_CACHE_CONTROL = "max-age=3600";
 const UPLOAD_UPSERT = "false";
 
-/** The message of every failed storage call today: the JSON of node-fetch's `Response` (NSD-9). */
+/** The message of every failed storage call today: the JSON of node-fetch's `Response` (D-74). */
 const LOST_ERROR_TEXT = '{"size":0,"timeout":0}';
 const CANNED_ERROR_MESSAGE = "e2e-storage-error";
 const BUCKET_REQUIRED = "Bucket is required";
@@ -205,7 +205,7 @@ function expectKeyOnlyInItsHeaders(records: EchoRecord[], key: string, answers: 
   for (const answer of answers) expect(JSON.stringify(answer.json).includes(key), `${label}: the key is in no answer of the query`).toBe(false);
 }
 
-/** Asserts a signed-URL body's `expiresIn` (NSD-10) and returns it; the rest of the body is asserted by the caller. */
+/** Asserts a signed-URL body's `expiresIn` (D-75) and returns it; the rest of the body is asserted by the caller. */
 function expiresInOf(record: EchoRecord, label: string): number {
   const value = (JSON.parse(record.body) as { expiresIn?: unknown }).expiresIn;
   expect(typeof value === "number" && Number.isInteger(value), `${label}: expiresIn is an integer number`).toBe(true);
@@ -344,7 +344,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
 
     expectSucceeded(answer);
     const records = await echo.received();
-    // NSD-11 candidate: the body is exactly the one of a query with no search, the other fields travel (positive control inside the same body)
+    // D-76 candidate: the body is exactly the one of a query with no search, the other fields travel (positive control inside the same body)
     expectStorageRequest(
       onlyRecord(records),
       echo,
@@ -369,7 +369,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     const records = await echo.received();
     expect(records, "the echo holds the listing and the signing").toHaveLength(2);
     expectStorageRequest(records[0] as EchoRecord, echo, { method: "POST", path: `/object/list/${BUCKET}`, key, json: { limit: 10, offset: 0, sortBy: { column: "name", order: "asc" }, prefix: PREFIX } }, "the listing");
-    // NSD-10 candidate: an epoch time in milliseconds where the API takes seconds
+    // D-75 candidate: an epoch time in milliseconds where the API takes seconds
     const expiresIn = expiresInOf(records[1] as EchoRecord, "the signing");
     expectStorageRequest(records[1] as EchoRecord, echo, { method: "POST", path: `/object/sign/${BUCKET}`, key, json: { expiresIn, paths: [`${PREFIX}/${FILE}`] } }, "the signing");
     expectKeyOnlyInItsHeaders(records, key, [answer], "listObjects with signed URLs");
@@ -504,7 +504,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expectSucceeded(answer);
     const records = await echo.received();
     const firstRecord = onlyRecord(records);
-    // NSD-10 candidate: the value is an epoch time in milliseconds, not a number of seconds
+    // D-75 candidate: the value is an epoch time in milliseconds, not a number of seconds
     const expiresIn = expiresInOf(firstRecord, "the first signing");
     expectStorageRequest(firstRecord, echo, { method: "POST", path: `/object/sign/${BUCKET}/${FILE}`, key, json: { expiresIn } }, "createSignedUrl");
     expectKeyOnlyInItsHeaders(records, key, [answer], "createSignedUrl");
@@ -563,7 +563,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
 
         const failed = await runDraft(page, appId);
 
-        // NSD-9 candidate: the message of the answer is lost, node-fetch's Response is printed instead
+        // D-74 candidate: the message of the answer is lost, node-fetch's Response is printed instead
         expectFailed(failed, LOST_ERROR_TEXT);
         const afterFailure = await echo.received();
         expectStorageRequest(onlyRecord(afterFailure), echo, { ...row.request, key }, `the failing ${row.title}`);
@@ -627,7 +627,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expectFailed(refused, BUCKET_REQUIRED);
     expect(await echo.received(), "listObjects sent nothing").toEqual([]);
 
-    // NSD-12 candidate: the other four send a request whose path has an empty bucket segment
+    // D-77 candidate: the other four send a request whose path has an empty bucket segment
     const rows: Array<{ variant: string; action: Record<string, unknown>; request: Omit<ExpectedStorageRequest, "key"> }> = [
       { variant: "ReadFile", action: { bucket: "", fileName: "x.txt", encoding: "utf8" }, request: { method: "GET", path: "/object//x.txt" } },
       {

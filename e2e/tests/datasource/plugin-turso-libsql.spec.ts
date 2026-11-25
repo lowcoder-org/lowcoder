@@ -26,9 +26,9 @@ import { expect, test } from "../../src/fixtures";
  *   `null` for an expression.
  * - The plugin makes an `integer` a number (a `boolean` column, written in lower case, a boolean), a `float` a number, a `datetime` or `date`
  *   column's text a `Date` (an ISO string in the answer), a `null` `null`. A blob cell becomes a value of `undefined`, so the key is
- *   missing from the row (NSD-14 candidate). An integer beyond 2^53 is parsed with `parseInt` and loses its low digits (NSD-15 candidate).
+ *   missing from the row (D-79 candidate). An integer beyond 2^53 is parsed with `parseInt` and loses its low digits (D-80 candidate).
  * - A SQL error is answered by the server with HTTP 200 and `results[0] = { type: "error", error: { message, code } }`; the plugin prints it
- *   as `[object Object]` (NSD-1 candidate, the defect D5d shows against a canned answer).
+ *   as `[object Object]` (D-66 candidate, the defect D5d shows against a canned answer).
  * - A bad token is HTTP 401 `Unauthorized`; a read-only token that writes is HTTP 403 `Forbidden`; both fail the query with the plugin's
  *   `Endpoint returned <status>: <statusText>.`
  *
@@ -36,11 +36,11 @@ import { expect, test } from "../../src/fixtures";
  * be exercised here); Turso's cloud features (branches, groups, per-database tokens); a stream with a baton (the plugin always closes).
  */
 /** Candidate defect: an `error` result of the pipeline is printed as `${result.error}` (an object): the server's own message never reaches the app. */
-const ERROR_TEXT_DEFECT = { type: "defect", description: "NSD-1 candidate" } as const;
+const ERROR_TEXT_DEFECT = { type: "defect", description: "D-66 candidate" } as const;
 /** Candidate defect: the cell of a `blob` has `base64` and no `value`, so the plugin answers the column as `undefined`: the key is missing from the row. */
-const BLOB_DEFECT = { type: "defect", description: "NSD-14 candidate" } as const;
+const BLOB_DEFECT = { type: "defect", description: "D-79 candidate" } as const;
 /** Candidate defect: an `integer` cell is parsed with `Number.parseInt`, so an integer the JavaScript number cannot hold exactly is rounded. */
-const BIG_INTEGER_DEFECT = { type: "defect", description: "NSD-15 candidate" } as const;
+const BIG_INTEGER_DEFECT = { type: "defect", description: "D-80 candidate" } as const;
 
 /** What the plugin prints for an `error` result (measured): the error object is printed as `[object Object]`. */
 const MEASURED_ERROR_TEXT = "Cannot parse result, received error: [object Object]";
@@ -286,7 +286,7 @@ test.describe("Turso data source against a real libSQL server", { tag: [TAGS.NOD
     const rawData = envelopeOf(raw).data as { raw: { rows: unknown } };
     expect(rawData.raw.rows, "the server's cells").toEqual([[{ type: "integer", value: "1" }, { type: "blob", base64: "AP8Q" }]]);
     expectSucceeded(values);
-    // NSD-14 candidate: the blob has no `value`, so the column is `undefined` and the key is missing
+    // D-79 candidate: the blob has no `value`, so the column is `undefined` and the key is missing
     expect(envelopeOf(values).data, "the row holds the id and not the blob").toEqual([{ id: 1 }]);
   });
 
@@ -303,7 +303,7 @@ test.describe("Turso data source against a real libSQL server", { tag: [TAGS.NOD
     const rawData = envelopeOf(raw).data as { raw: { rows: unknown } };
     expect(rawData.raw.rows, "positive control: the server holds the exact integer, as a string").toEqual([[{ type: "integer", value: BEYOND_SAFE }]]);
     expectSucceeded(values);
-    // NSD-15 candidate: 9007199254740993 is not a JavaScript number; parseInt rounds it
+    // D-80 candidate: 9007199254740993 is not a JavaScript number; parseInt rounds it
     expect(envelopeOf(values).data, "the plugin's number").toEqual([{ big: BEYOND_SAFE_AS_PARSED }]);
   });
 
@@ -335,7 +335,7 @@ test.describe("Turso data source against a real libSQL server", { tag: [TAGS.NOD
     });
 
     expectSucceeded(await runDraft(page, appId, "control"));
-    // NSD-1 candidate: whatever the server said, the app gets the same text
+    // D-66 candidate: whatever the server said, the app gets the same text
     for (const name of ["syntax", "column", "duplicate", "many"]) {
       expectFailed(await runDraft(page, appId, name), MEASURED_ERROR_TEXT);
     }
