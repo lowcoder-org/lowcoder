@@ -605,6 +605,38 @@ function scriptConstant(name: string): string | undefined {
   return new RegExp(`^readonly ${name}="([^"]*)"$`, "m").exec(RUN_SCRIPT)?.[1];
 }
 
+/** One `docker run` or `docker create` command of a shell script: the function it is in (TOP_LEVEL outside any), its text with continuation lines joined, and how it runs. */
+interface ContainerInvocation {
+  fn: string;
+  command: string;
+  verb: "run" | "create";
+  detached: boolean;
+}
+/** The `fn` of an invocation that is not inside any function. */
+const TOP_LEVEL = "<top level>";
+
+/**
+ * Every `docker run` and `docker create` command of a shell script, wherever it is written: backslash-continued lines are joined first, comment lines are
+ * dropped, and the detach flag counts in any position (`-d`, `--detach`, or inside a cluster such as `-itd`). A function that holds one is a "starter".
+ * Limit: it reads the script's text, so a command built from a variable (`$DOCKER run`) or a `docker` call through `eval` is not seen.
+ */
+function containerInvocations(script: string): ContainerInvocation[] {
+  const joined = script.replace(/\\\n[ \t]*/g, " ");
+  const found: ContainerInvocation[] = [];
+  let fn = TOP_LEVEL;
+  for (const line of joined.split("\n")) {
+    const opened = /^(\w+)\(\) \{$/.exec(line);
+    if (opened) fn = opened[1] as string;
+    else if (line === "}") fn = TOP_LEVEL;
+    if (line.trim().startsWith("#")) continue;
+    for (const match of line.matchAll(/\bdocker (run|create)\b(.*)$/g)) {
+      const detached = /(^| )--detach( |$)/.test(match[2] as string) || /(^| )-[A-Za-z]*d[A-Za-z]*( |$)/.test(match[2] as string);
+      found.push({ fn, command: match[0], verb: match[1] as "run" | "create", detached });
+    }
+  }
+  return found;
+}
+
 /** The lines of `RUN_SCRIPT` that call `fn` as a command (not its definition, not a comment). */
 function callLinesOf(fn: string): string[] {
   return RUN_SCRIPT.split("\n").filter((line) => line.trim() === fn);
@@ -671,7 +703,8 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     expect(scriptConstant("FIREBIRD_PASSWORD"), "password").toBe(FIREBIRD.PASSWORD);
     expect(scriptConstant("FIREBIRD_ALIAS"), "alias").toBe(FIREBIRD_ALIAS);
     expect(Number(RUN_SCRIPT.match(/^readonly FIREBIRD_PORT=(\d+)$/m)?.[1]), "port").toBe(FIREBIRD.PORT);
-    expect(scriptConstant("FIREBIRD_DATABASE_PATH"), "database path is the image's data directory plus the file").toBe("/var/lib/firebird/data/$FIREBIRD_DATABASE_FILE");
+    expect(scriptConstant("FIREBIRD_DATABASE_PATH"), "database path is the image's data directory plus the file").toBe("$FIREBIRD_DATA_DIR/$FIREBIRD_DATABASE_FILE");
+    expect(scriptConstant("FIREBIRD_DATA_DIR"), "the data directory the database path is built from").toBe("/var/lib/firebird/data");
     expect(`/var/lib/firebird/data/${scriptConstant("FIREBIRD_DATABASE_FILE")}`, "database file").toBe(FIREBIRD.DATABASE);
     expect(scriptConstant("DEFAULT_FIREBIRD_IMAGE"), "the image is pinned by tag and digest").toMatch(/^firebirdsql\/firebird:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
   });
@@ -1051,6 +1084,78 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     expect(couchdbProbe.match(/\bcouchdb_curl\b/g), "couchdb_probe: three call sites (_up, the PUT in a loop, the listing): five requests, which share one budget").toHaveLength(3);
     expect(couchdbProbe.match(/COUCHDB_PROBE_DEADLINE=/g), "couchdb_probe sets the probe's deadline exactly once").toHaveLength(1);
     expect(functionOf("couchdb_curl"), "every CouchDB request takes its limit from the probe's deadline").toContain('--max-time "$remaining"');
+  });
+
+  test("every container the run script starts with `docker run -d` mounts a tmpfs over each volume its image declares, so the cleanup leaves no anonymous volume behind", () => {
+    // Measured by hand with `docker inspect <image> --format '{{json .Config.Volumes}}'` on the images the script pins (the default APP_IMAGE, PLAYWRIGHT_IMAGE,
+    // POSTGRES_IMAGE, FIREBIRD_IMAGE, LIBSQL_IMAGE, COUCHDB_IMAGE and DYNAMODB_IMAGE). An empty list is an image whose answer was `null`: it declares no volume.
+    // Without a mount over a declared path Docker creates an anonymous volume per container, and the trap's container removal does not remove it.
+    // The test needs no docker: when an image pin changes, measure again and change the facts below.
+    // `run_tests` is the one foreground container: the runner (PLAYWRIGHT_IMAGE, no declared volume) runs with `docker run --rm`, which removes the container
+    // together with any anonymous volume, so it needs no tmpfs; the test requires that `--rm`.
+    const DECLARED_VOLUMES: Record<string, { constants: string[]; paths: string[]; detached: boolean }> = {
+      start_app: { constants: [], paths: [], detached: true },
+      start_echo: { constants: [], paths: [], detached: true },
+      start_postgres: { constants: ["POSTGRES_DATA_DIR"], paths: ["/var/lib/postgresql/data"], detached: true },
+      start_firebird: { constants: ["FIREBIRD_DATA_DIR"], paths: ["/var/lib/firebird/data"], detached: true },
+      start_libsql: { constants: ["LIBSQL_DATA_DIR"], paths: ["/var/lib/sqld"], detached: true },
+      start_couchdb: { constants: ["COUCHDB_DATA_DIR"], paths: ["/opt/couchdb/data"], detached: true },
+      start_dynamodb: { constants: [], paths: [], detached: true },
+      run_tests: { constants: [], paths: [], detached: false },
+    };
+    const invocations = containerInvocations(RUN_SCRIPT);
+    expect(invocations.filter((invocation) => invocation.fn === TOP_LEVEL), "no container is created outside a function").toEqual([]);
+    expect(
+      invocations.map((invocation) => invocation.fn).sort(),
+      "the facts above cover exactly the functions that run or create a container, one command each (a new sidecar must add its image's volumes)",
+    ).toEqual(Object.keys(DECLARED_VOLUMES).sort());
+    for (const [fn, facts] of Object.entries(DECLARED_VOLUMES)) {
+      const invocation = invocations.find((candidate) => candidate.fn === fn) as ContainerInvocation;
+      expect(invocation.verb, `${fn}: a docker run`).toBe("run");
+      expect(invocation.detached, `${fn}: detached as the facts say`).toBe(facts.detached);
+      expect(facts.constants, `${fn}: one constant per declared path`).toHaveLength(facts.paths.length);
+      facts.constants.forEach((constant, index) => {
+        expect(scriptConstant(constant), `${constant} holds the path its image declares`).toBe(facts.paths[index]);
+        expect(invocation.command, `${fn}: a tmpfs over ${facts.paths[index]}`).toContain(`--tmpfs "$${constant}"`);
+      });
+      if (facts.paths.length === 0) {
+        expect(invocation.command, `${fn}: its image declares no volume, so it mounts no tmpfs`).not.toContain("--tmpfs");
+      }
+      if (!facts.detached) {
+        expect(invocation.command, `${fn}: a foreground container is removed with its volumes`).toContain(" --rm ");
+      }
+    }
+  });
+
+  test("the container discovery of the run script finds a docker run or create written in any form (flag position, continuation lines, clusters, create)", () => {
+    const script = [
+      "# docker run in a comment is not a command",
+      "start_a() {",
+      "    docker run --name x -d image",
+      "}",
+      "start_b() {",
+      "    docker run --name x \\",
+      "        -e A=b \\",
+      "        -d \\",
+      "        image",
+      "}",
+      "start_c() {",
+      "    docker create --name x image",
+      "}",
+      "start_d() {",
+      "    docker run --name x image",
+      "    docker run -itd image",
+      "}",
+      "docker run --detach image",
+    ].join("\n");
+    expect(containerInvocations(script).map(({ fn, verb, detached }) => ({ fn, verb, detached }))).toEqual([
+      { fn: "start_a", verb: "run", detached: true },
+      { fn: "start_b", verb: "run", detached: true },
+      { fn: "start_c", verb: "create", detached: false },
+      { fn: "start_d", verb: "run", detached: false },
+      { fn: "start_d", verb: "run", detached: true },
+      { fn: TOP_LEVEL, verb: "run", detached: true },
+    ]);
   });
 
   test("the DynamoDB Local readiness call has a request limit, accepts exactly one status and needs the answer's table list", () => {
