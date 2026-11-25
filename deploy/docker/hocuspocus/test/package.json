@@ -1,0 +1,17 @@
+{
+  "name": "lowcoder-hocuspocus-tests",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "test": "node --test \"*.test.mjs\""
+  },
+  "devDependencies": {
+    "@hocuspocus/provider": "3.4.4",
+    "@hocuspocus/server": "4.3.0",
+    "ws": "8.18.3",
+    "yjs": "13.6.27"
+  }
+}
