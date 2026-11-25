@@ -39,10 +39,22 @@ function isPrivateOrReservedIp(ip: string): boolean {
     if (normalized.startsWith("::ffff:")) {
       const mapped = normalized.slice("::ffff:".length);
       if (isIP(mapped) === 4) return isPrivateOrReservedIp(mapped);
+      const embedded = ipv4FromHexGroups(mapped);
+      if (embedded) return isPrivateOrReservedIp(embedded);
     }
     return false;
   }
   return true;
+}
+
+// WHATWG URL serializes an IPv4-mapped IPv6 literal with hex groups ("::ffff:7f00:1"): turn the
+// two groups back into dotted IPv4, or return null when the text is not two hex groups.
+function ipv4FromHexGroups(groups: string): string | null {
+  const match = /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(groups);
+  if (!match) return null;
+  const high = parseInt(match[1], 16);
+  const low = parseInt(match[2], 16);
+  return [high >> 8, high & 0xff, low >> 8, low & 0xff].join(".");
 }
 
 export function normalizeWebsiteUrl(raw?: string): string {
@@ -76,7 +88,9 @@ export function assertAllowedWebsiteUrl(url: URL): void {
     throw new Error(`Website URL is not allowed: ${url.toString()}`);
   }
 
-  if (isIP(hostname) && isPrivateOrReservedIp(hostname)) {
+  // URL.hostname keeps the brackets of an IPv6 literal ("[::1]"), which isIP() does not accept
+  const bareHost = hostname.startsWith("[") && hostname.endsWith("]") ? hostname.slice(1, -1) : hostname;
+  if (isIP(bareHost) && isPrivateOrReservedIp(bareHost)) {
     throw new Error(`Website URL is not allowed: ${url.toString()}`);
   }
 

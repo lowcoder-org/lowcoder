@@ -102,6 +102,30 @@ test("website: localhost, metadata, private, link-local and CGNAT targets are re
   }
 });
 
+test("website: IPv6 literals of loopback, ULA, link-local and private IPv4 are rejected", () => {
+  const allowlist = websiteAllowlist(undefined);
+  const blocked = [
+    "http://[::1]/",
+    "http://[0:0:0:0:0:0:0:1]/",
+    "http://[::]/",
+    "http://[fd00::1]/",
+    "http://[fe80::1]/",
+    "http://[ff02::1]/",
+    // WHATWG URL serializes these as ::ffff:7f00:1 and ::ffff:a00:1
+    "http://[::ffff:127.0.0.1]/",
+    "http://[::ffff:10.0.0.1]/",
+    "http://[::ffff:169.254.169.254]/",
+  ];
+  for (const url of blocked) {
+    assert.throws(() => allowlist.assertAllowedWebsiteUrl(new URL(url)), NOT_ALLOWED, url);
+    console.log(`  ${url} (hostname ${new URL(url).hostname}): rejected`);
+  }
+  for (const url of ["http://[2606:4700:4700::1111]/", "http://[::ffff:8.8.8.8]/"]) {
+    assert.doesNotThrow(() => allowlist.assertAllowedWebsiteUrl(new URL(url)), url);
+    console.log(`  ${url}: accepted`);
+  }
+});
+
 test("website: LOWCODER_WEBSITE_ALLOWED_HOSTS narrows public hosts", () => {
   const open = websiteAllowlist(undefined);
   check("no allowlist: other.example", open.isWebsiteHostAllowed("other.example"), true);
