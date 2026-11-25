@@ -5,7 +5,7 @@ import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { createNodePluginDatasource, LowcoderApiError, nodePluginDatasourceBody, pluginDynamicConfigRaw, testDatasourceRaw } from "../../src/api/client";
-import { API_OK, API_PATHS, COUCHDB, DYNAMODB, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, TAGS } from "../../src/constants";
+import { API_OK, API_PATHS, COUCHDB, DYNAMODB, FIREBIRD, LIBSQL, orgDatasourceTypesPath, RUN_FLAGS, S3, TAGS } from "../../src/constants";
 import { nodePluginQuery } from "../../src/dsl/builders";
 import {
   parsePluginRecording,
@@ -20,6 +20,7 @@ import { couchdbAdmin, couchdbConnection, couchdbDirect, CouchdbSidecarMissingEr
 import { DYNAMODB_CONTENT_TYPE, DYNAMODB_TARGET_PREFIX, dynamodbConnection, dynamodbDirect, DynamodbSidecarMissingError } from "../../src/datasource/dynamodb";
 import { FIREBIRD_ITEMS, firebirdConnection, FirebirdSidecarMissingError } from "../../src/datasource/firebird";
 import { LIBSQL_PIPELINE_PATH, libsqlConnection, libsqlDirect, LibsqlSidecarMissingError } from "../../src/datasource/libsql";
+import { amzDate, s3Connection, s3CreateBucket, s3Direct, s3DirectKeys, s3Path, s3Query, s3RemoveBucket, S3SidecarAddressError, S3SidecarMissingError, signS3Request, xmlValues } from "../../src/datasource/s3";
 import {
   NODE_PLUGIN_FIXTURE_PLACEHOLDER_URL,
   NODE_PLUGIN_IDS,
@@ -595,6 +596,8 @@ const LIBSQL_ALIAS = "e2e-libsql";
 const COUCHDB_ALIAS = "e2e-couchdb";
 /** The alias the run script gives the DynamoDB Local sidecar. */
 const DYNAMODB_ALIAS = "e2e-dynamodb";
+/** The IP address of the S3 sidecar in the unit tests below (the sidecar has no alias: its address is the endpoint). */
+const S3_TEST_IP = "172.18.0.9";
 
 /** The text of `scripts/run-in-docker.sh` and of `fixtures/firebird/init.sql`. */
 const RUN_SCRIPT = readFileSync(join(__dirname, "..", "..", "scripts", "run-in-docker.sh"), "utf8");
@@ -1036,7 +1039,7 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     expect(startBody, "one database for every access key").toContain("-sharedDb");
   });
 
-  test("the run script starts, waits for and passes the DynamoDB Local sidecar only under the flag, next to the other three", () => {
+  test("the run script starts, waits for and passes the DynamoDB Local sidecar only under the flag, next to the other sidecars", () => {
     const lines = RUN_SCRIPT.split("\n");
     for (const fn of ["start_dynamodb", "wait_for_dynamodb"]) {
       const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
@@ -1055,8 +1058,8 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     expect(RUN_SCRIPT, "the readiness step shows the server's log on failure").toMatch(/wait_for_dynamodb\(\) \{[\s\S]*?docker logs --tail "\$LOG_TAIL_LINES" "\$DYNAMODB_CONTAINER"[\s\S]*?\n\}/);
   });
 
-  test("the four sidecar readiness loops measure real elapsed time against STARTUP_TIMEOUT, so the time a probe takes counts (a loop that adds up its sleeps only fails here)", () => {
-    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_couchdb", "wait_for_dynamodb"]) {
+  test("the five sidecar readiness loops measure real elapsed time against STARTUP_TIMEOUT, so the time a probe takes counts (a loop that adds up its sleeps only fails here)", () => {
+    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_couchdb", "wait_for_dynamodb", "wait_for_s3"]) {
       const body = new RegExp(`${fn}\\(\\) \\{[\\s\\S]*?\\n\\}`).exec(RUN_SCRIPT)?.[0] ?? "";
       expect(body, `${fn} exists`).not.toBe("");
       expect(body, `${fn}: the start is recorded from the shell's SECONDS`).toContain("local waited=0 started=$SECONDS");
@@ -1069,14 +1072,14 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
     const poll = Number(RUN_SCRIPT.match(/^readonly POLL_INTERVAL=(\d+)$/m)?.[1]);
     const request = Number(RUN_SCRIPT.match(/^readonly PROBE_REQUEST_TIMEOUT=(\d+)$/m)?.[1]);
     expect(poll + request, "the worst overshoot past STARTUP_TIMEOUT (one sleep and one probe) is small against it").toBeLessThanOrEqual(Number(RUN_SCRIPT.match(/^readonly STARTUP_TIMEOUT=(\d+)$/m)?.[1]) / 10);
-    // the overshoot above holds only if one probe is bounded as a whole: the Firebird, libSQL and DynamoDB probes are one request, the CouchDB probe shares one budget
+    // the overshoot above holds only if one probe is bounded as a whole: the Firebird, libSQL, DynamoDB and S3 probes are one request, the CouchDB probe shares one budget
     const functionOf = (name: string): string => new RegExp(`${name}\\(\\) \\{[\\s\\S]*?\\n\\}`).exec(RUN_SCRIPT)?.[0] ?? "";
-    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_dynamodb"]) {
+    for (const fn of ["wait_for_firebird", "wait_for_libsql", "wait_for_dynamodb", "wait_for_s3"]) {
       expect(functionOf(fn).match(/docker exec/g), `${fn}: the probe is exactly one docker exec`).toHaveLength(1);
     }
     expect(functionOf("wait_for_firebird").match(/isql/g), "wait_for_firebird: one isql run, under the container's own timeout").toHaveLength(1);
     expect(functionOf("wait_for_firebird"), "the isql run is killed after PROBE_REQUEST_TIMEOUT").toContain('timeout -s KILL "$PROBE_REQUEST_TIMEOUT" /opt/firebird/bin/isql');
-    for (const fn of ["wait_for_libsql", "wait_for_dynamodb"]) {
+    for (const fn of ["wait_for_libsql", "wait_for_dynamodb", "wait_for_s3"]) {
       expect(functionOf(fn).match(/fetch\(/g), `${fn}: the probe is exactly one fetch`).toHaveLength(1);
       expect(functionOf(fn).match(/AbortSignal\.timeout\(/g), `${fn}: that fetch aborts after the request limit`).toHaveLength(1);
     }
@@ -1088,7 +1091,9 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
 
   test("every container the run script starts with `docker run -d` mounts a tmpfs over each volume its image declares, so the cleanup leaves no anonymous volume behind", () => {
     // Measured by hand with `docker inspect <image> --format '{{json .Config.Volumes}}'` on the images the script pins (the default APP_IMAGE, PLAYWRIGHT_IMAGE,
-    // POSTGRES_IMAGE, FIREBIRD_IMAGE, LIBSQL_IMAGE, COUCHDB_IMAGE and DYNAMODB_IMAGE). An empty list is an image whose answer was `null`: it declares no volume.
+    // POSTGRES_IMAGE, FIREBIRD_IMAGE, LIBSQL_IMAGE, COUCHDB_IMAGE, DYNAMODB_IMAGE and S3_IMAGE). An empty list is an image whose answer was `null`: it declares no volume.
+    // The S3 image (versity/versitygw) declares none either, yet its row lists two paths: they are directories the script chooses for the server (objects and the metadata
+    // sidecar), mounted as tmpfs so that the objects live in memory and no layer or volume holds them; the test requires the same mount over them as over a declared volume.
     // Without a mount over a declared path Docker creates an anonymous volume per container, and the trap's container removal does not remove it.
     // The test needs no docker: when an image pin changes, measure again and change the facts below.
     // `run_tests` is the one foreground container: the runner (PLAYWRIGHT_IMAGE, no declared volume) runs with `docker run --rm`, which removes the container
@@ -1101,6 +1106,7 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
       start_libsql: { constants: ["LIBSQL_DATA_DIR"], paths: ["/var/lib/sqld"], detached: true },
       start_couchdb: { constants: ["COUCHDB_DATA_DIR"], paths: ["/opt/couchdb/data"], detached: true },
       start_dynamodb: { constants: [], paths: [], detached: true },
+      start_s3: { constants: ["S3_DATA_DIR", "S3_META_DIR"], paths: ["/data", "/meta"], detached: true },
       run_tests: { constants: [], paths: [], detached: false },
     };
     const invocations = containerInvocations(RUN_SCRIPT);
@@ -1115,7 +1121,7 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
       expect(invocation.detached, `${fn}: detached as the facts say`).toBe(facts.detached);
       expect(facts.constants, `${fn}: one constant per declared path`).toHaveLength(facts.paths.length);
       facts.constants.forEach((constant, index) => {
-        expect(scriptConstant(constant), `${constant} holds the path its image declares`).toBe(facts.paths[index]);
+        expect(scriptConstant(constant), `${constant} holds the path its image declares (or, for the S3 sidecar, the directory the script chose)`).toBe(facts.paths[index]);
         expect(invocation.command, `${fn}: a tmpfs over ${facts.paths[index]}`).toContain(`--tmpfs "$${constant}"`);
       });
       if (facts.paths.length === 0) {
@@ -1238,6 +1244,236 @@ test.describe("node-service sidecar helpers", { tag: [TAGS.NODE_SERVICE] }, () =
         { method: "POST", url: "/", target: `${DYNAMODB_TARGET_PREFIX}Broken`, contentType: DYNAMODB_CONTENT_TYPE, body: "{}" },
       ]);
       expect(received[0]?.authorization, "the credential scope names the key, the region and the service").toMatch(/^AWS4-HMAC-SHA256 Credential=e2eKey\/\d{8}\/eu-test-1\/dynamodb\/aws4_request, SignedHeaders=host, Signature=0{64}$/);
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+  test("s3Connection builds a plain-HTTP endpoint on the sidecar's IP address from the environment, with the suite's throw-away key pair", () => {
+    expect(s3Connection({ [S3.IP_ENV]: S3_TEST_IP })).toEqual({
+      endpointUrl: `http://${S3_TEST_IP}:${S3.PORT}`,
+      accessKey: S3.ACCESS_KEY,
+      secretKey: S3.SECRET_KEY,
+      region: S3.REGION,
+    });
+  });
+
+  test("s3Connection throws a named error that names the variable and the flag when the IP is unset or empty, and another when it is not an IPv4 address", () => {
+    for (const env of [{}, { [S3.IP_ENV]: "" }]) {
+      expect(() => s3Connection(env), `env ${JSON.stringify(env)}`).toThrow(S3SidecarMissingError);
+      expect(() => s3Connection(env)).toThrow(S3.IP_ENV);
+      expect(() => s3Connection(env)).toThrow(`${RUN_FLAGS.INCLUDE_NODE_SERVICE_SIDECARS}=1`);
+    }
+    // a name would make the SDK address `<bucket>.<name>`: every shape that is not four decimal octets is refused, with the offending value in the message
+    for (const value of ["e2e-s3", "s3.example.test", "172.18.0", "172.18.0.9.1", "172.18.0.256", "172.018.0.9", "172.18.0.9:7070", "http://172.18.0.9", " 172.18.0.9"]) {
+      expect(() => s3Connection({ [S3.IP_ENV]: value }), `value ${JSON.stringify(value)}`).toThrow(S3SidecarAddressError);
+      expect(() => s3Connection({ [S3.IP_ENV]: value })).toThrow(JSON.stringify(value));
+    }
+    expect(() => s3Connection({ [S3.IP_ENV]: "0.0.0.0" }), "control: a valid address passes the same check").not.toThrow();
+  });
+
+  test("the run script's S3 values equal S3 in the constants, and the sidecar is reached by IP only (no alias, no --add-host, no name for a bucket to be derived from)", () => {
+    expect(Number(RUN_SCRIPT.match(/^readonly S3_PORT=(\d+)$/m)?.[1]), "port").toBe(S3.PORT);
+    expect(scriptConstant("S3_ACCESS_KEY"), "access key").toBe(S3.ACCESS_KEY);
+    expect(scriptConstant("S3_SECRET_KEY"), "secret key").toBe(S3.SECRET_KEY);
+    expect(scriptConstant("S3_REGION"), "region").toBe(S3.REGION);
+    expect(scriptConstant("DEFAULT_S3_IMAGE"), "the image is pinned by tag and digest").toMatch(/^versity\/versitygw:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/);
+    const startBody = /start_s3\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    expect(startBody, "start_s3 exists").not.toBe("");
+    expect(startBody, "the runner gets the IP address, not a name").toContain(`SIDECAR_RUNNER_ENV+=(-e "${S3.IP_ENV}=\${S3_IP}")`);
+    expect(startBody, "no network alias: nothing can resolve a name for the sidecar").not.toContain("--network-alias");
+    expect(startBody, "no --add-host entry and no change of SIDECAR_ADD_HOST").not.toMatch(/--add-host|SIDECAR_ADD_HOST/);
+    expect(startBody, "the objects and the metadata sidecar of the POSIX backend live in tmpfs mounts").toContain('--tmpfs "$S3_DATA_DIR" --tmpfs "$S3_META_DIR"');
+    expect(startBody, "the server is started with the POSIX backend, its metadata sidecar directory and its data directory").toContain('posix --sidecar "$S3_META_DIR" "$S3_DATA_DIR"');
+    expect(startBody, "the key pair goes by the image's environment variables, not on the server's command line").toContain('-e ROOT_ACCESS_KEY_ID="$S3_ACCESS_KEY" -e ROOT_SECRET_ACCESS_KEY="$S3_SECRET_KEY"');
+    expect(startBody.split("\n").filter((line) => line.includes("docker run") || line.trim().startsWith('"$S3_IMAGE"')).join("\n"), "no key on the command line of the server").not.toMatch(/--access|--secret/);
+    const lines = RUN_SCRIPT.split("\n");
+    const codeLines = lines.filter((line) => !line.trim().startsWith("#")).join("\n");
+    expect(codeLines.match(new RegExp(S3.IP_ENV, "g")), "the IP variable is named once in the script's code, in start_s3").toHaveLength(1);
+    expect(codeLines, "no `--add-host` of the S3 sidecar anywhere in the script's code").not.toMatch(/--add-host[^\n]*S3_/);
+  });
+
+  test("the run script starts, waits for and cleans up the S3 sidecar only under the flag, after the DynamoDB Local one", () => {
+    const lines = RUN_SCRIPT.split("\n");
+    for (const fn of ["start_s3", "wait_for_s3"]) {
+      const calls = lines.map((line, index) => ({ line, index })).filter(({ line }) => line.trim() === fn);
+      expect(calls, `${fn} is called exactly once`).toHaveLength(1);
+      const call = calls[0] as { index: number };
+      expect(lines[call.index - 1]?.trim(), `${fn} is the first line of an if node_service_sidecars_enabled block`).toBe("if node_service_sidecars_enabled; then");
+      expect(lines[call.index + 1]?.trim(), `${fn} is the only line of that block`).toBe("fi");
+    }
+    const indexOf = (fn: string): number => lines.findIndex((line) => line.trim() === fn);
+    expect(indexOf("start_s3"), "the S3 sidecar starts after the DynamoDB Local one").toBeGreaterThan(indexOf("start_dynamodb"));
+    expect(indexOf("wait_for_s3"), "and is waited for after it").toBeGreaterThan(indexOf("wait_for_dynamodb"));
+    expect(indexOf("start_s3"), "both sidecars start before the app (the app container is told their addresses)").toBeLessThan(indexOf("start_app"));
+    expect(RUN_SCRIPT, "the cleanup trap removes the container").toMatch(/docker rm -f [^\n]*"\$S3_CONTAINER"/);
+    expect(RUN_SCRIPT, "the readiness step shows the server's log on failure").toMatch(/wait_for_s3\(\) \{[\s\S]*?docker logs --tail "\$LOG_TAIL_LINES" "\$S3_CONTAINER"[\s\S]*?\n\}/);
+    expect(RUN_SCRIPT, "the runner is started with the extra environment of the sidecars").toContain('"${SIDECAR_RUNNER_ENV[@]}"');
+  });
+
+  test("the S3 readiness call is one signed ListBuckets request with a request limit, accepts exactly one status and needs the answer's XML", () => {
+    const body = /wait_for_s3\(\) \{[\s\S]*?\n\}/.exec(RUN_SCRIPT)?.[0] ?? "";
+    expect(body, "the fetch aborts after the request limit").toContain("AbortSignal.timeout($((PROBE_REQUEST_TIMEOUT * 1000)))");
+    expect(body, "a signed request: the server verifies the signature, so an unsigned probe would not prove the credentials").toContain("AWS4-HMAC-SHA256 Credential=");
+    expect(body, "the signature covers host, content hash and date").toContain("SignedHeaders=host;x-amz-content-sha256;x-amz-date");
+    expect(body, "ready only on the one accepted status (a named constant), not on any answer").toContain("r.status === $S3_HTTP_OK");
+    expect(Number(RUN_SCRIPT.match(/^readonly S3_HTTP_OK=(\d+)$/m)?.[1]), "the accepted status is 200").toBe(200);
+    expect(body, "and on the listing's root element in the body").toContain("t.includes('<ListAllMyBucketsResult')");
+    expect(body, "any failure ends the probe non-zero").toContain(".catch(() => process.exit(1))");
+    expect(body, "the probe runs in the echo container, over the run network, against the sidecar's IP").toMatch(/S3_PROBE_HOST="\$\{S3_IP\}:\$\{S3_PORT\}"[^\n]*"\$ECHO_CONTAINER" node -e/);
+    expect(body, "the key pair reaches the probe through the container's environment").toContain('-e S3_PROBE_KEY="$S3_ACCESS_KEY" -e S3_PROBE_SECRET="$S3_SECRET_KEY"');
+    expect(body, "nothing is logged but the wait time").not.toMatch(/log "[^"]*(SECRET|KEY)/);
+    const request = Number(RUN_SCRIPT.match(/^readonly PROBE_REQUEST_TIMEOUT=(\d+)$/m)?.[1]);
+    const startupTimeout = Number(RUN_SCRIPT.match(/^readonly STARTUP_TIMEOUT=(\d+)$/m)?.[1]);
+    expect(request, "a positive request limit small against the startup timeout").toBeGreaterThan(0);
+    expect(request).toBeLessThanOrEqual(startupTimeout / 10);
+  });
+
+  test("signS3Request reproduces the three examples of AWS's Signature Version 4 documentation for S3 (a GET with a range, a listing with a query, a PUT with a body)", () => {
+    const secretKey = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
+    const common = { host: "examplebucket.s3.amazonaws.com", accessKey: "AKIAIOSFODNN7EXAMPLE", secretKey, region: "us-east-1", now: new Date("2013-05-24T00:00:00.000Z") };
+    const signatureOf = (headers: Record<string, string>): string | undefined => headers.authorization?.split("Signature=")[1];
+    const get = signS3Request({ ...common, method: "GET", path: "/test.txt", query: "", headers: { range: "bytes=0-9" }, body: Buffer.alloc(0) });
+    expect(get.authorization).toBe(
+      "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request, SignedHeaders=host;range;x-amz-content-sha256;x-amz-date, Signature=f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41",
+    );
+    expect(get["x-amz-date"], "the date header").toBe("20130524T000000Z");
+    expect(get["x-amz-content-sha256"], "the hash of the empty body").toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    const list = signS3Request({ ...common, method: "GET", path: "/", query: s3Query({ "max-keys": "2", prefix: "J" }), headers: {}, body: Buffer.alloc(0) });
+    expect(signatureOf(list), "a listing with a canonical query").toBe("34b48302e7b5fa45bde8084f4b7868a86f0a534bc59db6670ed5711ef69dc6f7");
+    const put = signS3Request({
+      ...common,
+      method: "PUT",
+      path: s3Path("examplebucket", "x").replace("/examplebucket/x", "/test%24file.text"),
+      query: "",
+      headers: { date: "Fri, 24 May 2013 00:00:00 GMT", "x-amz-storage-class": "REDUCED_REDUNDANCY" },
+      body: Buffer.from("Welcome to Amazon S3."),
+    });
+    expect(signatureOf(put), "a PUT with a body and extra signed headers").toBe("98ad721746da40c64f1a55b78f14c238d841ea1380cd77a1b5971af0ece108bd");
+    // a header value is trimmed and its runs of whitespace collapse to one space before it is signed (SigV4), so these three spell one value
+    const spaced = (value: string): string | undefined => signatureOf(signS3Request({ ...common, method: "GET", path: "/test.txt", query: "", headers: { "x-amz-meta-note": value }, body: Buffer.alloc(0) }));
+    expect(spaced("  a \t  b  "), "runs of whitespace and the ends collapse").toBe(spaced("a b"));
+    expect(spaced("a  b"), "a double space is one space").toBe(spaced("a b"));
+    expect(spaced("ab"), "control: a value without the space is another value").not.toBe(spaced("a b"));
+    // negative controls: another secret, or another body, gives another signature (the vector above is not matched by accident)
+    const otherSecret = signS3Request({ ...common, secretKey: `${secretKey}x`, method: "GET", path: "/test.txt", query: "", headers: { range: "bytes=0-9" }, body: Buffer.alloc(0) });
+    expect(signatureOf(otherSecret)).not.toBe("f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41");
+    const otherBody = signS3Request({ ...common, method: "GET", path: "/test.txt", query: "", headers: { range: "bytes=0-9" }, body: Buffer.from("x") });
+    expect(signatureOf(otherBody)).not.toBe("f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41");
+  });
+
+  test("s3Path, s3Query, amzDate and xmlValues encode and decode as S3 does (keys per segment, a sorted query, the signing date, the XML entities)", () => {
+    expect(s3Path(), "no bucket").toBe("/");
+    expect(s3Path("b"), "a bucket").toBe("/b");
+    expect(s3Path("b", "dir/e2e file.txt"), "a space is encoded, the slash kept").toBe("/b/dir/e2e%20file.txt");
+    expect(s3Path("b", "ünï/日本語 (1)!'*.txt"), "unicode and the characters encodeURIComponent leaves are encoded").toBe("/b/%C3%BCn%C3%AF/%E6%97%A5%E6%9C%AC%E8%AA%9E%20%281%29%21%27%2A.txt");
+    expect(s3Path("b", "a+b&c=d?e#f%g"), "reserved characters").toBe("/b/a%2Bb%26c%3Dd%3Fe%23f%25g");
+    expect(s3Query({ prefix: "p/", "list-type": "2" }), "sorted, encoded").toBe("list-type=2&prefix=p%2F");
+    expect(s3Query({ "a/": "1", "a-": "2" }), "sorted after encoding: `a%2F` (the raw `a/` sorts after `a-`) comes first").toBe("a%2F=1&a-=2");
+    expect(s3Query({ k: "b", "k ": "a" }), "a name that is a prefix of another encoded name comes first").toBe("k=b&k%20=a");
+    expect(s3Query(), "empty").toBe("");
+    expect(amzDate(new Date("2026-11-25T06:43:40.123Z")), "the signing date has no separators and no fraction").toBe("20261125T064340Z");
+    const xml = "<R><Key>a&amp;b &lt;c&gt; &quot;d&quot; &apos;e&apos; &#955; &#x1F600;</Key><Key>plain</Key><Other>x</Other></R>";
+    expect(xmlValues(xml, "Key"), "both keys, in order, decoded").toEqual(["a&b <c> \"d\" 'e' λ \u{1F600}", "plain"]);
+    expect(xmlValues(xml, "Missing"), "a tag that is not there").toEqual([]);
+  });
+
+  test("s3Direct sends a signed, path-style request (key, scope, signed headers, content hash, body, content type) and returns status, headers, bytes and text; another key pair replaces the connection's", async () => {
+    const received: { method?: string; url?: string; host?: string; authorization?: string; hash?: string; contentType?: string; body: string }[] = [];
+    const server: Server = createServer((request: IncomingMessage, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk: Buffer) => chunks.push(chunk));
+      request.on("end", () => {
+        received.push({
+          method: request.method,
+          url: request.url,
+          host: request.headers.host,
+          authorization: request.headers.authorization,
+          hash: request.headers["x-amz-content-sha256"] as string | undefined,
+          contentType: request.headers["content-type"],
+          body: Buffer.concat(chunks).toString("utf8"),
+        });
+        response.writeHead(received.length === 1 ? 200 : 403, { "Content-Type": "application/xml", "x-e2e": "yes" }).end(received.length === 1 ? "<R>ok ü</R>" : "<Error><Code>AccessDenied</Code></Error>");
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const port = (server.address() as AddressInfo).port;
+    const connection = { endpointUrl: `http://127.0.0.1:${port}`, accessKey: "e2eKey", secretKey: "e2eSecret", region: "eu-test-1" };
+    try {
+      const put = await s3Direct(connection, { method: "PUT", bucket: "bkt", key: "dir/e2e file.txt", query: { "x-id": "PutObject" }, body: "hello", contentType: "text/plain" });
+      const denied = await s3Direct(connection, { method: "GET", bucket: "bkt", credentials: { accessKey: "otherKey", secretKey: "otherSecret" } });
+
+      expect({ status: put.status, type: put.headers["content-type"], extra: put.headers["x-e2e"], text: put.text, bytes: put.body.length }, "a 200 answer: status, headers with lower-case names, text and bytes").toEqual({
+        status: 200,
+        type: "application/xml",
+        extra: "yes",
+        text: "<R>ok ü</R>",
+        bytes: Buffer.byteLength("<R>ok ü</R>"),
+      });
+      expect(denied, "an HTTP error is returned, not thrown").toMatchObject({ status: 403, text: "<Error><Code>AccessDenied</Code></Error>" });
+      expect(received.map(({ method, url, host, contentType, body }) => ({ method, url, host, contentType, body })), "method, path-style URL with the encoded key and the query, host with the port, type, body").toEqual([
+        { method: "PUT", url: "/bkt/dir/e2e%20file.txt?x-id=PutObject", host: `127.0.0.1:${port}`, contentType: "text/plain", body: "hello" },
+        { method: "GET", url: "/bkt", host: `127.0.0.1:${port}`, contentType: undefined, body: "" },
+      ]);
+      const first = parseSigV4Authorization(received[0]?.authorization);
+      expect({ ...first, signature: undefined, date: undefined }, "the first call is signed with the connection's key, region and service, and covers the content type").toEqual({
+        accessKey: "e2eKey",
+        date: undefined,
+        region: "eu-test-1",
+        service: "s3",
+        signedHeaders: ["content-type", "host", "x-amz-content-sha256", "x-amz-date"],
+        signature: undefined,
+      });
+      expect(received[0]?.hash, "the content hash is the SHA-256 of the body").toBe("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824");
+      expect(parseSigV4Authorization(received[1]?.authorization)?.accessKey, "the replacement key pair signs the second call").toBe("otherKey");
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  test("s3CreateBucket, s3DirectKeys and s3RemoveBucket drive the server's bucket API, tolerate a bucket that is gone, and throw on any other refusal", async () => {
+    const calls: string[] = [];
+    const created: { body: string; contentType?: string }[] = [];
+    let mode: "normal" | "gone" | "refuse-list" | "refuse-delete" = "normal";
+    const keys = ["a&b.txt", "dir/ü.txt"];
+    const server: Server = createServer((request: IncomingMessage, response) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk: Buffer) => chunks.push(chunk));
+      request.on("end", () => {
+        calls.push(`${request.method} ${request.url}`);
+        if (request.method === "PUT") created.push({ body: Buffer.concat(chunks).toString("utf8"), contentType: request.headers["content-type"] });
+        const listing = request.method === "GET" && (request.url ?? "").includes("list-type=2");
+        if (mode === "gone" && !(request.method === "PUT")) return void response.writeHead(404).end("<Error><Code>NoSuchBucket</Code></Error>");
+        if (listing && mode === "refuse-list") return void response.writeHead(403).end("<Error><Code>AccessDenied</Code></Error>");
+        if (request.method === "DELETE" && mode === "refuse-delete" && request.url === "/bkt") return void response.writeHead(409).end("<Error><Code>BucketNotEmpty</Code></Error>");
+        if (listing) return void response.writeHead(200).end(`<ListBucketResult>${keys.map((key) => `<Contents><Key>${key.replace("&", "&amp;")}</Key></Contents>`).join("")}</ListBucketResult>`);
+        response.writeHead(request.method === "DELETE" ? 204 : 200).end();
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const connection = { endpointUrl: `http://127.0.0.1:${(server.address() as AddressInfo).port}`, accessKey: "k", secretKey: "s", region: "r" };
+    try {
+      await s3CreateBucket(connection, "bkt");
+      expect(created, "the bucket is created with its location constraint (the connection's region), which a region other than us-east-1 requires").toEqual([
+        { body: `<CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><LocationConstraint>r</LocationConstraint></CreateBucketConfiguration>`, contentType: "application/xml" },
+      ]);
+      expect(await s3DirectKeys(connection, "bkt"), "the keys, decoded").toEqual(keys);
+      calls.length = 0;
+      await s3RemoveBucket(connection, "bkt");
+      expect(calls, "the listing, one delete per object, then the bucket").toEqual(["GET /bkt?list-type=2", "DELETE /bkt/a%26b.txt", "DELETE /bkt/dir/%C3%BC.txt", "DELETE /bkt"]);
+
+      mode = "gone";
+      calls.length = 0;
+      await s3RemoveBucket(connection, "bkt");
+      expect(calls, "a bucket that is gone: one listing, nothing else, no error").toEqual(["GET /bkt?list-type=2"]);
+
+      mode = "refuse-list";
+      await expect(s3RemoveBucket(connection, "bkt"), "a refused listing is a leak that must not be silent").rejects.toThrow("403");
+      mode = "refuse-delete";
+      await expect(s3RemoveBucket(connection, "bkt"), "a bucket the server will not delete").rejects.toThrow("409");
+      mode = "gone";
+      await expect(s3CreateBucket(connection, "bkt"), "control: creating works while the server answers 200 for a PUT").resolves.toBeUndefined();
+      mode = "refuse-list";
+      await expect(s3DirectKeys(connection, "bkt"), "a refused listing throws").rejects.toThrow("403");
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }

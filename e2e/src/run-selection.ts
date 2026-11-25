@@ -9,7 +9,7 @@ export interface RunFlags {
   /** Tests tagged `@superadmin` (SEC-R16a to SEC-R16d: they break a stack that holds more than ~420 workspaces, D-47). */
   includeSuperAdmin: boolean;
   /**
-   * Tests tagged `@node-service-sidecar` (the node-service data sources that need a real server of their own: Firebird, libSQL, CouchDB, DynamoDB Local): they need the
+   * Tests tagged `@node-service-sidecar` (the node-service data sources that need a real server of their own: Firebird, libSQL, CouchDB, DynamoDB Local, S3): they need the
    * run script to start that sidecar, which it does only for this flag. Default stack only: the other stacks select their own tags.
    */
   includeNodeServiceSidecars: boolean;
