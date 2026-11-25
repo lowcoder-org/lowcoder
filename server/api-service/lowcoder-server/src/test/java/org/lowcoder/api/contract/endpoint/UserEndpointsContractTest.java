@@ -557,7 +557,7 @@ class UserEndpointsContractTest {
         Mockito.when(userService.deleteProfilePhoto(member)).thenReturn(Mono.empty());
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "deleteProfilePhotoById", Map.of(), null, ORG_ID, USER_ID);
-            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, MediaType.APPLICATION_JSON);
+            EndpointContract.assertEmptyResponse(result, HttpStatus.OK, NO_CONTENT_TYPE);
             Mockito.verify(userService).deleteProfilePhoto(member);
         }
     }
