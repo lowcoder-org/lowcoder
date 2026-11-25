@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.destructor.DestructorUtil;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.CheckReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.time.Duration;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
