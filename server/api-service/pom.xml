@@ -22,7 +22,7 @@
 		<deploy.disabled>true</deploy.disabled>
 		<source.disabled>true</source.disabled>
 		<skipDockerBuild>true</skipDockerBuild>
-		<jacoco.version>0.8.14</jacoco.version>
+		<jacoco.version>0.8.16</jacoco.version>
 		<!-- declared so that the coverage gate's <skip>${jacoco.skip}</skip> (lowcoder-coverage-report) reads false by
 		     default; -Djacoco.skip=true still skips both JaCoCo and the gate -->
 		<jacoco.skip>false</jacoco.skip>
@@ -89,7 +89,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.6.3</version>
+				<version>3.7.0</version>
 				<executions>
 					<execution>
 						<id>require-jdk-25</id>
@@ -110,12 +110,12 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.4.0</version>
+				<version>2.9.0</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.11.0</version>
 			</plugin>
 			<!-- Code coverage of every module (docs/API_PAYLOAD_TEST_TASKS.md, T11.1): one agent for the unit tests
 			     (target/jacoco.exec, surefire) and one for the integration tests (target/jacoco-it.exec, failsafe), and a
@@ -162,7 +162,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.13.0</version>
+					<version>3.16.0</version>
 					<configuration>
 						<release>${java.version}</release>
 						<compilerArgs>
@@ -173,7 +173,7 @@
 
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.6.0</version>
+					<version>3.8.0</version>
 					<configuration>
 						<descriptors>
 							<descriptor>src/assembly/bin.xml</descriptor>

@@ -60,7 +60,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <id>shade-plugin-jar</id>
@@ -112,7 +112,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <!-- the version Maven resolved for this module before (no version is declared in lowcoder-plugins/pom.xml) -->
-                <version>3.2.5</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <id>us-ascii-default-charset</id>
