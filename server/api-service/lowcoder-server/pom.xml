@@ -324,7 +324,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.5.1</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -341,7 +341,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>sign</id>
@@ -367,7 +367,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.1.2</version>
+				<version>3.6.1</version>
 				<configuration>
 					<skipTests>${skipUnitTests}</skipTests>
 					<excludes>
@@ -399,7 +399,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.2.5</version>
+				<version>3.6.1</version>
 				<configuration>
 					<skipTests>${skipIntegrationTests}</skipTests>
 					<!-- Test the unsigned classes, not the jar signed by maven-jarsigner-plugin in the package phase:

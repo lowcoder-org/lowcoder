@@ -190,7 +190,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.13.0</version>
+					<version>3.16.0</version>
 					<configuration>
 						<release>${java.version}</release>
 						<compilerArgs>
@@ -201,12 +201,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.6.1</version>
+					<version>3.11.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.0</version>
 					<executions>
 						<execution>
 							<id>create-plugin-properties</id>
