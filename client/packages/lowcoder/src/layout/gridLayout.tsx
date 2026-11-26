@@ -14,6 +14,7 @@ import {
   calcRowCount,
   calcWH,
   calcXY,
+  convertDroppingSize,
   DEFAULT_ROW_COUNT,
   genPositionParams,
   PositionParams,
@@ -604,16 +605,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const positionParams: PositionParams = genPositionParams(this.props);
     // convert grid units, in order to keep comps' size stable when they are through containers
     const sourcePositionParams = onDragOverResult?.positionParams;
-    if (sourcePositionParams) {
-      const { width, height } = calcGridItemSizePx(sourcePositionParams, w, h);
-      // log.debug("layout: sourceTransform. w: ", w, " h: ", h, " sourcePositinParams: ", sourcePositionParams, " width: ", width, " height: ", height);
-      const { w: ww, h: hh } = calcWH(positionParams, width, height, {
-        w: false,
-        h: false,
-        ceil: false,
-      });
-      [w, h] = [ww, hh];
-    }
+    ({ w, h } = convertDroppingSize(positionParams, sourcePositionParams, w, h));
     const { width, height } = calcGridItemSizePx(positionParams, w, h);
     // log.debug("layout: getFinalDroppingItem. w: ", w, " h: ", h, " sourcePositinParams: ", sourcePositionParams, " width: ", width, " height: ", height);
     left -= width * 0.5;
