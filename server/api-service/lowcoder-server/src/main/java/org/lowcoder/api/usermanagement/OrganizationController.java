@@ -5,6 +5,7 @@ import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
+import org.lowcoder.api.usermanagement.view.OrgLoginChoiceView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
@@ -59,17 +60,17 @@ public class OrganizationController implements OrganizationEndpoints
     public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
                                                            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
-        Flux<OrgView> flux;
+        Flux<OrgLoginChoiceView> flux;
         if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
             flux = userService.findByEmailDeep(email).flux()
                     .flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                     .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                    .map(OrgView::new)
+                    .map(OrgLoginChoiceView::new)
                     .cache();
         } else {
-            flux = organizationService.getOrganizationInEnterpriseMode().flux().map(OrgView::new).cache();
+            flux = organizationService.getOrganizationInEnterpriseMode().flux().map(OrgLoginChoiceView::new).cache();
         }
-        var newflux = flux.sort((OrgView o1, OrgView o2) -> {
+        var newflux = flux.sort((OrgLoginChoiceView o1, OrgLoginChoiceView o2) -> {
             if (o1.getOrgName() == null || o2.getOrgName() == null) {
                 return 0;
             }

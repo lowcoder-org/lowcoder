@@ -162,6 +162,7 @@ class BundleEndpointsContractTest {
     @Test
     void recycle() {
         Mockito.when(bundleApiService.recycle(BUNDLE_ID)).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(bundleService.findById(BUNDLE_ID)).thenReturn(Mono.just(BundleSamples.bundle()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "recycle", Map.of(), null, BUNDLE_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));
@@ -171,6 +172,7 @@ class BundleEndpointsContractTest {
     @Test
     void restore() {
         Mockito.when(bundleApiService.restore(BUNDLE_ID)).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(bundleService.findById(BUNDLE_ID)).thenReturn(Mono.just(BundleSamples.bundle()));
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "restore", Map.of(), null, BUNDLE_ID);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.success(TRUE));

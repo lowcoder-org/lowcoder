@@ -18,6 +18,7 @@ import org.lowcoder.api.usermanagement.OrganizationController;
 import org.lowcoder.api.usermanagement.OrganizationEndpoints;
 import org.lowcoder.api.usermanagement.OrganizationEndpoints.UpdateOrgCommonSettingsRequest;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
+import org.lowcoder.api.usermanagement.view.OrgLoginChoiceView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
@@ -140,7 +141,7 @@ class OrganizationEndpointsContractTest {
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganizationByUser",
                     Map.of("pageNum", DEFAULT_PAGE_NUM, "pageSize", DEFAULT_PAGE_SIZE), null, EMAIL);
-            String view = EndpointContract.s1(OrgView.class);
+            String view = EndpointContract.s1(OrgLoginChoiceView.class);
             ObjectNode laterView = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(view);
             laterView.put(ORG_NAME_PROPERTY, later.getName());
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(EndpointContract.array(view,
@@ -156,10 +157,10 @@ class OrganizationEndpointsContractTest {
         stubUserOrganizations(UserManagementSamples.orgViewOrganization(), unnamed);
         try (ContractTestClient client = client()) {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganizationByUser", Map.of(), null, EMAIL);
-            ObjectNode unnamedView = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.s1(OrgView.class));
+            ObjectNode unnamedView = (ObjectNode) PayloadAssertions.FIXTURE_EDITOR.readTree(EndpointContract.s1(OrgLoginChoiceView.class));
             unnamedView.putNull(ORG_NAME_PROPERTY);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(EndpointContract.array(
-                    EndpointContract.s1(OrgView.class), PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(unnamedView)),
+                    EndpointContract.s1(OrgLoginChoiceView.class), PayloadAssertions.FIXTURE_EDITOR.writeValueAsString(unnamedView)),
                     DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, 2));
         }
     }
@@ -173,7 +174,7 @@ class OrganizationEndpointsContractTest {
             EntityExchangeResult<byte[]> result = CONTRACT.exchange(client, "getOrganizationByUser",
                     Map.of("pageNum", DEFAULT_PAGE_NUM, "pageSize", PAGE_SIZE), null, EMAIL);
             EndpointContract.assertResponse(result, HttpStatus.OK, EndpointContract.page(
-                    EndpointContract.array(EndpointContract.s1(OrgView.class)), DEFAULT_PAGE_NUM, PAGE_SIZE, 1));
+                    EndpointContract.array(EndpointContract.s1(OrgLoginChoiceView.class)), DEFAULT_PAGE_NUM, PAGE_SIZE, 1));
             Mockito.verifyNoInteractions(builder.mock(UserService.class));
         }
     }

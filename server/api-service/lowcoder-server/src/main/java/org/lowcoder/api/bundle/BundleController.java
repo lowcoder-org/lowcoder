@@ -124,7 +124,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Boolean>> restore(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.restore(objectId)
-                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, null, BUNDLE_RESTORE))
+                .delayUntil(__ -> publishBundleStatusEvent(objectId, BUNDLE_RESTORE))
                 .map(ResponseView::success));
     }
 
