@@ -50,14 +50,22 @@ export class AppListPage {
    * Imports an app from a JSON file through "New" > "Import". The app takes the name stored in the file; returns it.
    */
   async importFile(path: string): Promise<string> {
-    await this.page.getByRole("button", { name: "New" }).click();
+    const newButton = this.newButton;
+    // The visible "Import" text of the menu item is covered by the Upload of `AppImport` (CreateDropdown.tsx), which takes
+    // the click: Playwright refuses a click on the text ("intercepts pointer events") and a click on the menu item's centre
+    // does not reach the Upload, so click the Upload wrapper itself. The item holds two `.ant-upload` elements (this div and
+    // a span inside it); no role or test id names the Upload.
+    const importTrigger = this.page.getByRole("menuitem", { name: "Import" }).locator(".ant-upload-select");
     // The menu animates open, and a click that lands while it moves does not start the upload; try again until the
     // file chooser opens.
     let chooser: FileChooser | undefined;
     await expect(async () => {
+      if (!(await importTrigger.isVisible())) {
+        await newButton.click({ timeout: IMPORT_ATTEMPT_TIMEOUT_MS });
+      }
       [chooser] = await Promise.all([
         this.page.waitForEvent("filechooser", { timeout: IMPORT_ATTEMPT_TIMEOUT_MS }),
-        this.page.getByText("Import", { exact: true }).filter({ visible: true }).click({ timeout: IMPORT_ATTEMPT_TIMEOUT_MS }),
+        importTrigger.click({ timeout: IMPORT_ATTEMPT_TIMEOUT_MS }),
       ]);
     }).toPass({ timeout: IMPORT_TIMEOUT_MS });
     await chooser!.setFiles(path);
@@ -75,9 +83,13 @@ export class AppListPage {
     await this.page.goto(`/invite/${inviteCode}`);
   }
 
-  /** The "New" button of the app list (the page has two "New" buttons: the first one): the client shows it to developers and admins only (`orgDev` gate). */
+  /**
+   * The "New" button of the app list, by its exact name (the sidebar's "News" button would match a substring); the page can
+   * hold two "New" buttons (measured on a developer's list, SEC-R07c), so the first one. The client shows it to developers and
+   * admins only (`orgDev` gate).
+   */
   get newButton(): Locator {
-    return this.page.getByRole("button", { name: "New" }).first();
+    return this.page.getByRole("button", { name: "New", exact: true }).first();
   }
 
   get emptyState(): Locator {

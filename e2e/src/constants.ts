@@ -154,6 +154,18 @@ export const UI_PATHS = {
   ADMIN_LOGIN: "/admin/login",
 } as const;
 
+/**
+ * The springdoc routes of api-service, open to anonymous callers (`GET /api/docs/**` in `SecurityConfig.java`); the paths are
+ * `springdoc.api-docs.path` and `springdoc.swagger-ui.path` in `application.yaml`.
+ */
+export const API_DOCS_PATHS = {
+  OPENAPI_JSON: "/api/docs/openapi.json",
+  SWAGGER_UI: "/api/docs/swagger-ui",
+} as const;
+
+/** `info.title` of the OpenAPI document (`OpenAPIDocsConfiguration.customizeOpenAPI`), the heading Swagger UI shows. */
+export const API_DOCS_TITLE = "Lowcoder Open Rest API";
+
 /** Meets the password rules of the sign-up form. */
 export const TEST_PASSWORD = "Passw0rd-e2e";
 
