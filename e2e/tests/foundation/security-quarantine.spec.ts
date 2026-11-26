@@ -16,7 +16,7 @@ import {
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: 1 fixed-on-branch scenario (the lifecycle id LC-AK04, an intermittent UI test), and 4 open ones
+/** Sizes of the two maps: no fixed-on-branch scenario (LC-AK04 left it: its UI test no longer reloads during the delete), and 4 open ones
  * (3 security ids plus the lifecycle id LC-AU15). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
  * closed SEC-C09, SEC-C11, SEC-C19a, SEC-C19b, SEC-C22e, SEC-R15c, SEC-A04, SEC-A11, SEC-A12, SEC-E05, LC-PW08, LC-PW11,
  * LC-IP14, LC-PR13, LC-AU07 and LC-PR14. D-12 and D-39 also left the map: the fix closed SEC-A10a and SEC-A10c. D-35 also left the map:
@@ -38,7 +38,7 @@ import {
  * quarantined. D-55 also left the map: the invite dialog's success notice now uses the right translation key, so
  * LC-PW15 is no longer quarantined. D-63 also left the map: the profile now fetches the app list it counts, so
  * LC-OT02 is no longer quarantined. */
-const FIXED_ON_BRANCH_COUNT = 1;
+const FIXED_ON_BRANCH_COUNT = 0;
 const OPEN_DEFECTS_COUNT = 4;
 /** Lifecycle ids: LC-AU15 is in a map so far; the listed-id branches are also tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
@@ -48,8 +48,8 @@ const LC_AREAS = ["AU", "PR", "AK", "WM", "GR", "SH", "PW", "DL", "IP", "OT"];
 const injected = lifecycleDetailsFor((id) => INJECTED_DEFECTS[id]);
 /** A scenario id that is in neither map (a scenario that passes on the image). */
 const PASSING_ID = "SEC-C01a";
-/** The one id of `FIXED_ON_BRANCH` is a lifecycle id, so the security functions are exercised with open-defect ids. */
-const FIXED_LC_ID = "LC-AK04";
+/** The last id that left `FIXED_ON_BRANCH` (its test passes, so it is in neither map). */
+const LEFT_FIXED_LC_ID = "LC-AK04";
 /** A scenario that left the quarantine on 3.0.1 (its test passes, so it is in neither map). */
 const LEFT_QUARANTINE_ID = "SEC-C13";
 const OPEN_ID = "SEC-C17c";
@@ -62,10 +62,6 @@ function titleWithTags(id: string, tags: string[]): string {
 
 test.describe("security quarantine list", () => {
   test("a listed id gets the security and quarantine tags and the defect annotation", () => {
-    expect(lifecycleTestDetails(FIXED_LC_ID), "a fixed-on-branch id").toEqual({
-      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
-      annotation: { type: DEFECT_ANNOTATION_TYPE, description: FIXED_ON_BRANCH[FIXED_LC_ID] },
-    });
     expect(securityTestDetails(OPEN_ID), "an open-defect id").toEqual({
       tag: [TAGS.SECURITY, TAGS.QUARANTINE],
       annotation: { type: DEFECT_ANNOTATION_TYPE, description: OPEN_DEFECTS[OPEN_ID] },
@@ -109,7 +105,7 @@ test.describe("security quarantine list", () => {
   });
 
   test("quarantinedDefect names the defect of a listed id and nothing for an unlisted one", () => {
-    expect(quarantinedDefect(FIXED_LC_ID)).toBe(FIXED_ON_BRANCH[FIXED_LC_ID]);
+    expect(quarantinedDefect(LEFT_FIXED_LC_ID), "an id that left FIXED_ON_BRANCH").toBeUndefined();
     expect(quarantinedDefect(OPEN_ID)).toBe(OPEN_DEFECTS[OPEN_ID]);
     expect(quarantinedDefect(PASSING_ID)).toBeUndefined();
   });
@@ -142,6 +138,7 @@ test.describe("security quarantine list", () => {
 
     expect(details.tag).toEqual([TAGS.LIFECYCLE]);
     expect(details, "no annotation key at all").not.toHaveProperty("annotation");
+    expect(lifecycleTestDetails(LEFT_FIXED_LC_ID), "the lifecycle id that left FIXED_ON_BRANCH").toEqual({ tag: [TAGS.LIFECYCLE] });
   });
 
   test("a lifecycle id the lookup lists gets the lifecycle and quarantine tags and the defect annotation", () => {
