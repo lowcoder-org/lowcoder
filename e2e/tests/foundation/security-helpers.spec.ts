@@ -547,11 +547,8 @@ test.describe("security helpers: credentials and content", () => {
     expect((await apiRaw(outsider.request, "GET", bundleViewPath(bundleId))).code, "after public-to-all: an outsider views").toBe(API_OK);
   });
 
-  // D-46 (SF-41): the 3.0.0 server recycles a bundle and then answers 500 / 5005.
-  test("a bundle recycle answers success (bundle recycle candidate)", {
-    tag: TAGS.QUARANTINE,
-    annotation: { type: "defect", description: "D-46" },
-  }, async ({ actor }) => {
+  // D-46 (SF-41): the 3.0.0 server recycled a bundle and then answered 500 / 5005; this pins that a recycle answers success.
+  test("a bundle recycle answers success", async ({ actor }) => {
     const owner = await actor("owner");
     const bundleId = await createBundle(owner.request, { orgId: owner.orgId, name: BUNDLE_NAME });
 

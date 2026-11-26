@@ -39,7 +39,7 @@ import {
  * LC-PW15 is no longer quarantined. D-63 also left the map: the profile now fetches the app list it counts, so
  * LC-OT02 is no longer quarantined. */
 const FIXED_ON_BRANCH_COUNT = 0;
-const OPEN_DEFECTS_COUNT = 4;
+const OPEN_DEFECTS_COUNT = 3;
 /** Lifecycle ids: LC-AU15 is in a map so far; the listed-id branches are also tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
@@ -53,7 +53,7 @@ const LEFT_FIXED_LC_ID = "LC-AK04";
 /** A scenario that left the quarantine on 3.0.1 (its test passes, so it is in neither map). */
 const LEFT_QUARANTINE_ID = "SEC-C13";
 const OPEN_ID = "SEC-C17c";
-const OTHER_OPEN_ID = "SEC-R17f";
+const OTHER_OPEN_ID = "SEC-A10b";
 
 /** The title as Playwright matches `grep` / `grepInvert` against: the title followed by the tags of the test. */
 function titleWithTags(id: string, tags: string[]): string {
