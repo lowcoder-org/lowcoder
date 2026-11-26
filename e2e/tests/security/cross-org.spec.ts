@@ -96,7 +96,7 @@ import {
   type SeededApp,
 } from "../../src/security/actors";
 import { expectAnswer, expectDeniedAs } from "../../src/security/assertions";
-import { permissionIdOf } from "../../src/security/scene";
+import { permissionIdOf, roleOf } from "../../src/security/scene";
 import { securityTestDetails } from "../../src/security/quarantine";
 
 /**
@@ -601,22 +601,28 @@ test.describe("security: another workspace's resources (further rows)", () => {
     expectAnswer(await apiRaw(b.request, "GET", orgMembersPath(a.orgId)), API_ERRORS.NOT_AUTHORIZED, "B is not a member of OA");
   });
 
-  test("SEC-C17c signing in through another workspace's login does not make an outsider a member", securityTestDetails("SEC-C17c"), async ({ page, apiUser, actor }) => {
+  // By design (owner decision, D-30): anyone who knows a workspace's id joins it by signing in on that workspace's own page.
+  test("SEC-C17c signing in through another workspace's login makes the outsider a plain member and switches to that workspace (pin)", securityTestDetails("SEC-C17c"), async ({ page, apiUser, actor }) => {
     const { a, b } = await sceneOf(page, apiUser, actor);
     expectAnswer(await apiRaw(b.request, "GET", orgMembersPath(a.orgId)), API_ERRORS.NOT_AUTHORIZED, "before: B is no member of OA");
+    expect(await roleOf(a, b.userId), "before: B holds no role in OA").toBeUndefined();
+    expect((await currentUser(b.request)).currentOrgId, "before: B's current workspace is its own").toBe(b.orgId);
 
     const login = await apiRaw(b.request, "POST", API_PATHS.LOGIN, {
       params: { orgId: a.orgId },
       data: { loginId: b.email, password: TEST_PASSWORD, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
     });
 
-    // The sign-in itself must succeed (valid credentials), or the denial below would hold for an unrelated failure.
-    // Limit: whether B is thereby in OA is exactly what the last assertion decides, so it is not asserted before.
+    // The sign-in itself succeeds (valid credentials); the join below is the decided behaviour, not a side effect of a failure.
     expectAnswer(login, OK, "B's sign-in through the workspace login of OA");
-    expectAnswer(await apiRaw(b.request, "GET", orgMembersPath(a.orgId)), API_ERRORS.NOT_AUTHORIZED, "after: B still reads no member list of OA");
+    expect(await roleOf(a, b.userId), "after: B is a plain member of OA").toBe(ORG_ROLES.MEMBER);
+    expectAnswer(await apiRaw(b.request, "GET", orgMembersPath(a.orgId)), OK, "after: B reads the member list of OA");
+    const me = await currentUser(b.request);
+    expect(me.currentOrgId, "after: OA is B's current workspace").toBe(a.orgId);
+    expect(me.orgAndRoles.map((entry) => entry.org.id), "after: B still belongs to its own workspace").toContain(b.orgId);
   });
 
-  test("SEC-C17c UI variant: a signed-out outsider who signs in on another workspace's page is not shown that workspace", securityTestDetails("SEC-C17c"), async ({ page, apiUser, actor, newUserSession }) => {
+  test("SEC-C17c UI variant: an outsider who signs in on another workspace's page lands in that workspace (pin)", securityTestDetails("SEC-C17c"), async ({ page, apiUser, actor, newUserSession }) => {
     const { a, b, seeded } = await sceneOf(page, apiUser, actor);
     await createApp(b.request, { orgId: b.orgId, name: OUTSIDER_APP_NAME });
     const outsiderList = new AppListPage(b.session.page);
@@ -631,12 +637,17 @@ test.describe("security: another workspace's resources (further rows)", () => {
 
     await expect(visitor.page, "the sign-in on the workspace page succeeded").not.toHaveURL(UI_PATHS.LOGIN);
     await expect(visitor.page, "and left the workspace sign-in").not.toHaveURL(UI_PATHS.LOGIN_IN_ORG);
+    await expect
+      .poll(async () => (await currentUser(visitor.page.request)).currentOrgId, { message: "the sign-in switched B's current workspace to OA" })
+      .toBe(a.orgId);
     const list = new AppListPage(visitor.page);
     await list.open();
-    // The list is awaited through B's own OB app first, so the absence below is not read during page load.
-    await expect(list.appNamed(OUTSIDER_APP_NAME), "after: B's /apps still lists the app of OB").toBeVisible();
-    await expect(list.appNamed(SEEDED_APP_NAME), "after: B's /apps does not list OA's app").toHaveCount(0);
-    expect(await listOrgMembers(a.request, a.orgId).then((members) => members.map((member) => member.userId)), "B is no member of OA").not.toContain(b.userId);
+    // The list is awaited through its title first, so the absence below is not read during page load.
+    await expect(list.title, "the app list of OA has loaded").toBeVisible();
+    await expect(list.appNamed(OUTSIDER_APP_NAME), "after: B's /apps no longer lists the app of OB, OA is current").toHaveCount(0);
+    // OA's seeded app is private: a plain member does not see it, so it is not asserted as listed.
+    await expect(list.appNamed(SEEDED_APP_NAME), "after: B's /apps does not list OA's private app").toHaveCount(0);
+    expect(await roleOf(a, b.userId), "B is a plain member of OA").toBe(ORG_ROLES.MEMBER);
   });
 
   test("SEC-C18a another workspace's group members cannot be listed", securityTestDetails("SEC-C18a"), async ({ page, apiUser, actor }) => {

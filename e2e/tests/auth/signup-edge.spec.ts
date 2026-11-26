@@ -3,6 +3,7 @@ import {
   createInvitation,
   currentUser,
   currentUserId,
+  listOrgMembers,
   registerRaw,
   signIn,
   signInRaw,
@@ -161,8 +162,9 @@ test.describe("lifecycle: sign-up edge cases", () => {
     ).toEqual([{ orgId: inviter.orgId, role: "member" }]);
   });
 
+  // By design (owner decision, D-30): anyone who knows a workspace's id joins it by signing up on that workspace's own page.
   test(
-    "LC-AU15 a sign-up on another workspace's sign-up page does not make the visitor a member",
+    "LC-AU15 a sign-up on a workspace's sign-up page makes the visitor a plain member of that workspace only (pin)",
     lifecycleTestDetails("LC-AU15"),
     async ({ actor, newUserSession }, testInfo) => {
       const owner = await actor("orgowner");
@@ -170,15 +172,22 @@ test.describe("lifecycle: sign-up edge cases", () => {
       const auth = new AuthPage(session.page);
       await session.page.goto(ORG_REGISTER_PATH(owner.orgId));
       await expect(auth.signUpButton, "the workspace's sign-up page renders").toBeVisible();
+      const memberIdsBefore = (await listOrgMembers(owner.request, owner.orgId)).map((member) => member.userId);
 
       await auth.signUp(uniqueEmail("walkin", testInfo.workerIndex), TEST_PASSWORD);
       await expect(session.page, "the sign-up worked").toHaveURL(UI_PATHS.APP_LIST);
 
+      const visitorId = await currentUserId(session.page.request);
+      const memberIdsAfter = (await listOrgMembers(owner.request, owner.orgId)).map((member) => member.userId);
+      expect(memberIdsBefore, "before: the visitor is not a member of the workspace").not.toContain(visitorId);
+      // The member list may also hold the instance super admin, so the check is a difference, not an equality.
+      expect(memberIdsAfter.filter((id) => !memberIdsBefore.includes(id)), "the visitor is the one member added").toEqual([visitorId]);
       const me = await currentUser(session.page.request);
       expect(
-        me.orgAndRoles.map((entry) => entry.org.id).includes(owner.orgId),
-        "the visitor, who held no invitation, is not a member of the workspace",
-      ).toBe(false);
+        me.orgAndRoles.map((entry) => ({ orgId: entry.org.id, role: entry.role })),
+        "the visitor belongs to that workspace only, as a plain member",
+      ).toEqual([{ orgId: owner.orgId, role: "member" }]);
+      expect(me.currentOrgId, "and it is the visitor's current workspace").toBe(owner.orgId);
     },
   );
 

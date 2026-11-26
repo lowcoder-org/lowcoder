@@ -16,8 +16,8 @@ import {
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: no fixed-on-branch scenario (LC-AK04 left it: its UI test no longer reloads during the delete), and 4 open ones
- * (3 security ids plus the lifecycle id LC-AU15). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
+/** Sizes of the two maps: no fixed-on-branch scenario (LC-AK04 left it: its UI test no longer reloads during the delete), and 1 open one
+ * (the security id SEC-A10b; D-30 left the map by the owner's decision that the join through a workspace's own page is intended, so SEC-C17c and LC-AU15 pin it). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
  * closed SEC-C09, SEC-C11, SEC-C19a, SEC-C19b, SEC-C22e, SEC-R15c, SEC-A04, SEC-A11, SEC-A12, SEC-E05, LC-PW08, LC-PW11,
  * LC-IP14, LC-PR13, LC-AU07 and LC-PR14. D-12 and D-39 also left the map: the fix closed SEC-A10a and SEC-A10c. D-35 also left the map:
  * the fix closed SEC-X01b and SEC-X01c. D-10 also left the map: the fix closed SEC-A09c. D-14 also left the map: the
@@ -39,8 +39,8 @@ import {
  * LC-PW15 is no longer quarantined. D-63 also left the map: the profile now fetches the app list it counts, so
  * LC-OT02 is no longer quarantined. */
 const FIXED_ON_BRANCH_COUNT = 0;
-const OPEN_DEFECTS_COUNT = 3;
-/** Lifecycle ids: LC-AU15 is in a map so far; the listed-id branches are also tested through an injected lookup. */
+const OPEN_DEFECTS_COUNT = 1;
+/** Lifecycle ids: no lifecycle id is in a map any more; the listed-id branches are tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
 const INJECTED_DEFECTS: Readonly<Record<string, string>> = { [LC_INJECTED_ID]: "D-45" };
@@ -52,8 +52,7 @@ const PASSING_ID = "SEC-C01a";
 const LEFT_FIXED_LC_ID = "LC-AK04";
 /** A scenario that left the quarantine on 3.0.1 (its test passes, so it is in neither map). */
 const LEFT_QUARANTINE_ID = "SEC-C13";
-const OPEN_ID = "SEC-C17c";
-const OTHER_OPEN_ID = "SEC-A10b";
+const OPEN_ID = "SEC-A10b";
 
 /** The title as Playwright matches `grep` / `grepInvert` against: the title followed by the tags of the test. */
 function titleWithTags(id: string, tags: string[]): string {
@@ -111,7 +110,7 @@ test.describe("security quarantine list", () => {
   });
 
   test("the default run leaves a quarantined security test out and E2E_INCLUDE_QUARANTINE brings it back", () => {
-    const quarantined = titleWithTags(OTHER_OPEN_ID, securityTestDetails(OTHER_OPEN_ID).tag);
+    const quarantined = titleWithTags(OPEN_ID, securityTestDetails(OPEN_ID).tag);
     const passing = titleWithTags(PASSING_ID, securityTestDetails(PASSING_ID).tag);
     const defaultRun = grepInvertFor(runFlagsFromEnv({}));
     const withQuarantine = grepInvertFor(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_QUARANTINE]: "1" }));
@@ -129,7 +128,7 @@ test.describe("security quarantine list", () => {
     expect(securityCandidateDetails("SEC-A98a", "x", [TAGS.CORE]).tag, "extra tags last").toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
     expect(() => securityCandidateDetails("SEC-A02", "x"), "pattern needs two digits").not.toThrow();
     expect(() => securityCandidateDetails("bad", "x")).toThrow(/is not a security scenario id/);
-    expect(() => securityCandidateDetails(OTHER_OPEN_ID, "x"), "an id of a map").toThrow(/quarantine map/);
+    expect(() => securityCandidateDetails(OPEN_ID, "x"), "an id of a map").toThrow(/quarantine map/);
     expect(() => securityCandidateDetails("SEC-A98a", "  "), "no measurement").toThrow(/names what was measured/);
   });
 
@@ -149,13 +148,9 @@ test.describe("security quarantine list", () => {
     expect(lifecycleTestDetails(LC_INJECTED_ID).tag, "the maps, not the injected lookup, decide in production").toEqual([TAGS.LIFECYCLE]);
   });
 
-  test("a lifecycle id listed in a map gets its defect and the quarantine tag from the maps", () => {
-    expect(quarantinedDefect("LC-AU15")).toBe("D-30");
-    expect(lifecycleTestDetails("LC-AU15")).toEqual({
-      tag: [TAGS.LIFECYCLE, TAGS.QUARANTINE],
-      annotation: { type: DEFECT_ANNOTATION_TYPE, description: "D-30" },
-    });
-    expect(() => lifecycleCandidateDetails("LC-AU15", "x"), "a mapped id is no candidate").toThrow(/quarantine map/);
+  test("LC-AU15 left the maps: it carries the lifecycle tag only and no annotation", () => {
+    expect(quarantinedDefect("LC-AU15"), "no defect is listed for it").toBeUndefined();
+    expect(lifecycleTestDetails("LC-AU15")).toEqual({ tag: [TAGS.LIFECYCLE] });
   });
 
   test("lifecycle extra tags are appended after the base and quarantine tags", () => {
