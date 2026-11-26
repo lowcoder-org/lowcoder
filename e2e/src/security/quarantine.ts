@@ -90,12 +90,12 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {};
  * (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-46 left this map: a bundle's
  * recycle now publishes its event from the stored bundle instead of looking the bundle id up as an application, so
  * SEC-R17f is no longer quarantined (a restore publishes through the old lookup and is not covered: README, "D-46 restore
- * candidate"). LC-AU15 (`tests/auth/signup-edge.spec.ts`) is a lifecycle id.
+ * candidate"). D-30 left this map by the owner's decision
+ * (2026-11-26) that the join is intended: anyone who knows a workspace's id becomes its member by signing in or signing up on
+ * that workspace's own page, so SEC-C17c and LC-AU15 now pin it.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
-  "SEC-C17c": "D-30",
   "SEC-A10b": "D-13",
-  "LC-AU15": "D-30",
 };
 
 /** What a security test passes to `test(title, details, body)`: the `tag` and, for a quarantined test, the annotation. */
