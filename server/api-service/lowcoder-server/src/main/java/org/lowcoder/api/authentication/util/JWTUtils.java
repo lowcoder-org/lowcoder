@@ -3,8 +3,9 @@ package org.lowcoder.api.authentication.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
@@ -16,6 +17,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
 @Component
 @Slf4j(topic = "JWTUtils")
 public class JWTUtils {
@@ -25,6 +28,9 @@ public class JWTUtils {
 
     private JwtParser jwtParser;
 
+    private SecretKey signingKey;
+
+    /** The Base64 text of the secret; tests read it to sign tokens of their own. */
     private String base64EncodedSecret;
 
     private final String TOKEN_HEADER = "Authorization";
@@ -32,9 +38,12 @@ public class JWTUtils {
 
     @PostConstruct
     public void setup(){
+        // The key is the configured secret's bytes, as before (jjwt 0.11 took the Base64 text of the secret and decoded it again),
+        // so tokens signed before the jjwt update keep validating. A secret under 256 bits is refused for HS256, as before.
         base64EncodedSecret = Encoders.BASE64.encode(authProperties.getApiKey().getSecret().getBytes());
-        this.jwtParser = Jwts.parserBuilder()
-                .setSigningKey(base64EncodedSecret)
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(base64EncodedSecret));
+        this.jwtParser = Jwts.parser()
+                .verifyWith(signingKey)
                 .build();
     }
 
@@ -48,20 +57,21 @@ public class JWTUtils {
      */
     public String createToken(User user) {
         Claims claims = Jwts.claims()
-                .setSubject(user.getId())
-                .setIssuedAt(new Date())
-                .setId(IDUtils.generate());
-        claims.put("userId", user.getId() );
-        claims.put("createdBy", user.getName());
+                .subject(user.getId())
+                .issuedAt(new Date())
+                .id(IDUtils.generate())
+                .add("userId", user.getId())
+                .add("createdBy", user.getName())
+                .build();
         return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS256, base64EncodedSecret)
+                .claims(claims)
+                .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
     }
 
     public Claims parseJwtClaims(String token) {
         try {
-            return jwtParser.parseClaimsJws(token).getBody();
+            return jwtParser.parseSignedClaims(token).getPayload();
         } catch (Exception e) {
             log.warn("Failed to validate token. Exception: ", e);
             return null;
