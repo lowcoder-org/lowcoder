@@ -3,6 +3,9 @@ package org.lowcoder.plugin.clickhouse;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
@@ -28,6 +31,7 @@ import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedSche
 @Extension
 public class ClickHouseConnector implements DatasourceConnector<HikariDataSource, ClickHouseDatasourceConfig> {
 
+    private static final String VALIDATION_QUERY = "SELECT 1";
     private static final String JDBC_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";
     private static final long LEAK_DETECTION_THRESHOLD_MS = Duration.ofSeconds(30).toMillis();
     private static final long MAX_LIFETIME_MS = TimeUnit.HOURS.toMillis(2);
@@ -159,15 +163,23 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
         String url = "jdbc:clickhouse:" + scheme + host + ":" + port + "/" + database;
         config.setJdbcUrl(url);
 
-        config.addDataSourceProperty("characterEncoding", "UTF-8");
-        config.addDataSourceProperty("useUnicode", "true");
-
+        // No characterEncoding / useUnicode: they are MySQL driver properties that the 0.3 ClickHouse driver ignored and
+        // the 0.11 driver refuses ("Unknown and unmapped config properties"); the HTTP interface is UTF-8 anyway.
         config.setReadOnly(datasourceConfig.isReadonly());
 
         HikariDataSource datasource;
         try {
             datasource = new HikariDataSource(config);
         } catch (PoolInitializationException e) {
+            throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "DATASOURCE_ARGUMENT_ERROR", e.getMessage());
+        }
+
+        // The 0.11 driver connects lazily: a wrong password, a closed port or https against the HTTP port no longer fails
+        // the pool initialization, so the data source is checked with one query here, as the pool initialization did before.
+        try (Connection connection = datasource.getConnection(); Statement statement = connection.createStatement()) {
+            statement.execute(VALIDATION_QUERY);
+        } catch (SQLException | RuntimeException e) {
+            datasource.close();
             throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "DATASOURCE_ARGUMENT_ERROR", e.getMessage());
         }
 
