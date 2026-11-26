@@ -26,19 +26,6 @@ import { recordsContain, type EchoRecord, type EchoTarget } from "../../src/secu
  */
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 
-/**
- * Candidate defect: a storage error answer (any status) fails the query with `{"size":0,"timeout":0}`, the JSON of node-fetch's own
- * `Response`, not with the message of the answer: storage-js recognises an HTTP error only as an instance of the global `Response`, and
- * the proxy fetch answers with node-fetch's class.
- */
-const ERROR_TEXT_DEFECT = { type: "defect", description: "D-74 candidate" } as const;
-/**
- * Candidate defect: the signed-URL validity the plugin sends as `expiresIn` is `Date.now() + 5 minutes` in milliseconds (a 13-digit number
- * of the order of 1.8e12), computed once when node-service loads the plugin, while the API takes seconds.
- */
-const EXPIRY_DEFECT = { type: "defect", description: "D-75 candidate" } as const;
-/** Candidate defect: the `search` field of listObjects is read by the query form and never sent. */
-const SEARCH_DEFECT = { type: "defect", description: "D-76 candidate" } as const;
 /** Candidate defect: only listObjects checks the bucket (`Bucket is required`); the other operations send a request for an empty bucket name. */
 const EMPTY_BUCKET_DEFECT = { type: "defect", description: "D-77 candidate" } as const;
 /** Observation: an upload without a content type sends an empty `content-type` header (the editor's default is an empty text). */
@@ -78,28 +65,11 @@ const SHAPE_BAD = "<does NOT match the expected shape>";
 const UPLOAD_CACHE_CONTROL = "max-age=3600";
 const UPLOAD_UPSERT = "false";
 
-/** The message of every failed storage call today: the JSON of node-fetch's `Response` (D-74). */
-const LOST_ERROR_TEXT = '{"size":0,"timeout":0}';
 const CANNED_ERROR_MESSAGE = "e2e-storage-error";
 const BUCKET_REQUIRED = "Bucket is required";
 
-/**
- * The validity of a signed URL the plugin intends (`expiresIn` is built from `1000 * 60 * 5`) and the smallest value that cannot be a
- * number of seconds of any sensible validity: an epoch time in milliseconds after the year 2001 is larger than `1e12`.
- */
-const INTENDED_EXPIRY_MS = 1000 * 60 * 5;
-const EPOCH_MS_FLOOR = 1e12;
-/**
- * The app container's clock and the runner's clock are two clocks (two containers of one host here, but a remote Docker host would differ):
- * the value is the container's time, the bound is the runner's. One hour is generous for any sane skew and still ten times smaller than the
- * gap between milliseconds and seconds, so it cannot hide a plugin that sends seconds (the `EPOCH_MS_FLOOR` guard decides that).
- */
-const CLOCK_SKEW_ALLOWANCE_MS = 60 * 60 * 1000;
-/**
- * The value is computed once, when node-service loads the plugin, so it is as old as the container (a run of this spec starts a fresh one):
- * the lower bound allows a container that is up to six hours old, a bound no gate or full run of this suite comes near.
- */
-const MAX_PLUGIN_AGE_MS = 6 * 60 * 60 * 1000;
+/** The validity of a signed URL, in seconds: the API takes seconds and the plugin asks for five minutes. */
+const SIGNED_URL_SECONDS = 60 * 5;
 
 const BUCKET = "e2e";
 const FILE = "a.txt";
@@ -205,15 +175,11 @@ function expectKeyOnlyInItsHeaders(records: EchoRecord[], key: string, answers: 
   for (const answer of answers) expect(JSON.stringify(answer.json).includes(key), `${label}: the key is in no answer of the query`).toBe(false);
 }
 
-/** Asserts a signed-URL body's `expiresIn` (D-75) and returns it; the rest of the body is asserted by the caller. */
+/** Asserts a signed-URL body's `expiresIn` is five minutes in seconds and returns it; the rest of the body is asserted by the caller. */
 function expiresInOf(record: EchoRecord, label: string): number {
   const value = (JSON.parse(record.body) as { expiresIn?: unknown }).expiresIn;
-  expect(typeof value === "number" && Number.isInteger(value), `${label}: expiresIn is an integer number`).toBe(true);
-  const expiresIn = value as number;
-  expect(expiresIn, `${label}: expiresIn is an epoch time in milliseconds (13 digits), not a number of seconds`).toBeGreaterThan(EPOCH_MS_FLOOR);
-  expect(expiresIn, `${label}: it was computed before this request, as now plus five minutes at most (allowing for clock skew)`).toBeLessThanOrEqual(Date.now() + INTENDED_EXPIRY_MS + CLOCK_SKEW_ALLOWANCE_MS);
-  expect(expiresIn, `${label}: it is not older than the plugin's load time plus five minutes (allowing for clock skew)`).toBeGreaterThanOrEqual(Date.now() - MAX_PLUGIN_AGE_MS - CLOCK_SKEW_ALLOWANCE_MS);
-  return expiresIn;
+  expect(value, `${label}: expiresIn is the validity in seconds`).toBe(SIGNED_URL_SECONDS);
+  return SIGNED_URL_SECONDS;
 }
 
 /** A data source from the recording whose project URL is the echo target's `/sb` (`suffix` appended, e.g. a slash) and whose key is `key`. */
@@ -249,7 +215,7 @@ function expectSucceeded(answer: RawAnswer): void {
 
 function expectFailed(answer: RawAnswer, message: string): void {
   expectRan(answer);
-  expect({ success: envelopeOf(answer).success, queryCode: envelopeOf(answer).queryCode, message: envelopeOf(answer).message, data: envelopeOf(answer).data }, "the query failed with the measured message").toEqual({
+  expect({ success: envelopeOf(answer).success, queryCode: envelopeOf(answer).queryCode, message: envelopeOf(answer).message, data: envelopeOf(answer).data }, "the query failed with the message of the answer").toEqual({
     success: false,
     queryCode: QUERY_CODE_FAILED,
     message,
@@ -335,7 +301,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expect(envelopeOf(answer).data, "an empty listing is an empty list").toEqual([]);
   });
 
-  test("D11e: the search field of listObjects is not sent", { annotation: SEARCH_DEFECT }, async ({ page, apiUser, echo }) => {
+  test("D11e: the search field of listObjects is sent", async ({ page, apiUser, echo }) => {
     const key = keyOf(uniqueMarker());
     await answerStorage(echo, `/object/list/${BUCKET}`, HTTP_OK, []);
     const searched = await supabaseApp(page, apiUser, echo, key, "ListObjects", { bucket: BUCKET, path: SEARCH_PREFIX, search: SEARCH_TEXT });
@@ -344,19 +310,18 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
 
     expectSucceeded(answer);
     const records = await echo.received();
-    // D-76 candidate: the body is exactly the one of a query with no search, the other fields travel (positive control inside the same body)
+    // the search text travels in the body next to the prefix, paging and sorting
     expectStorageRequest(
       onlyRecord(records),
       echo,
-      { method: "POST", path: `/object/list/${BUCKET}`, key, json: { limit: 10, offset: 0, sortBy: { column: "name", order: "asc" }, prefix: SEARCH_PREFIX } },
+      { method: "POST", path: `/object/list/${BUCKET}`, key, json: { limit: 10, offset: 0, sortBy: { column: "name", order: "asc" }, prefix: SEARCH_PREFIX, search: SEARCH_TEXT } },
       "listObjects with a search text",
     );
-    expect(recordsContain(records, SEARCH_TEXT), "the search text is in no header, path or body").toBe(false);
-    expect(recordsContain(records, SEARCH_PREFIX), "positive control: the prefix of the same query reaches the echo").toBe(true);
+    expect(recordsContain(records, SEARCH_TEXT), "the search text reaches the echo").toBe(true);
     expectKeyOnlyInItsHeaders(records, key, [answer], "listObjects with a search text");
   });
 
-  test("D11f: listObjects with returnSignedUrl signs every listed path in one more request", { annotation: EXPIRY_DEFECT }, async ({ page, apiUser, echo }) => {
+  test("D11f: listObjects with returnSignedUrl signs every listed path in one more request", async ({ page, apiUser, echo }) => {
     const key = keyOf(uniqueMarker());
     const signedPath = `/object/sign/${BUCKET}/${PREFIX}/${FILE}?token=t1`;
     await answerStorage(echo, `/object/list/${BUCKET}`, HTTP_OK, LISTED_FILES);
@@ -369,7 +334,6 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     const records = await echo.received();
     expect(records, "the echo holds the listing and the signing").toHaveLength(2);
     expectStorageRequest(records[0] as EchoRecord, echo, { method: "POST", path: `/object/list/${BUCKET}`, key, json: { limit: 10, offset: 0, sortBy: { column: "name", order: "asc" }, prefix: PREFIX } }, "the listing");
-    // D-75 candidate: an epoch time in milliseconds where the API takes seconds
     const expiresIn = expiresInOf(records[1] as EchoRecord, "the signing");
     expectStorageRequest(records[1] as EchoRecord, echo, { method: "POST", path: `/object/sign/${BUCKET}`, key, json: { expiresIn, paths: [`${PREFIX}/${FILE}`] } }, "the signing");
     expectKeyOnlyInItsHeaders(records, key, [answer], "listObjects with signed URLs");
@@ -450,7 +414,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expect(envelopeOf(answer).data, "the stored path").toEqual({ path: "up.txt", id: UPLOAD_ANSWER.Id, fullPath: UPLOAD_ANSWER.Key });
   });
 
-  test("D11k: uploadData with returnSignedUrl uploads, then asks for a signed URL of the same name", { annotation: EXPIRY_DEFECT }, async ({ page, apiUser, echo }) => {
+  test("D11k: uploadData with returnSignedUrl uploads, then asks for a signed URL of the same name", async ({ page, apiUser, echo }) => {
     const key = keyOf(uniqueMarker());
     const signedPath = `/object/sign/${BUCKET}/up.txt?token=t2`;
     await answerStorage(echo, `/object/${BUCKET}`, HTTP_OK, UPLOAD_ANSWER);
@@ -493,7 +457,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expect(envelopeOf(answer).data, "the plugin's own answer, not the API's").toEqual({ success: true });
   });
 
-  test("D11m: createSignedUrl posts the validity and answers the signed URL below the project's storage URL", { annotation: EXPIRY_DEFECT }, async ({ page, apiUser, echo }) => {
+  test("D11m: createSignedUrl posts the validity and answers the signed URL below the project's storage URL", async ({ page, apiUser, echo }) => {
     const key = keyOf(uniqueMarker());
     const signedPath = `/object/sign/${BUCKET}/${FILE}?token=t3`;
     await answerStorage(echo, `/object/sign/${BUCKET}`, HTTP_OK, { signedURL: signedPath });
@@ -504,13 +468,12 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expectSucceeded(answer);
     const records = await echo.received();
     const firstRecord = onlyRecord(records);
-    // D-75 candidate: the value is an epoch time in milliseconds, not a number of seconds
     const expiresIn = expiresInOf(firstRecord, "the first signing");
     expectStorageRequest(firstRecord, echo, { method: "POST", path: `/object/sign/${BUCKET}/${FILE}`, key, json: { expiresIn } }, "createSignedUrl");
     expectKeyOnlyInItsHeaders(records, key, [answer], "createSignedUrl");
     expect(envelopeOf(answer).data, "the signed URL").toEqual({ signedUrl: `${storageUrl(echo)}${signedPath}` });
 
-    // the value is computed once per node-service process: a second query, later, sends the very same number
+    // a second query sends the very same validity
     const second = await supabaseApp(page, apiUser, echo, key, "CreateSignedUrl", { bucket: BUCKET, fileName: FILE });
     const secondAnswer = await runDraft(page, second);
     expectSucceeded(secondAnswer);
@@ -522,7 +485,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
     expectKeyOnlyInItsHeaders(afterSecond, key, [answer, secondAnswer], "both createSignedUrl queries");
   });
 
-  test.describe("a storage error answer fails the query with the text of node-fetch's response", () => {
+  test.describe("a storage error answer fails the query with the message of the answer", () => {
     const rows = [
       {
         title: "listBuckets 400",
@@ -556,15 +519,15 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
       },
     ];
     for (const row of rows) {
-      test(`D11n: ${row.title}`, { annotation: ERROR_TEXT_DEFECT }, async ({ page, apiUser, echo }) => {
+      test(`D11n: ${row.title}`, async ({ page, apiUser, echo }) => {
         const key = keyOf(uniqueMarker());
         await answerStorage(echo, row.subPath, row.status, { statusCode: String(row.status), error: "e2e", message: CANNED_ERROR_MESSAGE });
         const appId = await supabaseApp(page, apiUser, echo, key, row.variant, row.action);
 
         const failed = await runDraft(page, appId);
 
-        // D-74 candidate: the message of the answer is lost, node-fetch's Response is printed instead
-        expectFailed(failed, LOST_ERROR_TEXT);
+        // the message of the answer reaches the user
+        expectFailed(failed, CANNED_ERROR_MESSAGE);
         const afterFailure = await echo.received();
         expectStorageRequest(onlyRecord(afterFailure), echo, { ...row.request, key }, `the failing ${row.title}`);
 
@@ -581,7 +544,7 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
       });
     }
 
-    test("D11o: createSignedUrl and listObjects fail the same way", { annotation: ERROR_TEXT_DEFECT }, async ({ page, apiUser, echo }) => {
+    test("D11o: createSignedUrl and listObjects fail the same way", async ({ page, apiUser, echo }) => {
       const key = keyOf(uniqueMarker());
       await answerStorage(echo, "", HTTP_BAD_REQUEST, { statusCode: "400", error: "e2e", message: CANNED_ERROR_MESSAGE });
       const signing = await supabaseApp(page, apiUser, echo, key, "CreateSignedUrl", { bucket: BUCKET, fileName: FILE });
@@ -590,8 +553,8 @@ test.describe("Supabase Storage data source against the echo", NODE_SERVICE_DETA
       const signingAnswer = await runDraft(page, signing);
       const listingAnswer = await runDraft(page, listing);
 
-      expectFailed(signingAnswer, LOST_ERROR_TEXT);
-      expectFailed(listingAnswer, LOST_ERROR_TEXT);
+      expectFailed(signingAnswer, CANNED_ERROR_MESSAGE);
+      expectFailed(listingAnswer, CANNED_ERROR_MESSAGE);
       const records = await echo.received();
       expect(records, "the echo holds the signing and the listing").toHaveLength(2);
       expectStorageRequest(records[0] as EchoRecord, echo, { method: "POST", path: `/object/sign/${BUCKET}/${FILE}`, key, json: { expiresIn: expiresInOf(records[0] as EchoRecord, "the signing") } }, "the failing signing");

@@ -436,8 +436,8 @@ test.describe("node-service data source helpers", { tag: [TAGS.NODE_SERVICE] }, 
     expect(nodePluginIdsOf([]), "an empty catalogue").toEqual([]);
   });
 
-  test("NODE_PLUGIN_IDS lists 46 distinct ids, with the ids that differ from their folder names", () => {
-    expect(NODE_PLUGIN_IDS, "the registry size").toHaveLength(46);
+  test("NODE_PLUGIN_IDS lists 45 distinct ids, with the ids that differ from their folder names", () => {
+    expect(NODE_PLUGIN_IDS, "the registry size").toHaveLength(45);
     expect(new Set(NODE_PLUGIN_IDS).size, "distinct ids").toBe(NODE_PLUGIN_IDS.length);
     expect(NODE_PLUGIN_IDS, "ids that differ from their folder names").toEqual(expect.arrayContaining(["OpenAI", "oss", "firebird"]));
     expect(NODE_PLUGIN_IDS, "the Java-native graphql type is not a node plugin").not.toContain("graphql");

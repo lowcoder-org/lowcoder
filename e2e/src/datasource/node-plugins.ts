@@ -2,7 +2,7 @@ import type { DatasourceTypeEntry } from "../api/client";
 
 /**
  * The ids of the node plugins the node-service registry serves, as the registry lists them
- * (`server/node-service/src/plugins/index.ts:50-126`, 46 entries). Note the ids that differ from their folder names:
+ * (`server/node-service/src/plugins/index.ts:48-122`, 45 entries). Note the ids that differ from their folder names:
  * `OpenAI` (`openAi/index.ts`), `oss` (`aliyunOss/index.ts`) and `firebird` (`firebirdsql/index.ts:10`). The `graphql` type
  * is a Java-native type (`DatasourceMetaInfoServiceImpl.java:142-146`); node-service's `graphql/` folder is a helper and
  * is not registered. This is the set the catalogue test measures against the image; never edit it to make that test pass.
@@ -12,7 +12,6 @@ export const NODE_PLUGIN_IDS: readonly string[] = [
   "dynamodb",
   "couchdb",
   "duckdb",
-  "fauna",
   "turso",
   "firebird",
   // Big Data
