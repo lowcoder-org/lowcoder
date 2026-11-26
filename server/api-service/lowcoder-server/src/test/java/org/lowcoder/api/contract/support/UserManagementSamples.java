@@ -18,6 +18,7 @@ import org.lowcoder.api.usermanagement.view.InvitationVO;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
+import org.lowcoder.api.usermanagement.view.OrgLoginChoiceView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
@@ -164,6 +165,11 @@ public final class UserManagementSamples {
     /** The view the controllers build from {@link #orgViewOrganization()}. */
     public static OrgView orgView() {
         return new OrgView(orgViewOrganization());
+    }
+
+    /** The view the anonymous lookup of an address's workspaces builds from {@link #orgViewOrganization()}. */
+    public static OrgLoginChoiceView orgLoginChoiceView() {
+        return new OrgLoginChoiceView(orgViewOrganization());
     }
 
     /**

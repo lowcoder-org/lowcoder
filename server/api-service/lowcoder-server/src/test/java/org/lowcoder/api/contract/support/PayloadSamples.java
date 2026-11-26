@@ -80,6 +80,7 @@ import org.lowcoder.api.usermanagement.view.InvitationVO;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView.OrgMemberView;
+import org.lowcoder.api.usermanagement.view.OrgLoginChoiceView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
@@ -269,6 +270,7 @@ public final class PayloadSamples {
                 sample(OrgAndVisitorRoleView.class, UserManagementSamples.orgAndVisitorRoleView(), RESPONSE),
                 sample(UserDetail.class, UserManagementSamples.userDetail(), RESPONSE),
                 sample(OrgView.class, UserManagementSamples.orgView(), RESPONSE),
+                sample(OrgLoginChoiceView.class, UserManagementSamples.orgLoginChoiceView(), RESPONSE),
                 sample(RedirectView.class, UserManagementSamples.redirectView(), RESPONSE),
                 // WP4, OrganizationEndpoints (T4.2)
                 sample(UpdateOrgRequest.class, UserManagementSamples.updateOrgRequest(), REQUEST),

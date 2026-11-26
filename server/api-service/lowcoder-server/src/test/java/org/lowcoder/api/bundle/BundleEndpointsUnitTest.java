@@ -299,8 +299,10 @@ class BundleEndpointsUnitTest {
     void testRestoreBundle_Success() {
         // Given
         String bundleId = "bundle-123";
+        Bundle stored = Bundle.builder().id("objectId").gid(bundleId).name("test-bundle").build();
         when(bundleApiService.restore(anyString()))
                 .thenReturn(Mono.just(true));
+        when(bundleService.findById(eq("objectId"))).thenReturn(Mono.just(stored));
 
         // When
         Mono<ResponseView<Boolean>> result = bundleController.restore(bundleId);
@@ -312,10 +314,46 @@ class BundleEndpointsUnitTest {
                     assertTrue(response.getData());
                 })
                 .verifyComplete();
-        
+
         verify(gidService).convertBundleIdToObjectId(eq(bundleId));
         verify(bundleApiService).restore(eq("objectId"));
-        verify(businessEventPublisher).publishBundleCommonEvent(eq(bundleId), eq(null), eq(null), any());
+        // the event is built from the stored bundle (the converted id, not the path's key), through the view overload
+        ArgumentCaptor<BundleInfoView> view = ArgumentCaptor.forClass(BundleInfoView.class);
+        verify(businessEventPublisher).publishBundleCommonEvent(view.capture(), eq(LowcoderEvent.EventType.BUNDLE_RESTORE));
+        System.out.println("[BundleEndpointsUnitTest] restore event: bundleId=" + view.getValue().getBundleId()
+                + " bundleGid=" + view.getValue().getBundleGid() + " name=" + view.getValue().getName());
+        assertEquals("objectId", view.getValue().getBundleId());
+        assertEquals(bundleId, view.getValue().getBundleGid());
+        assertEquals("test-bundle", view.getValue().getName());
+        // the id-based overload looks the id up as an application and fails for a bundle: it must not be used here
+        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
+    }
+
+    @Test
+    void testRestoreBundle_EventLookupFails() {
+        // Given: the status change succeeds, the bundle for the event cannot be read
+        String bundleId = "bundle-123";
+        when(bundleApiService.restore(anyString()))
+                .thenReturn(Mono.just(true));
+        when(bundleService.findById(eq("objectId")))
+                .thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", "objectId")));
+
+        // When
+        Mono<ResponseView<Boolean>> result = bundleController.restore(bundleId);
+
+        // Then: an event never fails the request
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    System.out.println("[BundleEndpointsUnitTest] restore with a failing event lookup answers success=" + response.isSuccess());
+                    assertTrue(response.isSuccess());
+                    assertTrue(response.getData());
+                })
+                .verifyComplete();
+
+        verify(bundleApiService).restore(eq("objectId"));
+        verify(bundleService).findById(eq("objectId"));
+        verify(businessEventPublisher, never()).publishBundleCommonEvent(any(BundleInfoView.class), any());
+        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
     }
 
     @Test
