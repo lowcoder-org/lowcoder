@@ -61,13 +61,10 @@ public class RedisUriUtils {
 
     /**
      * The user info of the URI, {@code user:password@}, each part percent-encoded (BF-055): Jedis reads them with
-     * {@link URI#getUserInfo()}, which decodes, and splits at the first colon, so a password with {@code @ : / # %} or a space
+     * the raw user info at its first colon and decodes each part, so a user name or a password with {@code @ : / # %} or a space
      * comes back unchanged. A user name without a password is kept as {@code user:@}, which Jedis sends as {@code AUTH user ""}
      * (a user with {@code nopass} is let in); without the colon Jedis would fail to read the password. A blank user name or
      * password counts as absent.
-     * <p>
-     * Limits: a user name containing a colon cannot be given: Jedis splits the decoded user info at its first colon, so the
-     * rest of the name becomes part of the password.
      */
     private static String getUriAuth(RedisDatasourceConfig datasourceConfiguration) {
         String username = datasourceConfiguration.getUsername();
