@@ -234,7 +234,7 @@ public class SnowflakeDriverStubTest {
                 try (Connection connection = dataSource.getConnection()) {
                     DatabaseMetaData metaData = connection.getMetaData();
                     System.out.println(TAG + "driver " + metaData.getDriverName() + " " + metaData.getDriverVersion());
-                    assertTrue(metaData.getDriverVersion().startsWith("3.22"), "the driver is snowflake-jdbc 3.22.x: " + metaData.getDriverVersion());
+                    assertTrue(metaData.getDriverVersion().startsWith("4.4"), "the driver is snowflake-jdbc 4.4.x: " + metaData.getDriverVersion());
                 }
 
                 SnowflakeQueryExecutor executor = new SnowflakeQueryExecutor();
