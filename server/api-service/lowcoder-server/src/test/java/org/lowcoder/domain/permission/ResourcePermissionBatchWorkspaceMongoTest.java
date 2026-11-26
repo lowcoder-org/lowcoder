@@ -44,7 +44,7 @@ import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -66,9 +66,9 @@ class ResourcePermissionBatchWorkspaceMongoTest {
     private static final Duration TIMEOUT = Duration.ofSeconds(30);
     private static final String LOG_PREFIX = "[ResourcePermissionBatchWorkspaceMongoTest] ";
 
-    @MockBean
+    @MockitoBean
     private DatasourceMetaInfoService datasourceMetaInfoService;
-    @MockBean
+    @MockitoBean
     private DatasourcePluginClient datasourcePluginClient;
     @Autowired
     private ReactiveMongoTemplate mongo;
