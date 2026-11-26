@@ -43,6 +43,14 @@ class JWTUtilsTest {
     private static final String NEW134_LOG = "[NEW-134] ";
     private static final long MILLIS_PER_SECOND = 1000L;
 
+    /**
+     * A token signed by {@code JWTUtils.createToken} with jjwt 0.11.5, before the update to jjwt 0.13 (secret {@link #SECRET},
+     * HS256, no expiry). API keys already stored by users are such tokens; they must keep validating.
+     */
+    private static final String TOKEN_SIGNED_BY_JJWT_0_11_5 = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyLTEiLCJpYXQiOjE3MDAwMDAwMDAsImp0aSI6ImZpeHR1cmUtanRpIiwidXNlcklkIjoidXNlci0xIiwiY3JlYXRlZEJ5IjoiVXNlciBPbmUifQ.ibwWQtNPSgaymyzU_Z5GUhnfHwgXkwt2PNE2NyJpYFM";
+    private static final String FIXTURE_JTI = "fixture-jti";
+    private static final long FIXTURE_ISSUED_AT_SECONDS = 1_700_000_000L;
+
     private JWTUtils jwtUtils;
 
     private static JWTUtils jwtUtilsWithSecret(String secret) {
@@ -192,5 +200,28 @@ class JWTUtilsTest {
     void resolveToken_prefixOnly_isTheEmptyString() {
         assertThat(jwtUtils.resolveToken(exchange("Bearer "))).isEmpty();
         System.out.println("[JWTUtilsTest] 'Bearer ' -> empty string (today's behaviour)");
+    }
+
+    @Test
+    void aTokenSignedBeforeTheJjwtUpdateStillValidates() {
+        Claims claims = jwtUtilsWithSecret(SECRET).parseJwtClaims(TOKEN_SIGNED_BY_JJWT_0_11_5);
+        assertNotNull(claims, "a stored API key must keep authenticating");
+        assertThat(claims.getSubject()).isEqualTo(USER_ID);
+        assertThat(claims.get(USER_ID_CLAIM, String.class)).isEqualTo(USER_ID);
+        assertThat(claims.get(CREATED_BY_CLAIM, String.class)).isEqualTo(USER_NAME);
+        assertThat(claims.getId()).isEqualTo(FIXTURE_JTI);
+        assertThat(claims.getIssuedAt().getTime()).isEqualTo(FIXTURE_ISSUED_AT_SECONDS * MILLIS_PER_SECOND);
+    }
+
+    @Test
+    void theTokenSignedBeforeTheJjwtUpdateIsRejectedUnderAnotherSecret() {
+        assertThat(jwtUtilsWithSecret(OTHER_SECRET).parseJwtClaims(TOKEN_SIGNED_BY_JJWT_0_11_5)).isNull();
+    }
+
+    @Test
+    void aTokenCreatedNowIsSignedWithHs256LikeTheOldOnes() {
+        String token = jwtUtilsWithSecret(SECRET).createToken(user(USER_ID, USER_NAME));
+        String header = new String(java.util.Base64.getUrlDecoder().decode(token.split("\\.")[0]), java.nio.charset.StandardCharsets.UTF_8);
+        assertThat(header).isEqualTo("{\"alg\":\"HS256\"}");
     }
 }
