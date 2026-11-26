@@ -162,6 +162,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<!-- jsonassert's org.json clone; it duplicates org.json:json, which the sdk module depends on, and Spring Boot warns about the two
+				     org.json.JSONObject classes at every test context start. No test uses JSONAssert. -->
+				<exclusion>
+					<groupId>com.vaadin.external.google</groupId>
+					<artifactId>android-json</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
