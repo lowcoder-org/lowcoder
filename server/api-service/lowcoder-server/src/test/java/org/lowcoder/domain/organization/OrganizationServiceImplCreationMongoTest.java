@@ -23,6 +23,7 @@ import org.lowcoder.domain.organization.model.OrganizationState;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.birelation.BiRelation;
+import org.lowcoder.runner.init.AddSuperAdminRunner;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.GlobalContext;
 import org.lowcoder.sdk.constants.WorkspaceMode;
@@ -33,6 +34,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * Organisation creation, default organisations, enterprise-mode lookup and domain lookup of OrganizationServiceImpl (unit
@@ -49,6 +51,12 @@ class OrganizationServiceImplCreationMongoTest extends OrganizationMongoTestBase
     private static final String CHINESE_SUFFIX = "的工作区";
     private static final String GERMAN_REQUEST_USER_NAME = "Gerda";
 
+    /**
+     * Replaced by a mock: its start-up job writes the super-admin user and organisation in the background (a
+     * fire-and-forget subscription) and would otherwise race with the collection wipe in {@link #emptyTheCollectionsAndRememberTheConfiguration()}.
+     */
+    @MockitoBean
+    private AddSuperAdminRunner addSuperAdminRunner;
     @Autowired
     private OrganizationService organizationService;
     @Autowired
