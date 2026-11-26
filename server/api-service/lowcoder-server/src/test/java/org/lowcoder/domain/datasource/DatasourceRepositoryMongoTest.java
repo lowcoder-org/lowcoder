@@ -18,6 +18,7 @@ import org.lowcoder.domain.datasource.model.DatasourceDO;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
 import org.lowcoder.domain.datasource.repository.DatasourceRepository;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.IDUtils;
@@ -37,7 +38,7 @@ import reactor.core.publisher.Mono;
  * DatasourceRepository against the MongoDB test container (unit U14, task L3-11c). The plugin connectors are not available
  * in this module's surefire context, so the class has a Spring context of its own (extra property, hence its own database)
  * with a mocked DatasourceMetaInfoService (every type is a "JS" datasource whose config is the stored map) and a mocked
- * DatasourcePluginClient (no plugin definition). Every test works under ids and organisations it generates. Not repeated:
+ * DatasourcePluginClient (a plugin definition without params). Every test works under ids and organisations it generates. Not repeated:
  * DatasourcePersistenceContractTest (the stored shape of save), the L1-3 row on DatasourceApiServiceImpl.getPluginDynamicConfig,
  * the L3-3 row on Datasource.mergeWith.
  */
@@ -60,10 +61,17 @@ class DatasourceRepositoryMongoTest {
     private ReactiveMongoTemplate mongo;
 
     @BeforeEach
-    void everyTypeIsAJsDatasourceWithoutADefinition() {
+    void everyTypeIsAJsDatasourceWithoutParams() {
         when(datasourceMetaInfoService.isJsDatasourcePlugin(anyString())).thenReturn(true);
         when(datasourceMetaInfoService.isJsDatasourcePlugin(BROKEN_TYPE)).thenThrow(new IllegalStateException("no connector"));
-        when(datasourcePluginClient.getDatasourcePluginDefinition(anyString())).thenReturn(Mono.empty());
+        when(datasourcePluginClient.getDatasourcePluginDefinition(anyString())).thenReturn(Mono.just(definitionWithoutParams()));
+    }
+
+    /** A plugin definition that declares no params: nothing is a password, so a stored config round-trips as it is. */
+    private static DatasourcePluginDefinition definitionWithoutParams() {
+        DatasourcePluginDefinition definition = new DatasourcePluginDefinition();
+        definition.put("dataSourceConfig", Map.of("params", List.of()));
+        return definition;
     }
 
     private static String org() {

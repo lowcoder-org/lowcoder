@@ -36,6 +36,7 @@ import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
+import org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
@@ -55,7 +56,7 @@ import reactor.core.publisher.Mono;
  * MongoDB test container (D-38): every id of a batch is decided in its OWN workspace instead of the first id's. Own
  * Spring context (extra property, hence its own database), the pattern of {@code DatasourceRepositoryMongoTest}: a
  * mocked {@code DatasourceMetaInfoService} (every type is a JS data source) and a mocked {@code DatasourcePluginClient}
- * (no plugin definition). Every test generates its own ids; no seed data.
+ * (a plugin definition without params). Every test generates its own ids; no seed data.
  */
 @SpringBootTest(classes = ServerApplication.class)
 @ActiveProfiles("test")
@@ -149,10 +150,17 @@ class ResourcePermissionBatchWorkspaceMongoTest {
         return roles;
     }
 
+    /** A plugin definition that declares no params: nothing is a password, so a stored config round-trips as it is. */
+    private static DatasourcePluginDefinition definitionWithoutParams() {
+        DatasourcePluginDefinition definition = new DatasourcePluginDefinition();
+        definition.put("dataSourceConfig", Map.of("params", List.of()));
+        return definition;
+    }
+
     @org.junit.jupiter.api.BeforeEach
-    void everyTypeIsAJsDatasourceWithoutADefinition() {
+    void everyTypeIsAJsDatasourceWithoutParams() {
         when(datasourceMetaInfoService.isJsDatasourcePlugin(anyString())).thenReturn(true);
-        when(datasourcePluginClient.getDatasourcePluginDefinition(anyString())).thenReturn(Mono.empty());
+        when(datasourcePluginClient.getDatasourcePluginDefinition(anyString())).thenReturn(Mono.just(definitionWithoutParams()));
     }
 
     /** Catches a batch answer diverging from each id's own one-id answer in the same workspace. */
