@@ -191,6 +191,33 @@ export function calcWH(
   return { w, h };
 }
 
+/**
+ * Converts the size of a component dragged over a grid from the grid it came from (source) to the grid it is dropped on
+ * (target), in grid units, so that the component keeps its size in pixels when it crosses containers.
+ *
+ * The width goes through the source's column width, which needs a measured container width. A source that has not been
+ * measured yet (`containerWidth` 0, the stored default until the first measurement arrives) has a column width of 0, so
+ * its width conversion would answer 0 columns; for such a source the given `w` is kept as it is. The height goes through
+ * the source's row height only and is always converted.
+ *
+ * Limits: for an unmeasured source the given `w` is used in the target's columns unconverted, so a drop into a nested
+ * container narrower than the source in that window gets the given column count, not the proportional one. An unmeasured
+ * TARGET is not handled: its own width conversion divides by its column width.
+ */
+export function convertDroppingSize(
+  positionParams: PositionParams,
+  sourcePositionParams: PositionParams | undefined,
+  w: number,
+  h: number
+): { w: number; h: number } {
+  if (!sourcePositionParams) {
+    return { w, h };
+  }
+  const { width, height } = calcGridItemSizePx(sourcePositionParams, w, h);
+  const converted = calcWH(positionParams, width, height, { w: false, h: false, ceil: false });
+  return { w: sourcePositionParams.containerWidth > 0 ? converted.w : w, h: converted.h };
+}
+
 // Similar to _.clamp
 export function clamp(num: number, lowerBound?: number, upperBound?: number): number {
   if (!_.isNil(lowerBound)) {
