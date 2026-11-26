@@ -35,6 +35,19 @@ const PDF_DATA_URI_PREFIX = "data:application/pdf;base64,";
 const FILE_VIEWER_ERROR = "Please Enter a Valid URL or Base64 String";
 const FIRST_COMMENT = "Has anyone tried using Lowcode for our new internal tool yet?";
 const STATE_TEXT_ITEM: DslItem = text({ id: "t0", name: "tState", testId: STATE_TEXT_ID, text: STATE_TEXT });
+/**
+ * How long to wait, after the carousel's slides got their height, before a dot click. The carousel sets the
+ * slides' height after it mounts (`useResizeDetector` in client/packages/lowcoder/src/comps/comps/carouselComp.tsx),
+ * so its slider list resizes once on every load; react-slick (`@ant-design/react-slick` 1.1.2,
+ * `lib/inner-slider.js`, `onWindowResized`/`resizeWindow`) answers that 50 ms later, and `resizeWindow` cancels the
+ * pending end of a slide already running, whose `afterChange` is the `change` event (CD-11 candidate). No page
+ * signal shows the debounced call. Measured on lowcoder-ce:asu-full-e2e, 4 workers, 40 runs per variant: the call
+ * ran 50 to 56 ms after the list's resize; a click as soon as the first slide was current lost `change` in 8 of 40
+ * runs, a click as soon as the slides had their height in 1 of 40, a click this long after the height in 0 of 40.
+ */
+const CAROUSEL_RESIZE_SETTLE_MS = 250;
+/** The image box of the current slide (react-slick wraps each child in two divs; it has no role or test id). */
+const CAROUSEL_CURRENT_IMAGE = ".slick-slide.slick-current > div > div > div";
 
 /** Waits until the browser has decoded the image: its natural width is the 8 px of the PNG fixtures. */
 async function expectDecodedPng(image: Locator, message: string): Promise<void> {
@@ -70,7 +83,9 @@ test.describe("S12 media components", () => {
     await expect(view.byTestId(STATE_TEXT_ID), "the click event set the state").toHaveText("s=image-clicked");
   });
 
-  test("carousel shows its two slides and the second dot fires change", async ({ page, apiUser }) => {
+  test("carousel shows its two slides and the second dot fires change", {
+    annotation: { type: "defect", description: "CD-11 candidate" },
+  }, async ({ page, apiUser }) => {
     const dsl = mediaApp([
       component("carousel", {
         id: "c1",
@@ -83,6 +98,13 @@ test.describe("S12 media components", () => {
     const carousel = view.byTestId(COMPONENT_ID);
     await expect(carousel.locator(".slick-slide:not(.slick-cloned)"), "one slide per image").toHaveCount(2);
     await expect(carousel.locator(".slick-slide.slick-current"), "the first slide is current").toHaveAttribute("data-index", "0");
+    await expect
+      .poll(() => carousel.locator(CAROUSEL_CURRENT_IMAGE).evaluate((element) => element.getBoundingClientRect().height), {
+        message: "the slides got their height",
+      })
+      .toBeGreaterThan(0);
+    // CD-11 candidate: a click before the slider's debounced resize has run loses the change event.
+    await page.waitForTimeout(CAROUSEL_RESIZE_SETTLE_MS);
 
     await carousel.locator(".slick-dots li").nth(1).locator("button").click();
 
