@@ -30,7 +30,17 @@ interface NpmComponent {
   exactlyOnceText?: string;
   /** Number of canvases the component draws, where it is known (the image editor has two). */
   canvasCount?: number;
+  /** The page clock, for a component whose default content depends on today's date. */
+  pinnedNow?: Date;
 }
+
+/**
+ * Inside the recorded default events of `fixtures/dsl/calendar.json` (2026-11-20 to 2026-11-22). The calendar opens on the
+ * week of today, and its only SVG is the delete icon each event carries (`CalendarDeleteIcon`,
+ * client/packages/lowcoder-comps/src/comps/calendarComp/calendarComp.tsx), so without a pinned clock the SVG is there only
+ * in the week the fixture was recorded.
+ */
+const CALENDAR_FIXTURE_NOW = new Date("2026-11-20T12:00:00Z");
 
 /** The 17 ECharts charts (S15) draw on a canvas; `barChart`, `lineChart` and `pieChart` were the first three built. */
 const CHART_TYPES = [
@@ -56,7 +66,7 @@ const CHART_TYPES = [
 const COMPONENTS: NpmComponent[] = [
   ...CHART_TYPES.map((type): NpmComponent => ({ type, draws: "canvas" })),
   { type: "mermaid", draws: "svg", text: "Is it working?" },
-  { type: "calendar", draws: "svg" },
+  { type: "calendar", draws: "svg", pinnedNow: CALENDAR_FIXTURE_NOW },
   { type: "ganttChart", draws: "svg" },
   { type: "bpmnEditor", draws: "svg" },
   { type: "pivotTable", draws: "text" },
@@ -82,6 +92,9 @@ test.describe("components loaded from npm", () => {
       const dsl = JSON.parse(readFileSync(join(FIXTURE_DIR, `${component.type}.json`), "utf8"));
       const { appId } = await createApp(page.request, { orgId: apiUser.orgId, name: `e2e-npm-${component.type}`, dsl });
       await publishApp(page.request, appId);
+      if (component.pinnedNow) {
+        await page.clock.install({ time: component.pinnedNow });
+      }
 
       await new AppViewPage(page).open(appId);
 

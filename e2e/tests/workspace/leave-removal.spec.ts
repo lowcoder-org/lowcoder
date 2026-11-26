@@ -258,16 +258,25 @@ test.describe("lifecycle: leaving, removal and deletion", () => {
     expectAnswer(await deleteOrganizationRaw(admin.request, doomed), OK, "the deletion");
     await expect.poll(async () => (await currentUser(member.request)).orgAndRoles.some((entry) => entry.org.id === doomed), { message: "the clean-up ran", ...POLL }).toBe(false);
 
-    const adminView = await viewAppRaw(admin.request, appId);
+    // The org-deleted listener marks the workspace's apps DELETED after its members and groups
+    // (OrgAndGroupEventListener.onOrgDeleted); the creator keeps READ (createdBy), so its view reaches the status check.
+    await expect
+      .poll(
+        async () => {
+          const answer = await viewAppRaw(admin.request, appId);
+          return { status: answer.status, code: answer.code };
+        },
+        { message: "the admin's view: the app is marked deleted", ...POLL },
+      )
+      .toEqual(API_ERRORS.UNSUPPORTED_OPERATION);
     const adminEdit = await editAppRaw(admin.request, appId);
     const memberView = await viewAppRaw(member.request, appId);
     const memberEdit = await editAppRaw(member.request, appId);
 
-    expect({ status: adminView.status, code: adminView.code }, "the admin's view").toEqual(API_ERRORS.UNABLE_TO_FIND_VALID_ORG);
-    expect({ status: adminEdit.status, code: adminEdit.code }, "the admin's editing view").toEqual(API_ERRORS.UNABLE_TO_FIND_VALID_ORG);
-    expect({ status: memberView.status, code: memberView.code }, "the former member's view").toEqual(API_ERRORS.UNABLE_TO_FIND_VALID_ORG);
+    expect({ status: adminEdit.status, code: adminEdit.code }, "the admin's editing view").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
+    expect({ status: memberView.status, code: memberView.code }, "the former member's view").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
     expect({ status: memberEdit.status, code: memberEdit.code }, "the former member's editing view").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
-    testInfo.annotations.push({ type: "observation", description: "the apps of a deleted workspace are not deleted (nothing removes them) but no call opens them" });
+    testInfo.annotations.push({ type: "observation", description: "the apps of a deleted workspace are marked DELETED (still stored) and no call opens them; the creator's view answers 400 / 5003 'Bad request.'" });
   });
 
   test("LC-DL11 an invitation of a deleted workspace admits nobody", lifecycleTestDetails("LC-DL11"), async ({ actor }) => {
