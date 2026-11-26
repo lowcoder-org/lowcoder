@@ -28,8 +28,8 @@ import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_TIME
  * is contacted: the host is a reserved test address that nothing answers), with the pool settings of {@code buildPoolConfig};
  * an unparsable URI is reported; destroying null or twice does not throw.
  *
- * <p>Limits: the pool settings are read from the Jedis pool's protected {@code internalPool} field by reflection (Jedis 3.3.0 has
- * no public getter for them); borrowing behaviour against a server is RD-6.
+ * <p>Limits: the pool settings are read by reflection from the Jedis pool, which is a commons-pool2 {@code GenericObjectPool} since
+ * Jedis 4; borrowing behaviour against a server is RD-6.
  */
 public class RedisEngineConnectionTest {
 
@@ -40,10 +40,7 @@ public class RedisEngineConnectionTest {
     private final RedisPlugin.RedisEngine engine = new RedisPlugin.RedisEngine();
 
     private static Object poolSetting(JedisPool pool, String getter) throws Exception {
-        Field internal = redis.clients.jedis.util.Pool.class.getDeclaredField("internalPool");
-        internal.setAccessible(true);
-        Object generic = internal.get(pool);
-        return generic.getClass().getMethod(getter).invoke(generic);
+        return pool.getClass().getMethod(getter).invoke(pool);
     }
 
     @Test
@@ -70,7 +67,7 @@ public class RedisEngineConnectionTest {
         }
     }
 
-    /** Observation: only an ArrayIndexOutOfBoundsException is mapped to REDIS_URL_ERROR; an unparsable URI reaches the caller as the raw URISyntaxException. */
+    /** Observation: only an ArrayIndexOutOfBoundsException or a plain IllegalArgumentException is mapped to REDIS_URL_ERROR; an unparsable URI reaches the caller as the raw URISyntaxException. */
     @Test
     public void unparsableUriInUriModeReachesTheCallerAsAUriSyntaxException() {
         RedisDatasourceConfig bad = RedisDatasourceConfig.buildFrom(Map.of("usingUri", true, "uri", "redis://bad host:1"));

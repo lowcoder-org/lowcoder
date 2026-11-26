@@ -90,7 +90,10 @@ public class RedisPlugin extends Plugin {
                     })
                     .subscribeOn(scheduler)
                     .onErrorMap(t -> {
-                        if (t instanceof ArrayIndexOutOfBoundsException && connectionConfig.isUsingUri()) {
+                        // Jedis refuses a user name without a password with an IllegalArgumentException (before Jedis 8, with an
+                        // ArrayIndexOutOfBoundsException); the exact class excludes its subclass NumberFormatException (a bad port).
+                        if (connectionConfig.isUsingUri()
+                                && (t instanceof ArrayIndexOutOfBoundsException || t.getClass() == IllegalArgumentException.class)) {
                             return new PluginException(REDIS_URL_ERROR, "REDIS_URL_ERROR", t.getMessage());
                         }
                         return t;

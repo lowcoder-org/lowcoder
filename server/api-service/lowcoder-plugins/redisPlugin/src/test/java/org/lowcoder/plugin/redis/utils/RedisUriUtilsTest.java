@@ -112,19 +112,16 @@ public class RedisUriUtilsTest {
     }
 
     /**
-     * BF-055, the user-name half: a user name with characters a URI gives a meaning to comes back unchanged, except a colon:
-     * Jedis splits the decoded user info at its first colon, so a user name with one cannot be given (the limit documented on
-     * {@code RedisUriUtils.getUriAuth}).
+     * BF-055, the user-name half: a user name with characters a URI gives a meaning to comes back unchanged, a colon included:
+     * Jedis 8 splits the raw user info at its first colon before it decodes, so the encoded colon stays in the user name
+     * (Jedis 3 split the decoded text, so the rest of the name became part of the password).
      */
     @Test
-    public void userNamesWithReservedCharactersRoundTripExceptAColonBF055() throws Exception {
+    public void userNamesWithReservedCharactersRoundTripBF055() throws Exception {
         for (String username : RESERVED) {
-            if (username.contains(":")) {
-                continue;
-            }
             assertEquals(List.of(username, PASSWORD, HOST), readBack(username, PASSWORD), username);
         }
-        assertEquals(List.of("a", "b:" + PASSWORD, HOST), readBack("a:b", PASSWORD), "the colon limit");
+        assertEquals(List.of("a:b", PASSWORD, HOST), readBack("a:b", PASSWORD), "a colon in the user name");
     }
 
     /**
