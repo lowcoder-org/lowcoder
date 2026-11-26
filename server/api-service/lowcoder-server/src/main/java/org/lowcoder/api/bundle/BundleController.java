@@ -1,6 +1,7 @@
 package org.lowcoder.api.bundle;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -15,6 +16,7 @@ import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +30,7 @@ import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class BundleController implements BundleEndpoints
@@ -94,8 +97,27 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.recycle(objectId)
-                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, null, BUNDLE_RECYCLED))
+                .delayUntil(__ -> publishBundleStatusEvent(objectId, BUNDLE_RECYCLED))
                 .map(ResponseView::success));
+    }
+
+    /**
+     * Publishes the event of a status change of the bundle {@code objectId}. The event is built from the stored bundle: the
+     * publisher's id-based overload looks its id up as an application, which a bundle never is. An event never fails the
+     * request, so a failed lookup is logged and the event is skipped.
+     */
+    private Mono<Void> publishBundleStatusEvent(String objectId, EventType eventType) {
+        return bundleService.findById(objectId)
+                .map(bundle -> BundleInfoView.builder()
+                        .bundleId(objectId)
+                        .bundleGid(bundle.getGid())
+                        .name(bundle.getName())
+                        .build())
+                .flatMap(view -> businessEventPublisher.publishBundleCommonEvent(view, eventType))
+                .onErrorResume(throwable -> {
+                    log.error("publishBundleStatusEvent error. {}, {}", objectId, eventType, throwable);
+                    return Mono.empty();
+                });
     }
 
     @Override
