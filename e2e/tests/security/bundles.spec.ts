@@ -288,7 +288,7 @@ test.describe("security: bundles inside one workspace", () => {
     expectAnswer(recycled, API_ERRORS.NOT_AUTHORIZED, "the viewer's recycle");
     expect(await inTrash(d.request, bundleId), "after: still not in the trash").toBe(false);
     expectAnswer(await apiRaw(d.request, "GET", bundleViewPath(bundleId)), OK, "and D still views it as a normal bundle");
-    // The creator recycles (the 3.0.0 server answers 500 / 5005 after doing it: `recycleBundle` tolerates exactly that), so
+    // The creator recycles (`recycleBundle` also accepts the 500 / 5005 that the 3.0.0 server answers after doing it), so
     // the delete below passes the state check and the role decides.
     await recycleBundle(d.request, bundleId);
     expect(await inTrash(d.request, bundleId), "setup: the bundle is in the trash").toBe(true);
@@ -305,7 +305,7 @@ test.describe("security: bundles inside one workspace", () => {
 
     const answer = await apiRaw(d.request, "PUT", bundleRecyclePath(bundleId));
 
-    // Desired: success. The 3.0.0 server sets the status and then answers 500 / 5005 (SF-41); the read-back below holds on it too.
+    // Success. The 3.0.0 server set the status and then answered 500 / 5005 (SF-41, D-46); the recycle now answers success.
     expectAnswer(answer, OK, "the creator's recycle");
     expect(await inTrash(d.request, bundleId), "after: the bundle is in the trash").toBe(true);
   });

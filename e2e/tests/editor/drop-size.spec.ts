@@ -1,5 +1,5 @@
 import { createApp, getAppDsl } from "../../src/api/client";
-import { BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET, SAVE_POLL_TIMEOUT_MS, TAGS } from "../../src/constants";
+import { BUTTON_COMP_TYPE, BUTTON_SEARCH_TEXT, DROP_TARGET, SAVE_POLL_TIMEOUT_MS } from "../../src/constants";
 import { expect, test } from "../../src/fixtures";
 import { EditorPage } from "../../src/pages/EditorPage";
 
@@ -8,11 +8,11 @@ interface SavedLayoutItem {
 }
 
 /**
- * Exposes defect D-5: a component dropped right after the editor reports
- * ready is saved with width 0. Quarantined because it fails on the 3.0.0 baseline; run it with
- * E2E_INCLUDE_QUARANTINE=1. It passes when the editor is fixed.
+ * Regression test of defect D-5: on the 3.0.0 baseline a component dropped right after the editor reports ready was saved
+ * with width 0, because the root canvas's measured width is stored a moment after the editor is ready. The page is opened
+ * with `settleGrid: false`, which is what makes this a test of that race.
  */
-test("a component dropped right after the editor is ready has a usable width", { tag: TAGS.QUARANTINE }, async ({
+test("a component dropped right after the editor is ready has a usable width", async ({
   page,
   apiUser,
 }) => {

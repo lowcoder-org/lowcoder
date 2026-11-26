@@ -164,40 +164,28 @@ test.describe("S7 display components", () => {
     await expect(view.byTestId(testIdOf("icon1")).locator("svg"), "no icon svg is drawn for an image URL").toHaveCount(0);
   });
 
-  test(
-    "icon: a value that changes from an icon name to an image URL draws the image",
-    { tag: [TAGS.QUARANTINE] },
-    async ({ page, apiUser }, testInfo) => {
-      testInfo.annotations.push({
-        type: "defect",
-        description:
-          "CD-9 candidate: after the value changes from an icon name to an image URL the icon " +
-          "keeps drawing the old icon (observed: the home icon stays). Cause, read from the source and not verified by a fix: " +
-          "IconControlView keeps the old icon for one render (useIcon sets its state in an effect), caches its view under the " +
-          "new value in IconDictionary, and the cached entry then passes the title check (undefined === undefined) in every " +
-          "later render (iconControl.tsx IconControlView, lowcoder-design useIcon). A page that starts with the image URL draws it.",
-      });
-      const items = stackItems([
-        button({
-          id: "sw",
-          name: "bSwitch",
-          text: "Switch state",
-          testId: SWITCH_BUTTON_TEST_ID,
-          onEvent: [eventHandler("click", setTempState(STATE_NAME, PNG_RED))],
-        }),
-        component("icon", { id: "ic", testId: testIdOf("icon1"), w: 4, h: 6, comp: { icon: `{{${STATE_NAME}.value}}` } }),
-      ]);
-      const view = await openSeededView(page, apiUser.orgId, "e2e-s7-icon-switch", items, {
-        tempStates: [tempState({ id: "s1", name: STATE_NAME, value: JSON.stringify(RECORDED_ICON) })],
-      });
-      await expect(view.byTestId(testIdOf("icon1")).locator("svg").first(), "the icon name is drawn as an svg").toBeVisible();
+  // CD-9: a value that changed from an icon name to an image URL kept drawing the old icon (the control cached the previous icon under the new value).
+  test("icon: a value that changes from an icon name to an image URL draws the image", async ({ page, apiUser }) => {
+    const items = stackItems([
+      button({
+        id: "sw",
+        name: "bSwitch",
+        text: "Switch state",
+        testId: SWITCH_BUTTON_TEST_ID,
+        onEvent: [eventHandler("click", setTempState(STATE_NAME, PNG_RED))],
+      }),
+      component("icon", { id: "ic", testId: testIdOf("icon1"), w: 4, h: 6, comp: { icon: `{{${STATE_NAME}.value}}` } }),
+    ]);
+    const view = await openSeededView(page, apiUser.orgId, "e2e-s7-icon-switch", items, {
+      tempStates: [tempState({ id: "s1", name: STATE_NAME, value: JSON.stringify(RECORDED_ICON) })],
+    });
+    await expect(view.byTestId(testIdOf("icon1")).locator("svg").first(), "the icon name is drawn as an svg").toBeVisible();
 
-      await view.buttonByTestId(SWITCH_BUTTON_TEST_ID).click();
+    await view.buttonByTestId(SWITCH_BUTTON_TEST_ID).click();
 
-      await expect(view.byTestId(testIdOf("icon1")).locator("img"), "the image URL is drawn as an image").toHaveAttribute(
-        "src",
-        PNG_RED,
-      );
-    },
-  );
+    await expect(view.byTestId(testIdOf("icon1")).locator("img"), "the image URL is drawn as an image").toHaveAttribute(
+      "src",
+      PNG_RED,
+    );
+  });
 });

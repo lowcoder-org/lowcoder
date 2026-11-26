@@ -87,12 +87,13 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {};
  * dialog's success notice now uses the key readers of every other notice in the file use (`memberSettings.*`, not
  * `membersSettings.*`), so LC-PW15 is no longer quarantined (Docker/e2e confirmation deferred to the combined final
  * run, NOT VERIFIED yet). D-63 also left this map: the profile now fetches the app list it counts, so LC-OT02 passes
- * (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). LC-AU15
- * (`tests/auth/signup-edge.spec.ts`) is a lifecycle id.
+ * (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-46 left this map: a bundle's
+ * recycle now publishes its event from the stored bundle instead of looking the bundle id up as an application, so
+ * SEC-R17f is no longer quarantined (a restore publishes through the old lookup and is not covered: README, "D-46 restore
+ * candidate"). LC-AU15 (`tests/auth/signup-edge.spec.ts`) is a lifecycle id.
  */
 export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
   "SEC-C17c": "D-30",
-  "SEC-R17f": "D-46",
   "SEC-A10b": "D-13",
   "LC-AU15": "D-30",
 };

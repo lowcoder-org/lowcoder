@@ -138,11 +138,11 @@ Coordinates, DSL item ids, test ids and labels used by one spec only may be loca
 
 MUST:
 - Quarantine rule: a test that asserts the DESIRED behaviour and fails today gets `tag: TAGS.QUARANTINE` (excluded from
-  the default run). Existing: `editor/drop-size.spec.ts` (D-5) and the icon switch in `components/displays.spec.ts` (CD-9 candidate, with a `defect` annotation).
+  the default run). Existing: the API-key delete helper test in `foundation/security-helpers.spec.ts` (D-45 candidate); the security and lifecycle tests are quarantined through the maps in `src/security/quarantine.ts`.
 - A characterisation or workaround test that passes while documenting a defect is NOT quarantined. Give it
   `annotation: { type: "defect", description: "<id>" }` (examples: `tests/logic/temporary-state.spec.ts` CD-7, `components/npm-components.spec.ts` CD-5; conditional form
-  `testInfo.annotations.push({ type: "defect", description })` in `components/choices.spec.ts`, CD-8 candidate). D-5's
-  `drop-size.spec.ts` and CD-3's `timer.spec.ts` carry no annotation today; adding one is allowed.
+  `testInfo.annotations.push({ type: "defect", description })` in `components/choices.spec.ts`, CD-8 candidate). CD-3's
+  `timer.spec.ts` carries no annotation today; adding one is allowed.
 - Other annotation types: `D-3 retry`, `handler retry` (retries of S1, M3, `foundation/editor-modules.spec.ts`), `observation`
   (`modules/module-versions.spec.ts`).
 - Cite the defect id in a comment where a test works around it (D-3, D-5, CD-3, CD-5, CD-7). The README table defines them.
@@ -248,14 +248,15 @@ and are NOT VERIFIED in tracked evidence.
 - **`networkidle` after an iframe was added:** a component that adds a frame later (`iframe`, `custom`) keeps network
   idle from firing; await it first. `tests/components/insert-all.spec.ts`.
 - **numberInput:** it writes `value` when editing finishes; press Enter or blur. `tests/components/inputs.spec.ts`.
-- **Icon from a name to a `data:` URI keeps the old icon** (CD-9 candidate; `@quarantine`).
-  `tests/components/displays.spec.ts`.
+- **Icon from a name to a `data:` URI kept the old icon** (CD-9, fixed on this branch: the control draws a value that is not an icon
+  reference as an image at once). `tests/components/displays.spec.ts` asserts the image; the control's unit test is
+  `client/packages/lowcoder/src/comps/controls/iconControl.test.tsx`.
 - **floatingButton group intercepts clicks:** give it its own column (`FLOATING_BUTTON_COLUMN`) and click its option by
   `FLOATING_OPTION_ONE_SELECTOR`. `tests/components/buttons.spec.ts`.
 - **Handler retry (M3):** `setTempStateAction(state, value, { eventName, retryAllowed, onRetry })` retries once through the
   existing handler; pass `retryAllowed: false` when the caller's `HandlerRetryBudget` is spent.
   `TableView.headerCell(title)` matches the exact title; `ExtensionsPanel.tile(kind, pkg)` and `tileVersion(kind, pkg)` take the list kind first.
-- **Drop right after the editor opens:** width 0 (D-5) or a lost save (D-3). Open with `EditorPage.open()`.
+- **Drop right after the editor opens:** width 0 (D-5, fixed on this branch; `editor/drop-size.spec.ts` is its regression test and opens the page with `settleGrid: false`) or a lost save (D-3, still open). Open with `EditorPage.open()`, which waits `GRID_SETTLE_MS` for the second.
 - **Parallel writes to `notes` without the `owner` scope:** tests see each other's rows (4 of 4 parallel copies
   failed when measured; NOT VERIFIED here).
 
