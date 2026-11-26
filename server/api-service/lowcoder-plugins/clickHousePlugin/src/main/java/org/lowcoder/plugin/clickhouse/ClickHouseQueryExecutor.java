@@ -153,7 +153,7 @@ public class ClickHouseQueryExecutor implements QueryExecutor<ClickHouseDatasour
                 resultSet = preparedQuery.getResultSet();
             } else {
                 statement = connection.createStatement();
-                isResultSet = statement.execute(renderMustacheString(query, requestParams), Statement.RETURN_GENERATED_KEYS);
+                isResultSet = statement.execute(renderMustacheString(query, requestParams));
                 resultSet = statement.getResultSet();
             }
 
