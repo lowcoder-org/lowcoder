@@ -18,7 +18,7 @@ jest.mock("lowcoder-design", () => {
     const unquoted = actual.removeQuote(value);
     return unquoted.startsWith(actual.iconPrefix) ? unquoted.slice(actual.iconPrefix.length) : "";
   };
-  function standInUseIcon(value?: string) {
+  function useStandInIcon(value?: string) {
     const key = keyOf(value);
     const [icon, setIcon] = React.useState(undefined);
     React.useEffect(() => {
@@ -26,7 +26,7 @@ jest.mock("lowcoder-design", () => {
     }, [key]);
     return icon;
   }
-  return { ...actual, useIcon: standInUseIcon };
+  return { ...actual, useIcon: useStandInIcon };
 });
 
 const ICON_VALUE = "/icon:solid/star";
