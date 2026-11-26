@@ -84,6 +84,10 @@
 				<version>33.8.0-jre</version>
 			</dependency>
 
+			<!-- Stay on 1.3.1: rjson 1.4.x decodes backslash escapes in quoted strings (\n, \t, \/, \\) that 1.3.1 keeps as typed,
+			     which also changes how an escaped mustache is read ("\\{\\{x\\}\\}" becomes {{x}}); 11 of the 13 contract tests of the sdk
+			     (NodeConversionContractTest, TreeTextContractTest, RawHttpBodyContractTest) fail with it, and stored templates and request
+			     bodies with such escapes would render differently. Moving up needs a decision on that behaviour change. -->
 			<dependency>
 				<groupId>tv.twelvetone.rjson</groupId>
 				<artifactId>rjson</artifactId>
