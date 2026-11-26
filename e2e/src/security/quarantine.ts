@@ -76,8 +76,8 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {};
  * map: the member-leave clean-up now deletes the data source row by the right resource type and gained a folder and a
  * bundle step, so LC-DL03 and LC-DL04 are no longer quarantined (LC-DL12 is new and was never quarantined; Docker/e2e
  * confirmation deferred to the combined final run, NOT VERIFIED yet); rows left by removals before the fix stay
- * stored, and a creator's `createdBy` access is a separate, unrevoked mechanism (README D-26 and D-60 residuals,
- * LC-DL13 to LC-DL15 candidates). D-52 left this map: `GroupApiServiceImpl.update` now refuses a non-null `groupName`
+ * stored, and a creator's `createdBy` access is a separate mechanism that stays by design (owner decision 2026-11-26: it
+ * marks the ownership of an object and cannot be transferred or changed; LC-DL13 to LC-DL15 pin it). D-52 left this map: `GroupApiServiceImpl.update` now refuses a non-null `groupName`
  * on a system group (any of its three encodings) with UNSUPPORTED_OPERATION and writes nothing, so LC-GR09 is no
  * longer quarantined (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet); groups renamed
  * before the fix keep their stored name, never shown (`Group.getName`). D-54 left this map: the password-reset and

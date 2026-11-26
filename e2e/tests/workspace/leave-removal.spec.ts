@@ -25,6 +25,7 @@ import {
   listFolderPermissions,
   listGroupMembers,
   listGroups,
+  listOrgMembers,
   removeOrgMember,
   signInRaw,
   switchOrganization,
@@ -35,7 +36,10 @@ import {
   API_OK,
   API_PATHS,
   MEMBERSHIP_CLEANUP_TIMEOUT_MS,
+  ORG_ROLES,
   TEST_PASSWORD,
+  appPermissionsPath,
+  bundlePermissionsPath,
   groupMembersPath,
   UI_PATHS,
 } from "../../src/constants";
@@ -44,15 +48,17 @@ import { AuthPage } from "../../src/pages/AuthPage";
 import { LoginPage } from "../../src/pages/LoginPage";
 import { joinWorkspace, makeDeveloper, seedPrivateApp, type Actor } from "../../src/security/actors";
 import { expectAnswer } from "../../src/security/assertions";
-import { lifecycleCandidateDetails, lifecycleTestDetails } from "../../src/security/quarantine";
+import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 /**
  * What a removal, a leave and a workspace deletion do to a user's data (LC-DL01 to LC-DL15). 3.0.0 has no account deletion
  * in SAAS mode, so there is none to test: a removal deletes the membership only. Every "row gone" check polls (the clean-up
  * is a listener on its own scheduler) and first asserts the row was there. Covered elsewhere: API keys of a removed member
  * (SEC-A02b), the removed member's open session (SEC-R11a), a removed creator's editing view (SEC-R11b), ENTERPRISE
- * deactivation (SEC-E02 to E04). LC-DL13 to LC-DL15 are quarantined candidates for the creator (`createdBy`) shortcut
- * that mechanism 1's cleanup does not revoke (README D-26 and D-60 residuals).
+ * deactivation (SEC-E02 to E04). The creator's (`createdBy`) right is permanent by design (owner decision 2026-11-26: it marks
+ * the ownership of an object and cannot be transferred or changed): the removal's clean-up deletes the creator's owner row but
+ * not that right, so a removed or rejoined creator still reads its app and bundle and manages its folder again; LC-DL13 to
+ * LC-DL15 pin it, with controls that rule out every other source of the access.
  */
 
 const OK = { status: 200, code: API_OK } as const;
@@ -75,6 +81,50 @@ async function isInAnyGroup(owner: Actor, userId: string): Promise<boolean> {
     }
   }
   return false;
+}
+
+const NO_PUBLIC_ACCESS = { publicToAll: false, publicToMarketplace: false, agencyProfile: false } as const;
+
+/**
+ * The public flags of an app's or bundle's permission answer, read from the raw body: the e2e `PermissionView` type declares only
+ * `publicToAll`. A missing key is `undefined`, which fails the comparison with `false` instead of passing as "no grant".
+ */
+async function publicFlags(owner: Actor, permissionsPath: string): Promise<Record<keyof typeof NO_PUBLIC_ACCESS, unknown>> {
+  const answer = await apiRaw(owner.request, "GET", permissionsPath);
+  expectAnswer(answer, OK, `the permission list at ${permissionsPath}`);
+  const data = (answer.json as { data: Record<string, unknown> }).data;
+  return { publicToAll: data.publicToAll, publicToMarketplace: data.publicToMarketplace, agencyProfile: data.agencyProfile };
+}
+
+async function workspaceRoleOf(owner: Actor, userId: string): Promise<string | undefined> {
+  return (await listOrgMembers(owner.request, owner.orgId)).find((member) => member.userId === userId)?.role;
+}
+
+type CreatorResource = { permissionsPath: string; list: () => Promise<{ groupPermissions: { id: string }[] }>; hasUserRow: () => Promise<boolean> };
+
+/**
+ * Before the removal: the creator is in a group that holds a VIEWER grant on the resource (the control below must be able to see
+ * it), and the public flags are present as booleans.
+ */
+async function expectGroupGrantVisible(owner: Actor, resource: CreatorResource, groupId: string, userId: string): Promise<void> {
+  expect((await resource.list()).groupPermissions.map((row) => row.id), "setup: the resource lists the group grant").toContain(groupId);
+  expect(await isInGroup(owner, groupId, userId), "setup: the creator is in the granted group").toBe(true);
+  expect(await publicFlags(owner, resource.permissionsPath), "setup: the public flags are present and off").toEqual(NO_PUBLIC_ACCESS);
+}
+
+/**
+ * After the rejoin, nothing but the creator right is left to grant access: the creator is a plain member (not an admin), holds
+ * no user row, is in none of the groups the resource lists (the grant of the group stays listed), and no public flag is set.
+ */
+async function expectOnlyCreatorRight(owner: Actor, resource: CreatorResource, groupId: string, creator: Actor): Promise<void> {
+  expect(await workspaceRoleOf(owner, creator.userId), "the rejoined creator is a plain member").toBe(ORG_ROLES.MEMBER);
+  await expect.poll(resource.hasUserRow, { message: "the rejoined creator holds no user row", ...POLL }).toBe(false);
+  const listed = (await resource.list()).groupPermissions.map((row) => row.id);
+  expect(listed, "the group grant is still listed").toContain(groupId);
+  for (const listedGroup of listed) {
+    expect(await isInGroup(owner, listedGroup, creator.userId), `the rejoined creator is not in the listed group ${listedGroup}`).toBe(false);
+  }
+  expect(await publicFlags(owner, resource.permissionsPath), "no public flag grants the access").toEqual(NO_PUBLIC_ACCESS);
 }
 
 /**
@@ -317,33 +367,41 @@ test.describe("lifecycle: leaving, removal and deletion", () => {
     expect({ status: elements.status, code: elements.code }, "the rejoined member's bundle elements read").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
   });
 
-  test("LC-DL13 an app created by a removed developer is not readable by it, neither while removed nor after a rejoin (creator-shortcut candidate)", lifecycleCandidateDetails(
-    "LC-DL13",
-    "the removed creator's published view answers 200 (SEC-R11b, membership-changes.spec.ts:95, the creator-shortcut VIEWER row)",
-  ), async ({ actor }) => {
+  test("LC-DL13 an app's creator keeps viewing it after its removal and after a rejoin, without its owner row (pin)", lifecycleTestDetails("LC-DL13"), async ({ actor }) => {
     const admin = await actor("dlowner");
     const developer = await actor("dldeveloper");
     await joinWorkspace(admin, developer);
     await makeDeveloper(admin, developer);
-    const name = `dl-dev-app-lc13-${Date.now()}`;
-    const { appId } = await createApp(developer.request, { orgId: admin.orgId, name });
-    expect(await hasAppRow(admin, appId, developer.userId), "setup: the developer owns the app").toBe(true);
+    const { appId } = await createApp(developer.request, { orgId: admin.orgId, name: `dl-dev-app-lc13-${Date.now()}` });
+    const resource: CreatorResource = {
+      permissionsPath: appPermissionsPath(appId),
+      list: () => listAppPermissions(admin.request, appId),
+      hasUserRow: () => hasAppRow(admin, appId, developer.userId),
+    };
+    expect(await resource.hasUserRow(), "setup: the developer owns the app").toBe(true);
     expect(await viewAppRaw(developer.request, appId), "setup: the creator views the app").toEqual(OK);
+    const groupId = await createGroup(admin.request, "dl-app-lc13-group");
+    await addGroupMember(admin.request, groupId, developer.userId, "member");
+    await grantAppPermission(admin.request, appId, { role: "viewer", userIds: [], groupIds: [groupId] });
+    await expectGroupGrantVisible(admin, resource, groupId, developer.userId);
 
     await removeOrgMember(admin.request, admin.orgId, developer.userId);
-    await expect.poll(() => hasAppRow(admin, appId, developer.userId), { message: "control: the creator's owner row is deleted", ...POLL }).toBe(false);
+    await expect.poll(resource.hasUserRow, { message: "control: the creator's owner row is deleted", ...POLL }).toBe(false);
+    await expect.poll(() => isInGroup(admin, groupId, developer.userId), { message: "control: the creator left the granted group", ...POLL }).toBe(false);
 
     const removedView = await viewAppRaw(developer.request, appId);
-    expect({ status: removedView.status, code: removedView.code }, "the removed creator's view (desired: denied like any other removed member, SEC-R11a)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
+    expect({ status: removedView.status, code: removedView.code }, "the removed creator's view (allowed: the creator right)").toEqual(OK);
+    const removedEdit = await editAppRaw(developer.request, appId);
+    expect({ status: removedEdit.status, code: removedEdit.code }, "the removed creator's editing view (denied: the right is READ only)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
     await rejoin(admin, developer);
+    await expectOnlyCreatorRight(admin, resource, groupId, developer);
     const rejoinedView = await viewAppRaw(developer.request, appId);
-    expect({ status: rejoinedView.status, code: rejoinedView.code }, "the rejoined creator's view (desired: denied like a rejoined member, LC-DL02)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
+    expect({ status: rejoinedView.status, code: rejoinedView.code }, "the rejoined creator's view (allowed: the creator right)").toEqual(OK);
+    const rejoinedEdit = await editAppRaw(developer.request, appId);
+    expect({ status: rejoinedEdit.status, code: rejoinedEdit.code }, "the rejoined creator's editing view (denied)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
   });
 
-  test("LC-DL14 a folder created by a removed developer is not manageable by it after a rejoin (creator-shortcut candidate)", lifecycleCandidateDetails(
-    "LC-DL14",
-    "the rejoined creator's rename answers 200 again (checkManagePermissionInCurrentOrg matches createdBy against the current org member once more)",
-  ), async ({ actor }) => {
+  test("LC-DL14 a folder's creator manages it again after a rejoin (pin)", lifecycleTestDetails("LC-DL14"), async ({ actor }) => {
     const admin = await actor("dlowner");
     const developer = await actor("dldeveloper");
     await joinWorkspace(admin, developer);
@@ -352,10 +410,15 @@ test.describe("lifecycle: leaving, removal and deletion", () => {
     const folderId = await createFolder(developer.request, originalName);
     const probeName = "dl-folder-lc14-probe-9f3c";
     const renameAs = (actor: Actor, name: string) => apiRaw(actor.request, "PUT", API_PATHS.FOLDERS, { data: { id: folderId, name } });
-    const rootListing = async (): Promise<string> => (await apiRaw(admin.request, "GET", API_PATHS.FOLDER_ELEMENTS)).body;
+    // By exact name of the folder's own row: the probe name starts with the original one, so a substring check cannot tell them apart.
+    const nameInRoot = async (): Promise<string | undefined> => {
+      const root = await apiRaw(admin.request, "GET", API_PATHS.FOLDER_ELEMENTS);
+      expectAnswer(root, OK, "the admin lists its root");
+      return (root.json as { data: { folderId?: string; name?: string }[] }).data.find((row) => row.folderId === folderId)?.name;
+    };
     expectAnswer(await renameAs(developer, probeName), OK, "setup: the creator renames its own folder");
     expectAnswer(await renameAs(developer, originalName), OK, "setup: rename back to the original name, so the control below has something to detect");
-    expect(await rootListing(), "setup: the root listing holds the original name").toContain(originalName);
+    expect(await nameInRoot(), "setup: the folder's row holds the original name").toBe(originalName);
     const groupId = await createGroup(admin.request, "dl-folder-lc14-group");
     await addGroupMember(admin.request, groupId, developer.userId, "member");
 
@@ -363,34 +426,41 @@ test.describe("lifecycle: leaving, removal and deletion", () => {
     await expect.poll(() => isInGroup(admin, groupId, developer.userId), { message: "control: the clean-up ran (the creator left its group)", ...POLL }).toBe(false);
     await rejoin(admin, developer);
 
+    expect(await workspaceRoleOf(admin, developer.userId), "the rejoined creator is a plain member, not an admin").toBe(ORG_ROLES.MEMBER);
+    expect((await listFolderPermissions(admin.request, folderId)).userPermissions.some((row) => row.id === developer.userId), "and holds no user row on the folder").toBe(false);
     const rejoinedRename = await renameAs(developer, probeName);
-    expect({ status: rejoinedRename.status, code: rejoinedRename.code }, "the rejoined creator's rename (desired: refused, like any other non-creator developer, SEC-R15b)").toEqual(API_ERRORS.FOLDER_OPERATE_NO_PERMISSION);
-    const after = await rootListing();
-    expect(after, "the admin's folder listing still shows the old name").toContain(originalName);
-    expect(after, "and not the rejoined creator's attempted rename").not.toContain(probeName);
+    expect({ status: rejoinedRename.status, code: rejoinedRename.code }, "the rejoined creator's rename (allowed: the creator right, in its current workspace)").toEqual(OK);
+    expect(await nameInRoot(), "the folder's row carries the rejoined creator's name").toBe(probeName);
   });
 
-  test("LC-DL15 a bundle created by a removed developer is not readable by it, neither while removed nor after a rejoin (creator-shortcut candidate)", lifecycleCandidateDetails(
-    "LC-DL15",
-    "the removed/rejoined creator's bundleElementsRaw answers 200 through the creator-shortcut VIEWER row, same mechanism as LC-DL13's app case and SEC-R11b; expected to deny with NO_PERMISSION_TO_REQUEST_APP by the same code path LC-DL12 measures for a non-creator bundle grant (SEC-C23a, tests/security/bundles.spec.ts:86), not yet run against the fixed image, deferred to the combined final run",
-  ), async ({ actor }) => {
+  test("LC-DL15 a bundle's creator keeps reading its elements after its removal and after a rejoin, without its owner row (pin)", lifecycleTestDetails("LC-DL15"), async ({ actor }) => {
     const admin = await actor("dlowner");
     const developer = await actor("dldeveloper");
     await joinWorkspace(admin, developer);
     await makeDeveloper(admin, developer);
     const bundleId = await createBundle(developer.request, { orgId: admin.orgId, name: `dl-dev-bundle-lc15-${Date.now()}` });
-    const hasRow = async (): Promise<boolean> => (await listBundlePermissions(admin.request, bundleId)).userPermissions.some((row) => row.id === developer.userId);
-    expect(await hasRow(), "setup: the developer owns the bundle").toBe(true);
+    const resource: CreatorResource = {
+      permissionsPath: bundlePermissionsPath(bundleId),
+      list: () => listBundlePermissions(admin.request, bundleId),
+      hasUserRow: async () => (await listBundlePermissions(admin.request, bundleId)).userPermissions.some((row) => row.id === developer.userId),
+    };
+    expect(await resource.hasUserRow(), "setup: the developer owns the bundle").toBe(true);
     expect((await bundleElementsRaw(developer.request, bundleId)).status, "setup: the creator reads the bundle's elements").toBe(200);
+    const groupId = await createGroup(admin.request, "dl-bundle-lc15-group");
+    await addGroupMember(admin.request, groupId, developer.userId, "member");
+    await grantBundlePermission(admin.request, bundleId, { role: "viewer", groupIds: [groupId] });
+    await expectGroupGrantVisible(admin, resource, groupId, developer.userId);
 
     await removeOrgMember(admin.request, admin.orgId, developer.userId);
-    await expect.poll(hasRow, { message: "control: the creator's owner row is deleted", ...POLL }).toBe(false);
+    await expect.poll(resource.hasUserRow, { message: "control: the creator's owner row is deleted", ...POLL }).toBe(false);
+    await expect.poll(() => isInGroup(admin, groupId, developer.userId), { message: "control: the creator left the granted group", ...POLL }).toBe(false);
 
     const removedElements = await bundleElementsRaw(developer.request, bundleId);
-    expect({ status: removedElements.status, code: removedElements.code }, "the removed creator's bundle elements (desired: denied)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
+    expect({ status: removedElements.status, code: removedElements.code }, "the removed creator's bundle elements (allowed: the creator right)").toEqual(OK);
     await rejoin(admin, developer);
+    await expectOnlyCreatorRight(admin, resource, groupId, developer);
     const rejoinedElements = await bundleElementsRaw(developer.request, bundleId);
-    expect({ status: rejoinedElements.status, code: rejoinedElements.code }, "the rejoined creator's bundle elements (desired: denied)").toEqual(API_ERRORS.NO_PERMISSION_TO_REQUEST_APP);
+    expect({ status: rejoinedElements.status, code: rejoinedElements.code }, "the rejoined creator's bundle elements (allowed: the creator right)").toEqual(OK);
   });
 });
 
