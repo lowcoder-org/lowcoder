@@ -35,12 +35,6 @@ import { expect, test } from "../../src/fixtures";
  * once on the sidecar, not pursued), `blobAsText` and the connection pool; Firebird 4 and 5 (the sidecar is Firebird 3.0.12).
  */
 
-/**
- * Candidate defect: a query that fails after the attach (a SQL error or an unknown named parameter) never detaches (`run.ts`: `detachAsync`
- * comes after the awaited query and is skipped when it throws), so the attachment stays open on the server. A successful query does detach.
- */
-const LEAKED_ATTACHMENT_DEFECT = { type: "defect", description: "D-78 candidate" } as const;
-
 const HTTP_OK = 200;
 const CODE_CONNECT_FAILED = 500;
 const QUERY_CODE_OK = "OK";
@@ -80,9 +74,9 @@ const CLOSED_PORT = 3051;
 const CONNECT_TIMEOUT_MS = 5000;
 
 /**
- * Leaked-attachment observation. A statement that sets a context variable of the attachment (`RDB$SET_CONTEXT`, `USER_SESSION`) tagged with
- * a per-test marker and then fails by dividing by zero leaves the tag in `MON$CONTEXT_VARIABLES` for as long as its attachment lives, so a
- * count of the tag counts this test's open attachments only (parallel tests use other tags). The marker is hex: it is placed in the SQL text,
+ * Open-attachment observation (D12j). A statement that sets a context variable of the attachment (`RDB$SET_CONTEXT`, `USER_SESSION`) tagged with
+ * a per-test marker and then fails by dividing by zero would leave the tag in `MON$CONTEXT_VARIABLES` for as long as its attachment lives (the
+ * images before the node-service upgrade never detached after a failure, D-78 candidate), so a count of the tag counts this test's open attachments only (parallel tests use other tags). The marker is hex: it is placed in the SQL text,
  * since a named parameter inside an EXECUTE BLOCK would be rewritten by the plugin too.
  */
 const CONTEXT_VARIABLE = "E2E_TAG";
@@ -96,6 +90,11 @@ function failingTaggedSql(tag: string): string {
 
 function succeedingTaggedSql(tag: string): string {
   return `EXECUTE BLOCK AS DECLARE V INTEGER; BEGIN V = 1; RDB$SET_CONTEXT('USER_SESSION', '${CONTEXT_VARIABLE}', '${tag}'); END`;
+}
+
+/** The control of the observation: a block that tags its own attachment and counts the tag sees it, so a zero elsewhere is not a blind count. */
+function visibleTaggedSql(tag: string): string {
+  return `EXECUTE BLOCK RETURNS (N INTEGER) AS BEGIN RDB$SET_CONTEXT('USER_SESSION', '${CONTEXT_VARIABLE}', '${tag}'); SELECT COUNT(*) FROM MON$CONTEXT_VARIABLES WHERE MON$VARIABLE_NAME = '${CONTEXT_VARIABLE}' AND MON$VARIABLE_VALUE = '${tag}' INTO N; SUSPEND; END`;
 }
 
 const COUNT_TAGGED_SQL = `SELECT COUNT(*) AS N FROM MON$CONTEXT_VARIABLES WHERE MON$VARIABLE_NAME = '${CONTEXT_VARIABLE}' AND MON$VARIABLE_VALUE = :tag`;
@@ -306,11 +305,12 @@ test.describe("Firebird data source against its sidecar", { tag: [TAGS.NODE_SERV
     expect(envelopeOf(upperAnswer).data, "lowercaseKeys false").toEqual([{ ID: alpha?.id, NAME: alpha?.name }]);
   });
 
-  test("D12j: a failing query leaves its attachment open, a succeeding one does not", { annotation: LEAKED_ATTACHMENT_DEFECT }, async ({ page, apiUser }) => {
+  test("D12j: a failing query detaches its attachment, like a succeeding one", async ({ page, apiUser }) => {
     const tag = uniqueMarker();
     const appId = await firebirdApp(page, apiUser, {
       failing: { sql: failingTaggedSql(tag) },
       succeeding: { sql: succeedingTaggedSql(tag) },
+      visible: { sql: visibleTaggedSql(tag) },
       count: { sql: COUNT_TAGGED_SQL, params: { tag } },
     });
     const openAttachments = async (): Promise<unknown> => {
@@ -320,18 +320,21 @@ test.describe("Firebird data source against its sidecar", { tag: [TAGS.NODE_SERV
     };
 
     expect(await openAttachments(), "before any run no attachment carries the tag").toEqual([{ n: 0 }]);
+    // control: the observation does see a tag a live attachment holds (the block counts its own)
+    const visible = await runDraft(page, appId, "visible");
+    expectSucceeded(visible);
+    expect(envelopeOf(visible).data, "control: a live attachment's tag is counted").toEqual([{ n: 1 }]);
     for (let run = 0; run < LEAK_RUNS; run += 1) {
       const failing = await runDraft(page, appId, "failing");
       expectRan(failing);
       expect({ success: envelopeOf(failing).success, queryCode: envelopeOf(failing).queryCode, data: envelopeOf(failing).data }, "the tagged block failed").toEqual({ success: false, queryCode: QUERY_CODE_FAILED, data: null });
       expect(envelopeOf(failing).message, "the division by zero").toMatch(DIVIDE_BY_ZERO_MESSAGE);
     }
-    // the observation sees live attachments: one per failing run
-    await expect.poll(openAttachments, { message: "the failing runs' attachments are open" }).toEqual([{ n: LEAK_RUNS }]);
+    // the plugin detaches after a failed query, so none of the failing runs' attachments stays open
+    await expect.poll(openAttachments, { message: "no failing run's attachment is open" }).toEqual([{ n: 0 }]);
 
     expectSucceeded(await runDraft(page, appId, "succeeding"));
-    await page.waitForTimeout(NEGATIVE_EVENT_WINDOW_MS);
-    expect(await openAttachments(), "the succeeding run's attachment is not among the open ones (the count stays at the failing runs')").toEqual([{ n: LEAK_RUNS }]);
+    expect(await openAttachments(), "the succeeding run's attachment is closed too").toEqual([{ n: 0 }]);
   });
 
   test("D12k: the runner reaches the sidecar over TCP, and a closed port of the same host is refused", async () => {
