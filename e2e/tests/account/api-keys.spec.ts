@@ -120,6 +120,10 @@ test.describe("lifecycle: API keys", () => {
     expectAnswer(await answerWithKey(anonymous, token), ALLOWED, "before: the key works");
 
     await keys.deleteKey(KEY_NAME);
+    // The confirm click returns while the DELETE is still in flight, and a reload at that moment aborts it: the server then
+    // keeps the key. The card fetches the list again only after the DELETE succeeded (`UserApiKeysCard.tsx`,
+    // `handleDeleteApiKey`), so the row leaving the list means the server has answered; the reload then shows what it stored.
+    await expect(keys.rowOf(KEY_NAME), "the deleted key leaves the list").toHaveCount(0);
     await user.session.page.reload();
 
     await expect(keys.title, "the card is back after the reload").toBeVisible();
