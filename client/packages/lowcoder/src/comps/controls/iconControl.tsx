@@ -214,6 +214,15 @@ export const IconControlView = memo((props: { value: string }) => {
   const icon = useIcon(value);
 
   return useMemo(() => {
+    // A value that is not an icon reference is drawn as an image at once. `useIcon` updates its icon in an effect, so in the
+    // first render after a switch from an icon name `icon` is still the OLD icon: the cache below would store it under the
+    // new value, and the cache check would then keep returning it for good.
+    // Limits: a value that unquotes to empty (the quoted empty `'""'`) still takes the icon path below and can be cached; a
+    // switch from one icon name to another still renders the old icon for one render.
+    if (value && !isSelectValue(removeQuote(value))) {
+      return <StyledImage src={value} alt="" />;
+    }
+
     if (value && IconDictionary[value] && IconDictionary[value]?.title === icon?.title) {
       return IconDictionary[value];
     }
