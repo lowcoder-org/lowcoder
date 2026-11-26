@@ -9,6 +9,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import java.sql.DriverPropertyInfo;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -46,7 +47,9 @@ public class MssqlConnectorUrlTest {
     private static Map<String, String> parsed(String jdbcUrl) throws Exception {
         Map<String, String> properties = new LinkedHashMap<>();
         for (DriverPropertyInfo info : new SQLServerDriver().getPropertyInfo(jdbcUrl, new Properties())) {
-            properties.put(info.name, info.value);
+            // the driver reports a boolean property as "True"/"False" since 13.x and as "true"/"false" before; the URL says "true"
+            boolean isBoolean = "true".equalsIgnoreCase(info.value) || "false".equalsIgnoreCase(info.value);
+            properties.put(info.name, isBoolean ? info.value.toLowerCase(Locale.ROOT) : info.value);
         }
         return properties;
     }
