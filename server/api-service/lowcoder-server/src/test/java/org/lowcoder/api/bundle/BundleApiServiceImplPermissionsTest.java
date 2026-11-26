@@ -1384,8 +1384,8 @@ class BundleApiServiceImplPermissionsTest {
 
         var originalTree = JsonUtils.getObjectMapper().valueToTree(locked);
         var copyTree = JsonUtils.getObjectMapper().valueToTree(lockedElement);
-        assertThat(copyTree.fieldNames()).toIterable().containsExactlyInAnyOrderElementsOf(() -> originalTree.fieldNames());
-        originalTree.fieldNames().forEachRemaining(field -> {
+        assertThat(copyTree.propertyNames()).containsExactlyInAnyOrderElementsOf(originalTree.propertyNames());
+        originalTree.propertyNames().forEach(field -> {
             if (DSL_DERIVED.contains(field)) {
                 return;
             }

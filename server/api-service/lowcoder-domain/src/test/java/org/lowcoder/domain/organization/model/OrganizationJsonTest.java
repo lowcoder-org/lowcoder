@@ -16,8 +16,8 @@ import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.util.JsonUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * {@link Organization#getAuthConfigs()} must never reach JSON (D-14): the configs hold OAuth client secrets, and
