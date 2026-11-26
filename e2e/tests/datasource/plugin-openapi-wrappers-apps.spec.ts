@@ -19,7 +19,7 @@ import type { EchoRecord, EchoTarget } from "../../src/security/echo";
  * - OpenAI `listModels`: `GET /models` (`openAI_v2.3.0.json`; the data source's `specVersion` picks the document);
  * - APITemplate `list_templates`: `GET /v2/list-templates` (`apiTemplate.spec.json`);
  * - Carbone `get_status`: `GET /status` and `get_template__templateId_`: `GET /template/{templateId}` (`carboneIo.spec.json`);
- * - UiPath `Folders_Get`: `GET /odata/Folders` (`uiPath.spec.json`); measured: this plugin cannot run any operation (D9j to D9l).
+ * - UiPath `Folders_Get`: `GET /odata/Folders` (`uiPath.spec.json`); D9j (a query) and D9k (the query configuration) run on the upgraded node-service; the images before it overflowed the stack on the document (D-71 candidate).
  *
  * The plugins keep their parsed document in a module-level object, and `runOpenApi` rewrites its server URL in place. D9m submits several
  * queries together and checks that each reaches its own server URL with its own data. The echo withholds every answer (a barrier) until all
@@ -33,31 +33,13 @@ const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
 const ERROR_STATUS_SUCCESS_DEFECT = { type: "defect", description: "D-69 candidate" } as const;
 const ERROR_STATUS_DETAILS = { annotation: ERROR_STATUS_SUCCESS_DEFECT };
 
-/**
- * Candidate defect: the UiPath plugin cannot run: `getSchemaExample` (`plugins/openApi/util.ts`) recurses without end on a circular schema of
- * the bundled document, so its query configuration (what the editor lists) and every query fail with `Maximum call stack size exceeded`.
- */
-const UIPATH_DEFECT = { type: "defect", description: "D-71 candidate" } as const;
-const UIPATH_DETAILS = { annotation: UIPATH_DEFECT };
-/** The desired behaviour of the UiPath plugin: it fails today, so it is quarantined (the enclosing describe adds `@node-service`). */
-const UIPATH_QUARANTINE_DETAILS = { tag: [TAGS.QUARANTINE], annotation: UIPATH_DEFECT };
-
-/**
- * Candidate defect: an OpenAI data source on the spec version `v1.0` (the default when none is chosen) sends no `Authorization` header: the
- * plugin hands the key over as `ApiKeyAuth.value`, the scheme of the `v2.3` document, while the `v1.0` document names its scheme `ApiKey`.
- */
-const OPENAI_V1_AUTH_DEFECT = { type: "defect", description: "D-72 candidate" } as const;
-const OPENAI_V1_AUTH_DETAILS = { annotation: OPENAI_V1_AUTH_DEFECT };
-
 /** Observation: a Carbone data source sends its token only with the operations whose document entry lists the `bearerAuth` scheme; `get_status` does not. */
 const CARBONE_STATUS_OBSERVATION = { type: "observation", description: "carboneIo get_status sends no Authorization header: the operation lists no security scheme" } as const;
 const CARBONE_STATUS_DETAILS = { annotation: CARBONE_STATUS_OBSERVATION };
 
 const HTTP_OK = 200;
 const HTTP_NOT_FOUND = 404;
-const HTTP_SERVER_ERROR = 500;
 const QUERY_CODE_OK = "OK";
-const QUERY_CODE_FAILED = "FAILED";
 const JSON_CONTENT_TYPE = "application/json";
 const MARKER_BYTES = 4;
 const QUERY_ID = "q1";
@@ -81,10 +63,8 @@ const CARBONE_VERSION = "4";
 const CHAT_ACTION = "createChatCompletion";
 const CHAT_BODY_KEY = "body_@_body";
 
-/** What UiPath's error answers: the node-service message of a failed query (`runPluginQuery`) and the answer of the form's dynamic config. */
-const UIPATH_FAILURE_MESSAGE = "Maximum call stack size exceeded";
-const DYNAMIC_CONFIG_ERROR_CODE = 5000;
-const DYNAMIC_CONFIG_ERROR_MESSAGE = "get dynamic config error";
+/** The operation of the recorded UiPath query (`fixtures/dsl/plugins/uiPath/uiPathQuery.json`): `GET /odata/Folders`. */
+const UIPATH_FOLDERS_OPERATION = "Folders_Get";
 /** The path of the plugin's query configuration in a dynamic config request (`pluginMetaOps`, `services/plugin.ts`). */
 const QUERY_CONFIG_PATH = "$.queryConfig";
 const FORM_DEFAULTS = { authConfigType: "NO_AUTH", sslCertVerificationType: "VERIFY_CA_CERT" } as const;
@@ -341,7 +321,7 @@ test.describe("OpenAI", NODE_SERVICE_DETAILS, () => {
     expect(envelopeOf(answer).data, "the answer is the body of the echo's canned reply").toEqual(completion);
   });
 
-  test("D9h OpenAI: on the spec version v1.0, chosen or by default, the key is sent nowhere; on v2.3 it is sent as a Bearer header", OPENAI_V1_AUTH_DETAILS, async ({ page, apiUser, echo }) => {
+  test("D9h OpenAI: on every spec version, chosen or by default, the key is sent as a Bearer header", async ({ page, apiUser, echo }) => {
     const marker = uniqueMarker();
     const key = `e2e-openai-${marker}`;
     const sides = [
@@ -361,12 +341,10 @@ test.describe("OpenAI", NODE_SERVICE_DETAILS, () => {
 
     const records = await echo.received();
     expect(records, "one request per data source").toHaveLength(sides.length);
-    // control: with the same key on the same server the v2.3 document sends it, so the missing header below is the plugin's, not the echo's
-    expectRequest(onlyRecord(recordsUnder(records, echo, "/v2"), "v2.3 sent one request"), echo, { path: `${echo.path}/v2/models`, headers: { authorization: `Bearer ${key}` } }, "v2.3");
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e`: the v1.0 document names its scheme `ApiKey`, the plugin hands the key over as `ApiKeyAuth.value`, so no header is sent (D-72 candidate, see OPENAI_V1_AUTH_DEFECT).
-    expectRequest(onlyRecord(recordsUnder(records, echo, "/default"), "the default version sent one request"), echo, { path: `${echo.path}/default/models` }, "default version");
-    expectRequest(onlyRecord(recordsUnder(records, echo, "/v1"), "v1.0 sent one request"), echo, { path: `${echo.path}/v1/models` }, "v1.0");
-    expect(JSON.stringify([records[0], records[1]]).includes(key), "the key is on no part of the v1.0 and default requests").toBe(false);
+    // the v1.0 document names its scheme `ApiKey` and the v2.3 one `ApiKeyAuth`; the plugin sends the key under both (the images before the node-service upgrade sent none on v1.0, D-72 candidate)
+    for (const side of ["default", "v1", "v2"]) {
+      expectRequest(onlyRecord(recordsUnder(records, echo, `/${side}`), `${side} sent one request`), echo, { path: `${echo.path}/${side}/models`, headers: { authorization: `Bearer ${key}` } }, side);
+    }
   });
 });
 
@@ -393,60 +371,8 @@ test.describe("an error answer", NODE_SERVICE_DETAILS, () => {
   });
 });
 
-/** The APITemplate request of the control in the UiPath tests: it reaches the same echo target, so a missing UiPath request is not an unreachable echo. */
-async function expectApiTemplateReachesEcho(page: Page, apiUser: RegisteredUser, echo: EchoTarget, marker: string): Promise<void> {
-  const row = ROWS.find((candidate) => candidate.plugin === "apiTemplate") as WrapperRow;
-  const auth = row.auth(marker);
-  await echo.answer(answerPathOf(row, marker, ""), canned(row.data(marker)));
-  const datasourceId = await wrapperDatasource(page, apiUser, row.plugin, { serverURL: echo.url, ...auth.config });
-  const answer = await runDraft(page, await wrapperApp(page, apiUser, row.plugin, datasourceId));
-  expectSucceeded(answer);
-  expectRequest(onlyRecord(await echo.received(), "the control query's request reached the echo"), echo, { path: `${echo.path}${requestPathOf(row, marker, "")}`, headers: auth.headers }, "control (apiTemplate)");
-}
-
 test.describe("UiPath", NODE_SERVICE_DETAILS, () => {
-  test("D9j uiPath: a query fails with a stack overflow of the plugin and sends no request", UIPATH_DETAILS, async ({ page, apiUser, echo }) => {
-    const marker = uniqueMarker();
-    const datasourceId = await wrapperDatasource(page, apiUser, "uiPath", { serverURL: echo.url, "Authorization.value": `e2e-uipath-${marker}` });
-    const appId = await wrapperApp(page, apiUser, "uiPath", datasourceId);
-    expect(await echo.received(), "before the run the echo holds nothing of this test").toEqual([]);
-
-    const answer = await runDraft(page, appId);
-
-    expectRan(answer);
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (D-71 candidate, see UIPATH_DEFECT).
-    expect(envelopeOf(answer).success, "the query failed").toBe(false);
-    expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_FAILED);
-    expect(envelopeOf(answer).message, "node-service's message").toBe(UIPATH_FAILURE_MESSAGE);
-    expect(await echo.received(), "no request left the plugin").toEqual([]);
-    // positive control: another wrapper's query against the same echo target arrives (the empty list above is not an unreachable echo)
-    await expectApiTemplateReachesEcho(page, apiUser, echo, marker);
-  });
-
-  test("D9k uiPath: the data source form's query configuration request fails with HTTP 500 / code 5000, while the same request for APITemplate succeeds and lists its operations", UIPATH_DETAILS, async ({ page, apiUser, echo }) => {
-    expect(apiUser.orgId, "the test is signed in (the route needs a session)").not.toBe("");
-    // the request body is the key of node-service's in-memory cache: the target's URL makes both bodies unique to this test
-    const dataSourceConfig = { serverURL: echo.url, ...FORM_DEFAULTS };
-
-    const answer = await pluginDynamicConfigRaw(page.request, [{ pluginName: "uiPath", path: QUERY_CONFIG_PATH, dataSourceConfig }]);
-
-    // Measured on the images `3.0.0-e2e` and `3.0.1-e2e` (D-71 candidate, see UIPATH_DEFECT): the request for the UiPath document fails, so the editor
-    // cannot list a single operation. The test asserts the failure of this request and, below, that the same request shape succeeds for another
-    // plugin; the cause (a `RangeError: Maximum call stack size exceeded` in `getSchemaExample`) was seen in node-service's log while recording, the suite cannot read that log.
-    expect(answer.status, "the HTTP status").toBe(HTTP_SERVER_ERROR);
-    expect(answer.code, "the API code").toBe(DYNAMIC_CONFIG_ERROR_CODE);
-    expect((answer.json as { message?: string; success?: boolean }).message, "the message").toBe(DYNAMIC_CONFIG_ERROR_MESSAGE);
-    expect((answer.json as { success?: boolean }).success, "success").toBe(false);
-    // positive control: the identical request (same path and data source settings) for APITemplate succeeds and lists its operations, so the
-    // failure above is specific to the UiPath document and not to the route, the session or the request shape
-    const control = await pluginDynamicConfigRaw(page.request, [{ pluginName: "apiTemplate", path: QUERY_CONFIG_PATH, dataSourceConfig }]);
-    expectRan(control);
-    expect((control.json as { success?: boolean }).success, "the control request succeeded").toBe(true);
-    const entry = (control.json as { data?: { actions?: { actionName?: string }[] }[] }).data?.[0];
-    expect(entry?.actions?.map((action) => action.actionName), "the operations APITemplate's configuration lists").toContain("list_templates");
-  });
-
-  test("D9l uiPath: a folders query reaches the server URL with the token as a Bearer header and answers the canned data", UIPATH_QUARANTINE_DETAILS, async ({ page, apiUser, echo }) => {
+  test("D9j uiPath: a folders query reaches the server URL with the token as a Bearer header and answers the canned data", async ({ page, apiUser, echo }) => {
     const marker = uniqueMarker();
     const token = `e2e-uipath-${marker}`;
     const data = { "@odata.count": 1, value: [{ Id: 1, DisplayName: `E2E folder ${marker}` }] };
@@ -457,11 +383,30 @@ test.describe("UiPath", NODE_SERVICE_DETAILS, () => {
 
     const answer = await runDraft(page, appId);
 
-    // The desired behaviour, not a measured one: it fails today (D9j). `Bearer <token>` exactly, not doubled and not missing.
+    // `Bearer <token>` exactly, not doubled and not missing.
     expectSucceeded(answer);
     const record = onlyRecord(await echo.received(), "the echo received exactly one request");
     expectRequest(record, echo, { path: `${echo.path}/odata/Folders`, headers: { authorization: `Bearer ${token}` } }, "uiPath");
     expect(envelopeOf(answer).data, "the answer is the body of the echo's canned reply").toEqual(data);
+  });
+
+  test("D9k uiPath: the data source form's query configuration request succeeds and lists the folder operations, like the one for APITemplate", async ({ page, apiUser, echo }) => {
+    expect(apiUser.orgId, "the test is signed in (the route needs a session)").not.toBe("");
+    // the request body is the key of node-service's in-memory cache: the target's URL makes both bodies unique to this test
+    const dataSourceConfig = { serverURL: echo.url, ...FORM_DEFAULTS };
+
+    const answer = await pluginDynamicConfigRaw(page.request, [{ pluginName: "uiPath", path: QUERY_CONFIG_PATH, dataSourceConfig }]);
+
+    expectRan(answer);
+    expect((answer.json as { success?: boolean }).success, "success").toBe(true);
+    const entry = (answer.json as { data?: { actions?: { actionName?: string }[] }[] }).data?.[0];
+    expect(entry?.actions?.map((action) => action.actionName), "the operations UiPath's configuration lists").toContain(UIPATH_FOLDERS_OPERATION);
+    // control: the identical request for APITemplate answers the same way and lists its own operations
+    const control = await pluginDynamicConfigRaw(page.request, [{ pluginName: "apiTemplate", path: QUERY_CONFIG_PATH, dataSourceConfig }]);
+    expectRan(control);
+    expect((control.json as { success?: boolean }).success, "the control request succeeded").toBe(true);
+    const controlEntry = (control.json as { data?: { actions?: { actionName?: string }[] }[] }).data?.[0];
+    expect(controlEntry?.actions?.map((action) => action.actionName), "the operations APITemplate's configuration lists").toContain("list_templates");
   });
 });
 

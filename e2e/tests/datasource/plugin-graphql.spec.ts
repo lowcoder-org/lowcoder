@@ -6,7 +6,7 @@ import { appDsl, button, nodePluginQuery, stackItems } from "../../src/dsl/build
 import { recordedPluginDatasource, recordedPluginQuery } from "../../src/dsl/recorded";
 import { boundText, boundTextTestId, openSeededView } from "../../src/components/scenario";
 import { expect, test } from "../../src/fixtures";
-import { recordsContain, type EchoRecord, type EchoTarget } from "../../src/security/echo";
+import type { EchoRecord, EchoTarget } from "../../src/security/echo";
 
 /**
  * D6: the GitLab and Shopify plugins of node-service (`server/node-service/src/plugins/gitlab/index.ts`, `shopify/index.ts`),
@@ -14,14 +14,10 @@ import { recordsContain, type EchoRecord, type EchoTarget } from "../../src/secu
  * endpoint. The endpoint is the test's own target on the echo sidecar, so the tests prove the request the plugin builds and the
  * path of the canned answer into the app. They are NOT a fidelity test of GitLab or Shopify.
  *
- * Shopify: the plugin reads the query's headers and passes none on, and its data source has no token field, so it cannot send
- * Shopify's access token (D6d, D-67 candidate).
+ * Shopify: the plugin forwards the query's headers to the endpoint, so a query can send Shopify's access token (D6d). The images
+ * before the node-service upgrade dropped every header of a Shopify query (D-67 candidate); that was fixed.
  */
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
-
-/** Candidate defect: the Shopify plugin drops every header of the query and has no access token field. */
-const SHOPIFY_HEADERS_DEFECT = { type: "defect", description: "D-67 candidate" } as const;
-const SHOPIFY_HEADERS_DETAILS = { annotation: SHOPIFY_HEADERS_DEFECT };
 
 /** The path below the target that the endpoint points at. */
 const GRAPHQL_PATH = "/api/graphql";
@@ -204,7 +200,7 @@ test.describe("Shopify data source against the echo", NODE_SERVICE_DETAILS, () =
     expect(envelopeOf(answer).data, "the answer is the data member of the canned reply").toEqual(SHOPIFY_DATA);
   });
 
-  test("D6d: a Shopify query header never reaches the endpoint", SHOPIFY_HEADERS_DETAILS, async ({ page, apiUser, echo }) => {
+  test("D6d: a Shopify query header reaches the endpoint", async ({ page, apiUser, echo }) => {
     const marker = `e2e-shopify-token-${uniqueMarker()}`;
     await echo.answer(GRAPHQL_PATH, cannedData(SHOPIFY_DATA));
     const datasourceId = await graphqlDatasource(page, apiUser, echo, "shopify");
@@ -226,11 +222,10 @@ test.describe("Shopify data source against the echo", NODE_SERVICE_DETAILS, () =
     const shopifyRecords = await echo.received();
     const record = onlyRecord(shopifyRecords);
     expect(JSON.parse(record.body), "the request body is the query").toEqual({ query: SHOPIFY_QUERY, variables: {} });
-    // The plugin reads the query's headers and passes `{}` on (D-67 candidate, see SHOPIFY_HEADERS_DEFECT): neither the header name nor its value arrives.
-    expect(recordsContain(shopifyRecords, marker), "the header value reached the endpoint").toBe(false);
-    expect(Object.keys(record.headers).map((name) => name.toLowerCase()), "the header name reached the endpoint").not.toContain(SHOPIFY_TOKEN_HEADER.toLowerCase());
+    // The plugin passes the query's headers on: the header arrives under its own name with its value.
+    expect(record.headers[SHOPIFY_TOKEN_HEADER.toLowerCase()], "the header value reached the endpoint").toBe(marker);
 
-    // control 3: the very same header, set on a GitLab query of the same app machinery, does reach the echo, so only the Shopify plugin drops it
+    // control 3: the very same header, set on a GitLab query of the same app machinery, arrives the same way
     const gitlabId = await graphqlDatasource(page, apiUser, echo, "gitlab", { token: "e2e-token" });
     const gitlab = await graphqlApp(page, apiUser, "gitlab", gitlabId, { query: GITLAB_QUERY, headers: [{ key: SHOPIFY_TOKEN_HEADER, value: marker }] });
     expectRan(await runDraft(page, gitlab.appId));

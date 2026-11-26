@@ -15,16 +15,12 @@ import { expect, test } from "../../src/fixtures";
  * Limits of this file: no `INSTALL`/`LOAD` statement, no URL or file path in any SQL and no `read_*` table function. DuckDB can
  * autoload extensions from a download host, and a file path would write into the app container that every test shares.
  *
- * Measured shape (images `3.0.0-e2e` and `3.0.1-e2e`): the plugin reads the rows with `getRows()`, which answers each row as an
- * array, and `serializeBigInts` copies `Object.entries(row)`. A row therefore reaches the app keyed by the column POSITION
- * (`{ "0": 42, "1": "e2e-..." }`), not by the column name. The tests below assert that measured shape, so they carry the
- * `defect` annotation `COLUMN_KEY_DEFECT`; once rows are keyed by column name they fail and are rewritten to the names.
+ * Shape: the plugin answers each row keyed by its column NAME (`SELECT 42 AS answer` is read as `row.answer`), and `serializeBigInts`
+ * turns a `bigint` into a string. The images before the node-service upgrade keyed a row by the column POSITION (`{ "0": 42, ... }`,
+ * D-68 candidate); that changed on purpose and the tests below assert the names.
  */
 
-/** Candidate defect: rows are keyed by the column's position, so `SELECT 42 AS answer` cannot be read as `row.answer` in an app. */
-const COLUMN_KEY_DEFECT = { type: "defect", description: "D-68 candidate" } as const;
 const NODE_SERVICE_DETAILS = { tag: [TAGS.NODE_SERVICE] };
-const COLUMN_KEY_DETAILS = { annotation: COLUMN_KEY_DEFECT };
 
 const HTTP_OK = 200;
 /** `QueryResultView.queryCode` of a failed query (`api/query/view/QueryResultView.java`); the field `code` is `1` whether or not the query succeeded. */
@@ -33,9 +29,11 @@ const QUERY_CODE_FAILED = "FAILED";
 const QUERY_CODE_OK = "OK";
 const MARKER_BYTES = 4;
 
-/** The position keys of the first two columns of a row. */
-const FIRST_COLUMN = "0";
-const SECOND_COLUMN = "1";
+/** The names of the first two columns of the queries below. */
+const ANSWER_COLUMN = "answer";
+const LABEL_COLUMN = "label";
+const BIG_COLUMN = "big";
+const HUGE_COLUMN = "huge";
 
 /** The largest HUGEINT (2^127 - 1), far beyond the BIGINT range; a JavaScript number could not hold it. */
 const HUGEINT_VALUE = "170141183460469231731687303715884105727";
@@ -87,7 +85,7 @@ async function runDraft(page: Page, appId: string, queryId: string): Promise<Raw
 }
 
 test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
-  test("D4a: a DuckDB query answers rows", COLUMN_KEY_DETAILS, async ({ page, apiUser }) => {
+  test("D4a: a DuckDB query answers rows", async ({ page, apiUser }) => {
     const marker = uniqueMarker();
     const { appId } = await duckdbApp(page, apiUser, { [QUERY_ID]: `SELECT 42 AS answer, 'e2e-' || '${marker}' AS label` });
 
@@ -96,15 +94,15 @@ test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
     expect({ status: answer.status, code: answer.code }, "the query ran").toEqual({ status: HTTP_OK, code: API_OK });
     expect(envelopeOf(answer).success, "the query succeeded").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_OK);
-    // An INTEGER column reaches the app as a JSON number; the keys are the column positions (D-68 candidate, see the file comment).
-    expect(envelopeOf(answer).data, "the rows, keyed by column position").toEqual([{ [FIRST_COLUMN]: 42, [SECOND_COLUMN]: `e2e-${marker}` }]);
+    // An INTEGER column reaches the app as a JSON number; the keys are the column names.
+    expect(envelopeOf(answer).data, "the rows, keyed by column name").toEqual([{ [ANSWER_COLUMN]: 42, [LABEL_COLUMN]: `e2e-${marker}` }]);
   });
 
-  test("D4b: the published view shows the DuckDB result after a click", COLUMN_KEY_DETAILS, async ({ page, apiUser }) => {
+  test("D4b: the published view shows the DuckDB result after a click", async ({ page, apiUser }) => {
     const marker = uniqueMarker();
     const datasourceId = await duckdbDatasource(page, apiUser);
-    // The text reads the second column by its position key (D-68 candidate); before the first run `q.data` is not a list.
-    const expression = `{{${QUERY_NAME}.data ? ${QUERY_NAME}.data[0]["${SECOND_COLUMN}"] : ""}}`;
+    // The text reads the second column by its name; before the first run `q.data` is not a list.
+    const expression = `{{${QUERY_NAME}.data ? ${QUERY_NAME}.data[0]["${LABEL_COLUMN}"] : ""}}`;
     const view = await openSeededView(
       page,
       apiUser.orgId,
@@ -131,7 +129,7 @@ test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
     await expect(view.byTestId(boundTextTestId(RESULT_NAME)), "after the click the text shows the DuckDB label").toHaveText(`e2e-${marker}`);
   });
 
-  test("D4c: BIGINT and HUGEINT columns arrive as strings without precision loss", COLUMN_KEY_DETAILS, async ({ page, apiUser }) => {
+  test("D4c: BIGINT and HUGEINT columns arrive as strings without precision loss", async ({ page, apiUser }) => {
     const { appId } = await duckdbApp(page, apiUser, { [QUERY_ID]: BIGINT_SQL });
 
     const answer = await runDraft(page, appId, QUERY_ID);
@@ -139,8 +137,8 @@ test.describe("DuckDB data source", NODE_SERVICE_DETAILS, () => {
     expect({ status: answer.status, code: answer.code }, "the query ran").toEqual({ status: HTTP_OK, code: API_OK });
     expect(envelopeOf(answer).success, "the query succeeded").toBe(true);
     expect(envelopeOf(answer).queryCode, "the query code").toBe(QUERY_CODE_OK);
-    // `serializeBigInts` turns a `bigint` into a string (designed behaviour), a HUGEINT included (measured); the keys are the column positions (D-68 candidate).
-    expect(envelopeOf(answer).data, "the BIGINT and the HUGEINT as exact strings").toEqual([{ [FIRST_COLUMN]: BIGINT_VALUE, [SECOND_COLUMN]: HUGEINT_VALUE }]);
+    // `serializeBigInts` turns a `bigint` into a string (designed behaviour), a HUGEINT included (measured); the keys are the column names.
+    expect(envelopeOf(answer).data, "the BIGINT and the HUGEINT as exact strings").toEqual([{ [BIG_COLUMN]: BIGINT_VALUE, [HUGE_COLUMN]: HUGEINT_VALUE }]);
   });
 
   test("D4d: each run is a fresh in-memory database", async ({ page, apiUser }) => {
