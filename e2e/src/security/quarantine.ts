@@ -23,18 +23,14 @@ export const DEFECT_ANNOTATION_TYPE = "defect";
 
 /**
  * Scenarios whose defect is fixed in the code of this branch but whose test is not (yet) in the default run, scenario id to
- * defect id. Since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` every other entry that used to be
- * here has left the map (its test passed on 3.0.1 and runs by default); what is left needs a decision before it can leave:
- * - LC-AK04 (D-45): the API defect is fixed (SEC-A02a passes), but the UI test that deletes the last API key is intermittent
- *   on 3.0.1 (passed 2 of 3 runs, failed 1 of 3; the cause, product or test, is not investigated). It stays quarantined until
- *   it passes repeatedly (`E2E_INCLUDE_QUARANTINE=1 ... --grep @quarantine`), then its id is deleted and this map is empty.
+ * defect id. Empty: since the reassessment of 2026-11-22 on `lowcoderorg/lowcoder-ce:3.0.1-e2e` every entry has left the map
+ * (its test passes and runs by default). LC-AK04 (D-45) was the last one: its UI test reloaded the page while the DELETE was
+ * still in flight; it now waits for the row to leave the list first.
  *
  * Limit: the maps are the single source of the quarantine; a scenario missing from both that fails on the image is NOT
  * quarantined and fails the default run, and a stale entry hides a test that passes.
  */
-export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {
-  "LC-AK04": "D-45",
-};
+export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {};
 
 /**
  * Scenarios that still fail on this branch's server (open defects, listed in the table "Security findings" of
