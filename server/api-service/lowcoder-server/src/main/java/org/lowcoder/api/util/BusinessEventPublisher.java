@@ -65,6 +65,10 @@ import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
 @Component
 public class BusinessEventPublisher {
 
+    /** Detail keys of the event of an application moved between bundles: the object ids of the bundles it left and entered. */
+    public static final String FROM_BUNDLE_ID_DETAIL = "fromBundleId";
+    public static final String TO_BUNDLE_ID_DETAIL = "toBundleId";
+
     private final ApplicationEventPublisher applicationEventPublisher;
     private final SessionUserService sessionUserService;
     private final GroupService groupService;
@@ -129,7 +133,41 @@ public class BusinessEventPublisher {
                 .flatMap(applicationView -> publishApplicationCommonEvent(originalApplicationView, applicationView, eventType));
     }
 
+    /**
+     * Publishes the {@code APPLICATION_MOVE} event of an application moved from one bundle to another: the event of the
+     * application (its object id, gid and name, no folder keys) with the two bundles' object ids in its details under
+     * {@code fromBundleId} and {@code toBundleId}. A blank bundle id (a move out of or into no bundle) is left out. An
+     * event never fails the request, so a failed lookup is logged and the event is skipped.
+     */
+    public Mono<Void> publishApplicationMoveBetweenBundlesEvent(String applicationId, @Nullable String fromBundleId, @Nullable String toBundleId) {
+        Map<String, String> bundleDetails = new LinkedHashMap<>();
+        if (StringUtils.isNotBlank(fromBundleId)) {
+            bundleDetails.put(FROM_BUNDLE_ID_DETAIL, fromBundleId);
+        }
+        if (StringUtils.isNotBlank(toBundleId)) {
+            bundleDetails.put(TO_BUNDLE_ID_DETAIL, toBundleId);
+        }
+        return applicationService.findByIdWithoutDsl(applicationId)
+                .map(application -> ApplicationView.builder()
+                        .applicationInfoView(ApplicationInfoView.builder()
+                                .applicationId(application.getId())
+                                .applicationGid(application.getGid())
+                                .name(application.getName())
+                                .build())
+                        .build())
+                .flatMap(applicationView -> publishApplicationCommonEvent(null, applicationView, EventType.APPLICATION_MOVE, bundleDetails))
+                .onErrorResume(throwable -> {
+                    log.error("publishApplicationMoveBetweenBundlesEvent error. {}, {}, {}", applicationId, fromBundleId, toBundleId, throwable);
+                    return Mono.empty();
+                });
+    }
+
     public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, ApplicationView applicationView, EventType eventType) {
+        return publishApplicationCommonEvent(originalApplicationView, applicationView, eventType, Map.of());
+    }
+
+    private Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, ApplicationView applicationView, EventType eventType,
+            Map<String, String> extraDetails) {
         return sessionUserService.isAnonymousUser()
                 .flatMap(anonymous -> sessionUserService.getVisitorOrgMemberCache()
                         .onErrorReturn(new OrgMember(null, null, null, null, 0))
@@ -175,7 +213,7 @@ public class BusinessEventPublisher {
                             String title = tuple.getT3()[2];
                             ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
 
-                            ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                            ApplicationCommonEvent.ApplicationCommonEventBuilder<?, ?> eventBuilder = ApplicationCommonEvent.builder()
                                     .orgId(orgMember.getOrgId())
                                     .userId(orgMember.getUserId())
                                     .applicationId(applicationInfoView.getApplicationId())
@@ -196,8 +234,9 @@ public class BusinessEventPublisher {
                                     .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
                                     .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
                                     .isAnonymous(anonymous)
-                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
-                                    .build();
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString());
+                            extraDetails.forEach(eventBuilder::detail);
+                            ApplicationCommonEvent event = eventBuilder.build();
 
                             event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
@@ -451,17 +490,6 @@ public class BusinessEventPublisher {
                                 return Mono.empty();
                             });
                 });
-    }
-
-    public Mono<Void> publishBundleCommonEvent(String bundleId, @Nullable String folderIdFrom, @Nullable String folderIdTo, EventType eventType) {
-        return applicationService.findByIdWithoutDsl(bundleId)
-                .map(application -> BundleInfoView.builder()
-                        .bundleId(bundleId)
-                        .name(application.getName())
-                        .folderId(folderIdTo)
-                        .folderIdFrom(folderIdFrom)
-                        .build())
-                .flatMap(bundleInfoView -> publishBundleCommonEvent(bundleInfoView, eventType));
     }
 
     public Mono<Void> publishUserLoginEvent(String source) {

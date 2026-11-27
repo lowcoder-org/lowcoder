@@ -54,7 +54,7 @@ class BundleEndpointsIntegrationTest {
             
             // Mock all BusinessEventPublisher methods to return Mono.empty()
             when(mockPublisher.publishBundleCommonEvent(any(), any())).thenReturn(Mono.empty());
-            when(mockPublisher.publishBundleCommonEvent(any(String.class), any(), any(), any())).thenReturn(Mono.empty());
+            when(mockPublisher.publishApplicationMoveBetweenBundlesEvent(any(), any(), any())).thenReturn(Mono.empty());
             when(mockPublisher.publishApplicationCommonEvent(any(), any(), any())).thenReturn(Mono.empty());
             when(mockPublisher.publishApplicationCommonEvent(any(), any(), any(), any(), any())).thenReturn(Mono.empty());
             when(mockPublisher.publishApplicationPermissionEvent(any(), any(), any(), any(), any())).thenReturn(Mono.empty());
