@@ -22,6 +22,29 @@ test.describe("lifecycle account helpers", () => {
     expect({ status: second.status, code: second.code }, "the same address again").toEqual(API_ERRORS.USER_LOGIN_ID_EXIST);
   });
 
+  test("registerRaw with an invitation alone joins the inviter's workspace", async ({ actor, newUserSession }, testInfo) => {
+    const inviter = await actor("rawinviter");
+    const code = await createInvitation(inviter.request, inviter.orgId);
+    const visitor = (await newUserSession()).page.request;
+
+    const registered = await registerRaw(visitor, uniqueEmail("rawinvited", testInfo.workerIndex), TEST_PASSWORD, { invitationId: code });
+
+    expect({ status: registered.status, code: registered.code }, "an invitation-only sign-up").toEqual({ status: 200, code: API_OK });
+    expect((await currentUser(visitor)).orgAndRoles.map((entry) => entry.org.id), "the visitor belongs to the inviter's workspace").toContain(inviter.orgId);
+  });
+
+  test("signInRaw with an invitation alone lets an existing user join the inviter's workspace", async ({ actor, newUserSession }) => {
+    const inviter = await actor("rawinviter2");
+    const guest = await actor("rawguest2");
+    const code = await createInvitation(inviter.request, inviter.orgId);
+    const visitor = (await newUserSession()).page.request;
+
+    const answer = await signInRaw(visitor, guest.email, TEST_PASSWORD, { invitationId: code });
+
+    expect({ status: answer.status, code: answer.code }, "an invitation-only sign-in").toEqual({ status: 200, code: API_OK });
+    expect((await currentUser(visitor)).orgAndRoles.map((entry) => entry.org.id), "the user now belongs to both workspaces").toEqual(expect.arrayContaining([guest.orgId, inviter.orgId]));
+  });
+
   test("signInRaw answers a sign-in with its cookie and a wrong password without a throw and without a cookie", async ({ actor, newUserSession }) => {
     const user = await actor("rawsign");
     const request = (await newUserSession()).page.request;

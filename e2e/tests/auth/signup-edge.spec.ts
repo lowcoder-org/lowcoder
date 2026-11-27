@@ -5,6 +5,7 @@ import {
   currentUserId,
   listOrgMembers,
   registerRaw,
+  removeOrgMember,
   signIn,
   signInRaw,
 } from "../../src/api/client";
@@ -12,6 +13,7 @@ import { API_ERRORS, API_OK, API_PATHS, createUserInOrgPath, PASSWORD_TOO_WEAK_M
 import { expect, test, uniqueEmail } from "../../src/fixtures";
 import { AuthPage, PASSWORD_RULE_TEXT } from "../../src/pages/AuthPage";
 import { expectAnswer } from "../../src/security/assertions";
+import { joinWorkspace } from "../../src/security/actors";
 import { lifecycleTestDetails } from "../../src/security/quarantine";
 
 /**
@@ -160,6 +162,60 @@ test.describe("lifecycle: sign-up edge cases", () => {
       me.orgAndRoles.map((entry) => ({ orgId: entry.org.id, role: entry.role })),
       "the user belongs to the inviting workspace only, as a member",
     ).toEqual([{ orgId: inviter.orgId, role: "member" }]);
+  });
+
+  test("LC-AU18a a sign-up through an invitation answers success and joins only the invited workspace", lifecycleTestDetails("LC-AU18a"), async ({ actor, newUserSession }, testInfo) => {
+    const inviter = await actor("invsignup");
+    const code = await createInvitation(inviter.request, inviter.orgId);
+    const control = await registerRaw((await newUserSession()).page.request, uniqueEmail("invcontrol", testInfo.workerIndex), TEST_PASSWORD, { invitationId: code });
+    expectAnswer(control, ALLOWED, "control: a sign-up with the invitation alone (no workspace named)");
+    const address = uniqueEmail("invsubject", testInfo.workerIndex);
+
+    const answer = await registerRaw((await newUserSession()).page.request, address, TEST_PASSWORD, { invitationId: code, orgId: inviter.orgId });
+
+    expectAnswer(answer, ALLOWED, "the sign-up the invitation page sends (the invitation and the workspace it names)");
+    const check = (await newUserSession()).page.request;
+    expectAnswer(await signInRaw(check, address), ALLOWED, "the new account signs in");
+    expect(
+      (await currentUser(check)).orgAndRoles.map((entry) => ({ orgId: entry.org.id, role: entry.role })),
+      "it belongs to the inviting workspace only, as a member",
+    ).toEqual([{ orgId: inviter.orgId, role: "member" }]);
+  });
+
+  test("LC-AU18b a sign-in of an existing account through an invitation answers success and joins the invited workspace", lifecycleTestDetails("LC-AU18b"), async ({ actor, newUserSession }) => {
+    const inviter = await actor("invsignin");
+    const guest = await actor("invguest");
+    const code = await createInvitation(inviter.request, inviter.orgId);
+    const control = await signInRaw((await newUserSession()).page.request, guest.email, TEST_PASSWORD, { invitationId: code });
+    expectAnswer(control, ALLOWED, "control: a sign-in with the invitation alone (no workspace named)");
+    const second = await createInvitation(inviter.request, inviter.orgId);
+    const other = await actor("invguest2");
+
+    const answer = await signInRaw((await newUserSession()).page.request, other.email, TEST_PASSWORD, { invitationId: second, orgId: inviter.orgId });
+
+    expectAnswer(answer, ALLOWED, "the sign-in the invitation page sends (the invitation and the workspace it names)");
+    const check = (await newUserSession()).page.request;
+    await signIn(check, other.email);
+    expect((await currentUser(check)).orgAndRoles.map((entry) => entry.org.id), "the account belongs to both workspaces").toEqual(expect.arrayContaining([other.orgId, inviter.orgId]));
+  });
+
+  test("LC-AU18c an invitation of a removed member does not let a visitor in through the sign-up", lifecycleTestDetails("LC-AU18c"), async ({ actor, newUserSession }, testInfo) => {
+    const inviter = await actor("invowner");
+    const leaver = await actor("invleaver");
+    await joinWorkspace(inviter, leaver);
+    const code = await createInvitation(leaver.request, inviter.orgId);
+    expectAnswer(await registerRaw((await newUserSession()).page.request, uniqueEmail("invbefore", testInfo.workerIndex), TEST_PASSWORD, { invitationId: code }), ALLOWED, "control: while its creator is a member, the invitation admits");
+    await removeOrgMember(inviter.request, inviter.orgId, leaver.userId);
+    const membersBefore = (await listOrgMembers(inviter.request, inviter.orgId)).map((member) => member.userId);
+    expect(membersBefore, "setup: the invitation's creator is no longer a member").not.toContain(leaver.userId);
+    const address = uniqueEmail("invlate", testInfo.workerIndex);
+
+    const answer = await registerRaw((await newUserSession()).page.request, address, TEST_PASSWORD, { invitationId: code, orgId: inviter.orgId });
+
+    expectAnswer(answer, API_ERRORS.INVALID_INVITATION_CODE, "the sign-up with the invitation of a removed member");
+    // The refused visitor has an account but belongs to no workspace (its current user is empty), so membership is read from the inviter's side.
+    const membersAfter = (await listOrgMembers(inviter.request, inviter.orgId)).map((member) => member.userId);
+    expect(membersAfter.filter((id) => !membersBefore.includes(id)), "no one joined the workspace through the refused sign-up").toEqual([]);
   });
 
   // By design (owner decision, D-30): anyone who knows a workspace's id joins it by signing up on that workspace's own page.

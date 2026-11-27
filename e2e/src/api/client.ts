@@ -136,20 +136,35 @@ export async function registerUser(request: APIRequestContext, email: string): P
 
 /**
  * The form sign-up of `registerUser` as a raw answer (no unwrap), for the call under test: the answer of a refused
- * sign-up is the subject. The request context keeps the session cookie when the sign-up works. `invitation` adds the two
+ * sign-up is the subject. The request context keeps the session cookie when the sign-up works. `invitation` adds the
  * query parameters `invitationId` and `orgId` the register page sends when the visitor came through an invitation link
- * (`UserApi.formLogin` in `client/packages/lowcoder/src/api/userApi.ts`; the server reads them with `@RequestParam`).
+ * (`UserApi.formLogin` in `client/packages/lowcoder/src/api/userApi.ts`; the server reads them with `@RequestParam`). A
+ * missing `orgId` is not sent: the invitation then names the workspace alone.
  */
 export async function registerRaw(
   request: APIRequestContext,
   email: string,
   password: string,
-  invitation?: { invitationId: string; orgId: string },
+  invitation?: InvitationParams,
 ): Promise<RawAnswer> {
   return apiRaw(request, "POST", API_PATHS.LOGIN, {
     data: { loginId: email, password, register: true, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
-    params: invitation,
+    params: invitationQuery(invitation),
   });
+}
+
+/** The invitation parameters of a form sign-up or sign-in: the code, and the workspace the page names (`orgId`) when it sends one. */
+export interface InvitationParams {
+  invitationId: string;
+  orgId?: string;
+}
+
+/** The query parameters of `invitation`, without the absent keys (an `undefined` value would not be a missing parameter). */
+function invitationQuery(invitation?: InvitationParams): Record<string, string> | undefined {
+  if (!invitation) {
+    return undefined;
+  }
+  return invitation.orgId === undefined ? { invitationId: invitation.invitationId } : { invitationId: invitation.invitationId, orgId: invitation.orgId };
 }
 
 /**
@@ -870,11 +885,18 @@ export async function signIn(request: APIRequestContext, email: string, password
 
 /**
  * The form sign-in of `signIn` as a raw answer (no unwrap, no throw on a refusal), for a test that measures the answer
- * or reads its headers. Like `signIn`, the password never reaches a label or message.
+ * or reads its headers. Like `signIn`, the password never reaches a label or message. `invitation` is what the sign-in
+ * page sends when the visitor came through an invitation link (see `registerRaw`).
  */
-export async function signInRaw(request: APIRequestContext, email: string, password: string = TEST_PASSWORD): Promise<RawAnswer> {
+export async function signInRaw(
+  request: APIRequestContext,
+  email: string,
+  password: string = TEST_PASSWORD,
+  invitation?: InvitationParams,
+): Promise<RawAnswer> {
   return apiRaw(request, "POST", API_PATHS.LOGIN, {
     data: { loginId: email, password, register: false, source: AUTH_SOURCE_EMAIL, authId: AUTH_ID_EMAIL },
+    params: invitationQuery(invitation),
   });
 }
 
