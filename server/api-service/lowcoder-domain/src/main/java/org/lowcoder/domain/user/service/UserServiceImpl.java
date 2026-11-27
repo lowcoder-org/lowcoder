@@ -567,7 +567,7 @@ public class UserServiceImpl implements UserService {
                 .flatMap(hash -> repository.setPasswordIfAbsent(userId, hash))
                 .flatMap(result -> result.getMatchedCount() > 0
                         ? Mono.just(true)
-                        : findExistingById(userId).then(ofError(BizError.INVALID_PASSWORD, "PASSWORD_ALREADY_SET")));
+                        : findExistingById(userId).then(ofError(BizError.INVALID_PASSWORD, PASSWORD_ALREADY_SET)));
     }
 
     @Override

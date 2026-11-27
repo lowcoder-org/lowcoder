@@ -122,7 +122,7 @@
       "required": true
     },
     "LOWCODER_SUPERUSER_PASSWORD": {
-      "description": "Password of the Super-User, if not present or empty, it will be generated",
+      "description": "Password of the Super-User. When set, it replaces the stored password at every start. When empty, a password is generated only while the account has none (first start) and printed once into the log; later starts keep the stored password",
       "value": "`generated and printed into log file",
       "required": true
     },
