@@ -1,5 +1,6 @@
 import express from "express";
 import fs from "fs";
+import fsPromises from "fs/promises";
 import http from "http";
 import os from "os";
 import path from "path";
@@ -33,6 +34,8 @@ const INVALID_WORKSPACE_MESSAGE = "Invalid workspaceId";
 const INVALID_UPSTREAM_VERSION_MESSAGE = "Invalid latest version from registry";
 const STATUS_BAD_GATEWAY = 502;
 const STATUS_SERVICE_UNAVAILABLE = 503;
+const HTML_ERROR_BODY = "<html><body><script>alert(1)</script></body></html>";
+const PLAIN_TEXT_TYPE = "text/plain; charset=utf-8";
 const STATUS_MULTIPLE_CHOICES = 300;
 const STATUS_ABOVE_HTTP_ERROR_RANGE = 600;
 const INTERNAL_ERROR_MESSAGE = "Internal server error";
@@ -1044,6 +1047,55 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     expect(result).toEqual({ status: STATUS_SERVICE_UNAVAILABLE, text: "maintenance" });
     expect(leftoverTarballs(ws)).toEqual([]);
     expect(fs.existsSync(path.join(cacheDir, ws))).toBe(false);
+  });
+
+  test("an upstream error text is passed through as plain text, never as HTML", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
+    routes[`/${name}/-/${name}-1.0.0${TGZ_SUFFIX}`] = (_req, res) => {
+      res.statusCode = STATUS_SERVICE_UNAVAILABLE;
+      res.setHeader("content-type", "text/html");
+      res.end(HTML_ERROR_BODY);
+    };
+
+    const res = await fetch(`${appBase}${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ workspaceId: ws, npmRegistries: registries() }),
+    });
+
+    expect({ status: res.status, text: await res.text(), type: res.headers.get("content-type") }).toEqual({
+      status: STATUS_SERVICE_UNAVAILABLE,
+      text: HTML_ERROR_BODY,
+      type: PLAIN_TEXT_TYPE,
+    });
+  });
+
+  test("the tarball is written under a name of the service, not the last segment of the registry's URL", async () => {
+    const name = uniqueName();
+    const ws = uniqueWorkspace();
+    const content = "module.exports = 1;";
+    publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: content }) } }, "1.0.0");
+    const written: string[] = [];
+    const realWriteFile = fsPromises.writeFile;
+    const spy = jest.spyOn(fsPromises, "writeFile").mockImplementation(((file: string, ...rest: unknown[]) => {
+      written.push(String(file));
+      return (realWriteFile as (...args: unknown[]) => Promise<void>)(file, ...rest);
+    }) as typeof fsPromises.writeFile);
+    try {
+      const result = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, {
+        workspaceId: ws,
+        npmRegistries: registries(),
+      });
+      expect(result).toEqual({ status: STATUS_OK, text: content });
+    } finally {
+      spy.mockRestore();
+    }
+    const tarballFiles = written.filter((file) => file.endsWith(TGZ_SUFFIX));
+    expect(tarballFiles).toHaveLength(1);
+    expect(path.basename(tarballFiles[0])).not.toContain(name);
+    expect(leftoverTarballs(ws)).toEqual([]);
   });
 
   test("an upstream final 3xx for the tarball gives 500 and writes nothing", async () => {

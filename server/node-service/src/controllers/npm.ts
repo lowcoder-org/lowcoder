@@ -1,6 +1,7 @@
 import "../common/logger";
 import fs from "fs/promises";
 import { spawn } from "child_process";
+import { randomUUID } from "crypto";
 import { Request as ServerRequest, Response as ServerResponse } from "express";
 import { NpmRegistryService, NpmRegistryConfigEntry, NpmRegistryConfig } from "../services/npmRegistry";
 import {default as pathlib} from 'path';
@@ -256,7 +257,8 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
                 } catch (error) {
                     logger.error(`Error fetching package: ${error} ${(error as any)?.stack}`);
                     if (error instanceof UpstreamResponseError && error.status >= UPSTREAM_ERROR_MIN_STATUS && error.status <= UPSTREAM_ERROR_MAX_STATUS) {
-                        return response.status(error.status).send(error.body);
+                        // upstream error text, passed through as plain text so a browser never renders it as HTML
+                        return response.status(error.status).type("text/plain").send(error.body);
                     }
                     return response.status(500).send("Internal server error");
                 }
@@ -350,7 +352,8 @@ async function fetchAndUnpackTarball(url: string, packageId: string, packageVers
     }
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const path = `${baseDir}/${url.split("/").pop()}`;
+    // a name of our own: the last segment of the registry's tarball URL is upstream data and must not name a file
+    const path = `${baseDir}/${randomUUID()}.tgz`;
     await fs.writeFile(path, buffer);
 
     // Unpack tarball, and remove the .tgz whether or not tar succeeds
