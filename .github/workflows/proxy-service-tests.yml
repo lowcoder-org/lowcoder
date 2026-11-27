@@ -26,10 +26,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Ensure Yarn 1.22.22
         run: |
-          if [ "$(yarn --version 2>/dev/null)" = 1.22.22 ]; then echo "yarn 1.22.22 already on PATH"; else echo "yarn on PATH: $(yarn --version 2>/dev/null || echo none); installing 1.22.22"; npm install -g yarn@1.22.22; fi
+          if [ "$(yarn --version 2>/dev/null)" = 1.22.22 ]; then echo "yarn 1.22.22 already on PATH"; else echo "yarn on PATH: $(yarn --version 2>/dev/null || echo none); installing 1.22.22"; npm install -g --ignore-scripts yarn@1.22.22; fi
           [ "$(yarn --version)" = 1.22.22 ] || { echo "::error::yarn $(yarn --version), expected 1.22.22"; exit 1; }
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test
         env:
           NODE_OPTIONS: --test-reporter=tap
