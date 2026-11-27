@@ -24,6 +24,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +74,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.mockito.Mock;
+import org.slf4j.LoggerFactory;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.web.server.ServerWebExchange;
@@ -205,6 +210,35 @@ class AuthenticationApiServiceImplMutationsTest {
 
     private void organizationIs(Organization organization) {
         when(organizationService.getById(ORG_ID)).thenReturn(Mono.just(organization));
+    }
+
+    /**
+     * {@code source} is a field of the anonymous form-login body (deprecated, used only while {@code authId} is blank) and
+     * is written to the log: a line break in it must not start a second, forged log line.
+     */
+    @Test
+    void authenticateByForm_blankAuthId_logsTheDeprecatedSourceOnOneLine() {
+        Logger serviceLogger = (Logger) LoggerFactory.getLogger(AuthenticationApiServiceImpl.class);
+        ListAppender<ILoggingEvent> logs = new ListAppender<>();
+        logs.start();
+        serviceLogger.addAppender(logs);
+        try {
+            when(authenticationService.findAuthConfigBySource(ORG_ID, "EMAIL\nFORGED")).thenReturn(Mono.error(new IllegalStateException("stop")));
+            when(authRequestFactory.build(any(AuthRequestContext.class))).thenReturn(Mono.error(new IllegalStateException("not reached")));
+
+            StepVerifier.create(service.authenticateByForm("login", "password", "EMAIL\nFORGED", false, "", ORG_ID))
+                    .expectError().verify();
+
+            List<String> warnings = logs.list.stream().filter(event -> event.getLevel() == Level.WARN)
+                    .map(ILoggingEvent::getFormattedMessage).toList();
+            warnings.forEach(line -> System.out.println("[AuthenticationApiServiceImplMutationsTest] WARN "
+                    + line.replace("\r", "<CR>").replace("\n", "<LF>")));
+            assertThat(warnings).hasSize(1);
+            assertThat(warnings.get(0)).contains("EMAIL_FORGED").doesNotContain("\n").doesNotContain("\r");
+        } finally {
+            serviceLogger.detachAppender(logs);
+            logs.stop();
+        }
     }
 
     private static void assertBizError(Throwable throwable, BizError expected) {

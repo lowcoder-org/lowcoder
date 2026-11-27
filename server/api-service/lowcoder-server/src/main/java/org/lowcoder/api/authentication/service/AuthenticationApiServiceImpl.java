@@ -41,6 +41,7 @@ import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
+import org.lowcoder.infra.util.LogUtils;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.lowcoder.sdk.util.EmailUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -101,7 +102,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     if (StringUtils.isNotBlank(authId)) {
                         return authenticationService.findAuthConfigByAuthId(context.getOrgId(), authId);
                     }
-                    log.warn("source is deprecated and will be removed in the future, please use authId instead. {}", source);
+                    log.warn("source is deprecated and will be removed in the future, please use authId instead. {}", LogUtils.neutralize(source));
                     return authenticationService.findAuthConfigBySource(context.getOrgId(), source);
                 })
                 .flatMap(findAuthConfig -> {

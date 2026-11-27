@@ -135,4 +135,20 @@ class LogUtilsTest {
         }, Context.of(LogUtils.CONTEXT_MAP, Map.of(KEY, "t3")))).hasMessage("consumer failed");
         assertThat(MDC.get(KEY)).isNull();
     }
+
+    @Test
+    void neutralizeReplacesCarriageReturnAndLineFeedSoOneValueStaysOnOneLogLine() {
+        assertThat(LogUtils.neutralize("a\r\nb")).isEqualTo("a__b");
+        assertThat(LogUtils.neutralize("a\nb")).isEqualTo("a_b");
+        assertThat(LogUtils.neutralize("a\rb")).isEqualTo("a_b");
+        System.out.println("[LogUtilsTest] neutralize(\"EMAIL\\nFORGED\") -> " + LogUtils.neutralize("EMAIL\nFORGED"));
+    }
+
+    @Test
+    void neutralizeKeepsAValueWithoutLineBreaksAndPrintsNullAndObjectsLikeStringValueOf() {
+        assertThat(LogUtils.neutralize("plain value-1")).isEqualTo("plain value-1");
+        assertThat(LogUtils.neutralize(null)).isEqualTo("null");
+        assertThat(LogUtils.neutralize(42)).isEqualTo("42");
+        assertThat(LogUtils.neutralize(new StringBuilder("x\ny"))).isEqualTo("x_y");
+    }
 }

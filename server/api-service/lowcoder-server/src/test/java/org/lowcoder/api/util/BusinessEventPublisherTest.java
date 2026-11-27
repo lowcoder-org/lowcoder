@@ -20,6 +20,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +85,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -617,6 +622,71 @@ class BusinessEventPublisherTest {
 
         verifyNoInteractions(applicationEventPublisher, sessionUserService, groupService, userService);
         say("%s with publish=false -> nothing", method);
+    }
+
+    /**
+     * The error line of a swallowed audit failure names the request values (ids, names the caller chose), so a CR or LF
+     * in one of them must not start a second log line, and the line must say which application it is about.
+     */
+    private List<String> errorLinesOf(java.util.function.Supplier<Mono<Void>> call) {
+        Logger publisherLogger = (Logger) LoggerFactory.getLogger(BusinessEventPublisher.class);
+        ListAppender<ILoggingEvent> logs = new ListAppender<>();
+        logs.start();
+        publisherLogger.addAppender(logs);
+        try {
+            lenient().when(sessionUserService.getVisitorToken()).thenReturn(Mono.error(new IllegalStateException("lookup failed")));
+            StepVerifier.create(withContext(call.get())).verifyComplete();
+            List<String> lines = logs.list.stream().filter(event -> event.getLevel() == Level.ERROR).map(ILoggingEvent::getFormattedMessage).toList();
+            lines.forEach(line -> say("ERROR %s", line.replace("\r", "<CR>").replace("\n", "<LF>")));
+            assertThat(lines).hasSize(1);
+            assertThat(lines.get(0)).doesNotContain("\r").doesNotContain("\n");
+            return lines;
+        } finally {
+            publisherLogger.detachAppender(logs);
+            logs.stop();
+        }
+    }
+
+    @Test
+    void errorLog_folderEvent_keepsTheFolderIdAndNameOnOneLine() {
+        List<String> lines = errorLinesOf(() -> publisher.publishFolderCommonEvent("folder\r\n1", "Fol\nder", "From", EventType.FOLDER_UPDATE));
+
+        assertThat(lines.get(0)).contains("folder__1").contains("Fol_der");
+    }
+
+    @Test
+    void errorLog_moveBetweenBundles_keepsTheApplicationAndBundleIdsOnOneLine() {
+        lenient().when(applicationService.findByIdWithoutDsl("app\nmissing")).thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "APPLICATION_NOT_FOUND", "app")));
+
+        List<String> lines = errorLinesOf(() -> publisher.publishApplicationMoveBetweenBundlesEvent("app\nmissing", "bundle\r1", "bundle\n2"));
+
+        assertThat(lines.get(0)).contains("app_missing").contains("bundle_1").contains("bundle_2");
+    }
+
+    @Test
+    void errorLog_permissionEvent_keepsTheApplicationAndPermissionIdsOnOneLine() {
+        lenient().when(applicationService.findById("app\r\n1")).thenReturn(Mono.just(app));
+
+        List<String> lines = errorLinesOf(() -> publisher.publishApplicationPermissionEvent("app\r\n1", Set.of("u1"), Set.of("g1"), "perm\n1", "admin"));
+
+        assertThat(lines.get(0)).contains("app__1").contains("perm_1").contains("admin");
+    }
+
+    @Test
+    void errorLog_sharingEvent_keepsTheApplicationIdOnOneLine() {
+        lenient().when(applicationService.findById("app\n1")).thenReturn(Mono.just(app));
+
+        List<String> lines = errorLinesOf(() -> publisher.publishApplicationSharingEvent("app\n1", "public", sharingView));
+
+        assertThat(lines.get(0)).contains("app_1").contains("public");
+    }
+
+    @Test
+    void errorLog_applicationViewEvent_namesTheApplicationNotAnObjectIdentity() {
+        List<String> lines = errorLinesOf(() -> publisher.publishApplicationCommonEvent(originalView(),
+                applicationView("App", "cat-view", "desc-view", "title-view", FOLDER_TO, FOLDER_FROM), EventType.APPLICATION_UPDATE));
+
+        assertThat(lines.get(0)).contains(APP_ID).contains(EventType.APPLICATION_UPDATE.name()).doesNotContain("ApplicationView@");
     }
 
     private enum Failure {

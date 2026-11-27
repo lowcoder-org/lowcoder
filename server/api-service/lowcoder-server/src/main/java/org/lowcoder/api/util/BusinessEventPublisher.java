@@ -42,6 +42,7 @@ import org.lowcoder.infra.event.groupmember.GroupMemberAddEvent;
 import org.lowcoder.infra.event.groupmember.GroupMemberLeaveEvent;
 import org.lowcoder.infra.event.groupmember.GroupMemberRemoveEvent;
 import org.lowcoder.infra.event.groupmember.GroupMemberRoleUpdateEvent;
+import org.lowcoder.infra.util.LogUtils;
 import org.lowcoder.infra.event.user.UserLoginEvent;
 import org.lowcoder.infra.event.user.UserLogoutEvent;
 import org.lowcoder.infra.util.TupleUtils;
@@ -105,7 +106,7 @@ public class BusinessEventPublisher {
                 })
                 .then()
                 .onErrorResume(throwable -> {
-                    log.error("publishFolderCommonEvent error.{}, {}, {}", folderId, folderName, eventType, throwable);
+                    log.error("publishFolderCommonEvent error.{}, {}, {}", LogUtils.neutralize(folderId), LogUtils.neutralize(folderName), eventType, throwable);
                     return Mono.empty();
                 });
     }
@@ -157,7 +158,7 @@ public class BusinessEventPublisher {
                         .build())
                 .flatMap(applicationView -> publishApplicationCommonEvent(null, applicationView, EventType.APPLICATION_MOVE, bundleDetails))
                 .onErrorResume(throwable -> {
-                    log.error("publishApplicationMoveBetweenBundlesEvent error. {}, {}, {}", applicationId, fromBundleId, toBundleId, throwable);
+                    log.error("publishApplicationMoveBetweenBundlesEvent error. {}, {}, {}", LogUtils.neutralize(applicationId), LogUtils.neutralize(fromBundleId), LogUtils.neutralize(toBundleId), throwable);
                     return Mono.empty();
                 });
     }
@@ -243,11 +244,19 @@ public class BusinessEventPublisher {
                             return Mono.empty();
                         })).then()  // **Ensures Mono<Void> return type**
                         .onErrorResume(throwable -> {
-                            log.error("publishApplicationCommonEvent error. {}, {}", applicationView, eventType, throwable);
+                            log.error("publishApplicationCommonEvent error. {}, {}", applicationIdOf(applicationView), eventType, throwable);
                             return Mono.empty();
                         }));
     }
 
+
+    /** The id of the application of {@code applicationView} for a log line; the view itself has no readable text form. */
+    private static String applicationIdOf(@Nullable ApplicationView applicationView) {
+        if (applicationView == null || applicationView.getApplicationInfoView() == null) {
+            return "null";
+        }
+        return LogUtils.neutralize(applicationView.getApplicationInfoView().getApplicationId());
+    }
 
     public Mono<Void> publishApplicationPermissionEvent(String applicationId, Set<String> userIds, Set<String> groupIds, String permissionId, String role) {
         return sessionUserService.isAnonymousUser()
@@ -287,7 +296,7 @@ public class BusinessEventPublisher {
                             }).then();  // **Fix: Ensures Mono<Void> is returned**
                         }))
                 .onErrorResume(throwable -> {
-                    log.error("publishApplicationPermissionEvent error. {}, {}, {}", applicationId, permissionId, role, throwable);
+                    log.error("publishApplicationPermissionEvent error. {}, {}, {}", LogUtils.neutralize(applicationId), LogUtils.neutralize(permissionId), LogUtils.neutralize(role), throwable);
                     return Mono.empty();
                 });
     }
@@ -334,7 +343,7 @@ public class BusinessEventPublisher {
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("publishApplicationSharingEvent error. {}, {}", applicationId, shareType, throwable);
+                    log.error("publishApplicationSharingEvent error. {}, {}", LogUtils.neutralize(applicationId), LogUtils.neutralize(shareType), throwable);
                     return Mono.empty();
                 });
     }
