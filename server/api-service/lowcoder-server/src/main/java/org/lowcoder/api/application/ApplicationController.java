@@ -139,7 +139,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
                                                        @RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-                    applicationRecordService.getLatestRecordByApplicationId(applicationId)
+                    applicationRecordService.getLatestRecordByApplicationId(appId)
                         .map(applicationRecord -> {
                             String tag = applicationRecord.getTag(); // Assuming format is 1.0.0
                             String newtag = "1.0.0";
