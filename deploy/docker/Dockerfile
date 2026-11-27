@@ -129,12 +129,12 @@ COPY server/proxy-service/scripts /lowcoder/proxy-service/app/scripts
 COPY server/proxy-service/src /lowcoder/proxy-service/app/src
 WORKDIR /lowcoder/proxy-service/app
 # Node 26 images ship no Yarn
-RUN npm install -g yarn@1.22.22
-RUN yarn install --frozen-lockfile
+RUN npm install -g --ignore-scripts yarn@1.22.22
+RUN yarn install --frozen-lockfile --ignore-scripts
 RUN yarn build
 # Keep only runtime dependencies
 RUN rm -rf node_modules \
-  && yarn install --frozen-lockfile --production \
+  && yarn install --frozen-lockfile --production --ignore-scripts \
   && yarn cache clean
 
 # Copy startup script
@@ -152,7 +152,7 @@ FROM node:26.13.1-slim AS build-agora-token-service
 
 WORKDIR /lowcoder/agora-token-service/app
 COPY deploy/docker/agora-token-service/package.json deploy/docker/agora-token-service/package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 COPY deploy/docker/agora-token-service/server.js ./
 
 # Copy startup script
