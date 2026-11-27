@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -801,6 +802,7 @@ class AuthenticationApiServiceImplMutationsTest {
             "true,null,null,false,false",
             "true,org-1,null,true,false",
             "true,null,invitation-1,true,false",
+            "true,org-1,invitation-1,true,false",
             "false,null,null,true,false"})
     void loginOrRegister_createsTheDefaultWorkspaceOnlyWhenAllConditionsHold(
             boolean isNewUser, String orgId, String invitationId, boolean workspaceCreation, boolean expectCreate) {
@@ -827,6 +829,72 @@ class AuthenticationApiServiceImplMutationsTest {
         verify(businessEventPublisher).publishUserLoginEvent(SOURCE_GOOGLE);
         System.out.println("[AuthenticationApiServiceImplMutationsTest] new=" + isNewUser + " org=" + orgId + " invitation="
                 + invitationId + " creation=" + workspaceCreation + " -> createDefault=" + expectCreate);
+    }
+
+    /** A new user of {@code authUser} whose session is saved and who gets no default workspace; the login event stubbed. */
+    private User stubNewUserLogin(AuthUser authUser) {
+        User user = User.builder().id(USER_ID).isNewUser(true).build();
+        when(userService.findByAuthUserSourceAndRawId(authUser)).thenReturn(Mono.empty());
+        when(userService.findByAuthUserRawId(authUser)).thenReturn(Mono.empty());
+        when(userService.createNewUserByAuthUser(authUser, false)).thenReturn(Mono.just(user));
+        when(sessionUserService.saveUserSession(anyString(), eq(user), eq(SOURCE_GOOGLE))).thenReturn(Mono.empty());
+        lenient().when(businessEventPublisher.publishUserLoginEvent(SOURCE_GOOGLE)).thenReturn(Mono.empty());
+        lenient().when(authProperties.getWorkspaceCreation()).thenReturn(true);
+        lenient().when(orgApiService.tryAddUserToOrgAndSwitchOrg(anyString(), anyString())).thenReturn(Mono.just(true));
+        return user;
+    }
+
+    /** Stubs the three steps after the session with Monos that record when they RUN (are subscribed), not when they are built. */
+    private List<String> recordSteps(Mono<Boolean> invitation) {
+        List<String> steps = new ArrayList<>();
+        when(invitationApiService.inviteUser(INVITATION_ID))
+                .thenReturn(Mono.defer(() -> { steps.add("invite"); return invitation; }));
+        lenient().when(orgApiService.tryAddUserToOrgAndSwitchOrg(anyString(), anyString()))
+                .thenReturn(Mono.defer(() -> { steps.add("join"); return Mono.just(true); }));
+        lenient().when(businessEventPublisher.publishUserLoginEvent(SOURCE_GOOGLE))
+                .thenReturn(Mono.defer(() -> { steps.add("login event"); return Mono.empty(); }));
+        return steps;
+    }
+
+    /**
+     * The invitation is redeemed BEFORE the login joins the workspace the page names. Joined first, the visitor was already a
+     * member when the invitation was checked, and the sign-up answered ALREADY_IN_ORGANIZATION for the invitation it had
+     * just used; the invitation's own rules (its creator is still a member, the workspace limits) were bypassed.
+     */
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(value = WorkspaceMode.class)
+    void loginOrRegister_redeemsTheInvitationBeforeTheLoginJoinsTheWorkspace(WorkspaceMode mode) {
+        workspaceMode(mode);
+        lenient().when(organizationService.getOrganizationInEnterpriseMode())
+                .thenReturn(Mono.just(Organization.builder().id(ORG_ID).build()));
+        AuthUser authUser = authUser(SOURCE_GOOGLE, UID, ORG_ID, CONFIG_A, true);
+        stubNewUserLogin(authUser);
+        List<String> steps = recordSteps(Mono.just(true));
+        ServerWebExchange exchange = mock(ServerWebExchange.class);
+
+        StepVerifier.create(service.loginOrRegister(authUser, exchange, INVITATION_ID, false)).verifyComplete();
+
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] " + mode + ": " + steps);
+        assertThat(steps).containsExactly("invite", "join", "login event");
+    }
+
+    /** An invitation that cannot be redeemed fails the sign-in before any join; the session was saved first, as before. */
+    @Test
+    void loginOrRegister_anInvitationThatFails_joinsNothing() {
+        workspaceMode(WorkspaceMode.SAAS);
+        AuthUser authUser = authUser(SOURCE_GOOGLE, UID, ORG_ID, CONFIG_A, true);
+        User user = stubNewUserLogin(authUser);
+        BizException failure = new BizException(BizError.INVALID_INVITATION_CODE, "INVALID_INVITATION_CODE", INVITATION_ID);
+        List<String> steps = recordSteps(Mono.error(failure));
+        ServerWebExchange exchange = mock(ServerWebExchange.class);
+
+        StepVerifier.create(service.loginOrRegister(authUser, exchange, INVITATION_ID, false))
+                .expectErrorSatisfies(error -> assertThat(error).isSameAs(failure))
+                .verify();
+
+        verify(sessionUserService).saveUserSession(anyString(), eq(user), eq(SOURCE_GOOGLE));
+        System.out.println("[AuthenticationApiServiceImplMutationsTest] invitation fails -> steps run: " + steps + ", session saved");
+        assertThat(steps).containsExactly("invite");
     }
 
     // ----------------------------------------------------------------- findAPIKeys (NEW-135)

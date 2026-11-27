@@ -167,15 +167,17 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     }
                     return Mono.empty();
                 })
-                // after login
-                .delayUntil(user -> onUserLogin(authUser.getOrgId(), user, authUser.getSource(), authUser.getGroupId()))
-                // process invite
+                // process invite: before the login joins the workspace the page names, so the invitation's own rules (its creator is
+                // still a member, the workspace limits) decide the join and a visitor who joins through it is not answered
+                // ALREADY_IN_ORGANIZATION
                 .delayUntil(__ -> {
                     if (StringUtils.isBlank(invitationId)) {
                         return Mono.empty();
                     }
                     return invitationApiService.inviteUser(invitationId);
                 })
+                // after login
+                .delayUntil(user -> onUserLogin(authUser.getOrgId(), user, authUser.getSource(), authUser.getGroupId()))
                 // publish event
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
