@@ -85,6 +85,8 @@ class UserHomeApiServiceImplTest {
 
     private static final String ORG = "org-1";
     private static final String VISITOR = "visitor-1";
+    /** A second workspace of the visitor. */
+    private static final String OTHER_ORG = "org-2";
     private static final Instant CREATED = Instant.parse("2024-02-03T04:05:06Z");
     private static final Duration WAIT = Duration.ofSeconds(10);
     /** The userStatus key of the new-user guidance (UserStatusType.HAS_SHOW_NEW_USER_GUIDANCE). */
@@ -483,6 +485,64 @@ class UserHomeApiServiceImplTest {
         assertThat(field(all.get(0), "bundleGid")).isEqualTo("gid-" + field(all.get(0), "bundleId"));
         assertThat(field(all.get(0), "createBy")).isEqualTo("u-creator");
         assertThat(all.get(0).getCreateTime()).isEqualTo(CREATED.toEpochMilli());
+    }
+
+    /** Stubs the visitor's bundles and READ on every one of them; the captured argument is the ids the permission check was asked about. */
+    private org.mockito.ArgumentCaptor<java.util.Collection<String>> bundlesReadable(Bundle... bundles) {
+        when(bundleService.findByUserId(VISITOR)).thenReturn(Flux.just(bundles));
+        Map<String, ResourcePermission> readable = new java.util.HashMap<>();
+        for (Bundle bundle : bundles) {
+            readable.put(bundle.getId(), permission(ResourceRole.VIEWER));
+        }
+        @SuppressWarnings("unchecked")
+        org.mockito.ArgumentCaptor<java.util.Collection<String>> asked = org.mockito.ArgumentCaptor.forClass(java.util.Collection.class);
+        when(permissionService.getMaxMatchingPermission(eq(VISITOR), asked.capture(), eq(ResourceAction.READ_BUNDLES))).thenReturn(Mono.just(readable));
+        return asked;
+    }
+
+    /** The bundle lists are those of the current workspace: a bundle the visitor created in another workspace is not listed here. */
+    @Test
+    void getAllAuthorisedBundles_listsOnlyTheCurrentWorkspacesBundles() {
+        org.mockito.ArgumentCaptor<java.util.Collection<String>> asked = bundlesReadable(
+                bundle("b-here", "Here", BundleStatus.NORMAL, VISITOR, ORG), bundle("b-there", "There", BundleStatus.NORMAL, VISITOR, OTHER_ORG));
+
+        List<BundleInfoView> listed = collect(service.getAllAuthorisedBundles4CurrentOrgMember(null));
+
+        System.out.println("[UserHomeApiServiceImplTest] workspace " + ORG + " lists " + listed.stream().map(v -> field(v, "bundleId")).toList());
+        assertThat(listed).extracting(v -> field(v, "bundleId")).containsExactly("b-here");
+        assertThat(asked.getValue()).containsExactly("b-here");
+    }
+
+    @Test
+    void getAllAuthorisedBundles_recycledListStaysInTheCurrentWorkspace() {
+        bundlesReadable(bundle("b-here", "Here", BundleStatus.RECYCLED, VISITOR, ORG), bundle("b-there", "There", BundleStatus.RECYCLED, VISITOR, OTHER_ORG));
+
+        List<BundleInfoView> listed = collect(service.getAllAuthorisedBundles4CurrentOrgMember(BundleStatus.RECYCLED));
+
+        System.out.println("[UserHomeApiServiceImplTest] recycled in " + ORG + ": " + listed.stream().map(v -> field(v, "bundleId")).toList());
+        assertThat(listed).extracting(v -> field(v, "bundleId")).containsExactly("b-here");
+    }
+
+    @Test
+    void getAllAuthorisedBundles_bundleWithoutOrganizationIsNotListed() {
+        bundlesReadable(bundle("b-here", "Here", BundleStatus.NORMAL, VISITOR, ORG), bundle("b-orphan", "Orphan", BundleStatus.NORMAL, VISITOR, null));
+
+        List<BundleInfoView> listed = collect(service.getAllAuthorisedBundles4CurrentOrgMember(null));
+
+        System.out.println("[UserHomeApiServiceImplTest] without organization: " + listed.stream().map(v -> field(v, "bundleId")).toList());
+        assertThat(listed).extracting(v -> field(v, "bundleId")).containsExactly("b-here");
+    }
+
+    @Test
+    void getAllAuthorisedBundles_blankCurrentWorkspaceListsNothing() {
+        when(sessionUserService.getVisitorOrgMemberCache())
+                .thenReturn(Mono.just(OrgMember.builder().orgId("").userId(VISITOR).role(MemberRole.MEMBER).build()));
+        bundlesReadable(bundle("b-here", "Here", BundleStatus.NORMAL, VISITOR, ORG));
+
+        List<BundleInfoView> listed = collect(service.getAllAuthorisedBundles4CurrentOrgMember(null));
+
+        System.out.println("[UserHomeApiServiceImplTest] blank workspace id lists " + listed.size() + " bundles");
+        assertThat(listed).isEmpty();
     }
 
     // ---------------------------------------------------- marketplace listings

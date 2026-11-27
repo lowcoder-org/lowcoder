@@ -280,6 +280,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Flux<Bundle> bundleFlux = Flux.defer(() -> {
                                 return bundleService.findByUserId(visitorId);
                             })
+                            .filter(bundle -> isInWorkspace(bundle, currentOrgId))
                             .filter(bundle -> isNull(bundleStatus) || bundle.getBundleStatus() == bundleStatus)
                             .cache()
                             .collectList()
@@ -573,6 +574,14 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             });
 
                 });
+    }
+
+    /**
+     * Whether the bundle belongs to the workspace {@code orgId}: the bundle lists are those of the current workspace
+     * only. A blank workspace id matches nothing, and neither does a bundle stored without an organization.
+     */
+    private static boolean isInWorkspace(Bundle bundle, @Nullable String orgId) {
+        return StringUtils.isNotBlank(orgId) && orgId.equals(bundle.getOrganizationId());
     }
 
     /**
