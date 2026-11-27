@@ -69,7 +69,7 @@ class BundleEndpointsUnitTest {
         
         // Default mock behaviors
         when(businessEventPublisher.publishBundleCommonEvent(any(), any())).thenReturn(Mono.empty());
-        when(businessEventPublisher.publishBundleCommonEvent(anyString(), any(), any(), any())).thenReturn(Mono.empty());
+        when(businessEventPublisher.publishApplicationMoveBetweenBundlesEvent(any(), any(), any())).thenReturn(Mono.empty());
         when(gidService.convertBundleIdToObjectId(anyString())).thenReturn(Mono.just("objectId"));
         when(gidService.convertApplicationIdToObjectId(anyString())).thenReturn(Mono.just("appObjectId"));
     }
@@ -164,7 +164,13 @@ class BundleEndpointsUnitTest {
         
         verify(gidService).convertBundleIdToObjectId(eq(bundleId));
         verify(bundleApiService).delete(eq("objectId"));
-        verify(businessEventPublisher).publishBundleCommonEvent(any(BundleInfoView.class), any());
+        ArgumentCaptor<BundleInfoView> view = ArgumentCaptor.forClass(BundleInfoView.class);
+        verify(businessEventPublisher).publishBundleCommonEvent(view.capture(), eq(LowcoderEvent.EventType.BUNDLE_DELETE));
+        System.out.println("[BundleEndpointsUnitTest] delete event: bundleId=" + view.getValue().getBundleId()
+                + " bundleGid=" + view.getValue().getBundleGid() + " name=" + view.getValue().getName());
+        assertEquals("objectId", view.getValue().getBundleId());
+        assertEquals("bundle-123", view.getValue().getBundleGid());
+        assertEquals("test-bundle", view.getValue().getName());
     }
 
     @Test
@@ -264,8 +270,6 @@ class BundleEndpointsUnitTest {
         assertEquals("objectId", view.getValue().getBundleId());
         assertEquals(bundleId, view.getValue().getBundleGid());
         assertEquals("test-bundle", view.getValue().getName());
-        // the id-based overload looks the id up as an application and fails for a bundle: it must not be used here
-        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
     }
 
     @Test
@@ -292,7 +296,6 @@ class BundleEndpointsUnitTest {
         verify(bundleApiService).recycle(eq("objectId"));
         verify(bundleService).findById(eq("objectId"));
         verify(businessEventPublisher, never()).publishBundleCommonEvent(any(BundleInfoView.class), any());
-        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
     }
 
     @Test
@@ -325,8 +328,6 @@ class BundleEndpointsUnitTest {
         assertEquals("objectId", view.getValue().getBundleId());
         assertEquals(bundleId, view.getValue().getBundleGid());
         assertEquals("test-bundle", view.getValue().getName());
-        // the id-based overload looks the id up as an application and fails for a bundle: it must not be used here
-        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
     }
 
     @Test
@@ -353,7 +354,6 @@ class BundleEndpointsUnitTest {
         verify(bundleApiService).restore(eq("objectId"));
         verify(bundleService).findById(eq("objectId"));
         verify(businessEventPublisher, never()).publishBundleCommonEvent(any(BundleInfoView.class), any());
-        verify(businessEventPublisher, never()).publishBundleCommonEvent(anyString(), any(), any(), any());
     }
 
     @Test
@@ -432,7 +432,8 @@ class BundleEndpointsUnitTest {
         verify(gidService).convertBundleIdToObjectId(eq(toBundleId));
         verify(gidService).convertApplicationIdToObjectId(eq(applicationId));
         verify(bundleApiService).moveApp(eq("appObjectId"), eq("objectId"), eq("objectId"));
-        verify(businessEventPublisher).publishBundleCommonEvent(eq(applicationId), eq(fromBundleId), eq(toBundleId), any());
+        // the event is published with the converted ids: the application's and the two bundles' object ids, not the path's keys
+        verify(businessEventPublisher).publishApplicationMoveBetweenBundlesEvent(eq("appObjectId"), eq("objectId"), eq("objectId"));
     }
 
     @Test

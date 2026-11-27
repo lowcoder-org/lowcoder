@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -115,6 +116,7 @@ class BusinessEventPublisherTest {
     /** A slug of the application {@link #APP_ID}: what ApplicationController passes when the path names the app by slug. */
     private static final String APP_SLUG = "app-slug";
     private static final String BUNDLE_ID = "bundle-1";
+    private static final String OTHER_BUNDLE_ID = "bundle-2";
     private static final String FOLDER_TO = "f-to";
     private static final String FOLDER_FROM = "f-from";
     private static final String GROUP_ID = "group-1";
@@ -178,7 +180,6 @@ class BusinessEventPublisherTest {
         lenient().when(app.getTitle(any())).thenReturn(Mono.just("title"));
         lenient().when(applicationService.findById(APP_ID)).thenReturn(Mono.just(app));
         lenient().when(applicationService.findByIdWithoutDsl(APP_ID)).thenReturn(Mono.just(app));
-        lenient().when(applicationService.findByIdWithoutDsl(BUNDLE_ID)).thenReturn(Mono.just(app));
 
         folderTo.setId(FOLDER_TO);
         folderTo.setName("Folder To");
@@ -286,7 +287,7 @@ class BusinessEventPublisherTest {
         APP_PUBLISH(ApplicationCommonEvent.class, true, true),
         APP_VERSION(ApplicationCommonEvent.class, true, true),
         BUNDLE_VIEW(ApplicationCommonEvent.class, true, true),
-        BUNDLE_ID(ApplicationCommonEvent.class, true, true),
+        APP_MOVE_BUNDLES(ApplicationCommonEvent.class, true, false),
         LOGIN(UserLoginEvent.class, false, false),
         LOGOUT(UserLogoutEvent.class, false, false),
         GROUP_CREATE(GroupCreateEvent.class, false, false),
@@ -327,7 +328,7 @@ class BusinessEventPublisherTest {
             case APP_PUBLISH -> publisher.publishApplicationPublishEvent(APP_ID, new ApplicationPublishRequest("release notes", "v2"));
             case APP_VERSION -> publisher.publishApplicationVersionChangeEvent(APP_ID, "v3");
             case BUNDLE_VIEW -> publisher.publishBundleCommonEvent(bundleView(), EventType.BUNDLE_UPDATE);
-            case BUNDLE_ID -> publisher.publishBundleCommonEvent(BUNDLE_ID, FOLDER_FROM, FOLDER_TO, EventType.BUNDLE_UPDATE);
+            case APP_MOVE_BUNDLES -> publisher.publishApplicationMoveBetweenBundlesEvent(APP_ID, BUNDLE_ID, OTHER_BUNDLE_ID);
             case LOGIN -> publisher.publishUserLoginEvent("GITHUB");
             case LOGOUT -> publisher.publishUserLogoutEvent();
             case GROUP_CREATE -> publisher.publishGroupCreateEvent(group);
@@ -389,10 +390,11 @@ class BusinessEventPublisherTest {
                     "applicationDescription", "desc", "type", EventType.APPLICATION_PUBLISH, "commitMessage", "release notes", "tag", "v2");
             case APP_VERSION -> fields("applicationId", APP_ID, "applicationGid", "gid-app-1", "applicationName", "App", "applicationCategory", "cat",
                     "applicationDescription", "desc", "type", EventType.APPLICATION_VERSION_CHANGE, "tag", "v3");
-            case BUNDLE_VIEW, BUNDLE_ID -> fields("applicationId", BUNDLE_ID, "applicationGid", method == Method.BUNDLE_VIEW ? "gid-bundle-1" : null,
-                    "applicationName", method == Method.BUNDLE_VIEW ? "Bundle" : "App",
+            case BUNDLE_VIEW -> fields("applicationId", BUNDLE_ID, "applicationGid", "gid-bundle-1", "applicationName", "Bundle",
                     "type", EventType.BUNDLE_UPDATE, "folderId", FOLDER_TO, "folderName", "Folder To",
                     "oldFolderId", FOLDER_FROM, "oldFolderName", "Folder From");
+            case APP_MOVE_BUNDLES -> fields("applicationId", APP_ID, "applicationName", "App", "applicationCategory", "cat",
+                    "type", EventType.APPLICATION_MOVE, "folderId", null, "folderName", null, "oldFolderId", null, "oldFolderName", null);
             case LOGIN -> fields("source", "GITHUB");
             case LOGOUT -> fields();
             case GROUP_CREATE, GROUP_DELETE -> fields("groupId", GROUP_ID, "groupName", GROUP_NAME);
@@ -556,6 +558,55 @@ class BusinessEventPublisherTest {
         say("datasource permission without views -> null permissions");
     }
 
+    /**
+     * The event of an application moved between bundles names both bundles in its details, under their own keys, and carries
+     * no folder keys: a consumer must not read the move as one between folders.
+     */
+    @Test
+    void applicationMoveBetweenBundles_namesBothBundlesInTheDetails_andNoFolders() {
+        StepVerifier.create(withContext(publisher.publishApplicationMoveBetweenBundlesEvent(APP_ID, BUNDLE_ID, OTHER_BUNDLE_ID))).verifyComplete();
+
+        AbstractEvent event = singleEvent();
+        assertThat(field(event, "type")).isEqualTo(EventType.APPLICATION_MOVE);
+        assertThat(field(event, "applicationId")).isEqualTo(APP_ID);
+        assertThat(event.details()).containsEntry("fromBundleId", BUNDLE_ID).containsEntry("toBundleId", OTHER_BUNDLE_ID)
+                .doesNotContainKeys("folderId", "oldFolderId", "folderName", "oldFolderName");
+        say("bundle move details: %s -> %s", event.details().get("fromBundleId"), event.details().get("toBundleId"));
+    }
+
+    /** A move out of or into no bundle leaves the blank bundle's key out of the details instead of publishing an empty one. */
+    @ParameterizedTest(name = "from \"{0}\" to \"{1}\"")
+    @CsvSource(value = {"bundle-1,", "bundle-1,' '", ",bundle-2", "' ',bundle-2"})
+    void applicationMoveBetweenBundles_leavesOutABlankBundle(String from, String to) {
+        StepVerifier.create(withContext(publisher.publishApplicationMoveBetweenBundlesEvent(APP_ID, from, to))).verifyComplete();
+
+        Map<String, Object> details = singleEvent().details();
+        assertThat(details.containsKey("fromBundleId")).isEqualTo(from != null && !from.isBlank());
+        assertThat(details.containsKey("toBundleId")).isEqualTo(to != null && !to.isBlank());
+        say("blank bundle left out: from=%s to=%s -> %s", from, to, details.keySet().stream().filter(k -> k.endsWith("BundleId")).toList());
+    }
+
+    /** The other application events publish exactly the keys they did: the bundle keys appear on the move between bundles only. */
+    @ParameterizedTest
+    @EnumSource(value = Method.class, names = {"APP_VIEW_FORM", "APP_ID_FORM", "APP_PERMISSION"})
+    void applicationEvents_carryNoBundleKeys(Method method) {
+        run(method);
+
+        assertThat(singleEvent().details()).doesNotContainKeys("fromBundleId", "toBundleId");
+        say("%s -> no bundle keys", method);
+    }
+
+    /** A failed application lookup is logged and skipped: the move itself is already done and must not answer an error. */
+    @Test
+    void applicationMoveBetweenBundles_unknownApplication_isSwallowed() {
+        lenient().when(applicationService.findByIdWithoutDsl("app-missing")).thenReturn(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "APPLICATION_NOT_FOUND", "app-missing")));
+
+        StepVerifier.create(withContext(publisher.publishApplicationMoveBetweenBundlesEvent("app-missing", BUNDLE_ID, OTHER_BUNDLE_ID))).verifyComplete();
+
+        verifyNoInteractions(applicationEventPublisher);
+        say("unknown application -> no event, no error");
+    }
+
     // ------------------------------------------------------------------ guards and swallowed failures
 
     /** Catches an audit event for a change that was not made: with {@code publish == false} there is no event and no service call. */
@@ -576,7 +627,7 @@ class BusinessEventPublisherTest {
         List<Arguments> rows = new ArrayList<>();
         for (Method method : Method.values()) {
             for (Failure failure : Failure.values()) {
-                boolean appCommonFallback = failure == Failure.ORG_MEMBER && (method == Method.APP_VIEW_FORM || method == Method.APP_ID_FORM);
+                boolean appCommonFallback = failure == Failure.ORG_MEMBER && (method == Method.APP_VIEW_FORM || method == Method.APP_ID_FORM || method == Method.APP_MOVE_BUNDLES);
                 if (!appCommonFallback) {
                     rows.add(Arguments.of(method, failure));
                 }
@@ -613,7 +664,7 @@ class BusinessEventPublisherTest {
      * null userId (the audit entry cannot say who did it or in which organization).
      */
     @ParameterizedTest
-    @EnumSource(value = Method.class, names = {"APP_VIEW_FORM", "APP_ID_FORM"})
+    @EnumSource(value = Method.class, names = {"APP_VIEW_FORM", "APP_ID_FORM", "APP_MOVE_BUNDLES"})
     void applicationCommon_visitorOrgMemberLookupFails_publishesAnEventWithNullOrgAndUser(Method method) {
         lenient().when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.error(new IllegalStateException("no member")));
 

@@ -55,6 +55,7 @@ public class BundleController implements BundleEndpoints
             bundleApiService.delete(objectId)
                 .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(
                         BundleInfoView.builder()
+                                .bundleId(f.getId())
                                 .bundleGid(f.getGid())
                                 .editingBundleDSL(f.getEditingBundleDSL())
                                 .image(f.getImage())
@@ -155,7 +156,7 @@ public class BundleController implements BundleEndpoints
             gidService.convertBundleIdToObjectId(toBundleId).flatMap(objectIdTo ->
                 gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
                     bundleApiService.moveApp(appId, objectIdFrom, objectIdTo)
-                        .then(businessEventPublisher.publishBundleCommonEvent(applicationId, fromBundleId, toBundleId, APPLICATION_MOVE))
+                        .then(businessEventPublisher.publishApplicationMoveBetweenBundlesEvent(appId, objectIdFrom, objectIdTo))
                         .then(Mono.fromSupplier(() -> ResponseView.success(null))))));
     }
 
