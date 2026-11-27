@@ -28,8 +28,13 @@ const SECRET = "t3-secret";
 const EXTERNAL_URL = (process.env.HOCUSPOCUS_TEST_URL ?? "").trim();
 const EXTERNAL_SECRET = process.env.HOCUSPOCUS_TEST_SECRET ?? "";
 const EXTERNAL = EXTERNAL_URL !== "";
-const DOCUMENT_A = "t3-document-a";
-const DOCUMENT_B = "t3-document-b";
+// The server admits only signal_<appId> rooms (checked against the api-service) and the bridge rooms typeform_*,
+// googleform_* and website_*, which the shared secret alone gates; these tests have no api-service, so they use a bridge room
+const BRIDGE_ROOM_PREFIX = "website_";
+const DOCUMENT_A = `${BRIDGE_ROOM_PREFIX}t3-document-a`;
+const DOCUMENT_B = `${BRIDGE_ROOM_PREFIX}t3-document-b`;
+const ROOMS_REPORTED = "app-read-check";
+const REFUSED_ROOMS = ["t3-document-a", "signal_t3-app", "signal_bad/app", "typeform"];
 const WELCOME_TEXT = "Welcome to Hocuspocus!";
 const SHARED_MAP = "t3";
 const SHARED_KEY = "value";
@@ -86,6 +91,7 @@ test("health: GET /health reports ok and the auth state", async () => {
     host: LOOPBACK,
     port: open.port,
     auth: "disabled",
+    rooms: ROOMS_REPORTED,
   });
   const secured = await target({ HOCUSPOCUS_SECRET: SECRET });
   check("with a secret", JSON.parse((await httpGet(LOOPBACK, secured.port, "/health")).body), {
@@ -93,6 +99,7 @@ test("health: GET /health reports ok and the auth state", async () => {
     host: LOOPBACK,
     port: secured.port,
     auth: "enabled",
+    rooms: ROOMS_REPORTED,
   });
 });
 
@@ -203,6 +210,20 @@ test("documents: a value written in document A is not visible in document B", as
   } finally {
     for (const { provider } of opened) provider.destroy();
   }
+});
+
+test("rooms: a room that is no bridge room is refused with permission-denied, whatever the token", { skip: SKIP_EXTERNAL }, async () => {
+  // signal_ rooms ask the api-service (none runs here, so the check fails closed); any other name is refused outright
+  const server = await target({ HOCUSPOCUS_SECRET: SECRET });
+  for (const name of REFUSED_ROOMS) {
+    const admitted = openDocument(server.url, name, SECRET).then(({ provider }) => {
+      provider.destroy(); // a failing run must not leave a connected provider that keeps the process alive
+      throw new Error(`${name}: admitted`);
+    });
+    await assert.rejects(admitted, /authentication failed \(permission-denied\)/, message(`room ${name}`, server));
+  }
+  const rejected = server.output().split("\n").filter((line) => line.includes("rejected connection for"));
+  check("server log lines about rejected connections", rejected.length >= REFUSED_ROOMS.length, true);
 });
 
 test("start: a second server on the same port exits non-zero", { skip: SKIP_EXTERNAL }, async () => {

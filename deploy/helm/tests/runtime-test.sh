@@ -53,7 +53,7 @@ readonly INGRESS_HOST="lowcoder.test"
 readonly INGRESS_PORT="80"
 readonly HOCUSPOCUS_SECRET="hocuspocus-secret-91c2"
 readonly WRONG_HOCUSPOCUS_SECRET="not-the-secret"
-readonly HOCUSPOCUS_DOCUMENT="runtime-test-room"
+readonly HOCUSPOCUS_DOCUMENT="website_runtime-test-room"
 readonly FRONTEND_HOCUSPOCUS_PATH="/hocuspocus"
 readonly FRONTEND_AGORA_PREFIX="/agora-token-service"
 # Dummy 32-hex credentials: the token service only needs the format to build tokens
