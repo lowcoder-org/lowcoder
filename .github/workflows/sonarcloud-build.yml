@@ -38,9 +38,12 @@ jobs:
 
       - name: Build Java
         run: |
-          # Downstream modules need the SDK's shared test-helper JAR, which is
-          # attached during package. Keep test compilation enabled for that JAR.
-          mvn --batch-mode --no-transfer-progress clean package -DskipTests -f ./server/api-service/pom.xml
+          # verify, not package: it runs the unit and integration tests under JaCoCo (the
+          # integration tests start Mongo and Redis containers through Docker, which the
+          # runner provides), writes the aggregate coverage report that Sonar reads, and runs
+          # the coverage gate of lowcoder-coverage-report, which fails the build when a module
+          # falls below its floor. The SDK's shared test-helper JAR is attached on the way.
+          mvn --batch-mode --no-transfer-progress clean verify -f ./server/api-service/pom.xml
 
       - name: Package binaries and metadata
         env:
@@ -59,6 +62,10 @@ jobs:
           IFS=',' read -r -a dirs <<< "$binaries"
           # tar fails if a listed directory is missing.
           tar --create --file "$out/sonar-binaries.tar" -- "${dirs[@]}"
+          # The aggregate JaCoCo report of every module; the scan job hands it to Sonar as data.
+          report=server/api-service/lowcoder-coverage-report/target/site/jacoco-aggregate/jacoco.xml
+          [ -f "$report" ] || { echo "$report not found" >&2; exit 1; }
+          cp -- "$report" "$out/jacoco.xml"
           jq -n \
             --arg event "$EVENT_NAME" \
             --arg pr_number "$PR_NUMBER" \
