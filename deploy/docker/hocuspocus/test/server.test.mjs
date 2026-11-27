@@ -40,6 +40,8 @@ const SHARED_MAP = "t3";
 const SHARED_KEY = "value";
 const SYNC_TIMEOUT_MS = 10000;
 const SETTLE_MS = 500;
+const LOG_POLL_MS = 25;
+const LOG_TIMEOUT_MS = 5000;
 const SKIP_EXTERNAL = EXTERNAL ? "needs control of the server's environment or port (HOCUSPOCUS_TEST_URL is set)" : false;
 const SKIP_NO_SECRET = EXTERNAL && !EXTERNAL_SECRET ? "needs HOCUSPOCUS_TEST_SECRET (HOCUSPOCUS_TEST_URL is set)" : false;
 
@@ -71,6 +73,17 @@ async function target(env = {}) {
 
 const targetHost = (server) => server.host ?? LOOPBACK;
 const targetSecret = (server) => (server.external ? EXTERNAL_SECRET : SECRET);
+
+// The server logs a rejection after the client has seen it, so a count taken right away can be one short.
+// Polls the server output until `count` lines contain `text` or LOG_TIMEOUT_MS has passed; returns the matching lines.
+async function waitForLogLines(server, text, count) {
+  const matching = () => server.output().split("\n").filter((line) => line.includes(text));
+  const deadline = Date.now() + LOG_TIMEOUT_MS;
+  while (matching().length < count && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, LOG_POLL_MS));
+  }
+  return matching();
+}
 
 function message(description, server, extra = "") {
   return `${description}\n${extra}--- server output ---\n${server.output()}`;
@@ -222,7 +235,7 @@ test("rooms: a room that is no bridge room is refused with permission-denied, wh
     });
     await assert.rejects(admitted, /authentication failed \(permission-denied\)/, message(`room ${name}`, server));
   }
-  const rejected = server.output().split("\n").filter((line) => line.includes("rejected connection for"));
+  const rejected = await waitForLogLines(server, "rejected connection for", REFUSED_ROOMS.length);
   check("server log lines about rejected connections", rejected.length >= REFUSED_ROOMS.length, true);
 });
 

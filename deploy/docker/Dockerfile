@@ -68,7 +68,7 @@ RUN apt-get update \
 # Copy and build the node-service app
 COPY server/node-service/ /lowcoder/node-service/app/
 WORKDIR /lowcoder/node-service/app/
-# tree-sitter@0.21.1 has no linux-arm64 prebuild and forces -std=c++17; Node >= 24 headers need C++20 (plans/node-service-node26-rollout P2)
+# tree-sitter@0.21.1 has no linux-arm64 prebuild and forces -std=c++17; Node >= 24 headers need C++20
 ENV CXXFLAGS=-std=c++20
 RUN yarn --immutable
 RUN yarn build
