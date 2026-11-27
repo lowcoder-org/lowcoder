@@ -77,7 +77,7 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
 
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsUpdateHandlerTest] " + api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList() + " body " + bodyText(api.get(2)));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET " + HEADER_PATH, "GET " + ROW_PATH), api.subList(0, 2).stream().map(r -> r.method() + " " + r.pathAndQuery()).toList());
         Request put = api.get(2);
         assertEquals("PUT", put.method());
@@ -103,7 +103,7 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsUpdateHandlerTest] row wider than the header -> success=" + result.isSuccess() + " "
                 + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
         assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", "6", "y"))), body(api.get(2)));
     }
@@ -143,7 +143,7 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsUpdateHandlerTest] blank age (" + label + ") -> success=" + result.isSuccess() + " "
                 + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
         assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", blank, "y"))), body(api.get(2)));
     }
@@ -159,7 +159,7 @@ public class GoogleSheetsUpdateHandlerTest extends GoogleSheetsCallSupport {
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsUpdateHandlerTest] age pair " + label + " " + pair + " -> success=" + result.isSuccess() + " "
                 + api.stream().map(Request::method).toList() + (api.size() > 2 ? " body " + bodyText(api.get(2)) : ""));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET", "GET", "PUT"), api.stream().map(Request::method).toList());
         assertEquals(Map.of("majorDimension", "ROWS", "values", List.of(List.of("x", "", "y"))), body(api.get(2)));
     }

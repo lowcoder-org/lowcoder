@@ -82,7 +82,7 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
 
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsAppendHandlerTest] " + api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList() + " body " + bodyText(api.get(1)));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(2, api.size());
         assertEquals("GET", api.get(0).method());
         assertEquals(READ_PATH, api.get(0).pathAndQuery());
@@ -160,7 +160,7 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsAppendHandlerTest] blank city (" + label + ") -> success=" + result.isSuccess() + " "
                 + api.stream().map(Request::method).toList() + (api.size() > 1 ? " body " + bodyText(api.get(1)) : ""));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET", "POST"), api.stream().map(Request::method).toList());
         assertEquals(Map.of("majorDimension", "ROWS", "range", "Sheet1!A1", "values", List.of(List.of("Ann", "", blank))), body(api.get(1)));
     }
@@ -176,7 +176,7 @@ public class GoogleSheetsAppendHandlerTest extends GoogleSheetsCallSupport {
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsAppendHandlerTest] city pair " + label + " " + pair + " -> success=" + result.isSuccess() + " "
                 + api.stream().map(Request::method).toList() + (api.size() > 1 ? " body " + bodyText(api.get(1)) : ""));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET", "POST"), api.stream().map(Request::method).toList());
         assertEquals(Map.of("majorDimension", "ROWS", "range", "Sheet1!A1", "values", List.of(List.of("Ann", "", ""))), body(api.get(1)));
     }

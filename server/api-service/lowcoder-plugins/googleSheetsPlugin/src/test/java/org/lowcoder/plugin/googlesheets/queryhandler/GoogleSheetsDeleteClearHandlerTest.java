@@ -55,7 +55,7 @@ public class GoogleSheetsDeleteClearHandlerTest extends GoogleSheetsCallSupport 
 
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsDeleteClearHandlerTest] " + api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList() + " body " + bodyText(api.get(1)));
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of("GET " + SPREADSHEET_PATH, "POST " + BATCH_PATH), api.stream().map(r -> r.method() + " " + r.pathAndQuery()).toList());
         assertEquals(deleteBody(222), body(api.get(1)));
         assertEquals(List.of("Bearer " + TOKEN), api.get(1).header("Authorization"));
@@ -90,7 +90,7 @@ public class GoogleSheetsDeleteClearHandlerTest extends GoogleSheetsCallSupport 
 
         List<Request> api = apiRequests();
         System.out.println("[GoogleSheetsDeleteClearHandlerTest] clear -> " + api.get(0).method() + " " + api.get(0).pathAndQuery() + " body '" + bodyText(api.get(0)) + "' -> " + result.getData());
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(1, api.size());
         assertEquals("POST", api.get(0).method());
         assertEquals(CLEAR_PATH, api.get(0).pathAndQuery());
