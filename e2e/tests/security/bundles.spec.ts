@@ -25,6 +25,7 @@ import {
   bundlePermissionsPath,
   bundlePublishPath,
   bundleRecyclePath,
+  bundleRestorePath,
   bundleReorderPath,
   bundlePath,
   bundleViewPath,
@@ -308,6 +309,20 @@ test.describe("security: bundles inside one workspace", () => {
     // Success. The 3.0.0 server set the status and then answered 500 / 5005 (SF-41, D-46); the recycle now answers success.
     expectAnswer(answer, OK, "the creator's recycle");
     expect(await inTrash(d.request, bundleId), "after: the bundle is in the trash").toBe(true);
+  });
+
+  test("SEC-R17h a bundle's creator can restore it from the trash", securityTestDetails("SEC-R17h"), async ({ page, apiUser, actor }) => {
+    const { d, bundleId } = await developerBundle(page, apiUser, actor);
+    expectAnswer(await apiRaw(d.request, "PUT", bundleRecyclePath(bundleId)), OK, "setup: the creator recycles the bundle");
+    expect(await inTrash(d.request, bundleId), "before: the bundle is in the trash").toBe(true);
+
+    const answer = await apiRaw(d.request, "PUT", bundleRestorePath(bundleId));
+
+    // Success. The restore published its event through a lookup that treats the id as an application and answered
+    // 500 / 5005 after writing the status (the recycle's defect, D-46); it now answers success.
+    expectAnswer(answer, OK, "the creator's restore");
+    expect(await inTrash(d.request, bundleId), "after: the bundle is out of the trash").toBe(false);
+    expectAnswer(await apiRaw(d.request, "GET", bundleViewPath(bundleId)), OK, "and the creator views it as a normal bundle again");
   });
 
   test("SEC-R17e a bundle editor cannot grant the owner role", securityTestDetails("SEC-R17e"), async ({ page, apiUser, actor }) => {

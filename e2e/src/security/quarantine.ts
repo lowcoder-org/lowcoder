@@ -89,14 +89,14 @@ export const FIXED_ON_BRANCH: Readonly<Record<string, string>> = {};
  * run, NOT VERIFIED yet). D-63 also left this map: the profile now fetches the app list it counts, so LC-OT02 passes
  * (Docker/e2e confirmation deferred to the combined final run, NOT VERIFIED yet). D-46 left this map: a bundle's
  * recycle now publishes its event from the stored bundle instead of looking the bundle id up as an application, so
- * SEC-R17f is no longer quarantined (a restore publishes through the old lookup and is not covered: README, "D-46 restore
- * candidate"). D-30 left this map by the owner's decision
+ * SEC-R17f is no longer quarantined (a bundle restore got the same fix). D-30 left this map by the owner's decision
  * (2026-11-26) that the join is intended: anyone who knows a workspace's id becomes its member by signing in or signing up on
- * that workspace's own page, so SEC-C17c and LC-AU15 now pin it.
+ * that workspace's own page, so SEC-C17c and LC-AU15 now pin it. D-13 left this map by the owner's decision (2026-11-26)
+ * that the anonymous e-mail to workspaces lookup stays, because the sign-in and sign-up pages need it to offer the login
+ * variants of a workspace: the answer now carries only the id and the name of each workspace, and SEC-A10b pins that.
+ * Both maps are empty.
  */
-export const OPEN_DEFECTS: Readonly<Record<string, string>> = {
-  "SEC-A10b": "D-13",
-};
+export const OPEN_DEFECTS: Readonly<Record<string, string>> = {};
 
 /** What a security test passes to `test(title, details, body)`: the `tag` and, for a quarantined test, the annotation. */
 export interface SecurityTestDetails {
@@ -109,50 +109,70 @@ export function quarantinedDefect(id: string): string | undefined {
   return FIXED_ON_BRANCH[id] ?? OPEN_DEFECTS[id];
 }
 
-/**
- * The details of a security test. Every security test passes `securityTestDetails("<id>")`.
- * - id in `FIXED_ON_BRANCH` or `OPEN_DEFECTS`: tags `@security` and `@quarantine` (out of the default run, in with
- *   `E2E_INCLUDE_QUARANTINE`, see src/run-selection.ts) and annotation `{ type: "defect", description: "D-n" }`.
- * - any other id: tag `@security` only, no annotation.
- * `extraTags` are appended after them (the P0 set passes `[TAGS.CORE]`).
- * Throws on an id that is not a scenario id, so a typo cannot silently leave a test out of its quarantine entry.
- */
-export function securityTestDetails(id: string, extraTags: readonly string[] = []): SecurityTestDetails {
-  if (!SECURITY_ID_PATTERN.test(id)) {
-    throw new Error(`"${id}" is not a security scenario id (pattern ${SECURITY_ID_PATTERN})`);
-  }
-  const defect = quarantinedDefect(id);
-  if (defect === undefined) {
-    return { tag: [TAGS.SECURITY, ...extraTags] };
-  }
-  return {
-    tag: [TAGS.SECURITY, TAGS.QUARANTINE, ...extraTags],
-    annotation: { type: DEFECT_ANNOTATION_TYPE, description: defect },
-  };
+/** The two detail functions of the security tests, bound to one scenario-id-to-defect lookup. */
+export interface SecurityDetails {
+  testDetails(id: string, extraTags?: readonly string[]): SecurityTestDetails;
+  candidateDetails(id: string, measured: string, extraTags?: readonly string[]): SecurityTestDetails;
 }
 
 /**
- * The details of a security test that failed on the image under test for a real server behaviour nobody expected and that
- * no defect-list entry names yet (`e2e/AGENTS.md` section 7: "<id> candidate"). Quarantined like a listed id, the annotation
- * description names the scenario and what was measured. A candidate leaves this form by getting a D id in
- * `FIXED_ON_BRANCH` or `OPEN_DEFECTS` and `securityTestDetails`. Throws on an id that is not a scenario id or that is already
- * in a map (use `securityTestDetails` then), and on an empty measurement.
+ * The detail functions of the security tests (`SEC-` ids, base tag `@security`). `defectOf` is the lookup from scenario id
+ * to defect id; the default is `quarantinedDefect`, so the two maps stay the single source of the quarantine.
+ * - `testDetails`: an id the lookup lists gets the tags `@security` and `@quarantine` (out of the default run, in with
+ *   `E2E_INCLUDE_QUARANTINE`, see src/run-selection.ts) and the annotation `{ type: "defect", description: "D-n" }`; any
+ *   other id gets `@security` only and no annotation. `extraTags` are appended after them (the P0 set passes `[TAGS.CORE]`).
+ *   Throws on an id that is not a scenario id, so a typo cannot silently leave a test out of its quarantine entry.
+ * - `candidateDetails`: for a security test that failed on the image under test for a real server behaviour nobody expected
+ *   and that no defect-list entry names yet (`e2e/AGENTS.md` section 7: "<id> candidate"). Quarantined like a listed id,
+ *   the annotation description names the scenario and what was measured. A candidate leaves this form by getting a D id in
+ *   `FIXED_ON_BRANCH` or `OPEN_DEFECTS` and `securityTestDetails`. Throws on an id that is not a scenario id or that the
+ *   lookup lists (use `testDetails` then), and on an empty measurement.
+ *
+ * Limits: a security test that fails on the image and is in neither map fails the default run; a stale entry hides a passing
+ * test. A lookup passed by a caller is not checked against the maps: it exists for the unit test only (both maps may be
+ * empty, so no listed id is left to test with), production code uses `securityTestDetails` and `securityCandidateDetails`.
  */
-export function securityCandidateDetails(id: string, measured: string, extraTags: readonly string[] = []): SecurityTestDetails {
-  if (!SECURITY_ID_PATTERN.test(id)) {
-    throw new Error(`"${id}" is not a security scenario id (pattern ${SECURITY_ID_PATTERN})`);
-  }
-  if (quarantinedDefect(id) !== undefined) {
-    throw new Error(`${id} is in a quarantine map; use securityTestDetails`);
-  }
-  if (measured.trim() === "") {
-    throw new Error(`${id}: a candidate names what was measured`);
-  }
+export function securityDetailsFor(defectOf: (id: string) => string | undefined = quarantinedDefect): SecurityDetails {
+  const refuseBadId = (id: string): void => {
+    if (!SECURITY_ID_PATTERN.test(id)) {
+      throw new Error(`"${id}" is not a security scenario id (pattern ${SECURITY_ID_PATTERN})`);
+    }
+  };
   return {
-    tag: [TAGS.SECURITY, TAGS.QUARANTINE, ...extraTags],
-    annotation: { type: DEFECT_ANNOTATION_TYPE, description: `${id} candidate: ${measured}` },
+    testDetails(id, extraTags = []) {
+      refuseBadId(id);
+      const defect = defectOf(id);
+      if (defect === undefined) {
+        return { tag: [TAGS.SECURITY, ...extraTags] };
+      }
+      return {
+        tag: [TAGS.SECURITY, TAGS.QUARANTINE, ...extraTags],
+        annotation: { type: DEFECT_ANNOTATION_TYPE, description: defect },
+      };
+    },
+    candidateDetails(id, measured, extraTags = []) {
+      refuseBadId(id);
+      if (defectOf(id) !== undefined) {
+        throw new Error(`${id} is in a quarantine map; use securityTestDetails`);
+      }
+      if (measured.trim() === "") {
+        throw new Error(`${id}: a candidate names what was measured`);
+      }
+      return {
+        tag: [TAGS.SECURITY, TAGS.QUARANTINE, ...extraTags],
+        annotation: { type: DEFECT_ANNOTATION_TYPE, description: `${id} candidate: ${measured}` },
+      };
+    },
   };
 }
+
+const securityDetails = securityDetailsFor();
+
+/** The details of a security test: `test(title, securityTestDetails("SEC-C01a"), body)`. */
+export const securityTestDetails = securityDetails.testDetails;
+
+/** The details of a security test that failed on the image for a behaviour no defect-list entry names yet ("<id> candidate"). */
+export const securityCandidateDetails = securityDetails.candidateDetails;
 
 /** The two detail functions of the lifecycle tests, bound to one scenario-id-to-defect lookup. */
 export interface LifecycleDetails {
