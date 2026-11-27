@@ -33,7 +33,7 @@ jobs:
           cache: npm
           cache-dependency-path: deploy/docker/hocuspocus/test/package-lock.json
       - name: Install
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Test
         env:
           NODE_OPTIONS: --test-reporter=tap
