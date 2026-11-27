@@ -199,7 +199,7 @@ you do not use the meeting components. Without credentials `/rte/...` answers HT
 | `global.config.encryption.password`     | Encryption password  - CHANGE IT!                                                 | `lowcoder.org` |
 | `global.config.encryption.salt`         | Encryption salt      - CHANGE IT!                                                 | `lowcoder.org` |
 | `global.config.superuser.username`      | Lowcoder superadmin username                                                      | `admin@localhost` |
-| `global.config.superuser.password`      | Lowcoder superadmin password - if not supplied, it will be generated              |                |
+| `global.config.superuser.password`      | Lowcoder superadmin password - when set, it replaces the stored password at every start; if not supplied, one is generated at the first start only and printed once into the log              |                |
 | `global.config.apiKeySecret`            | API-KEY secret, should be a string of at least 32 random characters - CHANGE IT   | `5a41b0905...` |
 | `global.config.maxQueryTimeout`         | Maximum query timeout in seconds                                                  | `120`          |
 | `global.config.maxRequestSize`          | Maximum request size                                                              | `20mb`         |

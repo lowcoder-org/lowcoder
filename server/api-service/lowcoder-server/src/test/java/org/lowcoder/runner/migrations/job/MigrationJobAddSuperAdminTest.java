@@ -1,9 +1,15 @@
 package org.lowcoder.runner.migrations.job;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
+import org.lowcoder.domain.encryption.EncryptionService;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
@@ -11,12 +17,15 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.runner.init.AddSuperAdminRunner;
 import org.lowcoder.runner.migrations.DatabaseChangelog;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
@@ -43,6 +52,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,6 +75,11 @@ public class MigrationJobAddSuperAdminTest {
     static final String CONFIGURED_PASSWORD = "Configured-Pass-1";
     static final String MARKING_FAILED = "marking failed";
     static final String PASSWORD_FAILED = "password failed";
+    /** The hash of a password the account already has, and the hash {@code matchPassword} accepts for a password the start stored. */
+    static final String STORED_HASH = "$2a$10$stored";
+    static final String GENERATED_HASH = "$2a$10$generated";
+    static final String JOB_LOGGER = "AddSuperAdminUserImpl";
+    static final int MIN_GENERATED_LENGTH = 8;
     static final Duration WAIT = Duration.ofSeconds(10);
     static final long POLL_MS = 10;
 
@@ -76,8 +91,24 @@ public class MigrationJobAddSuperAdminTest {
     private UserService userService;
     @Mock
     private OrgMemberService orgMemberService;
+    @Mock
+    private EncryptionService encryptionService;
     @InjectMocks
     private AddSuperAdminUserImpl job;
+
+    private final ListAppender<ILoggingEvent> logs = new ListAppender<>();
+
+    @BeforeEach
+    void captureLog() {
+        logs.start();
+        ((Logger) LoggerFactory.getLogger(JOB_LOGGER)).addAppender(logs);
+    }
+
+    @AfterEach
+    void releaseLog() {
+        ((Logger) LoggerFactory.getLogger(JOB_LOGGER)).detachAppender(logs);
+        logs.stop();
+    }
 
     private CommonConfig.SuperAdmin superAdmin(String name, String password) {
         CommonConfig.SuperAdmin superAdmin = new CommonConfig.SuperAdmin();
@@ -91,6 +122,31 @@ public class MigrationJobAddSuperAdminTest {
         User user = User.builder().isNewUser(isNew).build();
         ReflectionTestUtils.setField(user, "id", USER_ID);
         return user;
+    }
+
+    /** The account as the job finds it: with the hash of the password it stores, or none. */
+    private static User user(boolean isNew, String storedHash) {
+        User user = user(isNew);
+        ReflectionTestUtils.setField(user, "password", storedHash);
+        return user;
+    }
+
+    /** No password is configured, {@code existing} is what the login step answers; the steps after the password succeed. */
+    private void noPasswordConfigured(User existing) {
+        superAdmin(CONFIGURED_NAME, null);
+        when(authenticationApiService.updateOrCreateUser(any(AuthUser.class), anyBoolean(), anyBoolean())).thenReturn(Mono.just(existing));
+        lenient().when(authenticationApiService.onUserRegister(any(User.class), anyBoolean())).thenReturn(Mono.empty());
+        lenient().when(userService.setPassword(anyString(), anyString())).thenReturn(Mono.just(true));
+        lenient().when(userService.markAsSuperAdmin(anyString())).thenReturn(Mono.just(true));
+        lenient().when(orgMemberService.addToAllOrgAsAdminIfNot(anyString())).thenReturn(Mono.empty());
+    }
+
+    private static BizException passwordAlreadySet() {
+        return new BizException(BizError.INVALID_PASSWORD, UserService.PASSWORD_ALREADY_SET);
+    }
+
+    private String passwordOfTheLoginContext() {
+        return ((FormAuthRequestContext) capturedAuthUser().getAuthContext()).getPassword();
     }
 
     /** All collaborators answer at once and complete. */
@@ -117,6 +173,7 @@ public class MigrationJobAddSuperAdminTest {
         assertSame(commonConfig, ReflectionTestUtils.getField(job, "commonConfig"));
         assertSame(userService, ReflectionTestUtils.getField(job, "userService"));
         assertSame(orgMemberService, ReflectionTestUtils.getField(job, "orgMemberService"));
+        assertSame(encryptionService, ReflectionTestUtils.getField(job, "encryptionService"));
     }
 
     @Test
@@ -166,24 +223,111 @@ public class MigrationJobAddSuperAdminTest {
         }
     }
 
+    /** Without a configured password, a password the account already has is kept: it is not replaced at every start. */
     @Test
-    public void aBlankPasswordIsReplacedByAGeneratedOneThatDiffersEachTime() {
+    public void anExistingAccountWithAPasswordKeepsItWhenNoneIsConfigured() {
+        noPasswordConfigured(user(false, STORED_HASH));
+        lenient().when(encryptionService.matchPassword(anyString(), eq(STORED_HASH))).thenReturn(false);
+        lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), anyString())).thenReturn(Mono.error(passwordAlreadySet()));
+
+        job.addOrUpdateSuperAdmin().block(WAIT);
+
+        verify(userService, never()).setPassword(anyString(), anyString());
+        verify(userService).markAsSuperAdmin(USER_ID);
+        verify(orgMemberService).addToAllOrgAsAdminIfNot(USER_ID);
+        System.out.println(TAG + "stored password kept, the later steps ran");
+    }
+
+    @Test
+    public void anExistingAccountWithoutAPasswordGetsTheGeneratedOneWhenNoneIsConfigured() {
+        noPasswordConfigured(user(false, null));
+        ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+        lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), stored.capture())).thenReturn(Mono.just(true));
+
+        job.addOrUpdateSuperAdmin().block(WAIT);
+
+        assertEquals(passwordOfTheLoginContext(), stored.getValue(), "the password stored is the one of the login context");
+        verify(userService, never()).setPassword(anyString(), anyString());
+        verify(encryptionService, never()).matchPassword(anyString(), anyString());
+    }
+
+    /** A start that created or renamed the account with the generated password has stored it already: no second write. */
+    @Test
+    public void aNewOrRenamedAccountThatStoredTheGeneratedPasswordIsNotWrittenAgain() {
+        for (boolean isNew : new boolean[] {true, false}) {
+            Mockito.reset(authenticationApiService, userService, orgMemberService, commonConfig, encryptionService);
+            noPasswordConfigured(user(isNew, GENERATED_HASH));
+            lenient().when(encryptionService.matchPassword(anyString(), eq(GENERATED_HASH))).thenReturn(true);
+
+            job.addOrUpdateSuperAdmin().block(WAIT);
+
+            verify(userService, never()).setPassword(anyString(), anyString());
+            verify(userService, never()).setPasswordIfAbsent(anyString(), anyString());
+            System.out.println(TAG + "isNew " + isNew + ": the stored generated password is not written again");
+        }
+    }
+
+    @Test
+    public void aFailureOtherThanAnExistingPasswordFailsTheJob() {
+        noPasswordConfigured(user(false, null));
+        lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), anyString()))
+                .thenReturn(Mono.error(new BizException(BizError.USER_NOT_EXIST, "USER_NOT_EXIST")));
+
+        BizException failure = assertThrows(BizException.class, () -> job.addOrUpdateSuperAdmin().block(WAIT));
+
+        assertEquals(BizError.USER_NOT_EXIST, failure.getError());
+        verify(userService, never()).markAsSuperAdmin(anyString());
+    }
+
+    @Test
+    public void aKeptPasswordIsNeverLogged() {
+        noPasswordConfigured(user(false, STORED_HASH));
+        lenient().when(encryptionService.matchPassword(anyString(), eq(STORED_HASH))).thenReturn(false);
+        lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), anyString())).thenReturn(Mono.error(passwordAlreadySet()));
+
+        job.addOrUpdateSuperAdmin().block(WAIT);
+
+        String generated = passwordOfTheLoginContext();
+        logs.list.forEach(event -> System.out.println(TAG + event.getLevel() + " " + event.getMessage().replace("\n", "<LF>")));
+        assertTrue(logs.list.stream().noneMatch(event -> event.getFormattedMessage().contains(generated)), "no log line holds the password");
+        assertEquals(1, logs.list.stream().filter(event -> AddSuperAdminUserImpl.PASSWORD_KEPT_LOG.equals(event.getMessage())).count());
+    }
+
+    @Test
+    public void aGeneratedPasswordDiffersEachTimeItIsStored() {
         List<String> passwords = new ArrayList<>();
         for (String blank : new String[] {null, "  "}) {
-            Mockito.reset(authenticationApiService, userService, orgMemberService, commonConfig);
+            Mockito.reset(authenticationApiService, userService, orgMemberService, commonConfig, encryptionService);
+            noPasswordConfigured(user(false, null));
             superAdmin(CONFIGURED_NAME, blank);
-            everythingSucceeds(false);
-            job.addOrUpdateSuperAdmin().block();
-            String fromContext = ((FormAuthRequestContext) capturedAuthUser().getAuthContext()).getPassword();
-            ArgumentCaptor<String> sent = ArgumentCaptor.forClass(String.class);
-            verify(userService).setPassword(eq(USER_ID), sent.capture());
-            System.out.println(TAG + "generated password length " + fromContext.length());
-            assertEquals(fromContext, sent.getValue(), "the password set is the one in the login context");
-            assertTrue(fromContext.length() >= 8, "length " + fromContext.length());
-            assertFalse(fromContext.isBlank());
-            passwords.add(fromContext);
+            ArgumentCaptor<String> stored = ArgumentCaptor.forClass(String.class);
+            lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), stored.capture())).thenReturn(Mono.just(true));
+
+            job.addOrUpdateSuperAdmin().block(WAIT);
+
+            String password = stored.getValue();
+            System.out.println(TAG + "generated password length " + password.length());
+            assertEquals(passwordOfTheLoginContext(), password, "the password stored is the one of the login context");
+            assertTrue(password.length() >= MIN_GENERATED_LENGTH, "length " + password.length());
+            assertFalse(password.isBlank());
+            passwords.add(password);
         }
         assertNotEquals(passwords.get(0), passwords.get(1));
+    }
+
+    /** Guard, not red on the old code: the line that tells the operator the generated password stays, once, at the start that stored it. */
+    @Test
+    public void aStoredGeneratedPasswordIsLoggedOnce() {
+        noPasswordConfigured(user(false, null));
+        lenient().when(userService.setPasswordIfAbsent(eq(USER_ID), anyString())).thenReturn(Mono.just(true));
+
+        job.addOrUpdateSuperAdmin().block(WAIT);
+
+        String generated = passwordOfTheLoginContext();
+        List<ILoggingEvent> lines = logs.list.stream().filter(event -> AddSuperAdminUserImpl.GENERATED_PASSWORD_LOG.equals(event.getMessage())).toList();
+        System.out.println(TAG + "generated-password log lines: " + lines.size());
+        assertEquals(1, lines.size());
+        assertTrue(lines.get(0).getFormattedMessage().contains(generated));
     }
 
     /** The marking step answers through {@code marking}; every other step succeeds at once. */

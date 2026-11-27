@@ -56,12 +56,15 @@ public interface UserService {
 
     Mono<Boolean> setPassword(String userId, String password);
 
+    /** Message key of the {@link #setPasswordIfAbsent} refusal of an account that has a password. */
+    String PASSWORD_ALREADY_SET = "PASSWORD_ALREADY_SET";
+
     /**
      * Sets the password of an account that has none (missing, null or blank), in one conditional MongoDB update, so the
      * check cannot race another write of the password (D-49). Fails with INVALID_PASSWORD / PASSWORD_ALREADY_SET when the
-     * account has a password, USER_NOT_EXIST when there is no such account. {@link #setPassword} stays the unconditional
-     * write for the super admin job. Limit: a whole-document save of the same user that read it before this update (for
-     * example a login's token save) can write the old, absent password back.
+     * account has a password, USER_NOT_EXIST when there is no such account. The super admin job writes a configured password
+     * with {@link #setPassword} and a generated one with this method. Limit: a whole-document save of the same user that
+     * read it before this update (for example a login's token save) can write the old, absent password back.
      */
     Mono<Boolean> setPasswordIfAbsent(String userId, String password);
 

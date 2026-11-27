@@ -95,7 +95,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP` | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up   | `true`               |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
 | `LOWCODER_SUPERUSER_USERNAME`       | Username of the Super-User of an Lowcoder Installation | `admin@localhost`                                                      |
-| `LOWCODER_SUPERUSER_PASSWORD`       | Password of the Super-User, if not present or empty, it will be generated | `generated and printed into log file                |
+| `LOWCODER_SUPERUSER_PASSWORD`       | Password of the Super-User. When set, it replaces the stored password at every start. When empty, a password is generated only while the account has none (first start) and printed once into the log; later starts keep the stored password | generated at first start, printed once into the log file                |
 | `LOWCODER_PLUGINS_DIR`              | Directory holding lowcoder plugins                                      | `/lowcoder-stacks/plugins`                            |
 | `LOWCODER_COOKIE_NAME`              | Name of the lowcoder application cookie                                 | `LOWCODER_CE_SELFHOST_TOKEN`                          |
 | `LOWCODER_COOKIE_MAX_AGE`           | Lowcoder application cookie max age in hours                            | `24`                                                  |
@@ -163,7 +163,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP` | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up   | `true`               |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
 | `LOWCODER_SUPERUSER_USERNAME` | Username of the Super-User of an Lowcoder Installation | `admin@localhost`                                                    |
-| `LOWCODER_SUPERUSER_PASSWORD` | Password of the Super-User, if not present or empty, it will be generated | `generated and printed into log file              |
+| `LOWCODER_SUPERUSER_PASSWORD` | Password of the Super-User. When set, it replaces the stored password at every start. When empty, a password is generated only while the account has none (first start) and printed once into the log; later starts keep the stored password | generated at first start, printed once into the log file              |
 | `LOWCODER_PLUGINS_DIR`              | Directory holding lowcoder plugins                                      | `/lowcoder-stacks/plugins`                            |
 | `LOWCODER_COOKIE_NAME`              | Name of the lowcoder application cookie                                 | `LOWCODER_CE_SELFHOST_TOKEN`                          |
 | `LOWCODER_COOKIE_MAX_AGE`           | Lowcoder application cookie max age in hours                            | `24`                                                  |
