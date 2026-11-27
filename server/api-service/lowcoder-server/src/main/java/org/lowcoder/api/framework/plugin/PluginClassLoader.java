@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ public class PluginClassLoader extends URLClassLoader
 			return clazz;
 		}
 		
-		if (StringUtils.startsWithAny(name, excludedPaths))
+		if (Strings.CS.startsWithAny(name, excludedPaths))
 		{
 			try 
 			{
@@ -68,7 +68,7 @@ public class PluginClassLoader extends URLClassLoader
 	@Override
 	public URL getResource(String name) {
         Objects.requireNonNull(name);
-		if (StringUtils.startsWithAny(name, excludedPaths))
+		if (Strings.CS.startsWithAny(name, excludedPaths))
 		{
 			return appClassLoader.getResource(name);
 		}
@@ -80,7 +80,7 @@ public class PluginClassLoader extends URLClassLoader
 	public Enumeration<URL> getResources(String name) throws IOException 
 	{
 		Objects.requireNonNull(name);
-		if (StringUtils.startsWithAny(name, excludedPaths))
+		if (Strings.CS.startsWithAny(name, excludedPaths))
 		{
 			return appClassLoader.getResources(name);
 		}

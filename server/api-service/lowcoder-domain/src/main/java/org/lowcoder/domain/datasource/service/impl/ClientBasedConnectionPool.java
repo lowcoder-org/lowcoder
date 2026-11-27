@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.domain.datasource.model.ClientBasedDatasourceConnectionHolder;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
@@ -86,7 +87,7 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
                 perfHelper.gaugeSafely(perfEvent, Tags.of("datasourceType", datasourceType), HIKARI_PERF_WRAPPER_MAP,
                         perfWrapperMap -> perfWrapperMap.entrySet()
                                 .stream()
-                                .filter(entry -> StringUtils.equals(entry.getKey().datasource().getType(), datasourceType))
+                                .filter(entry -> Strings.CS.equals(entry.getKey().datasource().getType(), datasourceType))
                                 .map(Entry::getValue)
                                 .mapToInt(hikariPerfWrapper -> switch (perfEvent) {
                                     case HIKARI_POOL_ACTIVE_CONNECTIONS -> hikariPerfWrapper.getActiveConnections();
@@ -161,7 +162,7 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
     private void releasePreviousConnection(Datasource datasource) {
         cache.asMap().keySet()
                 .stream()
-                .filter(cacheKey -> StringUtils.equals(datasource.getId(), cacheKey.datasource().getId()))
+                .filter(cacheKey -> Strings.CS.equals(datasource.getId(), cacheKey.datasource().getId()))
                 .forEach(cache::invalidate);
     }
 

@@ -2,7 +2,7 @@ package org.lowcoder.api.usermanagement;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
@@ -310,7 +310,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                     if (previousCurrentOrgMember.isPresent()) {
                         OrgMember orgMember = previousCurrentOrgMember.get();
                         String previousCurrentOrgId = orgMember.getOrgId();
-                        if (StringUtils.equals(previousCurrentOrgId, nextCurrentOrgId)) {
+                        if (Strings.CS.equals(previousCurrentOrgId, nextCurrentOrgId)) {
                             return Mono.just(true);
                         }
                         return orgMemberService.removeCurrentOrgMark(previousCurrentOrgId, userId)

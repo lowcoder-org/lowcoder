@@ -11,6 +11,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
@@ -112,12 +113,12 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
         Application application = new Application(createApplicationRequest.organizationId(),
-                ObjectUtils.defaultIfNull(createApplicationRequest.gid(), UuidCreator.getTimeOrderedEpoch().toString()),
+                ObjectUtils.getIfNull(createApplicationRequest.gid(), UuidCreator.getTimeOrderedEpoch().toString()),
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.editingApplicationDSL(),
-                ObjectUtils.defaultIfNull(createApplicationRequest.publicToAll(), false), ObjectUtils.defaultIfNull(createApplicationRequest.publicToMarketplace(), false), false, "", Instant.now());
+                ObjectUtils.getIfNull(createApplicationRequest.publicToAll(), false), ObjectUtils.getIfNull(createApplicationRequest.publicToMarketplace(), false), false, "", Instant.now());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -468,7 +469,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, MANAGE_APPLICATIONS)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(resourcePermissionService.getById(permissionId))
-                .filter(permission -> StringUtils.equals(permission.getResourceId(), applicationId))
+                .filter(permission -> Strings.CS.equals(permission.getResourceId(), applicationId))
                 .switchIfEmpty(deferredError(ILLEGAL_APPLICATION_PERMISSION_ID, "ILLEGAL_APPLICATION_PERMISSION_ID"))
                 .then(resourcePermissionService.updateRoleById(permissionId, role));
 
@@ -479,7 +480,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, MANAGE_APPLICATIONS)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(resourcePermissionService.getById(permissionId))
-                .filter(permission -> StringUtils.equals(permission.getResourceId(), applicationId))
+                .filter(permission -> Strings.CS.equals(permission.getResourceId(), applicationId))
                 .switchIfEmpty(deferredError(ILLEGAL_APPLICATION_PERMISSION_ID, "ILLEGAL_APPLICATION_PERMISSION_ID"))
                 .then(resourcePermissionService.removeById(permissionId));
     }

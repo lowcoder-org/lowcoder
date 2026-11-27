@@ -6,6 +6,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.permission.PermissionHelper;
@@ -135,8 +136,8 @@ public class FolderApiServiceImpl implements FolderApiService {
      */
     private Mono<Void> checkFolderNameUnique(@Nullable String parentFolderId, String name, String orgId, @Nullable String excludedFolderId) {
         return folderService.findByOrganizationId(orgId)
-                .filter(folder -> StringUtils.equals(parentFolderId, folder.getParentFolderId()))
-                .filter(folder -> !StringUtils.equals(excludedFolderId, folder.getId()))
+                .filter(folder -> Strings.CS.equals(parentFolderId, folder.getParentFolderId()))
+                .filter(folder -> !Strings.CS.equals(excludedFolderId, folder.getId()))
                 .map(Folder::getName)
                 .collectList()
                 .flatMap(list -> {
@@ -314,10 +315,10 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .collectMap(FolderElement::elementId, FolderElement::folderId);
 
         Flux<Folder> folderFlux = orgMemberMono.flatMapMany(orgMember -> folderService.findByOrganizationId(orgMember.getOrgId()))
-                .filter(folder -> name == null || StringUtils.containsIgnoreCase(folder.getName(), name)
-                        || StringUtils.containsIgnoreCase(folder.getType(), name)
-                        || StringUtils.containsIgnoreCase(folder.getDescription(), name)
-                        || StringUtils.containsIgnoreCase(folder.getId(), folderId))
+                .filter(folder -> name == null || Strings.CI.contains(folder.getName(), name)
+                        || Strings.CI.contains(folder.getType(), name)
+                        || Strings.CI.contains(folder.getDescription(), name)
+                        || Strings.CI.contains(folder.getId(), folderId))
                 .cache();
 
         Mono<Map<String, Instant>> folderId2LastViewTimeMapMono = orgMemberMono
@@ -468,7 +469,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         return resourcePermissionService.getById(permissionId)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new BizException(ILLEGAL_FOLDER_PERMISSION_ID, "PERMISSION_NOT_EXIST"))))
                 .flatMap(resourcePermission -> {
-                    if (!StringUtils.equals(folderId, resourcePermission.getResourceId())) {
+                    if (!Strings.CS.equals(folderId, resourcePermission.getResourceId())) {
                         return Mono.error(new BizException(ILLEGAL_FOLDER_PERMISSION_ID, "NO_PERMISSION_TO_OPERATE_FOLDER"));
                     }
                     return Mono.empty();

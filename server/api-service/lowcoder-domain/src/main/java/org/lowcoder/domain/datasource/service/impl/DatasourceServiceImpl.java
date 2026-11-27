@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -86,15 +87,15 @@ public class DatasourceServiceImpl implements DatasourceService {
 
     @Override
     public Mono<Datasource> getById(String id) {
-        if (StringUtils.equals(id, Datasource.QUICK_REST_API_ID)) {
+        if (Strings.CS.equals(id, Datasource.QUICK_REST_API_ID)) {
             return Mono.just(Datasource.QUICK_REST_API);
         }
 
-        if (StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
+        if (Strings.CS.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
             return Mono.just(Datasource.QUICK_GRAPHQL_API);
         }
 
-        if (StringUtils.equals(id, Datasource.JS_CODE_ID)) {
+        if (Strings.CS.equals(id, Datasource.JS_CODE_ID)) {
             return Mono.just(Datasource.JS_CODE);
         }
 
@@ -109,19 +110,19 @@ public class DatasourceServiceImpl implements DatasourceService {
     public Flux<Datasource> getByIds(Collection<String> ids) {
         Flux<Datasource> builtDatasourceFlux = Flux.fromStream(ids.stream()
                 .filter(id ->
-                        StringUtils.equals(id, Datasource.QUICK_REST_API_ID) ||
-                        StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID) ||
-                        StringUtils.equals(id, Datasource.JS_CODE_ID)
+                        Strings.CS.equals(id, Datasource.QUICK_REST_API_ID) ||
+                        Strings.CS.equals(id, Datasource.QUICK_GRAPHQL_ID) ||
+                        Strings.CS.equals(id, Datasource.JS_CODE_ID)
                         // || StringUtils.equals(id, Datasource.LOWCODER_API_ID)
                 )
                 .map(id -> {
-                    if (StringUtils.equals(id, Datasource.QUICK_REST_API_ID)) {
+                    if (Strings.CS.equals(id, Datasource.QUICK_REST_API_ID)) {
                         return Datasource.QUICK_REST_API;
                     }
-                    if (StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
+                    if (Strings.CS.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
                         return Datasource.QUICK_GRAPHQL_API;
                     }
-                    if (StringUtils.equals(id, Datasource.JS_CODE_ID)) {
+                    if (Strings.CS.equals(id, Datasource.JS_CODE_ID)) {
                         return Datasource.JS_CODE;
                     }
                     return null; // fallback
@@ -132,9 +133,9 @@ public class DatasourceServiceImpl implements DatasourceService {
         return Flux.concat(
                 builtDatasourceFlux,
                 repository.findByIds(ids.stream().filter(id ->
-                        !(StringUtils.equals(id, Datasource.QUICK_REST_API_ID) ||
-                        StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID) ||
-                        StringUtils.equals(id, Datasource.JS_CODE_ID)
+                        !(Strings.CS.equals(id, Datasource.QUICK_REST_API_ID) ||
+                        Strings.CS.equals(id, Datasource.QUICK_GRAPHQL_ID) ||
+                        Strings.CS.equals(id, Datasource.JS_CODE_ID)
                         // || StringUtils.equals(id, Datasource.LOWCODER_API_ID)
                         )
                 ).toList())

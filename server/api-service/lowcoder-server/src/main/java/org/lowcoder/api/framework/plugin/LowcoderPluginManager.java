@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.plugin.api.LowcoderPlugin;
 import org.lowcoder.plugin.api.LowcoderServices;
 import org.springframework.core.env.AbstractEnvironment;
@@ -93,7 +93,7 @@ public class LowcoderPluginManager
         
         for (String prop : properties)
         {
-        	env.put(StringUtils.removeStart(prop, varPrefix), environment.getProperty(prop));
+        	env.put(Strings.CS.removeStart(prop, varPrefix), environment.getProperty(prop));
         }
         
 		return env;

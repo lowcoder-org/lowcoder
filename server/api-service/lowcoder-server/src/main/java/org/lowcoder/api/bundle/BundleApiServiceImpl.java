@@ -5,6 +5,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.bundle.view.BundleInfoView;
@@ -633,7 +634,7 @@ public class BundleApiServiceImpl implements BundleApiService {
         return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
                 .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
                 .then(resourcePermissionService.getById(permissionId))
-                .filter(permission -> StringUtils.equals(permission.getResourceId(), bundleId))
+                .filter(permission -> Strings.CS.equals(permission.getResourceId(), bundleId))
                 .switchIfEmpty(deferredError(ILLEGAL_BUNDLE_PERMISSION_ID, "ILLEGAL_BUNDLE_PERMISSION_ID"))
                 .then(resourcePermissionService.updateRoleById(permissionId, role));
     }
@@ -643,7 +644,7 @@ public class BundleApiServiceImpl implements BundleApiService {
         return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
                 .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
                 .then(resourcePermissionService.getById(permissionId))
-                .filter(permission -> StringUtils.equals(permission.getResourceId(), bundleId))
+                .filter(permission -> Strings.CS.equals(permission.getResourceId(), bundleId))
                 .switchIfEmpty(deferredError(ILLEGAL_BUNDLE_PERMISSION_ID, "ILLEGAL_BUNDLE_PERMISSION_ID"))
                 .then(resourcePermissionService.removeById(permissionId));
     }

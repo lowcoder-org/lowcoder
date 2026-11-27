@@ -20,7 +20,7 @@ public class MarketplacePreviewStore {
     private final ReactiveMongoTemplate mongo;
 
     public Mono<Void> ensureIndex() {
-        return mongo.indexOps(MarketplacePreview.class).ensureIndex(new Index()
+        return mongo.indexOps(MarketplacePreview.class).createIndex(new Index()
                 .on("status", Sort.Direction.ASC).on("nextAttemptAt", Sort.Direction.ASC)).then();
     }
 

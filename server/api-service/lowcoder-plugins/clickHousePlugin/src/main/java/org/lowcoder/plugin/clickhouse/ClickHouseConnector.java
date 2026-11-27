@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.PluginException;
@@ -80,7 +81,7 @@ public class ClickHouseConnector implements DatasourceConnector<HikariDataSource
             invalids.add("HOST_WITH_COLON");
         }
 
-        if (StringUtils.equalsIgnoreCase(host, "localhost") || StringUtils.equals(host, "127.0.0.1")) {
+        if (Strings.CI.equals(host, "localhost") || Strings.CS.equals(host, "127.0.0.1")) {
             invalids.add("INVALID_HOST");
         }
 

@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.util.LogUtils;
@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public Mono<ResponseView<?>> catchResponseStatusException(ResponseStatusException e, ServerWebExchange exchange) {
-        if (StringUtils.startsWith(exchange.getRequest().getPath().toString(), NewUrl.PLUGINS_URL + "/")) {
+        if (Strings.CS.startsWith(exchange.getRequest().getPath().toString(), NewUrl.PLUGINS_URL + "/")) {
             BizError bizError = BizError.PLUGIN_ENDPOINT_ERROR;
             exchange.getResponse().setStatusCode(e.getStatusCode());
             return Mono.deferContextual(ctx -> {

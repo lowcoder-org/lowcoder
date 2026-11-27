@@ -59,7 +59,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public Mono<LibraryQuery> insert(LibraryQuery libraryQuery) {
-        if(StringUtils.isEmpty(libraryQuery.getGid())) libraryQuery.setGid(UuidCreator.getTimeOrderedEpoch().toString());
+        if(!StringUtils.hasLength(libraryQuery.getGid())) libraryQuery.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return libraryQueryRepository.save(libraryQuery);
     }
 

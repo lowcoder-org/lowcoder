@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.application.ApplicationApiService;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.permission.PermissionHelper;
@@ -95,7 +96,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
                 .flatMapMany(application -> datasourceService.getByOrgId(application.getOrganizationId()))
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL)
                 .filter(datasource -> datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType()) &&
-                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
+                        (name == null || Strings.CI.contains(datasource.getName(), name)) &&
                         (type == null || datasource.getType().equals(type))
                 )
                 .delayUntil(jsDatasourceHelper::processDynamicQueryConfig)
@@ -130,7 +131,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
         // get datasource
         Flux<Datasource> datasourceFlux = datasourceService.getByOrgId(orgId)
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL &&
-                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
+                        (name == null || Strings.CI.contains(datasource.getName(), name)) &&
                         (type == null || datasource.getType().equals(type))
                 )
                 .cache();

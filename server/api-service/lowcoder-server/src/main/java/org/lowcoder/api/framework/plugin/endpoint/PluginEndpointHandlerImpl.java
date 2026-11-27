@@ -20,6 +20,7 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lowcoder.api.framework.plugin.data.PluginServerRequest;
@@ -314,7 +315,7 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 
 	private String pluginEndpointUri(String basePath, String uri)
 	{
-		return StringUtils.join(basePath, StringUtils.prependIfMissing(uri, "/"));
+		return StringUtils.join(basePath, Strings.CS.prependIfMissing(uri, "/"));
 	}
 	
 

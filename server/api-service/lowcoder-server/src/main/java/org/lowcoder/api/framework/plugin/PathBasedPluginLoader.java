@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.plugin.api.LowcoderPlugin;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.boot.system.ApplicationHome;
@@ -79,7 +80,7 @@ public class PathBasedPluginLoader implements PluginLoader {
 		try {
 			return Files.walk(pluginsDir)
 					.filter(Files::isRegularFile)
-					.filter(path -> StringUtils.endsWithIgnoreCase(path.toAbsolutePath().toString(), ".jar"))
+					.filter(path -> Strings.CI.endsWith(path.toAbsolutePath().toString(), ".jar"))
 					.map(Path::toString)
 					.toList(); // Use Java 16+ `toList()` for better performance
 		} catch (IOException cause) {

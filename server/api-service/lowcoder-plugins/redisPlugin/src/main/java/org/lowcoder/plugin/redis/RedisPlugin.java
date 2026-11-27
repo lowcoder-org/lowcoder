@@ -111,8 +111,8 @@ public class RedisPlugin extends Plugin {
             poolConfig.setTestOnBorrow(true);
             poolConfig.setTestOnReturn(true);
             poolConfig.setTestWhileIdle(true);
-            poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(JEDIS_POOL_MIN_EVICTABLE_IDLE_MILLIS).toMillis());
-            poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(JEDIS_POOL_TIME_BETWEEN_EVICTION_RUNS_MILLIS).toMillis());
+            poolConfig.setMinEvictableIdleDuration(Duration.ofSeconds(JEDIS_POOL_MIN_EVICTABLE_IDLE_MILLIS));
+            poolConfig.setTimeBetweenEvictionRuns(Duration.ofSeconds(JEDIS_POOL_TIME_BETWEEN_EVICTION_RUNS_MILLIS));
             poolConfig.setBlockWhenExhausted(false);
             return poolConfig;
         }

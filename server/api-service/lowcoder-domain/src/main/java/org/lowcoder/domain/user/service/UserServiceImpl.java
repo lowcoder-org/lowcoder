@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetService;
@@ -134,7 +135,7 @@ public class UserServiceImpl implements UserService {
         // subject and must be matched byte-for-byte.
         String normalized = EmailUtils.normalizeIfEmailSource(source, sourceUuid);
         Mono<User> asStored = repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
-        if (StringUtils.equals(normalized, sourceUuid)) {
+        if (Strings.CS.equals(normalized, sourceUuid)) {
             return asStored;
         }
         return asStored.switchIfEmpty(
@@ -151,7 +152,7 @@ public class UserServiceImpl implements UserService {
         if(StringUtils.isEmpty(email)) return Mono.empty();
         String normalized = EmailUtils.normalize(email);
         Mono<User> asStored = probeByEmail(email);
-        if (StringUtils.equals(normalized, email)) {
+        if (Strings.CS.equals(normalized, email)) {
             return asStored;
         }
         return asStored.switchIfEmpty(probeByEmail(normalized));
@@ -218,14 +219,14 @@ public class UserServiceImpl implements UserService {
     static User pickDeterministically(List<User> candidates, String value) {
         return candidates.stream()
                 .min(Comparator
-                        .comparingInt((User user) -> StringUtils.equals(user.getEmail(), value) ? 0 : 1)
+                        .comparingInt((User user) -> Strings.CS.equals(user.getEmail(), value) ? 0 : 1)
                         .thenComparing(user -> StringUtils.defaultString(user.getId())))
                 .orElse(null);
     }
 
     @Override
     public Mono<Boolean> saveProfilePhoto(Part filePart, User user) {
-        String prevAvatar = ObjectUtils.defaultIfNull(user.getAvatar(), "");
+        String prevAvatar = ObjectUtils.getIfNull(user.getAvatar(), "");
         Mono<Asset> newAvatarMono = assetService.upload(filePart, avatarMaxSizeInKb.get(), true);
         return newAvatarMono
                 .flatMap(newAvatar -> {
@@ -341,7 +342,7 @@ public class UserServiceImpl implements UserService {
         }
         return findBySourceAndId(AuthSourceConstants.EMAIL, email)
                 .flatMap(owner -> {
-                    if (StringUtils.equals(owner.getId(), user.getId())) {
+                    if (Strings.CS.equals(owner.getId(), user.getId())) {
                         // Already this user's address. Writing again would append a second EMAIL connection
                         // differing from the first only in case, which is the very state this change exists
                         // to prevent, so the bind is idempotent instead.
@@ -528,7 +529,7 @@ public class UserServiceImpl implements UserService {
                         return ofError(BizError.INVALID_PARAMETER, "TOKEN_EXPIRED");
                     }
 
-                    if (!StringUtils.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
+                    if (!Strings.CS.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
                         return ofError(BizError.INVALID_PARAMETER, "INVALID_TOKEN");
                     }
 

@@ -537,7 +537,7 @@ public class DatabaseChangelog {
     public static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
-            indexOps.ensureIndex(index);
+            indexOps.createIndex(index);
         }
     }
 

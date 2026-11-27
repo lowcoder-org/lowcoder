@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.sdk.constants.GlobalContext;
 import org.lowcoder.sdk.models.LocaleMessage;
 import reactor.util.context.ContextView;
@@ -41,7 +41,7 @@ public final class LocaleUtils {
 
         try {
             ResourceBundle eeBundle = ResourceBundle.getBundle(ENTERPRISE_BUNDLE_BASE_NAME, locale);
-            if (StringUtils.equals(eeBundle.getLocale().getLanguage(), locale.getLanguage())
+            if (Strings.CS.equals(eeBundle.getLocale().getLanguage(), locale.getLanguage())
                     && eeBundle.containsKey(key.trim())) {
                 return new MessageFormat(eeBundle.getString(key.trim())).format(args);
             }

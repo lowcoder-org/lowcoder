@@ -62,11 +62,11 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 				String localeStr = language.get(0);
 				String[] parts = localeStr.split("_");
 				if(parts.length == 2) {
-					Locale locale = new Locale(parts[0], parts[1]);
+					Locale locale = Locale.of(parts[0], parts[1]);
 					return new SimpleLocaleContext(locale);
 				} else {
 					String safeLocaleStr = StringUtils.defaultIfBlank(parts[0], defaultLocaleStr);
-					Locale locale = new Locale(safeLocaleStr);
+					Locale locale = Locale.of(safeLocaleStr);
 					return new SimpleLocaleContext(locale);
 				}
 			}
