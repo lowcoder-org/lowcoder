@@ -105,6 +105,20 @@ public class RedisEngineQueryConfigTest {
         assertArrayEquals(new String[] {"k", ""}, raw("set k \"\"").getArgs());
     }
 
+    /** Observation: a double quote that is not closed is no quoted argument; the word keeps its quote. */
+    @Test
+    public void unclosedDoubleQuoteStaysPartOfTheArgument() {
+        assertArrayEquals(new String[] {"k", "\"abc"}, raw("set k \"abc").getArgs(), "opening quote only");
+        assertArrayEquals(new String[] {"k", "abc\""}, raw("set k abc\"").getArgs(), "closing quote only");
+    }
+
+    /** A lone double quote is one character, not an empty quoted argument: it is kept as it is and does not fail the parser. */
+    @Test
+    public void loneDoubleQuoteIsAnArgumentOfItsOwn() {
+        assertArrayEquals(new String[] {"k", "\""}, raw("set k \"").getArgs());
+        assertArrayEquals(new String[] {"\"", "k"}, raw("set \" k").getArgs(), "also in the middle");
+    }
+
     /** Observation: a rendered parameter value that contains spaces is split into several arguments (the render happens before the split). */
     @Test
     public void templateValueWithSpacesIsSplitIntoSeveralArguments() {

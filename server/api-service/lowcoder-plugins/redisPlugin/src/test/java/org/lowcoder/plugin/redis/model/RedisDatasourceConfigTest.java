@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.exception.PluginException;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -39,6 +40,13 @@ public class RedisDatasourceConfigTest {
 
     private static RedisDatasourceConfig config(Map<String, Object> values) {
         return RedisDatasourceConfig.buildFrom(new HashMap<>(values));
+    }
+
+    @Test
+    public void buildFromWithoutARequestIsAnInvalidConfigError() {
+        PluginException thrown = assertThrows(PluginException.class, () -> RedisDatasourceConfig.buildFrom(null));
+        System.out.println(TAG + "no request: " + thrown.getMessageKey());
+        assertEquals("INVALID_REDIS_CONFIG", thrown.getMessageKey());
     }
 
     @Test
