@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -118,7 +119,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                             String password = formContext.getPassword();
                             String superAdminEmail = commonConfig.getSuperAdmin().getUserName();
                             String superAdminPassword = commonConfig.getSuperAdmin().getPassword();
-                            if (StringUtils.equalsIgnoreCase(email, superAdminEmail) && StringUtils.equals(password, superAdminPassword)) {
+                            if (Strings.CI.equals(email, superAdminEmail) && Strings.CS.equals(password, superAdminPassword)) {
                                 // Allow superadmin login even if EMAIL provider is disabled
                                 return Mono.just(findAuthConfig);
                             }
@@ -399,7 +400,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             return false;
         }
         return organization.getAuthConfigs().stream()
-                .anyMatch(config -> StringUtils.equals(config.getAuthType(), newAuthConfig.getAuthType()));
+                .anyMatch(config -> Strings.CS.equals(config.getAuthType(), newAuthConfig.getAuthType()));
     }
 
     @Override

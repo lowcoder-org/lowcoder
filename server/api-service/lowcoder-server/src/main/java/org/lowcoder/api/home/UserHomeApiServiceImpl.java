@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
@@ -212,8 +213,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                     .map(categoryValue -> Map.entry(application, categoryValue)))
                             .filter(entry -> (isNull(applicationType) || applicationType == ApplicationType.ALL || entry.getKey().getApplicationType() == applicationType.getValue())
                                     && (isNull(applicationStatus) || entry.getKey().getApplicationStatus() == applicationStatus)
-                                    && (isNull(name) || StringUtils.containsIgnoreCase(entry.getKey().getName(), name))
-                                    && (isNull(category) || StringUtils.containsIgnoreCase(entry.getValue(), category)))
+                                    && (isNull(name) || Strings.CI.contains(entry.getKey().getName(), name))
+                                    && (isNull(category) || Strings.CI.contains(entry.getValue(), category)))
                             .map(Map.Entry::getKey)
                             .cache()
                             .collectList()

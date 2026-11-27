@@ -1,6 +1,6 @@
 package org.lowcoder.infra.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.sdk.config.dynamic.Conf;
 
 import java.util.function.Function;
@@ -43,7 +43,7 @@ class AutoReloadConfImpl<T> implements Conf<T> {
         }
 
         Resolved<T> last = resolved;
-        if (last != null && StringUtils.equals(last.strValue(), currentStrValue)) {
+        if (last != null && Strings.CS.equals(last.strValue(), currentStrValue)) {
             return firstNonNull(last.value(), defaultValue);
         }
 

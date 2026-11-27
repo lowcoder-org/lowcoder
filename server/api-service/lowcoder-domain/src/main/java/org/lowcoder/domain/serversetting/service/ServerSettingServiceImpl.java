@@ -3,6 +3,7 @@ package org.lowcoder.domain.serversetting.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.domain.serversetting.model.ServerSetting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.*;
@@ -52,7 +53,7 @@ public class ServerSettingServiceImpl implements ServerSettingService {
         Map<String, String> defaults = getEnvironmentVariablesDefaults();
 
         Map<String, String> envVariables = new TreeMap<>(System.getenv().entrySet().stream()
-                .filter(entry -> StringUtils.startsWith(entry.getKey(), "LOWCODER_"))
+                .filter(entry -> Strings.CS.startsWith(entry.getKey(), "LOWCODER_"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         Map<String, String> merged = new TreeMap<>(defaults);
@@ -87,7 +88,7 @@ public class ServerSettingServiceImpl implements ServerSettingService {
                 if (names.length > 0) {
                     Arrays.stream(names).forEach(name -> {
                         String rawValue = Objects.toString(propertySource.getProperty(name), "");
-                        if (rawValue != null && StringUtils.contains(rawValue, "${LOWCODER_")) {
+                        if (rawValue != null && Strings.CS.contains(rawValue, "${LOWCODER_")) {
                             String defaultValue = StringUtils.substringBetween(rawValue, "${", "}");
                             String[] keyValue = StringUtils.split(defaultValue, ":");
                             if (keyValue.length == 2 && !defaults.containsKey(keyValue[0])) {

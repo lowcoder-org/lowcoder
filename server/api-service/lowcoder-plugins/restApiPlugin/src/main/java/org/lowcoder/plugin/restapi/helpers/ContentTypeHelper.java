@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
@@ -33,10 +34,10 @@ public final class ContentTypeHelper {
     }
 
     public static boolean isJson(MediaType mediaType) {
-        return StringUtils.equalsIgnoreCase("application", mediaType.getType())
-                && (StringUtils.equalsIgnoreCase(mediaType.getSubtype(), "json")
-                || StringUtils.equals(mediaType.getSubtype(), "x-ndjson")
-                || StringUtils.contains(mediaType.getSubtype(), "+json")
+        return Strings.CI.equals("application", mediaType.getType())
+                && (Strings.CI.equals(mediaType.getSubtype(), "json")
+                || Strings.CS.equals(mediaType.getSubtype(), "x-ndjson")
+                || Strings.CS.contains(mediaType.getSubtype(), "+json")
                 || isSpecialJson(mediaType));
     }
 
@@ -44,7 +45,7 @@ public final class ContentTypeHelper {
      * for this type of json, its body should be parsed as JSON but write with stringify text when sending request
      */
     public static boolean isSpecialJson(MediaType mediaType) {
-        return StringUtils.contains(mediaType.getSubtype(), "-json");
+        return Strings.CS.contains(mediaType.getSubtype(), "-json");
     }
 
     public static String parseContentType(Map<String, String> allHeaders) {

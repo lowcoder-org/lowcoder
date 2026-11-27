@@ -5,6 +5,7 @@ import tools.jackson.databind.node.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.lowcoder.sdk.exception.PluginException;
 import tools.jackson.databind.node.StringNode;
@@ -20,7 +21,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.replace;
 import static org.lowcoder.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
 import static org.lowcoder.sdk.util.JsonUtils.*;
 import static org.lowcoder.sdk.util.MustacheHelper.*;
@@ -206,8 +206,8 @@ class RjsonMustacheParser {
         String escapedLeftPar = "\\{\\{";
         String escapedRightPar = "\\}\\}";
         if (str.contains(escapedLeftPar) && str.contains(escapedRightPar)) {
-            var newStr = replace(str, escapedLeftPar, "{{");
-            newStr = replace(newStr, escapedRightPar, "}}");
+            var newStr = Strings.CS.replace(str, escapedLeftPar, "{{");
+            newStr = Strings.CS.replace(newStr, escapedRightPar, "}}");
             return new StringCheckResult(2, newStr);
         }
 

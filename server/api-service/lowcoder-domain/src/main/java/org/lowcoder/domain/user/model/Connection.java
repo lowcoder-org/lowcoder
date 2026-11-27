@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -126,7 +126,7 @@ public class Connection implements Serializable {
     }
 
     public boolean matchThirdPartyLoginSourceInCloud(String sourceType, String orgId) {
-        return StringUtils.equals(sourceType, source) && containOrg(orgId);
+        return Strings.CS.equals(sourceType, source) && containOrg(orgId);
     }
 
     public Map<String, Object> getRawUserInfo() {
@@ -137,6 +137,6 @@ public class Connection implements Serializable {
     }
 
     public boolean matchThirdPartyLoginSourceInSelfHost(String sourceType) {
-        return StringUtils.equals(sourceType, source);
+        return Strings.CS.equals(sourceType, source);
     }
 }

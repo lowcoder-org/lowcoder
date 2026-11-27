@@ -1,7 +1,7 @@
 package org.lowcoder.domain.permission.model;
 
 import jakarta.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Arrays;
 
@@ -25,7 +25,7 @@ public enum ResourceHolder {
     @Nullable
     public static ResourceHolder from(String abbr) {
         return Arrays.stream(values())
-                .filter(it -> StringUtils.equalsIgnoreCase(it.abbr, abbr))
+                .filter(it -> Strings.CI.equals(it.abbr, abbr))
                 .findFirst()
                 .orElse(null);
     }

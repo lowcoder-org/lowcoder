@@ -3,6 +3,7 @@ package org.lowcoder.api.query;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.query.view.*;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
@@ -77,7 +78,7 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
-                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
+                .filter(libraryQuery -> Strings.CI.contains(libraryQuery.getName(), name))
                 .collectList()
                 .flatMap(libraryQueries -> ViewBuilder.multiBuild(libraryQueries,
                         LibraryQuery::getCreatedBy,
@@ -190,7 +191,7 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     public Mono<List<LibraryQueryAggregateView>> dropDownList(String name) {
         Mono<List<LibraryQuery>> libraryQueryListMono = sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
-                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
+                .filter(libraryQuery -> Strings.CI.contains(libraryQuery.getName(), name))
                 .collectList()
                 .cache();
 

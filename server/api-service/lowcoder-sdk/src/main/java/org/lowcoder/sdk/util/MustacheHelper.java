@@ -546,11 +546,11 @@ public final class MustacheHelper {
                 start = i;
             } else {
                 if (query.charAt(i) == quote) {
-                    return Range.between(start, i + 1);
+                    return Range.of(start, i + 1);
                 }
             }
         }
-        return Range.between(-1, -1);
+        return Range.of(-1, -1);
     }
 
     private static boolean isQuote(String query, int index) {

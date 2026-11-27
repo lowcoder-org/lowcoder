@@ -1,7 +1,7 @@
 package org.lowcoder.infra.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.sdk.util.HttpHeaderMaps;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +40,7 @@ public class NetworkUtils {
 
     private static String getMatchingKey(String key, Set<String> keys) {
         return keys.stream()
-                .filter(headerKey -> StringUtils.equalsIgnoreCase(key, headerKey))
+                .filter(headerKey -> Strings.CI.equals(key, headerKey))
                 .findFirst()
                 .orElse(null);
     }

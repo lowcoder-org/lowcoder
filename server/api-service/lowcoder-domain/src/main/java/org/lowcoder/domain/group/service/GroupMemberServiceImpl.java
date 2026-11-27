@@ -5,7 +5,7 @@ import static org.lowcoder.infra.birelation.BiRelationBizType.GROUP_MEMBER;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.organization.model.MemberRole;
@@ -62,7 +62,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     public Mono<List<GroupMember>> getUserGroupMembersInOrg(String orgId, String userId) {
         return biRelationService.getByTargetId(GROUP_MEMBER, userId)
                 .map(GroupMember::from)
-                .filter(it -> StringUtils.equals(it.getOrgId(), orgId))
+                .filter(it -> Strings.CS.equals(it.getOrgId(), orgId))
                 .collectList();
     }
 
@@ -94,7 +94,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     public Mono<List<String>> getNonDynamicUserGroupIdsInOrg(String orgId, String userId) {
         return biRelationService.getByTargetId(GROUP_MEMBER, userId)
                 .map(GroupMember::from)
-                .filter(it -> StringUtils.equals(it.getOrgId(), orgId))
+                .filter(it -> Strings.CS.equals(it.getOrgId(), orgId))
                 .map(GroupMember::getGroupId)
                 .collectList();
     }

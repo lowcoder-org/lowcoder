@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.birelation.BiRelationBizType;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -30,7 +31,7 @@ public class ResourcePermission extends HasIdAndAuditing {
 
     public boolean matchUser(String userId, ResourceAction resourceAction) {
         return resourceHolder == ResourceHolder.USER
-                && StringUtils.equals(userId, resourceHolderId)
+                && Strings.CS.equals(userId, resourceHolderId)
                 && resourceRole.canDo(resourceAction);
     }
 

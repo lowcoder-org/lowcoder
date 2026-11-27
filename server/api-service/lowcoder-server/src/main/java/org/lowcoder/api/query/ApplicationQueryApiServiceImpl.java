@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.query.view.QueryExecutionRequest;
 import org.lowcoder.domain.application.model.Application;
@@ -103,7 +104,7 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
                     BaseQuery baseQuery = tuple.getT4();
                     Datasource datasource = tuple.getT5();
 
-                    if (shouldCheckDatasourceOrgMatch(datasource) && !StringUtils.equals(datasource.getOrganizationId(), app.getOrganizationId())) {
+                    if (shouldCheckDatasourceOrgMatch(datasource) && !Strings.CS.equals(datasource.getOrganizationId(), app.getOrganizationId())) {
                         return ofError(DATASOURCE_AND_APP_ORG_NOT_MATCH, "DATASOURCE_AND_APP_ORG_NOT_MATCH");
                     }
 
