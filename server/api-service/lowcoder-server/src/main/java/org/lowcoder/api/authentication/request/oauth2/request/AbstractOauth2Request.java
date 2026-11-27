@@ -29,6 +29,7 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
         this.source = source;
     }
 
+    @Override
     public Mono<AuthUser> auth(AuthRequestContext authRequestContext) {
         return getAuthToken((OAuth2RequestContext) authRequestContext)
                 .flatMap(authToken -> getAuthUser(authToken).flatMap(authUser -> requireUid(authUser, NO_USER_ID)).doOnNext(authUser -> authUser.setAuthToken(authToken)))
@@ -39,6 +40,7 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
                 .subscribeOn(AUTH_REQUEST_THREAD_POOL);
     }
 
+    @Override
     public Mono<AuthUser> refresh(String refreshToken) {
         return refreshAuthToken(refreshToken)
                 .flatMap(authToken -> getAuthUser(authToken).flatMap(authUser -> requireUid(authUser, NO_USER_ID)).doOnNext(authUser -> authUser.setAuthToken(authToken)))

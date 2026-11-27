@@ -164,6 +164,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
         return userStatusService.markNewUserGuidanceShown(userId);
     }
 
+    @Override
     public Mono<UserHomepageView> getUserHomePageView(ApplicationType applicationType) {
 
         Mono<User> userMono = sessionUserService.getVisitor();
@@ -308,8 +309,6 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             .flatMap(tuple -> {
                                 // build view
                                 Bundle bundle = tuple.getT1();
-                                Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
-                                Map<String, User> userMap = tuple.getT3();
 
                                 BundleInfoView bundleInfoView = BundleInfoView.builder()
                                         .bundleId(bundle.getId())

@@ -268,7 +268,6 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .zipWith(Mono.zip(sessionUserService.getVisitorOrgMemberCache(), orgDevChecker.isCurrentOrgDev()))
                 .doOnNext(tuple -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> node = tuple.getT1();
-                    OrgMember orgMember = tuple.getT2().getT1();
                     boolean devOrAdmin = tuple.getT2().getT2();
                     // father folder's visibility depends on child nodes
                     node.postOrderIterate(n -> {

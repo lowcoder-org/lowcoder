@@ -82,7 +82,6 @@ public class BundleController implements BundleEndpoints
         return bundleService.findById(bundle.getId())
                 .zipWhen(__ -> bundleApiService.update(bundle))
                 .delayUntil(tuple2 -> {
-                    Bundle old = tuple2.getT1();
                     return businessEventPublisher.publishBundleCommonEvent(tuple2.getT2(), BUNDLE_UPDATE);
                 })
                 .map(tuple2 -> ResponseView.success(tuple2.getT2()));

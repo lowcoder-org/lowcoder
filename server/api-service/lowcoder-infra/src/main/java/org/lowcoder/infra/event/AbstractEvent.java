@@ -26,6 +26,7 @@ public abstract class AbstractEvent implements LowcoderEvent
 	@Setter
 	private static String environmentID;
     
+    @Override
     public Map<String, Object> details()
     {
 		this.details.put("environmentId", environmentID);

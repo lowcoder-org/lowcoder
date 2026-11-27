@@ -38,6 +38,7 @@ public class BulkInsertCommand implements GuiSqlCommand {
     }
 
     @SuppressWarnings("DuplicatedCode")
+    @Override
     public GuiSqlCommandRenderResult render(Map<String, Object> requestMap) {
         String renderedTable = SqlGuiUtils.renderTableName(table, requestMap, columnFrontDelimiter, columnBackDelimiter);
         ChangeSetRows insertRows = bulkObjectChangeSet.render(requestMap);

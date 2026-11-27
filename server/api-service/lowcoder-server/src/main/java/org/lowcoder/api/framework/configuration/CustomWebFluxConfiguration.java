@@ -52,6 +52,7 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 	}
 
 	@Bean
+	@Override
 	public LocaleContextResolver localeContextResolver() {
 		return new LocaleContextResolver() {
 			@Override
