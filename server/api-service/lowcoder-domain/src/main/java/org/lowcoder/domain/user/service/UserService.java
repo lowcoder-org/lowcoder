@@ -56,7 +56,10 @@ public interface UserService {
 
     Mono<Boolean> setPassword(String userId, String password);
 
-    /** Message key of the {@link #setPasswordIfAbsent} refusal of an account that has a password. */
+    /**
+     * Message key of the {@link #setPasswordIfAbsent} refusal of an account that has a password. The implementation writes the
+     * literal (the message-key bundle test reads literals); a test pins that both are the same text.
+     */
     String PASSWORD_ALREADY_SET = "PASSWORD_ALREADY_SET";
 
     /**

@@ -267,6 +267,12 @@ public class MigrationJobAddSuperAdminTest {
         }
     }
 
+    /** The constant the job tests the refusal against is the key the implementation refuses with (pinned in the Mongo test as well). */
+    @Test
+    public void theRefusalKeyIsTheOneTheImplementationWrites() {
+        assertEquals("PASSWORD_ALREADY_SET", UserService.PASSWORD_ALREADY_SET);
+    }
+
     @Test
     public void aFailureOtherThanAnExistingPasswordFailsTheJob() {
         noPasswordConfigured(user(false, null));
