@@ -9,7 +9,8 @@
      - Executed, not asserted: it counts what the tests ran, not what they asserted.
      - Credit across modules: a module is credited with the tests of any module (the aggregate's data).
      - Timing: coverage that depends on wall-clock time can make a figure move between builds.
-     - Local builds only: it runs only where `mvn verify` runs; no CI job runs it (owner decision D-7, 2026-10-04).
+     - It runs wherever `mvn verify` runs: locally and in the SonarCloud Build workflow, which also feeds the aggregate
+       report to Sonar. The CodeQL workflow builds with -DskipTests and never reaches it.
      - Clean builds only: JaCoCo appends to an existing jacoco.exec and the gate reads whatever is in target/, so its
        figures are meaningful only for `mvn -B clean verify`. The data files it read are listed, with their times on
        Linux only (GNU ls); elsewhere only their names are listed.

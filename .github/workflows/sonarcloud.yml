@@ -3,7 +3,8 @@ name: Sonarcloud
 # TRUSTED half of the SonarCloud analysis; the only place SONAR_TOKEN is used.
 # It runs from the default branch via workflow_run and never executes PR code: the PR
 # tree is checked out as data and the artifact from "Sonarcloud Build" is validated
-# before use. Not covered: the scanner still parses untrusted sources and class files.
+# before use. Not covered: the scanner still parses untrusted sources, class files and the
+# JaCoCo coverage report (jacoco.xml) from that artifact.
 on:
   workflow_run: # zizmor: ignore[dangerous-triggers] artifact and PR tree are handled as data only
     workflows: ["Sonarcloud Build"]
@@ -91,4 +92,5 @@ jobs:
             -Dsonar.organization=lowcoder
             -Dsonar.projectKey=lowcoder-org_lowcoder
             -Dsonar.working.directory=${{ runner.temp }}/scannerwork
+            -Dsonar.coverage.jacoco.xmlReportPaths=${{ runner.temp }}/sonar-artifact/jacoco.xml
             ${{ steps.target.outputs.scanner_args }}
