@@ -80,6 +80,20 @@ public class RedisEngineConnectionTest {
         assertInstanceOf(URISyntaxException.class, root);
     }
 
+    /** The URL error mapping applies to URI mode only: a host that cannot form a URI reaches the caller as the raw URISyntaxException. */
+    @Test
+    public void unusableHostOutsideUriModeReachesTheCallerUnmapped() {
+        RedisDatasourceConfig bad = RedisDatasourceConfig.buildFrom(Map.of("host", "bad host", "port", 6379));
+        Throwable thrown = assertThrows(Throwable.class, () -> engine.createConnection(bad).block(BLOCK_TIMEOUT));
+        System.out.println(TAG + "unusable host: " + thrown);
+        Throwable root = thrown;
+        while (root.getCause() != null) {
+            root = root.getCause();
+        }
+        assertInstanceOf(URISyntaxException.class, root);
+        assertFalse(thrown instanceof PluginException, "not mapped to REDIS_URL_ERROR");
+    }
+
     @Test
     public void aUriWithAUserButNoPasswordIsMappedToRedisUrlError() {
         RedisDatasourceConfig config = RedisDatasourceConfig.buildFrom(Map.of("usingUri", true, "uri", "redis://u@h:1"));

@@ -255,7 +255,8 @@ public class RedisPlugin extends Plugin {
                     cmdAndArgs.put(CMD_KEY, matcher.group().toUpperCase(Locale.ROOT)); // BF-122: not the default locale
                 } else {
                     String arg = matcher.group();
-                    if (arg.startsWith("\"") && arg.endsWith("\"")) {
+                    // a lone quote both starts and ends with a quote, but encloses nothing
+                    if (arg.length() > 1 && arg.startsWith("\"") && arg.endsWith("\"")) {
                         arg = arg.substring(1, arg.length() - 1);
                     }
                     args.add(arg);
