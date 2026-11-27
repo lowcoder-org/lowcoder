@@ -519,6 +519,8 @@ export const API_ERRORS = {
   CANNOT_DELETE_SYSTEM_GROUP: { status: 500, code: 5154 }, // :42
   NEED_DEV_TO_CREATE_RESOURCE: { status: 500, code: 5155 }, // :44
   INVALID_INVITATION_CODE: { status: 400, code: 5200 }, // :47
+  /** An invitation redeemed by a visitor who is a member of its workspace already (`BizError.java`). */
+  ALREADY_IN_ORGANIZATION: { status: 400, code: 5202 }, // :49
   QUERY_NOT_FOUND: { status: 500, code: 5300 }, // :55
   ILLEGAL_APPLICATION_PERMISSION_ID: { status: 500, code: 5302 }, // :57
   NO_PERMISSION_TO_VIEW: { status: 403, code: 5304 }, // :59
