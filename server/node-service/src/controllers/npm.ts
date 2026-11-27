@@ -248,7 +248,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
         }
 
         const baseDir = `${CACHE_DIR}/${workspaceId ?? "default"}`;
-        const packageBaseDir = `${baseDir}/${packageId}/${packageVersion}/package`;
+        const packageBaseDir = pathInsideCache(`${baseDir}/${packageId}/${packageVersion}/package`);
         const processingKey = packageBaseDir; // one entry per workspace, package and version
         while (PackageProcessingQueue.has(processingKey)) {
             logger.info("Waiting for package to be processed", packageId);
@@ -257,7 +257,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
         // No await between the last has() above and add() below: check and registration happen in one event-loop turn.
         PackageProcessingQueue.add(processingKey);
         try {
-            const packageExists = await fileExists(`${packageBaseDir}/package.json`);
+            const packageExists = await fileExists(pathInsideCache(`${packageBaseDir}/package.json`));
             if (!packageExists) {
                 try {
                     logger.info(`Package does not exist, fetch from registy: ${packageId}@${packageVersion}`);
