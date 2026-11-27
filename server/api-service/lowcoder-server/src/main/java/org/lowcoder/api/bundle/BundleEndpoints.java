@@ -67,7 +67,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 			operationId = "listRecycledBundles",
 			summary = "List recycled Bundles in bin",
-			description = "List all the recycled Lowcoder Bundles in the recycle bin where the authenticated or impersonated user has access."
+			description = "List the recycled Lowcoder Bundles that the authenticated or impersonated user created in the current workspace and may read."
 	)
 	@GetMapping("/recycle/list")
 	public Mono<ResponseView<List<BundleInfoView>>> getRecycledBundles();
@@ -204,7 +204,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 			operationId = "listBundles",
 			summary = "List Bundles of current User",
-			description = "Retrieve a list of Lowcoder Bundles accessible by the authenticated or impersonated user."
+			description = "Retrieve the Lowcoder Bundles that the authenticated or impersonated user created in the current workspace and may read."
 	)
 	@GetMapping("/list")
 	public Mono<ResponseView<List<BundleInfoView>>> getBundles(@RequestParam(required = false) BundleStatus bundleStatus);
