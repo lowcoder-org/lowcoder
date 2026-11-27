@@ -82,9 +82,8 @@ class ConfigEndpointsIntegrationTest {
         // Assert
         StepVerifier.create(result)
                 .assertNext(deploymentId -> {
+                    // Deployment ID can be empty string in test environment, so only its presence is asserted
                     assertNotNull(deploymentId);
-                    // Deployment ID can be empty string in test environment
-                    assertTrue(deploymentId.length() >= 0);
                 })
                 .verifyComplete();
     }

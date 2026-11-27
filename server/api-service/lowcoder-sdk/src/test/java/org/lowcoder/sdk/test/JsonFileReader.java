@@ -2,11 +2,11 @@ package org.lowcoder.sdk.test;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.jayway.jsonpath.JsonPath;
-import org.apache.commons.io.IOUtils;
 import org.lowcoder.sdk.util.JsonUtils;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class JsonFileReader {
     public static <T> T read(Class<?> clazz, String jsonPath) {
         String path = buildPath(clazz);
         try {
-            String json = IOUtils.toString(new FileReader(path));
+            String json = Files.readString(Path.of(path));
             return JsonPath.read(json, jsonPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -27,7 +27,7 @@ public class JsonFileReader {
     public static <T> T read(String classpath, String jsonPath) {
         String path = buildPath(classpath);
         try {
-            String json = IOUtils.toString(new FileReader(path));
+            String json = Files.readString(Path.of(path));
             return JsonPath.read(json, jsonPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -37,7 +37,7 @@ public class JsonFileReader {
     public static List<Object> readList(String classpath) {
         String path = buildPath(classpath);
         try {
-            String json = IOUtils.toString(new FileReader(path));
+            String json = Files.readString(Path.of(path));
             return JsonUtils.fromJsonList(json);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -47,7 +47,7 @@ public class JsonFileReader {
     public static Map<String, Object> readMap(Class<?> clazz) {
         String path = buildPath(clazz);
         try {
-            String json = IOUtils.toString(new FileReader(path));
+            String json = Files.readString(Path.of(path));
             return JsonUtils.fromJsonMap(json);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -57,7 +57,7 @@ public class JsonFileReader {
     public static Map<String, Object> readMap(String classpath) {
         String path = buildPath(classpath);
         try {
-            String json = IOUtils.toString(new FileReader(path));
+            String json = Files.readString(Path.of(path));
             return JsonUtils.fromJsonMap(json);
         } catch (IOException e) {
             throw new RuntimeException(e);

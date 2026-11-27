@@ -39,7 +39,7 @@ public class GoogleSheetsEmptySheetFamilyTest extends GoogleSheetsCallSupport {
         QueryExecutionResult result = run("readData", Map.of("spreadsheetId", SPREADSHEET, "sheetName", "Sheet1"));
 
         System.out.println("[GoogleSheetsEmptySheetFamilyTest] read empty sheet -> success=" + result.isSuccess() + " data=" + result.getData());
-        assertTrue(result.isSuccess(), String.valueOf(result.getMessageArgs()));
+        assertTrue(result.isSuccess(), java.util.Arrays.toString(result.getMessageArgs()));
         assertEquals(List.of(), result.getData());
         assertEquals(List.of("GET"), apiRequests().stream().map(Request::method).toList());
     }
