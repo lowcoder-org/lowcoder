@@ -10,6 +10,7 @@ import org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.infra.js.NodeServerClient;
 import org.lowcoder.infra.js.NodeServerHelper;
+import org.lowcoder.infra.util.LogUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfigHelper;
 import org.lowcoder.sdk.exception.ServerException;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.constants.GlobalContext.REQUEST;
 
@@ -88,11 +90,23 @@ public class DatasourcePluginClient implements NodeServerClient {
                                 return response.bodyToMono(new ParameterizedTypeReference<>() {
                                 });
                             }
-                            log.error("request /getPluginDynamicConfig error.{},{}", getPluginDynamicConfigRequestDTOS, response.statusCode().value());
+                            log.error("request /getPluginDynamicConfig error.{},{}", describeRequests(getPluginDynamicConfigRequestDTOS), response.statusCode().value());
                             return Mono.error(new ServerException("get dynamic config error"));
                         })
                         .timeout(Duration.ofSeconds(10))
                 );
+    }
+
+    /**
+     * What identifies each request in a log line: data source id, plugin name and path, each on one line. Never the
+     * data source configuration, which holds the credentials the user typed.
+     */
+    private static String describeRequests(List<GetPluginDynamicConfigRequestDTO> requests) {
+        return requests.stream()
+                .map(request -> "[dataSourceId=" + LogUtils.neutralize(request.getDataSourceId())
+                        + ", pluginName=" + LogUtils.neutralize(request.getPluginName())
+                        + ", path=" + LogUtils.neutralize(request.getPath()) + "]")
+                .collect(Collectors.joining(", "));
     }
 
     public Mono<DatasourcePluginDefinition> getDatasourcePluginDefinition(String type) {

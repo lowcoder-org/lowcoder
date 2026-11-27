@@ -1,8 +1,13 @@
 package org.lowcoder.domain.plugin.client;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lowcoder.domain.encryption.EncryptionServiceImpl;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
@@ -20,6 +25,7 @@ import org.lowcoder.sdk.contract.RecordingHttpServer;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Request;
 import org.lowcoder.sdk.contract.RecordingHttpServer.Response;
 import org.lowcoder.sdk.contract.RepresentativeInput;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -67,6 +73,7 @@ class DatasourcePluginClientContractTest {
     static final String NODE_PASSWORD = "nodePassword";
     static final String NODE_SALT = "nodeSalt";
     static final String PLUGIN = "contractPlugin";
+    static final String SECRET_MARKER = "s3cret-for-log";
     static final String REQUEST_KEY = "request";
     static final String DECRYPTED_KEY = "decrypted";
     static final String RESULT_KEY = "result";
@@ -128,6 +135,40 @@ class DatasourcePluginClientContractTest {
         String actual = ConfigBinding.write(report);
         System.out.println("[DatasourcePluginClientContractTest] " + SERVERS.size() + " node-service variants\n" + actual);
         GOLDEN.assertJson(REPORT, actual);
+    }
+
+    /**
+     * A non-2xx answer of the node service is logged with the status and what identifies each request, never with
+     * the datasource configuration (which holds the credentials the user typed), and a line break in a value stays on one line.
+     */
+    @Test
+    void aFailedDynamicConfigCallLogsNoDatasourceConfigAndKeepsOneLine() {
+        Logger clientLogger = (Logger) LoggerFactory.getLogger(DatasourcePluginClient.class);
+        ListAppender<ILoggingEvent> logs = new ListAppender<>();
+        logs.start();
+        clientLogger.addAppender(logs);
+        try {
+            Map<String, Object> config = new LinkedHashMap<>();
+            config.put("password", SECRET_MARKER);
+            List<GetPluginDynamicConfigRequestDTO> requests = List.of(GetPluginDynamicConfigRequestDTO.builder()
+                    .dataSourceId("ds1").pluginName("forged\nplugin").path("tables").dataSourceConfig(config).build());
+
+            Assertions.assertThrows(RuntimeException.class, () -> client(SERVERS.get("failing"), false).getPluginDynamicConfig(requests).block(TIMEOUT));
+
+            List<String> errors = logs.list.stream().filter(event -> event.getLevel() == Level.ERROR)
+                    .map(ILoggingEvent::getFormattedMessage).toList();
+            errors.forEach(message -> System.out.println("[DatasourcePluginClientContractTest] ERROR " + message.replace(SECRET_MARKER, "<<SECRET>>")
+                    + (message.contains(SECRET_MARKER) ? "  [contains the secret]" : "")));
+            Assertions.assertEquals(1, errors.size(), "one error line for the failed call");
+            String message = errors.get(0);
+            Assertions.assertFalse(message.contains(SECRET_MARKER), "the datasource configuration must not reach the log");
+            Assertions.assertTrue(message.contains(String.valueOf(SERVER_ERROR)), "the status is logged");
+            Assertions.assertTrue(message.contains("forged_plugin"), "the plugin name is logged on one line");
+            Assertions.assertFalse(message.contains("\n"), "no line break from a request value");
+        } finally {
+            clientLogger.detachAppender(logs);
+            logs.stop();
+        }
     }
 
     /** The request the server received for one call (none for a call that sent nothing) and what the call returned. */
