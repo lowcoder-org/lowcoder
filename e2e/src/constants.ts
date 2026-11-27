@@ -598,6 +598,10 @@ export function bundleRecyclePath(bundleId: string): string {
   return `${API_PATHS.BUNDLES}/recycle/${bundleId}`;
 }
 
+export function bundleRestorePath(bundleId: string): string {
+  return `${API_PATHS.BUNDLES}/restore/${bundleId}`;
+}
+
 export function bundleViewPath(bundleId: string): string {
   return `${bundlePath(bundleId)}/view`;
 }

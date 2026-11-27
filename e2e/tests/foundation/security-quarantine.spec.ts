@@ -13,11 +13,12 @@ import {
   lifecycleTestDetails,
   quarantinedDefect,
   securityCandidateDetails,
+  securityDetailsFor,
   securityTestDetails,
 } from "../../src/security/quarantine";
 
-/** Sizes of the two maps: no fixed-on-branch scenario (LC-AK04 left it: its UI test no longer reloads during the delete), and 1 open one
- * (the security id SEC-A10b; D-30 left the map by the owner's decision that the join through a workspace's own page is intended, so SEC-C17c and LC-AU15 pin it). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
+/** Sizes of the two maps: no fixed-on-branch scenario (LC-AK04 left it: its UI test no longer reloads during the delete), and no open one
+ * (D-30 and D-13 left the maps by the owner's decisions: the join through a workspace's own page and the anonymous e-mail lookup are intended, so SEC-C17c, LC-AU15 and SEC-A10b pin them). D-6, D-7, D-33 (CORS-credentials half), D-34, D-36, D-40, D-48, D-49, D-58 and D-62 left the map: their server fixes
  * closed SEC-C09, SEC-C11, SEC-C19a, SEC-C19b, SEC-C22e, SEC-R15c, SEC-A04, SEC-A11, SEC-A12, SEC-E05, LC-PW08, LC-PW11,
  * LC-IP14, LC-PR13, LC-AU07 and LC-PR14. D-12 and D-39 also left the map: the fix closed SEC-A10a and SEC-A10c. D-35 also left the map:
  * the fix closed SEC-X01b and SEC-X01c. D-10 also left the map: the fix closed SEC-A09c. D-14 also left the map: the
@@ -39,7 +40,7 @@ import {
  * LC-PW15 is no longer quarantined. D-63 also left the map: the profile now fetches the app list it counts, so
  * LC-OT02 is no longer quarantined. */
 const FIXED_ON_BRANCH_COUNT = 0;
-const OPEN_DEFECTS_COUNT = 1;
+const OPEN_DEFECTS_COUNT = 0;
 /** Lifecycle ids: no lifecycle id is in a map any more; the listed-id branches are tested through an injected lookup. */
 const LC_UNLISTED_ID = "LC-AU01";
 const LC_INJECTED_ID = "LC-AK98";
@@ -52,7 +53,10 @@ const PASSING_ID = "SEC-C01a";
 const LEFT_FIXED_LC_ID = "LC-AK04";
 /** A scenario that left the quarantine on 3.0.1 (its test passes, so it is in neither map). */
 const LEFT_QUARANTINE_ID = "SEC-C13";
-const OPEN_ID = "SEC-A10b";
+/** An id listed by the injected lookup only: both maps are empty, so the listed-id branches are tested through it. */
+const SEC_INJECTED_ID = "SEC-A97a";
+const SEC_INJECTED_DEFECTS: Readonly<Record<string, string>> = { [SEC_INJECTED_ID]: "D-45" };
+const injectedSecurity = securityDetailsFor((id) => SEC_INJECTED_DEFECTS[id]);
 
 /** The title as Playwright matches `grep` / `grepInvert` against: the title followed by the tags of the test. */
 function titleWithTags(id: string, tags: string[]): string {
@@ -61,10 +65,11 @@ function titleWithTags(id: string, tags: string[]): string {
 
 test.describe("security quarantine list", () => {
   test("a listed id gets the security and quarantine tags and the defect annotation", () => {
-    expect(securityTestDetails(OPEN_ID), "an open-defect id").toEqual({
+    expect(injectedSecurity.testDetails(SEC_INJECTED_ID), "an id the lookup lists").toEqual({
       tag: [TAGS.SECURITY, TAGS.QUARANTINE],
-      annotation: { type: DEFECT_ANNOTATION_TYPE, description: OPEN_DEFECTS[OPEN_ID] },
+      annotation: { type: DEFECT_ANNOTATION_TYPE, description: "D-45" },
     });
+    expect(securityTestDetails(SEC_INJECTED_ID), "the maps, not the injected lookup, decide in production").toEqual({ tag: [TAGS.SECURITY] });
   });
 
   test("an unlisted id gets @security only and no annotation", () => {
@@ -77,7 +82,7 @@ test.describe("security quarantine list", () => {
 
   test("extra tags are appended after the quarantine tags; the P0 set passes TAGS.CORE", () => {
     expect(securityTestDetails(PASSING_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.CORE]);
-    expect(securityTestDetails(OPEN_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
+    expect(injectedSecurity.testDetails(SEC_INJECTED_ID, [TAGS.CORE]).tag).toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
   });
 
   test("an id that is not a scenario id is refused, so a typo cannot leave a test unquarantined", () => {
@@ -105,12 +110,12 @@ test.describe("security quarantine list", () => {
 
   test("quarantinedDefect names the defect of a listed id and nothing for an unlisted one", () => {
     expect(quarantinedDefect(LEFT_FIXED_LC_ID), "an id that left FIXED_ON_BRANCH").toBeUndefined();
-    expect(quarantinedDefect(OPEN_ID)).toBe(OPEN_DEFECTS[OPEN_ID]);
+    expect(quarantinedDefect("SEC-A10b"), "an id that left OPEN_DEFECTS").toBeUndefined();
     expect(quarantinedDefect(PASSING_ID)).toBeUndefined();
   });
 
   test("the default run leaves a quarantined security test out and E2E_INCLUDE_QUARANTINE brings it back", () => {
-    const quarantined = titleWithTags(OPEN_ID, securityTestDetails(OPEN_ID).tag);
+    const quarantined = titleWithTags(SEC_INJECTED_ID, injectedSecurity.testDetails(SEC_INJECTED_ID).tag);
     const passing = titleWithTags(PASSING_ID, securityTestDetails(PASSING_ID).tag);
     const defaultRun = grepInvertFor(runFlagsFromEnv({}));
     const withQuarantine = grepInvertFor(runFlagsFromEnv({ [RUN_FLAGS.INCLUDE_QUARANTINE]: "1" }));
@@ -128,7 +133,7 @@ test.describe("security quarantine list", () => {
     expect(securityCandidateDetails("SEC-A98a", "x", [TAGS.CORE]).tag, "extra tags last").toEqual([TAGS.SECURITY, TAGS.QUARANTINE, TAGS.CORE]);
     expect(() => securityCandidateDetails("SEC-A02", "x"), "pattern needs two digits").not.toThrow();
     expect(() => securityCandidateDetails("bad", "x")).toThrow(/is not a security scenario id/);
-    expect(() => securityCandidateDetails(OPEN_ID, "x"), "an id of a map").toThrow(/quarantine map/);
+    expect(() => injectedSecurity.candidateDetails(SEC_INJECTED_ID, "x"), "a listed id").toThrow(/quarantine map/);
     expect(() => securityCandidateDetails("SEC-A98a", "  "), "no measurement").toThrow(/names what was measured/);
   });
 

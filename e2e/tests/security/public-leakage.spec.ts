@@ -1,4 +1,4 @@
-import { apiRaw, getApp, setPublicToAll, updateApp } from "../../src/api/client";
+import { apiRaw, currentUser, getApp, setPublicToAll, updateApp } from "../../src/api/client";
 import {
   API_ERRORS,
   API_OK,
@@ -8,6 +8,7 @@ import {
   PRODUCTS,
   appViewPath,
   orgCommonSettingsPath,
+  orgUpdatePath,
   orgsByUserPath,
 } from "../../src/constants";
 import { SELECT_PRODUCTS_SQL, selectProductsQuery } from "../../src/datasource/notes-queries";
@@ -37,6 +38,10 @@ const DRAFT_QUERY_ID = "q2";
 const DRAFT_QUERY_NAME = "draftOnly";
 const DRAFT_QUERY_SQL = "SELECT 'e2e-sec-draft-only' AS marker";
 /** The top-level keys of a published view answer's `data` (measured on 3.0.0). */
+/** The workspace name SEC-A10b sets, so the name does not hold the address of its creator (a default name does). */
+const NEUTRAL_WORKSPACE_NAME = "e2e-neutral-workspace";
+/** The shared paged envelope of the anonymous e-mail lookup, sorted: `total` counts the listed workspaces. */
+const LOOKUP_ENVELOPE_KEYS = ["code", "data", "message", "pageNum", "pageSize", "success", "total"];
 const VIEW_DATA_KEYS = ["applicationDSL", "applicationInfoView", "moduleDSL", "orgCommonSettings", "templateId"];
 /** A key of the public view that would reveal a person or a connection. */
 const SENSITIVE_KEY = /mail|datasource|password|secret|token/i;
@@ -161,16 +166,28 @@ test.describe("security: routes that need no session", () => {
     expect(answer.body, "no user name in the answer").not.toContain(a.email);
   });
 
-  test("SEC-A10b an anonymous caller cannot learn which workspaces an e-mail address belongs to", securityTestDetails("SEC-A10b"), async ({ page, apiUser, newUserSession }) => {
+  test("SEC-A10b the anonymous e-mail lookup answers per workspace its id and name only, in the shared paged envelope (pin)", securityTestDetails("SEC-A10b"), async ({ page, apiUser, newUserSession }) => {
     const { a } = await sceneOf(page, apiUser);
     const anonymous = (await newUserSession()).page.request;
+    expectAnswer(await apiRaw(a.request, "PUT", orgUpdatePath(a.orgId), { data: { orgName: NEUTRAL_WORKSPACE_NAME } }), ALLOWED, "setup: A renames its workspace, so the name does not hold A's address");
+    expect((await currentUser(a.request)).orgAndRoles.find((entry) => entry.org.id === a.orgId)?.org.name, "setup: the new name is stored").toBe(NEUTRAL_WORKSPACE_NAME);
     expect((await apiRaw(a.request, "GET", orgsByUserPath(a.email))).body, "before: the lookup works and names A's workspace for a signed-in caller").toContain(a.orgId);
 
     const answer = await apiRaw(anonymous, "GET", orgsByUserPath(a.email));
 
-    // This row has no single desired answer, only "no org ids": it asserts the absence, after the signed-in
-    // control above proved the lookup itself works.
-    expect(answer.body, "no workspace id of A in the answer").not.toContain(a.orgId);
+    // The lookup stays open by the owner's decision (2026-11-26): the sign-in and sign-up pages need it to offer the login
+    // variants of a workspace. What is pinned is that each entry holds the id and the name the pages read, and nothing else.
+    expectAnswer(answer, ALLOWED, "the anonymous lookup");
+    const body = answer.json as Record<string, unknown>;
+    expect(Object.keys(body).sort(), "the shared paged envelope, nothing more").toEqual(LOOKUP_ENVELOPE_KEYS);
+    expect(body.data, "per workspace its id and name, exactly (no creation or update time)").toEqual([{ orgId: a.orgId, orgName: NEUTRAL_WORKSPACE_NAME }]);
+    expect(body.total, "the count of the listed workspaces").toBe(1);
+    expect(answer.body, "no address of A in the answer").not.toContain(a.email);
+    expect(answer.body, "no user id of A in the answer").not.toContain(a.userId);
+
+    const unknown = await apiRaw(anonymous, "GET", orgsByUserPath(`e2e-nobody-${Date.now()}@example.test`));
+    expectAnswer(unknown, ALLOWED, "the lookup of an address nobody signed up with");
+    expect({ data: (unknown.json as { data: unknown }).data, total: (unknown.json as { total: unknown }).total }, "answers no workspace").toEqual({ data: [], total: 0 });
   });
 
   test("SEC-A10c the metrics endpoint is not open to an anonymous caller", securityTestDetails("SEC-A10c"), async ({ page, apiUser, newUserSession }) => {
