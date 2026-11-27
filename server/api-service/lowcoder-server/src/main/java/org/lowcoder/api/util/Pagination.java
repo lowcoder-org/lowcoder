@@ -83,7 +83,7 @@ public class Pagination {
         if (pageSize <= 0) {
             return list;
         }
-        long fromIndex = Math.max(0L, (long) (pageNum - 1) * pageSize);
+        long fromIndex = Math.max(0L, ((long) pageNum - 1) * pageSize);
         long toIndex = Math.min((long) pageNum * pageSize, list.size());
         return fromIndex < toIndex ? list.subList((int) fromIndex, (int) toIndex) : emptyList();
     }

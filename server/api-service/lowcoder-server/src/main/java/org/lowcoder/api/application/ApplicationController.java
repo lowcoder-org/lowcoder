@@ -144,14 +144,14 @@ public class ApplicationController implements ApplicationEndpoints {
                             String tag = applicationRecord.getTag(); // Assuming format is 1.0.0
                             String newtag = "1.0.0";
 
-                            if (tag != null && tag.matches("\\d+\\.\\d+\\.\\d+")) { // Validate tag format
+                            if (tag != null && tag.matches(ApplicationPublishRequest.VERSION_TAG_PATTERN)) { // Validate tag format
                                 String[] parts = tag.split("\\."); // Split by "."
-                                int major = Integer.parseInt(parts[0]);
-                                int minor = Integer.parseInt(parts[1]);
-                                int patch = Integer.parseInt(parts[2]);
-
-                                patch++; // Increment the patch version
-                                newtag = String.format("%d.%d.%d", major, minor, patch);
+                                try {
+                                    // the pattern admits only parts that fit an int; the patch part is increased
+                                    newtag = String.format("%d.%d.%d", Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]) + 1);
+                                } catch (NumberFormatException e) {
+                                    // not reachable for a tag the pattern admits; keep 1.0.0, as for any tag that does not match
+                                }
                             }
 
                             return newtag;
