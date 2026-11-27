@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.mockito.ArgumentCaptor;
 import org.lowcoder.api.application.ApplicationEndpoints.*;
@@ -1205,6 +1206,53 @@ class ApplicationEndpointsTest {
 
         System.out.println("[ApplicationEndpointsTest] latest tag " + latestTag + " -> published tag " + published.getValue().tag());
         org.junit.jupiter.api.Assertions.assertEquals(expectedTag, published.getValue().tag());
+    }
+
+    /** The object id a gid or slug of the application resolves to. */
+    private static final String RESOLVED_APPLICATION_ID = "65f1a2b3c4d5e6f708192a3b";
+    /** A gid (has a hyphen) of the same application. */
+    private static final String APPLICATION_GID = "0b8e4c1e-2f5a-4c7e-9f61-1d2c3b4a5f60";
+    /** A slug of the same application. */
+    private static final String APPLICATION_SLUG = "salesboard";
+    /** The latest stored tag of the application, and the tag a publish counts on from it. */
+    private static final String LATEST_TAG = "1.2.3";
+    private static final String NEXT_TAG = "1.2.4";
+
+    /** Versions are stored under the object id: a publish addressed by gid or slug must count on from that application's latest tag. */
+    private ArgumentCaptor<ApplicationPublishRequest> stubPublishByKey(String key) {
+        when(gidService.convertApplicationIdToObjectId(key)).thenReturn(Mono.just(RESOLVED_APPLICATION_ID));
+        when(applicationRecordService.getLatestRecordByApplicationId(RESOLVED_APPLICATION_ID))
+                .thenReturn(Mono.just(ApplicationVersion.builder().tag(LATEST_TAG).build()));
+        when(applicationRecordService.getLatestRecordByApplicationId(key)).thenReturn(Mono.empty());
+        ApplicationView view = createMockApplicationView();
+        ArgumentCaptor<ApplicationPublishRequest> published = ArgumentCaptor.forClass(ApplicationPublishRequest.class);
+        when(applicationApiService.publish(eq(RESOLVED_APPLICATION_ID), published.capture())).thenReturn(Mono.just(view));
+        return published;
+    }
+
+    @ParameterizedTest(name = "key {0}")
+    @ValueSource(strings = {APPLICATION_GID, APPLICATION_SLUG})
+    void testPublish_withoutRequest_byGidOrSlug_countsOnTheResolvedApplicationsLatestTag(String key) {
+        ArgumentCaptor<ApplicationPublishRequest> published = stubPublishByKey(key);
+
+        StepVerifier.create(controller.publish(key, null)).expectNextCount(1).verifyComplete();
+
+        System.out.println("[ApplicationEndpointsTest] key " + key + " -> published tag " + published.getValue().tag());
+        org.junit.jupiter.api.Assertions.assertEquals(NEXT_TAG, published.getValue().tag());
+        Mockito.verify(businessEventPublisher).publishApplicationVersionChangeEvent(RESOLVED_APPLICATION_ID, NEXT_TAG);
+        Mockito.verify(applicationRecordService, Mockito.never()).getLatestRecordByApplicationId(key);
+    }
+
+    @Test
+    void testPublish_withRequest_byGid_firesTheVersionChangeForTheResolvedNextTag() {
+        ArgumentCaptor<ApplicationPublishRequest> published = stubPublishByKey(APPLICATION_GID);
+        ApplicationPublishRequest request = new ApplicationPublishRequest("msg", NEXT_TAG);
+
+        StepVerifier.create(controller.publish(APPLICATION_GID, request)).expectNextCount(1).verifyComplete();
+
+        System.out.println("[ApplicationEndpointsTest] key " + APPLICATION_GID + " with tag " + NEXT_TAG + " -> published tag " + published.getValue().tag());
+        org.junit.jupiter.api.Assertions.assertSame(request, published.getValue());
+        Mockito.verify(businessEventPublisher).publishApplicationVersionChangeEvent(RESOLVED_APPLICATION_ID, NEXT_TAG);
     }
 
     @Test
