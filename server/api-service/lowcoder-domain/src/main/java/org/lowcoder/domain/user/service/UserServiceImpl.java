@@ -245,6 +245,7 @@ public class UserServiceImpl implements UserService {
         return mongoUpsertHelper.updateById(user, userId);
     }
 
+    @Override
     public Mono<User> update(String id, User updatedUser) {
         return mongoUpsertHelper.updateById(updatedUser, id)
                 .flatMap(updated -> {

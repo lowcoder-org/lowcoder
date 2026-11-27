@@ -46,6 +46,7 @@ public class DatasourceStructureServiceImpl implements DatasourceStructureServic
     @Autowired
     private MongoUpsertHelper mongoUpsertHelper;
 
+    @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return getStructure0(datasourceId, ignoreCache)
                 .defaultIfEmpty(new DatasourceStructure())

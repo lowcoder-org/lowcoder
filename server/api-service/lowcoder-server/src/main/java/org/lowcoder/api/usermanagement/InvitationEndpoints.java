@@ -58,7 +58,7 @@ public interface InvitationEndpoints
 	public Mono<ResponseView<Boolean>> sendInvitationEmails(@RequestBody InviteEmailRequest req);
 	/**
 	 * @param emails email addresses to send the invitation to
-	 * @param inviteLink the link to be included in the email
+	 * @param orgId the id of the organization the invitation is for
 	 */
 	public record InviteEmailRequest(String[] emails, String orgId) {
 	}

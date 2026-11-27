@@ -110,6 +110,7 @@ public class DatasourceStructure {
         private String name;
         private List<String> columnNames;
 
+        @Override
         public String getType() {
             return "primary key";
         }
@@ -122,6 +123,7 @@ public class DatasourceStructure {
         private List<String> fromColumns;
         private List<String> toColumns;
 
+        @Override
         public String getType() {
             return "foreign key";
         }

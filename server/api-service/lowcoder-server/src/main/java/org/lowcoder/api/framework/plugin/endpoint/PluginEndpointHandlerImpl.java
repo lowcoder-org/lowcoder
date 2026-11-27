@@ -137,7 +137,7 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		{
 			if (handler.isAnnotationPresent(EndpointExtension.class))
 			{
-				log.debug("Not registering plugin endpoint method: {} -> {}! Handler method must be defined as: public EndpointResponse methodName(EndpointRequest request)", endpoint.getClass().getSimpleName(), handler.getName(), handler.getName());
+				log.debug("Not registering plugin endpoint method: {} -> {}! Handler method must be defined as: public EndpointResponse methodName(EndpointRequest request)", endpoint.getClass().getSimpleName(), handler.getName());
 			}
 			return;
 		}

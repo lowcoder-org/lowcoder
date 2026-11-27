@@ -13,6 +13,7 @@ import java.util.Collection;
 public interface TemplateRepository extends ReactiveMongoRepository<Template, String> {
 
     @Nonnull
+    @Override
     Mono<Template> findById(@Nonnull String id);
 
     Flux<Template> findByApplicationIdIn(Collection<String> applicationId);
