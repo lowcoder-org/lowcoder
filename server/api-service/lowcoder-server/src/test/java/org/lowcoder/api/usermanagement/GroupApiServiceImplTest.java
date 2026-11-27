@@ -1164,6 +1164,24 @@ class GroupApiServiceImplTest {
      * Catches a user query for an org whose members are all in the group already: total 0, no members, and the user
      * service is not consulted.
      */
+    /**
+     * Catches a page number below 1 reaching {@code PageRequest.of(pageNum - 1, ...)}, which throws a raw
+     * {@code IllegalArgumentException} (HTTP 500, code 5000): it is the page-number parameter error of every other paged route.
+     */
+    @ParameterizedTest(name = "page {0}")
+    @ValueSource(ints = {0, -3})
+    void getPotentialGroupMembers_pageNumBelowOne_isInvalidPageNumber(int pageNum) {
+        stubPotentialMembers(ORG_ID, List.of("m1", "m2", "m3"), List.of("m2"));
+
+        StepVerifier.create(service.getPotentialGroupMembers(GROUP_ID, null, pageNum, 2))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(BizException.class);
+                    assertThat(((BizException) error).getError()).isEqualTo(BizError.INVALID_PARAMETER);
+                    say("getPotentialGroupMembers: page %d -> %s", pageNum, error);
+                })
+                .verify();
+    }
+
     @Test
     void getPotentialGroupMembers_everyOrgMemberAlreadyInGroup_returnsEmptyWithoutUserQuery() {
         stubPotentialMembers(ORG_ID, List.of("m1", "m2"), List.of("m1", "m2", "outsider"));

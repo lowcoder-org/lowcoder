@@ -2,6 +2,10 @@ package org.lowcoder.api.application;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.lowcoder.domain.application.model.ApplicationVersion;
+import org.mockito.ArgumentCaptor;
 import org.lowcoder.api.application.ApplicationEndpoints.*;
 import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -1170,6 +1174,37 @@ class ApplicationEndpointsTest {
         StepVerifier.create(result)
                 .expectError(RuntimeException.class)
                 .verify();
+    }
+
+    /**
+     * The version tag of a publish without a request body is the latest stored tag with its patch part increased, or 1.0.0
+     * when there is none or it is not three numbers. A tag is stored as the publisher sent it, so a part too long for an
+     * int ({@code 1.0.99999999999}) must not make every later publish of the application fail with a NumberFormatException
+     * (HTTP 500); it counts as "not three numbers", like any other tag that does not match.
+     */
+    @ParameterizedTest(name = "latest tag [{0}] -> published tag [{1}]")
+    @CsvSource(value = {
+            "1.2.3,1.2.4",
+            "1.2.999999999,1.2.1000000000",
+            "1.0.99999999999,1.0.0",
+            "1.0.2147483648,1.0.0",
+            "99999999999.0.0,1.0.0",
+            "1.0,1.0.0",
+            "release,1.0.0"})
+    void testPublish_withoutRequest_newTagFollowsTheLatestStoredTag(String latestTag, String expectedTag) {
+        when(applicationRecordService.getLatestRecordByApplicationId(TEST_APPLICATION_ID))
+                .thenReturn(Mono.just(ApplicationVersion.builder().tag(latestTag).build()));
+        ArgumentCaptor<ApplicationPublishRequest> published = ArgumentCaptor.forClass(ApplicationPublishRequest.class);
+        ApplicationView publishedView = createMockApplicationView();
+        when(applicationApiService.publish(eq(TEST_APPLICATION_ID), published.capture()))
+                .thenReturn(Mono.just(publishedView));
+
+        StepVerifier.create(controller.publish(TEST_APPLICATION_ID, null))
+                .assertNext(response -> org.junit.jupiter.api.Assertions.assertTrue(response.isSuccess()))
+                .verifyComplete();
+
+        System.out.println("[ApplicationEndpointsTest] latest tag " + latestTag + " -> published tag " + published.getValue().tag());
+        org.junit.jupiter.api.Assertions.assertEquals(expectedTag, published.getValue().tag());
     }
 
     @Test

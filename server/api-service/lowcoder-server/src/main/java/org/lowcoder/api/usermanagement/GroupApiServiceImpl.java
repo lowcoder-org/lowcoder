@@ -430,6 +430,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             .build());
                                 }
 
+                                Pagination.of(pageNum, pageSize).check();
                                 Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
                                 String searchRegex = searchName != null && !searchName.isBlank() ? ".*" + Pattern.quote(searchName) + ".*" : ".*";
 

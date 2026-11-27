@@ -12,6 +12,7 @@ import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
@@ -142,6 +143,7 @@ public class UserController implements UserEndpoints
                                              @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         return sessionUserService.getVisitor()
                 .flatMap(user -> {
+                    Pagination.of(pageNum, pageSize).check();
                     Pageable pageable = PageRequest.of(pageNum - 1, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
                     String filter = orgName == null ? "" : orgName;
                     Mono<String> currentOrgIdMono = sessionUserService.getVisitorOrgMemberCache()
