@@ -47,8 +47,12 @@ function isSafePathSegment(value: unknown): value is string {
 const UPSTREAM_ERROR_MIN_STATUS = 400;
 const UPSTREAM_ERROR_MAX_STATUS = 599;
 
+// What a client reads when the registry answers a tarball request with an error: the status passes through, the
+// registry's own text does not (it is upstream data and is only logged).
+const UPSTREAM_ERROR_MESSAGE = "The package registry responded with an error";
+
 class UpstreamResponseError extends Error {
-    constructor(public readonly status: number, public readonly body: string) {
+    constructor(public readonly status: number) {
         super(`Upstream responded ${status}`);
     }
 }
@@ -89,6 +93,20 @@ class PackageProcessingQueue {
  * Initializes npm registry cache directory
  */
 const CACHE_DIR = process.env.NPM_CACHE_DIR || "/tmp/npm-package-cache";
+
+/**
+ * The absolute form of {@code candidate}, which must be the cache directory or lie inside it; anything else throws.
+ * Every path the unpack step creates, writes or removes goes through it, so a workspace or package name that spelled a
+ * way out of the cache could not reach it, whatever the earlier validation let through.
+ */
+export function pathInsideCache(candidate: string): string {
+    const cacheRoot = pathlib.resolve(CACHE_DIR);
+    const resolved = pathlib.resolve(candidate);
+    if (resolved !== cacheRoot && !resolved.startsWith(cacheRoot + pathlib.sep)) {
+        throw new Error(`Path outside the package cache: ${resolved}`);
+    }
+    return resolved;
+}
 try {
     fs.mkdir(CACHE_DIR, { recursive: true });
 } catch (error) {
@@ -257,8 +275,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
                 } catch (error) {
                     logger.error(`Error fetching package: ${error} ${(error as any)?.stack}`);
                     if (error instanceof UpstreamResponseError && error.status >= UPSTREAM_ERROR_MIN_STATUS && error.status <= UPSTREAM_ERROR_MAX_STATUS) {
-                        // upstream error text, passed through as plain text so a browser never renders it as HTML
-                        return response.status(error.status).type("text/plain").send(error.body);
+                        return response.status(error.status).type("text/plain").send(UPSTREAM_ERROR_MESSAGE);
                     }
                     return response.status(500).send("Internal server error");
                 }
@@ -345,20 +362,22 @@ async function fetchAndUnpackTarball(url: string, packageId: string, packageVers
     // Fetch tarball
     const response: Response = await fetchFromRegistry(url, config);
     if (!response.ok) {
-        throw new UpstreamResponseError(response.status, await response.text());
+        logger.error(`Registry answered the tarball request with ${response.status}: ${await response.text()}`);
+        throw new UpstreamResponseError(response.status);
     }
-    if (!await fileExists(baseDir)) {
-        await fs.mkdir(baseDir, { recursive: true });
+    const cacheBase = pathInsideCache(baseDir);
+    if (!await fileExists(cacheBase)) {
+        await fs.mkdir(cacheBase, { recursive: true });
     }
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     // a name of our own: the last segment of the registry's tarball URL is upstream data and must not name a file
-    const path = `${baseDir}/${randomUUID()}.tgz`;
+    const path = pathInsideCache(`${cacheBase}/${randomUUID()}.tgz`);
+    const destinationPath = pathInsideCache(`${cacheBase}/${packageId}/${packageVersion}`);
     await fs.writeFile(path, buffer);
 
     // Unpack tarball, and remove the .tgz whether or not tar succeeds
     try {
-        const destinationPath = `${baseDir}/${packageId}/${packageVersion}`;
         await fs.mkdir(destinationPath, { recursive: true });
         await new Promise<void> ((resolve, reject) => {
             const tar = spawn("tar", ["-xvf", path, "-C", destinationPath]);

@@ -39,6 +39,8 @@ const PLAIN_TEXT_TYPE = "text/plain; charset=utf-8";
 const STATUS_MULTIPLE_CHOICES = 300;
 const STATUS_ABOVE_HTTP_ERROR_RANGE = 600;
 const INTERNAL_ERROR_MESSAGE = "Internal server error";
+/** What a client reads when the registry answers a tarball request with an error: the status, not the registry's text. */
+const UPSTREAM_ERROR_MESSAGE = "The package registry responded with an error";
 const NOT_FOUND_MESSAGE = "Not found";
 const TARBALL_DELAY_MS = 60;
 const CONCURRENT_REQUESTS = 8;
@@ -884,7 +886,7 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     );
 
     expect(results).toEqual(
-      Array.from({ length: CONCURRENT_REQUESTS }, () => ({ status: STATUS_NOT_FOUND, text: "tarball gone" }))
+      Array.from({ length: CONCURRENT_REQUESTS }, () => ({ status: STATUS_NOT_FOUND, text: UPSTREAM_ERROR_MESSAGE }))
     );
 
     publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "recovered" }) } }, "1.0.0");
@@ -1033,7 +1035,7 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     };
   }
 
-  test("an upstream 503 for the tarball is passed through with its body", async () => {
+  test("an upstream 503 for the tarball is passed through as a status with a fixed message", async () => {
     const name = uniqueName();
     const ws = uniqueWorkspace();
     publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
@@ -1044,12 +1046,12 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
       npmRegistries: registries(),
     });
 
-    expect(result).toEqual({ status: STATUS_SERVICE_UNAVAILABLE, text: "maintenance" });
+    expect(result).toEqual({ status: STATUS_SERVICE_UNAVAILABLE, text: UPSTREAM_ERROR_MESSAGE });
     expect(leftoverTarballs(ws)).toEqual([]);
     expect(fs.existsSync(path.join(cacheDir, ws))).toBe(false);
   });
 
-  test("an upstream error text is passed through as plain text, never as HTML", async () => {
+  test("the registry's own error text never reaches the client: a fixed plain-text message does", async () => {
     const name = uniqueName();
     const ws = uniqueWorkspace();
     publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
@@ -1067,7 +1069,7 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
 
     expect({ status: res.status, text: await res.text(), type: res.headers.get("content-type") }).toEqual({
       status: STATUS_SERVICE_UNAVAILABLE,
-      text: HTML_ERROR_BODY,
+      text: UPSTREAM_ERROR_MESSAGE,
       type: PLAIN_TEXT_TYPE,
     });
   });
@@ -1151,7 +1153,7 @@ describe("POST /npm/package/* (fetchPackageFileWithConfig)", () => {
     publish(name, { "1.0.0": { tarball: "unused" } }, "1.0.0");
     failTarball(name, STATUS_NOT_FOUND, "missing");
     const first = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body);
-    expect(first).toEqual({ status: STATUS_NOT_FOUND, text: "missing" });
+    expect(first).toEqual({ status: STATUS_NOT_FOUND, text: UPSTREAM_ERROR_MESSAGE });
 
     publish(name, { "1.0.0": { tarball: buildTarball({ [PKG_JSON_FILE]: "{}", [INDEX_JS]: "second try" }) } }, "1.0.0");
     const second = await post(appBase, `${PACKAGE_BASE}/${name}@1.0.0/${INDEX_JS}`, body);
@@ -1314,5 +1316,31 @@ describe("fetchRegistry and fetchPackageFile (exported, not routed) use the sing
     expect(result).toEqual({ status: STATUS_OK, text: content });
     expect(fs.existsSync(unpackedDir(DEFAULT_WORKSPACE, name, "1.0.0"))).toBe(true);
     expect(recorded.map((r) => r.authorization)).toEqual([`Bearer ${BEARER_TOKEN}`, `Bearer ${BEARER_TOKEN}`]);
+  });
+});
+
+describe("pathInsideCache: every path of the unpack step stays inside the cache directory", () => {
+  const OUTSIDE_SUFFIX = "-evil";
+  // the module the suite already loaded for this cache directory (a further load would race the final clean-up)
+  const pathInsideCache = (candidate: string): string => npm.pathInsideCache(candidate);
+  let cacheRoot: string;
+
+  beforeAll(() => {
+    cacheRoot = path.resolve(cacheDir);
+  });
+
+  test("the cache directory itself and paths below it are returned in their absolute form", () => {
+    expect(pathInsideCache(cacheDir)).toBe(cacheRoot);
+    expect(pathInsideCache(`${cacheDir}/ws/@scope/pkg/1.0.0`)).toBe(path.join(cacheRoot, "ws", "@scope", "pkg", "1.0.0"));
+  });
+
+  test.each([
+    ["a parent segment that leaves the cache", (root: string) => `${root}/ws/../../outside`],
+    ["the parent directory", (root: string) => `${root}/..`],
+    ["a sibling whose name starts with the cache directory's name", (root: string) => `${root}${OUTSIDE_SUFFIX}/ws`],
+    ["an absolute path elsewhere", () => os.tmpdir() + "/elsewhere"],
+  ])("%s is refused", (_label, build) => {
+    const candidate = build(cacheDir);
+    expect(() => pathInsideCache(candidate)).toThrow("Path outside the package cache");
   });
 });
